@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu";
 import md5 = require("js-md5");
-import { ValueStore } from "maishu-chitu-service";
+import { LocalValueStore } from "maishu-chitu-service";
 import { errors } from "errors";
 import websiteConfig = require("json!websiteConfig");
 import { User } from "permission-entities"
@@ -12,7 +12,7 @@ export interface LoginInfo {
 
 export class PermissionService extends Service {
 
-    token = new ValueStore<string>("token");
+    static token = window["token"] = window["token"] || new LocalValueStore<string>("token");
 
     private url(path: string) {
         return `${location.protocol}//${websiteConfig.gateway}/permission/${path}`;
@@ -25,7 +25,7 @@ export class PermissionService extends Service {
         password = md5(password);
         let url = this.url("user/login");
         let r = await this.postByJson<LoginInfo>(url, { username, password });
-        this.token.value = r.token;
+        PermissionService.token.value = r.token;
 
         return r;
     }

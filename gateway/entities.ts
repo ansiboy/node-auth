@@ -66,6 +66,7 @@ export class Role {
      * @param userId 指定的用户 ID
      */
     static async getUserRoleIds(userId: string): Promise<string[]> {
+        //TODO: 缓存 roleids
         let dc = await createDataContext(g.settings.db);
         let userRoles = await dc.userRoles.find({ user_id: userId });
         return userRoles.map(o => o.role_id);
@@ -82,6 +83,6 @@ export class UserRole {
 
     @ManyToOne(() => Role, role => role.userRoles)
     @JoinColumn({ name: "role_id", referencedColumnName: "id" })
-    role: Role;
+    role?: Role;
 }
 

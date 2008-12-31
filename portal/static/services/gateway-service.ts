@@ -1,5 +1,6 @@
 import { Service } from "maishu-chitu";
 import websiteConfig = require("json!websiteConfig");
+import { Role } from "gateway-entities";
 
 export class GatewayService extends Service {
     private url(path: string) {
@@ -16,5 +17,10 @@ export class GatewayService extends Service {
         let url = this.url("station/list");
         let r = await this.get<{ path: string }[]>(url);
         return r;
+    }
+
+    myRoles() {
+        let url = this.url("user/myRoles");
+        return this.get<Role[]>(url);
     }
 }

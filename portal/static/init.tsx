@@ -28,7 +28,20 @@ export default async function (args: InitArguments) {
 
     await initStations(stationPaths, args);
 
-    gatewayService.myMenuItems().then(menuItems => {
+
+    PermissionService.token.attach(async token => {
+        if (!token) {
+            args.mainMaster.setMenu(...[]);
+            args.mainMaster.setToolbar(<></>);
+            return;
+        }
+
+        let [menuItems, me, myRoles] = await Promise.all([
+            gatewayService.myMenuItems(),
+            permissionService.me(),
+            gatewayService.myRoles(),
+        ]);
+
         let stack = [...menuItems];
         while (stack.length > 0) {
             let menuItem = stack.shift();
@@ -37,7 +50,7 @@ export default async function (args: InitArguments) {
                 let path = menuItem.path.substr(1);
                 let stationPath = menuItem["stationPath"];
                 console.assert(stationPath != null);
-                menuItem.path = `#${stationPath}${path}`;
+                menuItem.path = `#${stationPath}:${path}`;
             }
 
             (menuItem.children || []).forEach(child => {
@@ -46,9 +59,7 @@ export default async function (args: InitArguments) {
         }
 
         args.mainMaster.setMenu(...menuItems);
-    })
 
-    permissionService.me().then(me => {
         args.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
             <li className="pull-right" style={{ marginLeft: 10 }}>
                 <i className="icon-off" style={{ marginRight: 4 }} />
@@ -56,14 +67,11 @@ export default async function (args: InitArguments) {
             </li>
             <li className="pull-right">
                 <span>
-                    {me.mobile || me.user_name}({(me.roles || []).map(o => o.name).join(" ")})
+                    {me.mobile || me.user_name}({myRoles.map(o => o.name)})
                 </span>
             </li>
-        </ul>)
+        </ul>);
     })
-
-
-
 }
 
 
@@ -81,7 +89,8 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
         return showPage.apply(this, [pageUrl, args, forceRender]);
     }
 
-    app.loadjs = function (path: string) {
+    console.assert(app["loadjs"] != null);
+    app["loadjs"] = function (path: string) {
 
         const modulesPath = "modules/";
         console.assert(path.startsWith(modulesPath));
@@ -89,20 +98,44 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
 
         let reqConfig: RequireConfig = {};
         let req: RequireJS = requirejs;
-        for (let i = 0; i < stationPaths.length; i++) {
-            if (path.startsWith(stationPaths[i])) {
-                path = path.substr(stationPaths[i].length);
-                path = `${stationPaths[i]}${modulesPath}${path}`;
-
-                reqConfig.context = stationPaths[i];
-                req = contextRequireJSs[stationPaths[i]];
-                break;
+        if (path.indexOf(":") >= 0) {
+            let arr = path.split(":");
+            let stationPath = arr[0];
+            if (stationPath.startsWith("/") == false) {
+                stationPath = "/" + stationPath;
+            }
+            if (stationPath.endsWith("/") == false) {
+                stationPath = stationPath + "/";
             }
 
-            if (i == stationPaths.length - 1) {
-                path = `${modulesPath}${path}`;
-            }
+            path = `${stationPath}${modulesPath}${arr[1]}`;
+            reqConfig = { context: stationPath };
+            req = contextRequireJSs[stationPath];
+            console.assert(req != null);
         }
+        else {
+            path = modulesPath + path;
+            req = requirejs;
+        }
+
+        // console.assert(path.startsWith(modulesPath));
+        // path = path.substr(modulesPath.length);
+
+
+        // for (let i = 0; i < stationPaths.length; i++) {
+        //     if (path.startsWith(stationPaths[i])) {
+        //         path = path.substr(stationPaths[i].length);
+        //         path = `${stationPaths[i]}${modulesPath}${path}`;
+
+        //         reqConfig.context = stationPaths[i];
+        //         req = contextRequireJSs[stationPaths[i]];
+        //         break;
+        //     }
+
+        //     if (i == stationPaths.length - 1) {
+        //         path = `${modulesPath}${path}`;
+        //     }
+        // }
 
         return new Promise<any>((reslove, reject) => {
             req([path],

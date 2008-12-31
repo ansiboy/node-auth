@@ -47,4 +47,9 @@ export class GatewayService extends Service {
         let url = this.url("role/update");
         return this.postByJson(url, { item });
     }
+
+    myRoles() {
+        let url = this.url("user/myRoles");
+        return this.get<Role[]>(url);
+    }
 }

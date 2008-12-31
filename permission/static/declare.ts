@@ -10,7 +10,7 @@ declare module "js-md5" {
 
 
 declare module "json!websiteConfig" {
-    let a: import("maishu-chitu-admin/static").WebsiteConfig & WebsiteConfigExt;
+    let a: PermissionWebsiteConfig;
     export = a;
 }
 

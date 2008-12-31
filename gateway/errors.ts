@@ -19,8 +19,11 @@ export let errors = {
         error.name = `${statusCodes.fieldNull} ${errors.routeDataFieldNull.name}`;
         return error;
     },
-    userNotLogin(requestURL: string): Error {
-        let msg = `User id is required.request url is ${requestURL}.`;
+    userNotLogin(requestURL?: string): Error {
+        let msg = `User id is required.`;
+        if (requestURL) {
+            msg = msg + `request url is ${requestURL}.`;
+        }
         let err = new Error(msg);
         err.name = `${statusCodes.userNotLogin} ${errors.userNotLogin.name}`;
 

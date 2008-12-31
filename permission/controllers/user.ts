@@ -170,7 +170,7 @@ export default class UserController {
                 break
         }
 
-        user = await dc.users.findOne({ where, relations: ["roles"] });
+        user = await dc.users.findOne({ where, relations: [] });
         if (user == null) {
             throw errors.usernameOrPasswordIncorrect(username)
         }
@@ -255,6 +255,9 @@ export default class UserController {
     /** 获取登录用户的信息 */
     @action()
     async me(@currentUser user: User) {
+        if (!user)
+            return null;
+
         return {
             id: user.id, mobile: user.mobile, user_name: user.user_name,
             // roles: user.roles,

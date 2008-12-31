@@ -1,5 +1,4 @@
 import { controller, action, getLogger, request, response } from "maishu-node-mvc";
-import { StationController } from "./station";
 import { constants, g } from "../global";
 import { WebsiteConfig } from "../types";
 import http = require("http");
@@ -7,6 +6,7 @@ import url = require("url");
 import fetch from "node-fetch";
 import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
+import { Role } from "../entities";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -53,10 +53,7 @@ export class ResourceController {
         if (!tokenData)
             throw errors.userNotLogin(req.url);
 
-        let logger = getLogger(constants.projectName, g.settings.logLevel);
-        logger.info(`User roleds '${tokenData.role_ids}'`);
-
-        let userRoleIds = tokenData.role_ids || [];
+        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id);
         let menuItems = await this.list(req);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 

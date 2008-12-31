@@ -8,6 +8,7 @@ import { errorHandle } from "maishu-chitu-admin/static";
 import { PageProps } from "maishu-chitu-react";
 import { errors } from "errors";
 import { BasePage } from "components/pages/base-page";
+import { Role } from "gatewayEntities";
 
 const NEW_PASSWORD = "new_password";
 const VERIFY_CODE = "verify_code";
@@ -17,6 +18,7 @@ interface State {
     verifyCode?: string,
     newPassword?: string,
     mobile?: string,
+    roles?: Role[],
 }
 
 export default class ChagePasswordPage extends BasePage<PageProps, State>{

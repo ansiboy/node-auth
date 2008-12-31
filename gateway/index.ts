@@ -1,6 +1,6 @@
-import { g, constants, tokenDataHeaderNames, tokenName } from "./global";
+import { g, constants, tokenDataHeaderNames, tokenName, guid } from "./global";
 import { startServer, Settings as MVCSettings, getLogger } from "maishu-node-mvc";
-import { Settings } from "./types";
+import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
 import { loginFilter } from "./filters/login-filter";
@@ -8,12 +8,14 @@ import Cookies = require("cookies");
 import { TokenManager } from "./token";
 import http = require("http");
 import path = require("path");
-import { createDatabaseIfNotExists, initDatabase } from "./data-context";
+import { createDatabaseIfNotExists, initDatabase, createDataContext } from "./data-context";
 import { roleIds } from "./global"
+import { statusCodes } from "./status-codes";
+import { TokenData } from "./entities";
 
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
-export { createDatabaseIfNotExists } from "./data-context";
+export { createDatabaseIfNotExists, createDataContext } from "./data-context";
 
 
 export { statusCodes } from "./status-codes";
@@ -31,7 +33,10 @@ export async function start(settings: Settings) {
     let proxy: MVCSettings["proxy"] = {};
     settings.proxy = settings.proxy || {};
     for (let key in settings.proxy) {
-        proxy[key] = { targetUrl: settings.proxy[key], headers: proxyHeader }
+        proxy[key] = {
+            targetUrl: settings.proxy[key], headers: proxyHeader,
+            response: proxyResponseHandle
+        }
     }
     let requestFilters = settings.requestFilters || [];
     requestFilters.unshift(loginFilter);
@@ -41,7 +46,7 @@ export async function start(settings: Settings) {
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
 
     settings.virtualPaths = settings.virtualPaths || {};
-    settings.virtualPaths["node_modules"] = path.join(__dirname, "node_modules");
+    settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
 
     let r = startServer({
         proxy, requestFilters,
@@ -60,13 +65,38 @@ export async function start(settings: Settings) {
             let key = `^${stations[i].path}(\\S*)`;
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {
-                proxy[key] = { targetUrl, headers: proxyHeader };
+                proxy[key] = { targetUrl, headers: proxyHeader, response: proxyResponseHandle };
             }
 
             if (stations[i].permissions) {
                 Object.assign(settings.permissions, stations[i].permissions);
             }
         }
+    })
+}
+
+async function proxyResponseHandle(proxyResponse: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) {
+
+    if (proxyResponse.statusCode != statusCodes.login) {
+        proxyResponse.pipe(res);
+        return;
+    }
+
+    let buffers: Buffer[] = [];
+    proxyResponse.on("data", function (chunk: Buffer) {
+        buffers.push(chunk);
+    })
+    proxyResponse.on("end", function () {
+        let buffer = Buffer.concat(buffers);
+
+        let loginResult: LoginResult = JSON.parse(buffer.toString());
+        let tokenData = createTokenData(loginResult.userId);
+        loginResult.token = tokenData.id;
+
+        let cookies = new Cookies(req, res);
+        cookies.set(tokenName, tokenData.id);
+        res.write(JSON.stringify(loginResult));
+        res.end();
     })
 }
 
@@ -93,5 +123,22 @@ async function proxyHeader(req: http.IncomingMessage) {
     header[tokenDataHeaderNames.userId] = token.user_id;
 
     return header
+}
+
+function createTokenData(userId: string): TokenData {
+    let tokenData: TokenData = {
+        id: guid(), user_id: userId,
+        create_date_time: new Date(Date.now())
+    }
+
+    let logger = getLogger(`${constants.projectName}:${createTokenData.name}`, g.settings.logLevel);
+    createDataContext(g.settings.db).then(dc => {
+        return dc.tokenDatas.insert(tokenData);
+    }).catch(err => {
+        logger.error(err);
+    })
+
+
+    return tokenData;
 }
 

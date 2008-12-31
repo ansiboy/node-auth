@@ -3,8 +3,9 @@ import { authDataContext, AuthDataContext, dataList } from "../data-context";
 import { Role } from "../entities";
 import { errors } from "../errors";
 import { guid } from "maishu-chitu-service";
+import { constants } from "../global";
 
-@controller("role")
+@controller(`${constants.controllerPathRoot}/role`)
 export default class RoleController {
     @action()
     async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Role }) {

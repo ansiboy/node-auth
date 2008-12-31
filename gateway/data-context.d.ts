@@ -33,3 +33,4 @@ export declare function dataList<T>(repository: Repository<T>, options: {
     fields?: Extract<keyof T, string>[];
 }): Promise<SelectResult<T>>;
 export declare function initDatabase(connConfig: ConnectionConfig): Promise<void>;
+export declare let currentUserId: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;

@@ -11,13 +11,13 @@ export type Settings = {
 export function start(settings: Settings) {
 
     let permissions: PermissionConfig = {};
-    permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymousRoleId] };
+    permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymous] };
 
     startAdmin({
         port: settings.port,
         rootDirectory: __dirname,
         virtualPaths: {
-            node_modules: path.join(__dirname, "node_modules"),
+            node_modules: path.join(__dirname, "../node_modules"),
         },
         station: {
             gateway: settings.gateway,

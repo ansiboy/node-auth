@@ -64,7 +64,6 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
 
 
     connection = getConnection(connConfig.database);
-    // console.assert(connection == connection1);
 
     let dc = new PermissionDataContext(connection.manager);
     return dc
@@ -86,7 +85,7 @@ export let currentUser = createParameterDecorator(async (req, res) => {
         return null;
 
     let dc = await createDataContext(settings.db);
-    let user = await dc.users.findOne(userId, { relations: ["roles"] });
+    let user = await dc.users.findOne(userId);
 
     if (!user)
         throw errors.objectNotExistWithId(userId, "User");
@@ -106,51 +105,10 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
 export async function initDatabase(db: ConnectionConfig) {
     if (!db) throw errors.argumentNull("db");
     let dc = await createDataContext(db);
-    // await initRoleTable(dc);
     await initUserTable(dc);
-
 }
 
-// async function initRoleTable(dc: PermissionDataContext) {
-//     let count = await dc.roles.count();
-//     if (count > 0)
-//         return;
-
-//     let adminRole: Role = {
-//         id: roleIds.adminRoleId,
-//         name: "管理员",
-//         remark: "系统预设的管理员",
-//         create_date_time: new Date(Date.now()),
-//     }
-
-//     await dc.roles.save(adminRole);
-
-//     let anonymousRole: Role = {
-//         id: roleIds.anonymousRoleId,
-//         name: "匿名用户组",
-//         remark: "系统预设的匿名用户组",
-//         create_date_time: new Date(Date.now()),
-//     }
-
-//     await dc.roles.save(anonymousRole);
-
-//     let normalUserRole: Role = {
-//         id: roleIds.normalUserRoleId,
-//         name: "普通用户",
-//         remark: "",
-//         create_date_time: new Date(Date.now()),
-//     }
-
-//     await dc.roles.save(normalUserRole);
-// }
-
 async function initUserTable(dc: PermissionDataContext) {
-    let count = await dc.users.count();
-    if (count > 0)
-        return;
-
-    // let adminRole = await dc.roles.findOne(roleIds.adminRoleId);
-
     let admin: User = {
         id: userIds.admin,
         mobile: adminMobile,
@@ -158,14 +116,10 @@ async function initUserTable(dc: PermissionDataContext) {
         user_name: "admin",
         create_date_time: new Date(Date.now()),
         is_system: true,
-        // roles: [adminRole]
     }
 
     await dc.users.save(admin);
 
 }
 
-// async function initResource(dc: AuthDataContext) {
-
-// }
 

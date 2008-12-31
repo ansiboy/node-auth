@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu-admin/static";
 import { errors } from "errors";
-import { Role, Resource, User } from "entities";
+import { Resource, User } from "entities";
 import { TokenData } from "gatewayEntities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
 import websiteConfig = require("json!websiteConfig");
@@ -140,13 +140,13 @@ class ServiceModule {
 
 class UserModule extends ServiceModule {
 
-    role = {
-        list: async (userId: string) => {
-            let url = this.url("user/role/list");
-            let r = await this.getByJson<Role[]>(url, { userId });
-            return r;
-        }
-    }
+    // role = {
+    //     list: async (userId: string) => {
+    //         let url = this.url("user/role/list");
+    //         let r = await this.getByJson<Role[]>(url, { userId });
+    //         return r;
+    //     }
+    // }
 
     /** 获取用户列表 */
     async list(args?: DataSourceSelectArguments) {

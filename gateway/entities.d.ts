@@ -20,5 +20,5 @@ export declare class Role {
 export declare class UserRole {
     user_id: string;
     role_id: string;
-    role: Role;
+    role?: Role;
 }

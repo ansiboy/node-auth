@@ -44,26 +44,26 @@ let gatewayStationSettings: GatewaySettings = {
         'Access-Control-Allow-Headers': '*'
     },
     permissions: {
-        "/": { roleIds: [roleIds.anonymousRoleId] },
-        "/socket.io/*": { roleIds: [roleIds.anonymousRoleId] },
-        "/socket*": { roleIds: [roleIds.anonymousRoleId] },
-        "*.js": { roleIds: [roleIds.anonymousRoleId] },
-        "*.html": { roleIds: [roleIds.anonymousRoleId] },
-        "*.css": { roleIds: [roleIds.anonymousRoleId] },
-        "*.less": { roleIds: [roleIds.anonymousRoleId] },
-        "*.jpg": { roleIds: [roleIds.anonymousRoleId] },
-        "*.png": { roleIds: [roleIds.anonymousRoleId] },
-        "*.woff": { roleIds: [roleIds.anonymousRoleId] },
-        "*.map": { roleIds: [roleIds.anonymousRoleId] },
+        "/": { roleIds: [roleIds.anonymous] },
+        "/socket.io/*": { roleIds: [roleIds.anonymous] },
+        "/socket*": { roleIds: [roleIds.anonymous] },
+        "*.js": { roleIds: [roleIds.anonymous] },
+        "*.html": { roleIds: [roleIds.anonymous] },
+        "*.css": { roleIds: [roleIds.anonymous] },
+        "*.less": { roleIds: [roleIds.anonymous] },
+        "*.jpg": { roleIds: [roleIds.anonymous] },
+        "*.png": { roleIds: [roleIds.anonymous] },
+        "*.woff": { roleIds: [roleIds.anonymous] },
+        "*.map": { roleIds: [roleIds.anonymous] },
 
-        "/favicon.ico": { roleIds: [roleIds.anonymousRoleId] },
-        "/auth/user/login": { roleIds: [roleIds.anonymousRoleId] },
+        "/favicon.ico": { roleIds: [roleIds.anonymous] },
+        "/auth/user/login": { roleIds: [roleIds.anonymous] },
 
-        "/auth/station/list": { roleIds: [roleIds.anonymousRoleId] },
-        "/auth/station/register": { roleIds: [roleIds.anonymousRoleId] },
+        "/auth/station/list": { roleIds: [roleIds.anonymous] },
+        "/auth/station/register": { roleIds: [roleIds.anonymous] },
 
-        "/AdminMember/*": { roleIds: [roleIds.adminRoleId] },
-        "/UserMember/*": { roleIds: [roleIds.adminRoleId] },
+        "/AdminMember/*": { roleIds: [roleIds.anonymous] },
+        "/UserMember/*": { roleIds: [roleIds.anonymous] },
     },
 
 }

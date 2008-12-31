@@ -4,7 +4,8 @@ import { createConnection, EntityManager, Repository, Connection, Db, getConnect
 import path = require("path");
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, getLogger } from "maishu-node-mvc";
-import { g, constants, roleIds } from "./global";
+import { g, constants, roleIds, userIds } from "./global";
+import { getTokenData } from "./filters/authenticate";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -210,4 +211,23 @@ export async function initDatabase(connConfig: ConnectionConfig) {
     }
 
     await dc.roles.save(normalUserRole);
+
+    let userRole: UserRole = {
+        user_id: userIds.admin,
+        role_id: roleIds.admin,
+    }
+
+    await dc.userRoles.save(userRole);
 }
+
+export let currentUserId = createParameterDecorator(async (req, res) => {
+    let tokenData = await getTokenData(req, res);
+    if (!tokenData)
+        return null;
+
+    // if (userId == null)
+    //     throw errors.canntGetUserIdFromHeader();
+
+    // return userId;
+    return tokenData.user_id;
+})

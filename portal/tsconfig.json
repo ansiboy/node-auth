@@ -4,6 +4,7 @@
         "module": "commonjs",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "declaration": true,
     },
     "exclude": [
         "static"
