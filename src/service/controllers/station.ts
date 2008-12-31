@@ -32,13 +32,8 @@ export class StationController {
             data.path = data.path + "/";
         }
 
-        let stationInfos = g.stationInfos.value;
-        let itemIndex = stationInfos.map(o => o.path).indexOf(data.path);
-        if (itemIndex >= 0) {
-            let logger = getLogger(PROJECt_NAME, g.settings.logLevel);
-            logger.info(`Station path is exists, path is '${data.path}'.`);
-            return;
-        }
+        //如果站点已经存在（通过路径判断），移除掉 
+        let stationInfos = g.stationInfos.value.filter(o => o.path != data.path);
 
         stationInfos.push(data);
         g.stationInfos.value = stationInfos;

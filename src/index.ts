@@ -1,6 +1,5 @@
 import { start as startAdminServer } from "./admin";
-import { start as startServiceServer, constants } from "./service";
-import { ConnectionConfig } from "mysql";
+import { start as startServiceServer } from "./service";
 import { startServer, Settings as MVCConfig } from "maishu-node-mvc";
 import { authenticate } from "./service/filters/authenticate";
 import { getToken } from "./service/index";
@@ -39,6 +38,7 @@ export function start(settings: Settings) {
         actionFilters: [
             ...(settings.actionFilters || [])
         ],
+        logLevel: "off"
     })
 
     startSocketServer(r.server);

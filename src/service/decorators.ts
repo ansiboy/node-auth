@@ -30,7 +30,7 @@ export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.
     let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
 
     if (!tokenText) {
-        let logger = getLogger(PROJECt_NAME);
+        let logger = getLogger(`${PROJECt_NAME} getUserIdFromRequest`);
         logger.info("Token text is empty.");
         return null
     }

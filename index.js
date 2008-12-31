@@ -3,6 +3,8 @@ const path = require('path')
 const http = require('http')
 const { start, constants, TokenManager } = require('./out/index')
 const Cookies = require("cookies")
+const { getLogger } = require("maishu-node-mvc");
+
 //===========================================
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
@@ -90,8 +92,11 @@ start({
 async function proxyHeader(req) {
     let cookies = new Cookies(req);
     let header = {}
+
+    let logger = getLogger("node auth index");
     let tokenText = req.headers['token'] || cookies.get("token");
     if (tokenText) {
+        logger.warn(`Token text is ${tokenText}`);
         try {
             let token = await TokenManager.parse(tokenText);
             var obj = JSON.parse(token.content);
@@ -99,6 +104,9 @@ async function proxyHeader(req) {
         } catch (err) {
             console.error(err)
         }
+    }
+    else {
+        logger.warn(`Token text is empty.`);
     }
 
     if (header.user_id) {
