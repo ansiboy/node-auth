@@ -1,9 +1,10 @@
-enum LoginResult {
+
+export enum LoginResult {
     userNotExists,
     passwordIncorrect
 }
 
-class Authorization {
+export class Authorization {
     /**
      * 登录
      * @app_name 用户所在应用的名称

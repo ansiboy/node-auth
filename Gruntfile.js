@@ -7,7 +7,7 @@ module.exports = function (grunt) {
                 src: ['src/**/*.ts'],
                 dest: release_dir,
                 options: {
-                    target: 'es5',
+                    target: 'es6',
                     removeComments: true,
                     declaration: false,
                     references: [

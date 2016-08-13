@@ -1,10 +1,9 @@
 import * as http from 'http';
 import * as https from 'https';
-
-import settings = require('./settings');
+import * as settings from './settings';
 
 function request(req: http.IncomingMessage, res: http.ServerResponse, data?: string) {
-  let host = settings.host;
+  let host = settings.serviceHost;
 
   let headers: any = req.headers;
   headers.host = host;
@@ -36,6 +35,10 @@ function request(req: http.IncomingMessage, res: http.ServerResponse, data?: str
 }
 
 http.createServer(function (req, res) {
+
+  let appToken = req.headers['appToken'];
+
+
   if (req.method == 'POST') {
     req.on('data', (data) => {
       request(req, res, data);
