@@ -1,8 +1,10 @@
 import * as http from 'http';
 import * as https from 'https';
 
+import settings = require('./settings');
+
 function request(req: http.IncomingMessage, res: http.ServerResponse, data?: string) {
-  let host = 'shop.alinq.cn';
+  let host = settings.host;
 
   let headers: any = req.headers;
   headers.host = host;
