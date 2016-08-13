@@ -1,0 +1,12 @@
+{
+    "files.exclude": {
+        "build": true,
+        "node_modules": true,
+        "LICENSE.txt": true,
+        "README.txt": true,
+        "*.doc": true,
+        "**/*.intellisense.js": true,
+        ".tscache": true,
+        "**/.baseDir.*": true
+    }
+}
