@@ -3,15 +3,15 @@ var release_dir = 'release';
 module.exports = function (grunt) {
     var config = {
         ts: {
-            base: {
-                src: ['src/**/*.ts'],
+            server: {
+                src: ['src/server/**/*.ts'],
                 dest: release_dir,
                 options: {
                     target: 'es6',
                     removeComments: true,
                     declaration: false,
                     references: [
-                        "src/**/*.ts"
+                        "src/server/**/*.ts"
                     ],
                     sourceMap: false
                 }
@@ -30,6 +30,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['ts']);//,, 'clean'
+    grunt.registerTask('default', ['ts']);
 
 };

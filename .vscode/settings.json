@@ -8,6 +8,6 @@
         "**/*.intellisense.js": true,
         ".tscache": true,
         "**/.baseDir.*": true,
-        "src/typings":true
+        "src/**/typings":true
     }
 }
