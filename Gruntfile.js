@@ -5,16 +5,41 @@ module.exports = function (grunt) {
         ts: {
             server: {
                 src: ['src/server/**/*.ts'],
-                dest: release_dir,
+                dest: release_dir + '/server',
                 options: {
                     target: 'es6',
                     removeComments: true,
                     declaration: false,
+                    sourceMap: false,
                     references: [
                         "src/server/**/*.ts"
                     ],
-                    sourceMap: false
                 }
+            },
+            client: {
+                src: ['src/client/**/*.ts'],
+                dest: release_dir + '/client',
+                options: {
+                    target: 'es5',
+                    module: 'amd',
+                    removeComments: true,
+                    declaration: false,
+                    sourceMap: false,
+                    references: [
+                        "src/client/**/*.ts"
+                    ],
+                }
+            }
+        },
+        copy: {
+            client: {
+                files: [
+                    {
+                        expand: true, cwd: 'src/client',
+                        src: ['**/*.html', '**/*.js', '**/*.css', 'font/*.*'],
+                        dest: release_dir + '/client'
+                    },
+                ]
             }
         }
     };
@@ -30,6 +55,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['ts']);
+    grunt.registerTask('default', ['ts', 'copy']);
 
 };
