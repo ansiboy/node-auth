@@ -1,56 +1,56 @@
 import * as http from 'http';
 import * as https from 'https';
 import * as settings from './settings';
+import { ProxyServer } from './proxyServer';
+import * as express from 'express';
 
-function request(req: http.IncomingMessage, res: http.ServerResponse, data?: string) {
-  let host = settings.serviceHost;
+let proxyServer = new ProxyServer({ port: 9000, targetHost: settings.serviceHost });
+proxyServer.start();
 
-  let headers: any = req.headers;
-  headers.host = host;
+let app = express();
+app.use((req, res) => {
+  let arr = req.path.split('/').filter((value, index, array) => {
+    return value != '';
+  });
 
-  if (data) {
-    headers['Content-Length'] = data.length;
-    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+  let output: string;
+  if (arr.length >= 2) {
+    let controllerName = arr[0];
+    let Controller = require('./modules/' + controllerName);
+    if (Controller != null) {
+      let controller = new Controller();
+      let action = controller[arr[1]];
+      if (action != null) {
+        let actionResult = action();
+        if (typeof actionResult == 'string') {
+          output = actionResult;
+        }
+        else if (typeof actionResult == 'object') {
+          output = JSON.stringify(actionResult);
+        }
+      }
+    }
   }
 
-  let request = http.request(
-    {
-      host: host,
-      path: req.url,
-      method: req.method,
-      headers: headers,
-    },
-    (response) => {
-      for (var key in response.headers) {
-        res.setHeader(key, response.headers[key]);
-      }
-      response.pipe(res);
-    }
-  );
+  if (output == null) {
+    output = 'empty';
+  }
 
-  if (data)
-    request.write(data);
+  res.send(output);
 
-  request.end();
+});
+
+function processError(err: Error, req: express.Request, res: express.Response, next: express.NextFunction) {
+  console.log(err);
+  let obj = {
+    name: err.name,
+    message: err.message,
+    stack: err.stack
+  }
+  res.send(JSON.stringify(obj));
 }
 
-http.createServer(function (req, res) {
-
-  let appToken = req.headers['appToken'];
+app.use(processError);
 
 
-  if (req.method == 'POST') {
-    req.on('data', (data) => {
-      request(req, res, data);
-    });
-  }
-  else {
-    let data: string;
-    let queryStringIndex = req.url.indexOf('?');
-    if (queryStringIndex >= 0) {
-      data = req.url.substr(queryStringIndex + 1);
-    }
-    request(req, res, data);
-  }
-
-}).listen(9000);
+app.listen(8030);

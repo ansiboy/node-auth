@@ -20,8 +20,8 @@ export class Table<T extends models.Entity>{
         }
         this.source.update(`id='${entity.id}'`, entity);
     }
-    delete(id:string){
-        if(id == null){
+    delete(id: string) {
+        if (id == null) {
             throw Errors.argumentNull('id');
         }
         this.source.deleteOne(`id='${id}'`);
@@ -37,19 +37,19 @@ export class Database {
         this._users = new Users(source);
     }
 
-    static async createInstance(appToken: string) {
+    static createInstance(appToken: string, reslove: (instance: Database) => void, reject?: (error) => void) {
         let appName = tokenParser.parseAppToken(appToken).appName;
-        return new Promise<Database>((reslove, reject) => {
-            let connectionString = `mongodb://${settings.monogoHost}/${appName}`;
-            MongoClient.connect(connectionString, (err, db) => {
-                if (err != null) {
-                    reject(err);
-                }
+        //return new Promise<Database>((reslove, reject) => {
+        let connectionString = `mongodb://${settings.monogoHost}/${appName}`;
+        MongoClient.connect(connectionString, (err, db) => {
+            if (err != null && reject != null) {
+                reject(err);
+            }
 
-                let instance = new Database(db);
-                reslove(instance);
-            });
+            let instance = new Database(db);
+            reslove(instance);
         });
+        //});
     }
 
     get users(): Users {
