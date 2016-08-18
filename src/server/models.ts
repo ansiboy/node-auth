@@ -4,7 +4,7 @@ export interface Entity {
 }
 
 export interface User extends Entity {
-    name: string,
+    username: string,
     password: string,
     group: string
 }

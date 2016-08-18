@@ -19,7 +19,7 @@ app.use((req, res) => {
     let Controller = require('./modules/' + controllerName);
     if (Controller != null) {
       let controller = new Controller();
-      let action = controller[arr[1]];
+      let action = <Function>controller[arr[1]];
       if (action != null) {
         let actionResult = action();
         if (typeof actionResult == 'string') {

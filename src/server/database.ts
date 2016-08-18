@@ -26,6 +26,14 @@ export class Table<T extends models.Entity>{
         }
         this.source.deleteOne(`id='${id}'`);
     }
+    find(filter: string) {
+        return this.source.find(filter);
+    }
+    findOne(selector) {
+        this.source.findOne(selector, (err: Error, result) => {
+
+        });
+    }
 }
 
 export class Database {
