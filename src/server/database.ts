@@ -45,19 +45,19 @@ export class Database {
         this._users = new Users(source);
     }
 
-    static createInstance(appToken: string, reslove: (instance: Database) => void, reject?: (error) => void) {
+    static async createInstance(appToken: string) {
         let appName = tokenParser.parseAppToken(appToken).appName;
-        //return new Promise<Database>((reslove, reject) => {
-        let connectionString = `mongodb://${settings.monogoHost}/${appName}`;
-        MongoClient.connect(connectionString, (err, db) => {
-            if (err != null && reject != null) {
-                reject(err);
-            }
+        return new Promise<Database>((reslove, reject) => {
+            let connectionString = `mongodb://${settings.monogoHost}/${appName}`;
+            MongoClient.connect(connectionString, (err, db) => {
+                if (err != null && reject != null) {
+                    reject(err);
+                }
 
-            let instance = new Database(db);
-            reslove(instance);
+                let instance = new Database(db);
+                reslove(instance);
+            })
         });
-        //});
     }
 
     get users(): Users {

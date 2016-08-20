@@ -1,13 +1,13 @@
 
-var release_dir = 'release';
+var release = 'release';
 module.exports = function (grunt) {
     var config = {
         ts: {
             server: {
                 src: ['src/server/**/*.ts'],
-                dest: release_dir + '/server',
+                dest: `${release}/temp/server`,
                 options: {
-                    target: 'es5',
+                    target: 'es6',
                     removeComments: true,
                     declaration: false,
                     sourceMap: false,
@@ -18,7 +18,7 @@ module.exports = function (grunt) {
             },
             client: {
                 src: ['src/client/**/*.ts'],
-                dest: release_dir + '/client',
+                dest: `${release}/client`,
                 options: {
                     target: 'es5',
                     module: 'amd',
@@ -37,8 +37,22 @@ module.exports = function (grunt) {
                     {
                         expand: true, cwd: 'src/client',
                         src: ['**/*.html', '**/*.js', '**/*.css', 'font/*.*'],
-                        dest: release_dir + '/client'
+                        dest: `${release}/client`
                     },
+                ]
+            }
+        },
+        babel: {
+            options: {
+                sourceMap: false,
+                presets: ['es2015']
+            },
+            dist: {
+                files: [
+                    {
+                        expand: true, cwd: `${release}/temp/server`,
+                        src: "**/*.js", dest: `${release}/server`
+                    }
                 ]
             }
         }
@@ -54,7 +68,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-babel');
 
-    grunt.registerTask('default', ['ts', 'copy']);
+    grunt.registerTask('default', ['ts', 'copy', 'babel']);
 
 };

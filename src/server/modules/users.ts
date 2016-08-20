@@ -10,7 +10,7 @@ class UserGroups {
     static normal = 'normal'
 }
 
-class UserController {
+export class UserController {
     constructor() {
 
     }
@@ -18,7 +18,7 @@ class UserController {
         let user = { name: 'maishu', gender: 'male' };
         throw new Error("Error");;
     }
-    register(req: express.Request) {
+    async register(req: express.Request) {
         req.checkQuery('username', 'username can not empty.').notEmpty();
         req.checkQuery('password', 'password can not empty.').notEmpty();
         let user = <User>{
@@ -27,24 +27,20 @@ class UserController {
             group: UserGroups.normal
         }
         let appToken = req.headers['appToken'];
-        Database.createInstance(appToken, (db) => {
-            db.users.insert(user);
-        })
+        let db = await Database.createInstance(appToken);
     }
-    login(req: express.Request) {
+    async login(req: express.Request) {
         req.checkQuery('username', 'username can not empty.').notEmpty();
         req.checkQuery('password', 'password can not empty.').notEmpty();
         let username = req.query['username'];
         let password = req.query['password'];
-         let appToken = req.headers['appToken'];
-        Database.createInstance(appToken, (db) => {
-            //db.users.getUser;
-        })
+        let appToken = req.headers['appToken'];
+        let db = await Database.createInstance(appToken);
     }
     update(args: any) {
 
     }
 }
 
-export = UserController;
+
 
