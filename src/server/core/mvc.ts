@@ -1,3 +1,5 @@
+import * as http from 'http';
+
 class Errors {
     static notImplement(methodName: string) {
         let msg = `The method '${methodName}' is not implement.`
@@ -32,8 +34,27 @@ class JsonResultType extends ControllerResultType {
     }
 }
 
+export interface ControllerConstructor {
+    new (): Controller;
+}
+
 export class Controller {
+    private _request: http.IncomingMessage;
+    private _response: http.ServerResponse;
+
     protected json(obj: any) {
         return new JsonResultType(obj);
+    }
+    get request() {
+        return this._request;
+    }
+    set request(value: http.IncomingMessage) {
+        this._request = value;
+    }
+    get response() {
+        return this._response;
+    }
+    set response(value: http.ServerResponse) {
+        this._response = value;
     }
 }
