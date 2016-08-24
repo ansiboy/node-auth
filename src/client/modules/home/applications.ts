@@ -1,3 +1,19 @@
+//import * as ko from 'ko';
+
+class PageModel {
+    private page: ApplicationsPage;
+    constructor(page: ApplicationsPage) {
+        this.page = page;
+    }
+    newApplication() {
+        let $dlg_application = $(this.page.element).find('[name="dlg_application"]');
+        (<any>$dlg_application).modal('show');
+    }
+    appApplication(){
+
+    }
+}
+
 class ApplicationsPage extends chitu.Page {
     constructor(params) {
         super(params);
@@ -22,6 +38,9 @@ class ApplicationsPage extends chitu.Page {
         gridView.element.className = 'table table-striped table-bordered';
         this.element.appendChild(gridView.element);
         dataSource.select();
+
+        let model = new PageModel(this);
+        ko.applyBindings(model, sender.element);
     }
 }
 

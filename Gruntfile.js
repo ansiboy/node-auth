@@ -46,6 +46,46 @@ module.exports = function (grunt) {
                 }
             }
         },
+        babel: {
+            options: {
+                sourceMap: false,
+                presets: ['node6']
+            },
+            dist: {
+                files: [
+                    {
+                        expand: true, cwd: `${release}/temp/server`,
+                        src: "**/*.js", dest: `${release}/server`
+                    }
+                ]
+            }
+        },
+        stylus: {
+            app: {
+                options: {
+                    compress: false,
+                },
+                files: [{
+                    expand: true,
+                    cwd: release + '/content',
+                    src: ['**/*.styl'],
+                    dest: dest_root + '/content',
+                    ext: '.css'
+                }]
+            },
+            // bootstrap: {
+            //     files: [{
+            //         src: [src_root + '/css/bootstrap-3.3.5/bootstrap.less'],
+            //         dest: dest_root + '/css/bootstrap.css'
+            //     }]
+            // },
+            // chitu: {
+            //     files: [{
+            //         src: [src_root + '/css/chitu.less'],
+            //         dest: dest_root + '/css/chitu.css'
+            //     }]
+            // }
+        },
         copy: {
             client: {
                 files: [
@@ -56,20 +96,6 @@ module.exports = function (grunt) {
                     },
                 ]
             }
-        },
-        babel: {
-            options: {
-                sourceMap: false,
-                presets: ['es2015']
-            },
-            dist: {
-                files: [
-                    {
-                        expand: true, cwd: `${release}/temp/server`,
-                        src: "**/*.js", dest: `${release}/server`
-                    }
-                ]
-            }
         }
     };
 
@@ -78,12 +104,13 @@ module.exports = function (grunt) {
 
     grunt.initConfig(config);
 
+    grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-ts');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-contrib-stylus');
+    grunt.loadNpmTasks('grunt-ts');
 
     grunt.registerTask('default', ['ts', 'copy', 'babel']);
 

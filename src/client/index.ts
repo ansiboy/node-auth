@@ -30,7 +30,7 @@ requirejs.config({
         'knockout.validation': 'js/knockout.validation',
         move: 'js/move',
         text: 'js/text',
-        wuzhui:'js/wuzhui'
+        wuzhui: 'js/wuzhui'
     }
 });
 
@@ -39,7 +39,7 @@ requirejs(['application', 'knockout', 'menus', 'ace', 'wuzhui'], (app: chitu.App
     if (!location.hash) {
         location.hash = '#home/index';
     }
-
+    window['ko'] = window['ko'] || ko;
     var model = {
         menus: ko.observableArray()
     };
