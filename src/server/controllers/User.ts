@@ -1,6 +1,6 @@
 
 import * as validator from 'validator';
-import { Database  }  from './../database';
+import * as data from './../database';
 import { Errors } from './../errors';
 import { Controller } from './../core/mvc'
 
@@ -27,7 +27,12 @@ export class UserController extends Controller {
             throw Errors.argumentNull('password');
         }
         let appToken = this.request.headers['appToken'];
-        let db = await Database.createInstance(appToken);
+        let db = await data.Database.createInstance(appToken);
+        let user = <data.User>{
+            username: args.username,
+            password: args.password,
+        }
+        db.users.insert(user);
     }
     async login(args: { username: string, password: string }) {
         if (validator.isNull(args.username)) {
@@ -38,7 +43,8 @@ export class UserController extends Controller {
         }
         //TODO:验证密码格式
         let appToken = this.request.headers['appToken']; //req.headers['appToken'];
-        let db = await Database.createInstance(appToken);
+        let db = await data.Database.createInstance(appToken);
+        let user = await db.users.findOne(`username = ${args.username}`);
     }
     update(args: any) {
 
