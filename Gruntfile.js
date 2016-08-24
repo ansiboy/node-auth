@@ -5,15 +5,15 @@ module.exports = function (grunt) {
         ts: {
             server: {
                 src: ['src/server/**/*.ts'],
-                dest: `${release}/temp/server`,
+                dest: `${release}/server`,
                 options: {
                     target: 'es6',
-                    //module: 'commonjs',
+                    module: 'commonjs',
                     removeComments: true,
                     declaration: false,
                     sourceMap: false,
                     references: [
-                        "src/server/**/*.ts"
+                        "src/server/**/*.ts",
                     ],
                 }
             },
@@ -33,9 +33,9 @@ module.exports = function (grunt) {
             },
             test: {
                 src: ['src/test/**/*.ts'],
-                dest: `${release}/test`,
+                dest: `${release}`,
                 options: {
-                    target: 'es5',
+                    target: 'es6',
                     module: 'commonjs',
                     removeComments: true,
                     declaration: false,
@@ -46,20 +46,20 @@ module.exports = function (grunt) {
                 }
             }
         },
-        babel: {
-            options: {
-                sourceMap: false,
-                presets: ['node6']
-            },
-            dist: {
-                files: [
-                    {
-                        expand: true, cwd: `${release}/temp/server`,
-                        src: "**/*.js", dest: `${release}/server`
-                    }
-                ]
-            }
-        },
+        // babel: {
+        //     options: {
+        //         sourceMap: false,
+        //         presets: ['node6']
+        //     },
+        //     dist: {
+        //         files: [
+        //             {
+        //                 expand: true, cwd: `${release}/temp/server`,
+        //                 src: "**/*.js", dest: `${release}/server`
+        //             }
+        //         ]
+        //     }
+        // },
         stylus: {
             app: {
                 options: {
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: release + '/content',
                     src: ['**/*.styl'],
-                    dest: dest_root + '/content',
+                    dest: 'src/client/css',
                     ext: '.css'
                 }]
             },
@@ -100,18 +100,12 @@ module.exports = function (grunt) {
     };
 
 
-
-
     grunt.initConfig(config);
 
-    grunt.loadNpmTasks('grunt-babel');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-stylus');
     grunt.loadNpmTasks('grunt-ts');
 
-    grunt.registerTask('default', ['ts', 'copy', 'babel']);
+    grunt.registerTask('default', ['ts', 'copy']);
 
 };
