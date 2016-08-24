@@ -8,6 +8,7 @@ module.exports = function (grunt) {
                 dest: `${release}/temp/server`,
                 options: {
                     target: 'es6',
+                    //module: 'commonjs',
                     removeComments: true,
                     declaration: false,
                     sourceMap: false,
@@ -27,6 +28,20 @@ module.exports = function (grunt) {
                     sourceMap: false,
                     references: [
                         "src/client/**/*.ts"
+                    ],
+                }
+            },
+            test: {
+                src: ['src/test/**/*.ts'],
+                dest: `${release}/test`,
+                options: {
+                    target: 'es5',
+                    module: 'commonjs',
+                    removeComments: true,
+                    declaration: false,
+                    sourceMap: false,
+                    references: [
+                        "src/test/**/*.ts"
                     ],
                 }
             }

@@ -5,7 +5,7 @@
             "name": "启动",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/release/server/app.js",
+            "program": "${workspaceRoot}/release/test/database.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",

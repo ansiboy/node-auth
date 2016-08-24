@@ -1,4 +1,4 @@
-import * as models from './models';
+
 
 //class TokenParser {
 export function parseAppToken(token: string): { appName: string, appId: string } {
