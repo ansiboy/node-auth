@@ -33,16 +33,15 @@ export class UserController extends BaseController {
                     password: args.password,
                 }
 
-                db.users.findOne({ username: args.username })
-                    .then((user) => {
-                        if (user != null) {
-                            reject(Errors.userExists(args.username));
-                            return;
-                        }
-                        db.users.insert(user)
-                            .then((result) => reslove(result))
-                            .catch((result) => reslove(result));
-                    });
+                db.users.findOne({ username: args.username }).then((user) => {
+                    if (user != null) {
+                        reject(Errors.userExists(args.username));
+                        return;
+                    }
+                    db.users.insert(user)
+                        .then((result) => reslove(result))
+                        .catch((result) => reslove(result));
+                });
             });
         });
     }
@@ -68,7 +67,7 @@ export class UserController extends BaseController {
     }
     update(args: any) {
         let p = new Promise(() => { });
-       
+
     }
 }
 
