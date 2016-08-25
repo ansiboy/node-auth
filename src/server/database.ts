@@ -34,18 +34,42 @@ export class Table<T extends Entity>{
         }
         this.source.update(`id='${entity.id}'`, entity);
     }
-    delete(id: string) {
-        if (id == null) {
-            throw Errors.argumentNull('id');
-        }
-        this.source.deleteOne(`id='${id}'`);
-    }
-    find(filter: string) {
-        return this.source.find(filter);
-    }
-    findOne(selector) {
+    deleteOne(filter: any) {
         return new Promise((reslove, reject) => {
-            this.source.findOne(selector, (err: Error, result) => {
+            return this.source.deleteOne(filter, (err, result) => {
+                if (err != null) {
+                    reject(err);
+                    return;
+                }
+                reslove(result);
+            });
+        });
+    }
+    deleteMany(filter: any) {
+        return new Promise((reslove, reject) => {
+            return this.source.deleteMany(filter, (err, result) => {
+                if (err != null) {
+                    reject(err);
+                    return;
+                }
+                reslove(result);
+            });
+        });
+    }
+    find(selector): Promise<Array<T>> {
+        return new Promise((reslove, reject) => {
+            this.source.find(selector, (err: Error, result: Array<T>) => {
+                if (err != null) {
+                    reject(err);
+                    return;
+                }
+                reslove(result);
+            });
+        });
+    }
+    findOne(selector): Promise<T> {
+        return new Promise((reslove, reject) => {
+            this.source.findOne(selector, (err: Error, result: T) => {
                 if (err != null) {
                     reject(err);
                     return;
@@ -119,3 +143,15 @@ export interface Appliation extends Entity {
     name: string
 }
 
+
+/**
+ * 用于解释和生成 token 。
+ */
+export class Token {
+    static create(id: string, type: 'user' | 'app'): string {
+        return id;
+    }
+    static parse(token): { id: string, type } {
+        return { id: token, type: 'user' };
+    }
+}

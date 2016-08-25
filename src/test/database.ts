@@ -28,7 +28,6 @@ describe('Database', function () {
                         .findOne({ username: 'maishu' })
                         .then((result) => {
                             assert.notEqual(result, null, 'result 为空');
-                            console.log(result);
                             done();
                             db.close();
                         })
@@ -37,6 +36,23 @@ describe('Database', function () {
                             db.close();
                         });
                 });
+        });
+
+        it('find users', (done) => {
+            data.Database.createInstance(appid)
+                .then((db) => {
+                    db.users
+                        .find({ username: 'maishu' })
+                        .then((result) => {
+                            console.log(`users count:${result.length}`);
+                            done();
+                            db.close();
+                        })
+                        .catch((err) => {
+                            done(err);
+                            db.close();
+                        });
+                })
         });
     });
 })

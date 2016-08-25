@@ -9,17 +9,5 @@
         ".tscache": true,
         "**/.baseDir.*": true
         //"src/**/typings":true
-    },
-    //-------- Mocha options --------
-    // Mocha: Options to run Mocha
-    "mocha.options": {},
-    // Mocha: Glob to search for test files
-    "mocha.files.glob": "release/test/**/*.js",
-    // Mocha: Globs to ignore when searching for test files
-    "mocha.files.ignore": [
-        "**/.git/**/*",
-        "**/node_modules/**/*"
-    ],
-    // Mocha: Environment variables to run your tests
-    "mocha.env": {}
+    }
 }
