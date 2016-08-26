@@ -93,6 +93,7 @@ function guid() {
 export class Database {
     private source: mongodb.Db;
     private _users: Users;
+    //private _mobileBindings: Table<MobileBinding>;
 
     constructor(source: mongodb.Db) {
         this.source = source;
@@ -117,6 +118,10 @@ export class Database {
         return this._users;
     }
 
+    // get mobileBindings(): Table<MobileBinding> {
+    //     return this._mobileBindings;
+    // }
+
     close() {
         this.source.close();
     }
@@ -136,12 +141,24 @@ export interface Entity {
 export interface User extends Entity {
     username: string,
     password: string,
-    group?: string
+    group?: string,
+    mobile?: string,
+    email?: string,
 }
 
 export interface Appliation extends Entity {
     name: string
 }
+
+// interface MobileBinding extends Entity {
+//     mobile: string,
+//     userId: string
+// }
+
+// interface EmailBinding extends Entity {
+//     email: string,
+//     userId: string
+// }
 
 
 /**

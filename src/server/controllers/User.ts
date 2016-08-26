@@ -4,6 +4,7 @@ import * as validator from 'validator';
 import * as data from './../database';
 import { Errors } from './../errors';
 import { BaseController } from './baseController'
+import * as settings from '../settings';
 
 class UserGroups {
     static normal = 'normal'
@@ -17,33 +18,51 @@ export class UserController extends BaseController {
     error() {
         throw new Error('Error');
     }
-    register(args: data.User) {
-        if (args.username == null) {
-            throw Errors.argumentNull('username');
-        }
-        if (args.password == null) {
-            throw Errors.argumentNull('password');
-        }
-
+    private createUser(user: data.User) {
         let appId = this.applicationId;
         return new Promise<Error | { id: string, token: string }>((reslove, reject) => {
             data.Database.createInstance(appId).then(db => {
-                let user = <data.User>{
-                    username: args.username,
-                    password: args.password,
-                }
-
-                db.users.findOne({ username: args.username }).then((user) => {
-                    if (user != null) {
-                        reject(Errors.userExists(args.username));
+                db.users.findOne({ username: user.username }).then((result) => {
+                    if (result != null) {
+                        reject(Errors.userExists(user.username));
                         return;
                     }
                     db.users.insert(user)
-                        .then((result) => reslove(result))
-                        .catch((result) => reslove(result));
+                        .then((r) => reslove(r))
+                        .catch((r) => reslove(r));
                 });
             });
         });
+    }
+    private registerByUserName(user: data.User) {
+        if (user.username == null) {
+            throw Errors.fieldNull('username', 'User');
+        }
+        if (user.password == null) {
+            throw Errors.fieldNull('password', 'User');
+        }
+
+        return this.createUser(user);
+    }
+    private registerByMobile(user: data.User) {
+        if (user.mobile == null) {
+            throw Errors.fieldNull('username', 'User');
+        }
+        if (user.password == null) {
+            throw Errors.fieldNull('password', 'User');
+        }
+
+        return this.createUser(user);
+    }
+    register(user: data.User): Promise<Error | any> {
+        if (settings.registerMode == 'username')
+            return this.registerByUserName(user);
+        else if (settings.registerMode == 'mobile')
+            return this.registerByMobile(user);
+        else if (settings.registerMode == 'notAllow')
+            return Promise.reject(Errors.notAllowRegister());
+        else
+            return Promise.reject(Errors.notImplement());
     }
     login(args: { username: string, password: string }): Promise<Error | { token: string }> {
         if (validator.isNull(args.username)) {

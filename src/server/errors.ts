@@ -2,11 +2,13 @@
 
 export class Errors {
     static names = {
-        FieldNull: 'FieldNull',
         ArgumentNull: 'ArgumentNull',
+        FieldNull: 'FieldNull',
+        NotAllowRegister: 'NotAllowRegister',
+        NotImplement: 'NotImplement',
         PasswordIncorect: 'PasswordIncorect',
+        Success: 'Success',
         UserExists: 'UserExists',
-        Success: 'Success'
     }
 
     static fieldNull(fieldName: string, className: string): Error {
@@ -41,6 +43,20 @@ export class Errors {
         let msg = `Success`;
         let error = new Error(msg);
         error.name = Errors.names.Success;
+        return error;
+    }
+
+    static notAllowRegister(): Error {
+        let msg = 'System is config to allow register.'
+        let error = new Error(msg);
+        error.name = Errors.names.NotAllowRegister;
+        return error;
+    }
+
+    static notImplement(): Error {
+        let msg = 'Not implement.';
+        let error = new Error(msg);
+        error.name = Errors.names.NotImplement;
         return error;
     }
 }
