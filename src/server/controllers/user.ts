@@ -1,7 +1,7 @@
 
 /// <reference path="./../typings/validator/validator.d.ts"/>
 import * as validator from 'validator';
-import * as data from './../database';
+import { Database, User, Token } from './../database';
 import { Errors } from './../errors';
 import { BaseController } from './baseController'
 import * as settings from '../settings';
@@ -13,17 +13,30 @@ class UserGroups {
 type LoginArguments = { username: string, password: string };
 export class UserController extends BaseController {
     test() {
-        let user = { name: 'maishu', gender: 'male' };
-        return user;
+        return new Promise(async (reslove, reject) => {
+            try {
+                let db = await Database.createInstance(this.applicationId);
+                await db.users.deleteMany({ username: 'maishu' });
+                let user = <User>{
+                    username: 'maishu',
+                    password: '1234',
+                    mobile: '13431426607',
+                    email: '81232259@qq.com'
+                }
+                let result = await this.register(user);
+                reslove(result);
+                return user;
+            }
+            catch (exc) {
+                reject(exc);
+            }
+        });
     }
-    error() {
-        throw new Error('Error');
-    }
-    private createUser(user: data.User) {
+    private createUser(user: User) {
         let appId = this.applicationId;
         return new Promise<Error | { id: string, token: string }>(async (reslove, reject) => {
             try {
-                let db = await data.Database.createInstance(appId)
+                let db = await Database.createInstance(appId)
                 let u = await db.users.findOne({ username: user.username })//.then((result) => {
                 if (u != null) {
                     reject(Errors.userExists(user.username));
@@ -37,7 +50,7 @@ export class UserController extends BaseController {
             }
         });
     }
-    private registerByUserName(user: data.User) {
+    private registerByUserName(user: User) {
         if (user.username == null) {
             throw Errors.fieldNull('username', 'User');
         }
@@ -47,7 +60,7 @@ export class UserController extends BaseController {
 
         return this.createUser(user);
     }
-    private registerByMobile(user: data.User) {
+    private registerByMobile(user: User) {
         if (user.mobile == null) {
             throw Errors.fieldNull('username', 'User');
         }
@@ -57,7 +70,7 @@ export class UserController extends BaseController {
 
         return this.createUser(user);
     }
-    register(user: data.User): Promise<Error | any> {
+    register(user: User): Promise<Error | any> {
         if (settings.registerMode == 'username')
             return this.registerByUserName(user);
         else if (settings.registerMode == 'mobile')
@@ -68,16 +81,16 @@ export class UserController extends BaseController {
             return Promise.reject(Errors.notImplement());
     }
     login({ username, password }: LoginArguments): Promise<Error | { token: string }> {
-        if (validator.isNull(username)) {
-            throw Errors.argumentNull('username');
+        if (username == null) {
+            return Promise.reject<Error>(Errors.argumentNull('username'));
         }
-        if (validator.isNull(password)) {
-            throw Errors.argumentNull('password');
+        if (password == null) {
+            return Promise.reject<Error>(Errors.argumentNull('password'));;
         }
 
         return new Promise<Error | { token: string }>(async (reslove, reject) => {
             try {
-                let db = await data.Database.createInstance(this.applicationId);
+                let db = await Database.createInstance(this.applicationId);
                 let user = await db.users.findOne({ username: username });
                 if (user == null) {
                     reject(Errors.userNotExists(username));
@@ -87,7 +100,8 @@ export class UserController extends BaseController {
                     reject(Errors.passwordIncorect(username));
                     return;
                 }
-                reslove({ token: data.Token.create(user.id, 'user') });
+                let token = await Token.create(this.applicationId, user.id, 'user')
+                reslove({ token: token.value });
             }
             catch (exc) {
                 reject(exc);

@@ -10,6 +10,7 @@ export class Errors {
         Success: 'Success',
         UserExists: 'UserExists',
         UserNotExists: 'UserNotExists',
+        InvalidToken: 'InvalidToken',
     }
 
     static fieldNull(fieldName: string, className: string): Error {
@@ -49,7 +50,7 @@ export class Errors {
     }
 
     static notAllowRegister(): Error {
-        let msg = 'System is config to allow register.'
+        let msg = 'System is config to not allow register.'
         let error = new Error(msg);
         error.name = Errors.names.NotAllowRegister;
         return error;
@@ -67,6 +68,14 @@ export class Errors {
         let error = new Error(msg);
         error.name = Errors.names.UserNotExists;
         (<any>error).arguments = { username };
+        return error;
+    }
+
+    static invalidToken(tokenValue: string):Error {
+        let msg = `Token '${tokenValue}' is not a valid token.`;
+        let error = new Error(msg);
+        error.name = Errors.names.InvalidToken;
+        (<any>error).arguments = { token: tokenValue };
         return error;
     }
 }

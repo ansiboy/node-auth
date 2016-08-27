@@ -152,19 +152,20 @@ export class Application {
 
     private outputToResponse(obj: any, response: http.ServerResponse) {
         if (obj == null)
-            obj = '';
+            obj = {};
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json;charset=utf-8');
 
         let objectType = typeof obj;
-        if (objectType == 'string' || objectType == 'number') {
-            response.write(obj);
+        // if (objectType == 'string' || objectType == 'number') {
+        //     response.write(obj);
+        // }
+        // else
+        if (objectType == 'object') {
+            obj = this.toJSONObject(obj);
         }
-        else if (objectType == 'object') {
-            response.write(this.toJSON(obj));
-        }
-
+        response.write(JSON.stringify(obj));
         response.end();
 
     }
@@ -173,7 +174,7 @@ export class Application {
         return new Controller();
     }
 
-    private toJSON(obj: any): string {
+    private toJSONObject(obj: any): any {
 
         let result = {};
         for (let key in obj) {
@@ -184,7 +185,7 @@ export class Application {
             result[name] = obj[name];
         }
 
-        return JSON.stringify(result);
+        return result;//JSON.stringify(result);
     }
 
     private findController(module: any, name): ControllerConstructor {
