@@ -11,16 +11,14 @@ export class SMSController extends BaseController {
         return new Promise((reslove, reject) => {
             //=======================================
             // 说明：生成一个大于或等于验证码长度的随机字符串
-            let str = '';
+            let num: number;
             do {
-                let num: number;
-                do {
-                    num = Math.random();
-                }
-                while (num == 0);
-                str = str + num.toString().substr(2);
+                num = Math.random();
             }
-            while (str.length < verifyCodeLength);
+            while (num == 0);
+            //=======================================
+            // 使用 str 必定大于 verifyCodeLength，如果不足则 0 补足
+            let str = num.toString().substr(2) + '0'.repeat(verifyCodeLength);
             //=======================================
             let verifyCode = str.substr(0, verifyCodeLength);
             let msg = settings.verifyCodeText.replace('{0}', verifyCode);
@@ -42,7 +40,7 @@ export class SMSController extends BaseController {
             let data = querystring.stringify({
                 userid: '',
                 account: 'jk001',
-                password: '81263Ansi',
+                password: 'jk5543',
                 mobile: '18502146746',
                 content: content,
                 action: 'send'

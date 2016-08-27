@@ -9,6 +9,7 @@ export class Errors {
         PasswordIncorect: 'PasswordIncorect',
         Success: 'Success',
         UserExists: 'UserExists',
+        UserNotExists: 'UserNotExists',
     }
 
     static fieldNull(fieldName: string, className: string): Error {
@@ -36,6 +37,7 @@ export class Errors {
         let msg = `User '${username}' is exists.`;
         let error = new Error(msg);
         error.name = Errors.names.UserExists;
+        (<any>error).arguments = { username };
         return error;
     }
 
@@ -57,6 +59,14 @@ export class Errors {
         let msg = 'Not implement.';
         let error = new Error(msg);
         error.name = Errors.names.NotImplement;
+        return error;
+    }
+
+    static userNotExists(username: string) {
+        let msg = `User '${username}' is not exists.`
+        let error = new Error(msg);
+        error.name = Errors.names.UserNotExists;
+        (<any>error).arguments = { username };
         return error;
     }
 }

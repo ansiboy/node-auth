@@ -186,10 +186,12 @@ export class Application {
     }
 
     private toJSON(obj: any): string {
+        
         let result = {};
         for (let key in obj) {
             result[key] = obj[key];
         }
+    
         return JSON.stringify(result);
     }
 
