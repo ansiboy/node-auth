@@ -85,6 +85,7 @@ export class Application {
 
     private requestListen(request: http.IncomingMessage, response: http.ServerResponse) {
         let output: Promise<string> | string = '';
+        let actionResult: Promise<any>;
         try {
             let u = url.parse(request.url, true);
 
@@ -134,51 +135,38 @@ export class Application {
             controller.request = request;
             controller.response = response;
             let query = u.query;
-            let actionResult = controller[actionName](query || {});
-            if (actionResult == null) {
-                //do nothing
-            } else if (typeof actionResult == 'string') {
-                output = actionResult;
-            }
-            else if ((<Promise<any>>actionResult).then && (<Promise<any>>actionResult).catch) {
-                output = (<Promise<any>>actionResult);
-            }
-            else if (typeof actionResult == 'object') {
-                output = this.toJSON(actionResult);
-            }
 
+            actionResult = controller[actionName](query || {});
+            if (actionResult == null || actionResult.then == null || actionResult.catch == null) {
+                actionResult = Promise.resolve(actionResult);
+            }
         }
         catch (exc) {
-            let error: Error = exc;
-            output = this.toJSON({
-                name: error.name,
-                stack: error.stack,
-                message: error.message
-            });
-            console.log(exc);
+            actionResult = Promise.resolve(exc);
         }
+
+        actionResult
+            .then((o) => this.outputToResponse(o, response))
+            .catch((o) => this.outputToResponse(o, response));
+    }
+
+    private outputToResponse(obj: any, response: http.ServerResponse) {
+        if (obj == null)
+            obj = '';
 
         response.statusCode = 200;
         response.setHeader('Content-Type', 'application/json;charset=utf-8');
-        if (typeof output == 'string') {
-            response.write(output);
-            response.end();
+
+        let objectType = typeof obj;
+        if (objectType == 'string' || objectType == 'number') {
+            response.write(obj);
         }
-        else if ((<Promise<any>>output).catch && (<Promise<any>>output).then) {
-            (<Promise<any>>output)
-                .then((result) => {
-                    response.write(this.toJSON(result));
-                    response.end();
-                })
-                .catch((result) => {
-                    response.write(this.toJSON(result));
-                    response.end();
-                });
+        else if (objectType == 'object') {
+            response.write(this.toJSON(obj));
         }
-        else if (typeof output == 'object') {
-            response.write(this.toJSON(output));
-            response.end();
-        }
+
+        response.end();
+
     }
 
     protected createController(Controller: ControllerConstructor) {
@@ -186,12 +174,16 @@ export class Application {
     }
 
     private toJSON(obj: any): string {
-        
+
         let result = {};
         for (let key in obj) {
             result[key] = obj[key];
         }
-    
+        let propertyNames = Object.getOwnPropertyNames(obj);
+        for (let name of propertyNames) {
+            result[name] = propertyNames[name];
+        }
+
         return JSON.stringify(result);
     }
 
