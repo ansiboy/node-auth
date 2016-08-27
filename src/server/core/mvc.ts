@@ -181,7 +181,7 @@ export class Application {
         }
         let propertyNames = Object.getOwnPropertyNames(obj);
         for (let name of propertyNames) {
-            result[name] = propertyNames[name];
+            result[name] = obj[name];
         }
 
         return JSON.stringify(result);

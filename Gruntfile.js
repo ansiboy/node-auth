@@ -11,7 +11,7 @@ module.exports = function (grunt) {
                     module: 'commonjs',
                     removeComments: true,
                     declaration: false,
-                    sourceMap: false,
+                    sourceMap: true,
                     references: [
                         "src/server/**/*.ts",
                     ],
