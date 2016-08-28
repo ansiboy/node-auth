@@ -10,128 +10,74 @@ let user = <User>{
     mobile: '13431426607',
     email: '81232259@qq.com'
 }
-function register(done) {
-    let result = Database.createInstance(appId)
-        .then((db) => db.users.deleteMany({ username: 'maishu' }))
-        .then(() => {
-            let userController = new UserController(appId);
-            return userController.register(user);
-        })
-        .catch((err) => done(err))
-        .then(() => done());
-
-    return result;
-}
-
-function login() {
-    let controller = new UserController(appId);
-    let result = new Promise((reslove, reject) => {
-        controller
-            .login({
-                username: user.username,
-                password: user.password
-            })
-            .then((result) => {
-                if ((<Error>result).message) {
-                    reject(result);
-                    return;
-                }
-                assert.notEqual((<{ token: string }>result).token, null);
-                reslove();
-            });
-    });
-    return result;
-}
 
 describe('UserController', function () {
     describe('注册', function () {
-        it('注册成功', function (done) {
-            (async () => {
-                try {
-                    let db = await Database.createInstance(appId);
-                    await db.users.deleteMany({ username: 'maishu' });
+        it('注册成功', async function () {
+            let db = await Database.createInstance(appId);
+            await db.users.deleteMany({ username: 'maishu' });
 
-                    let controller = new UserController(appId);
-                    await controller.register(user);
-
-                    done();
-                }
-                catch (exc) {
-                    done(exc);
-                }
-            })();
+            let controller = new UserController(appId);
+            await controller.register(user);
         });
-        it('用户名已存在', (done) => {
-            (async () => {
-                try {
-                    let db = await Database.createInstance(appId);
-                    await db.users.deleteMany({ username: 'maishu' });
+        it('用户名已存在', async () => {
+            try {
+                let db = await Database.createInstance(appId);
+                await db.users.deleteMany({ username: 'maishu' });
 
-                    let controller = new UserController(appId);
-                    await controller.register(user);
-                    await controller.register(user);
-                    done(new Error('Error:重复注册用户'));
+                let controller = new UserController(appId);
+                await controller.register(user);
+                await controller.register(user);
+                throw new Error('Error:重复注册用户');
+            }
+            catch (exc) {
+                if ((<Error>exc).name != Errors.names.UserExists) {
+                    throw exc;
                 }
-                catch (exc) {
-                    assert.equal((<Error>exc).name, Errors.names.UserExists);
-                    done();
-                }
-            })();
+            }
         });
         it('手机号码已存在', (done) => done());
     })
     describe('登录', function () {
-        it('成功登录', function (done) {
-            (async () => {
-                try {
-                    let db = await Database.createInstance(appId);
-                    await db.users.deleteMany({ username: 'maishu' });
+        it('成功登录', async function () {
+            let db = await Database.createInstance(appId);
+            await db.users.deleteMany({ username: 'maishu' });
 
-                    let controller = new UserController(appId);
-                    await controller.register(user);
-                    let result = await controller.login({ username: user.username, password: user.password });
+            let controller = new UserController(appId);
+            await controller.register(user);
+            let result = await controller.login({ username: user.username, password: user.password });
 
-                    assert.notDeepEqual((<{ token: string }>result).token, null);
-                    done();
-                }
-                catch (exc) {
-                    done(exc);
-                }
-            })();
+            assert.notDeepEqual((<{ token: string }>result).token, null);
         });
-        it('登录不存在的用户', function (done) {
-            (async () => {
-                try {
-                    let db = await Database.createInstance(appId);
-                    await db.users.deleteMany({ username: 'maishu' });
+        it('登录不存在的用户', async function () {
+            try {
+                let db = await Database.createInstance(appId);
+                await db.users.deleteMany({ username: 'maishu' });
 
-                    let controller = new UserController(appId);
-                    await controller.login(user);
-                    done(new Error('Error:不存在用户可登录'));
-                }
-                catch (exc) {
-                    assert.equal((<Error>exc).name, Errors.names.UserNotExists);
-                    done();
-                }
-            })();
+                let controller = new UserController(appId);
+                await controller.login(user);
+                throw new Error('Error:不存在用户可登录');
+            }
+            catch (exc) {
+                if ((<Error>exc).name != Errors.names.UserNotExists)
+                    throw exc;
+            }
         });
-        it('以错误的密码登录', function (done) {
-            (async () => {
-                try {
-                    let db = await Database.createInstance(appId);
-                    await db.users.deleteMany({ username: 'maishu' });
+        it('以错误的密码登录', async function () {
+            try {
+                let db = await Database.createInstance(appId);
+                await db.users.deleteMany({ username: 'maishu' });
 
-                    let controller = new UserController(appId);
-                    await controller.register(user);
-                    let {username, password} = user;
-                    let result = await controller.login({ username, password: password + 'bbb' });
-                    done(new Error('Error:不正确的密码也可以登录'));
-                }
-                catch (exc) {
-                    assert.equal((<Error>exc).name, Errors.names.PasswordIncorect);
-                    done();
-                }
-            })();
+                let controller = new UserController(appId);
+                await controller.register(user);
+                let {username, password} = user;
+                let result = await controller.login({ username, password: password + 'bbb' });
+                throw new Error('Error:不正确的密码也可以登录');
+            }
+            catch (exc) {
+                if ((<Error>exc).name != Errors.names.PasswordIncorect)
+                    throw exc;
+            }
         });
     });
 });

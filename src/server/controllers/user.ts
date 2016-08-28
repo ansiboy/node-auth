@@ -80,33 +80,34 @@ export class UserController extends BaseController {
         else
             return Promise.reject(Errors.notImplement());
     }
-    login({ username, password }: LoginArguments): Promise<Error | { token: string }> {
+    async login({ username, password }: LoginArguments): Promise<{ token: string }> {
         if (username == null) {
-            return Promise.reject<Error>(Errors.argumentNull('username'));
+            throw Errors.argumentNull('username');
         }
         if (password == null) {
-            return Promise.reject<Error>(Errors.argumentNull('password'));;
+            throw Errors.argumentNull('password');;
         }
 
-        return new Promise<Error | { token: string }>(async (reslove, reject) => {
-            try {
-                let db = await Database.createInstance(this.applicationId);
-                let user = await db.users.findOne({ username: username });
-                if (user == null) {
-                    reject(Errors.userNotExists(username));
-                    return;
-                }
-                if (user.password != password) {
-                    reject(Errors.passwordIncorect(username));
-                    return;
-                }
-                let token = await Token.create(this.applicationId, user.id, 'user')
-                reslove({ token: token.value });
-            }
-            catch (exc) {
-                reject(exc);
-            }
-        });
+        // return new Promise<Error | { token: string }>(async (reslove, reject) => {
+        //     try {
+        let db = await Database.createInstance(this.applicationId);
+        let user = await db.users.findOne({ username: username });
+        if (user == null) {
+            //reject(Errors.userNotExists(username));
+            throw Errors.userNotExists(username);
+        }
+        if (user.password != password) {
+            //reject(Errors.passwordIncorect(username));
+            throw Errors.passwordIncorect(username);
+        }
+        let token = await Token.create(this.applicationId, user.id, 'user');
+        return { token: token.value };
+        //reslove({ token: token.value });
+        //     }
+        //     catch (exc) {
+        //         reject(exc);
+        //     }
+        // });
     }
     update(args: any) {
         let p = new Promise(() => { });
