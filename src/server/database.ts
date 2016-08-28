@@ -93,8 +93,7 @@ export class Database {
     private source: mongodb.Db;
     private _users: Users;
     private _tokens: Table<Token>;
-    //private _mobileBindings: Table<MobileBinding>;
-
+    
     constructor(source: mongodb.Db) {
         this.source = source;
         this._users = new Users(source);
@@ -105,7 +104,7 @@ export class Database {
         return new Promise<Database>((reslove, reject) => {
             let connectionString = `mongodb://${settings.monogoHost}/${appId}`;
             MongoClient.connect(connectionString, (err, db) => {
-                if (err != null && reject != null) {
+                if (err != null) {
                     reject(err);
                 }
 
@@ -122,10 +121,6 @@ export class Database {
     get tokens(): Table<Token> {
         return this._tokens;
     }
-
-    // get mobileBindings(): Table<MobileBinding> {
-    //     return this._mobileBindings;
-    // }
 
     close() {
         this.source.close();
@@ -174,22 +169,15 @@ export class Token implements Entity {
     objectId: string;
     type: string
 
-    static create(appId: string, objectId: string, type: 'user' | 'app'): Promise<Token> {
+    static async create(appId: string, objectId: string, type: 'user' | 'app'): Promise<Token> {
         let token = new Token();
         token.value = guid();
         token.objectId = objectId;
         token.type = type;
 
-        return new Promise<Token>(async (reslove, reject) => {
-            try {
-                let db = await Database.createInstance(appId);
-                await db.tokens.insert(token);
-                reslove(token);
-            }
-            catch (exc) {
-                reject(exc);
-            }
-        });
+        let db = await Database.createInstance(appId);
+        await db.tokens.insert(token);
+        return token;
     }
 
     /**
@@ -197,20 +185,12 @@ export class Token implements Entity {
      * @param appId 应用ID
      * @tokenValue 令牌字符串
      */
-    static parse(appId: string, tokenValue: string): Promise<Error | Token> {
-        return new Promise<Error | Token>(async (reslove, reject) => {
-            try {
-                let db = await Database.createInstance(appId);
-                let token = await db.tokens.findOne({ value: tokenValue });
-                if (token == null) {
-                    reject(Errors.invalidToken(tokenValue));
-                    return;
-                }
-                reslove(token);
-            }
-            catch (exc) {
-                reject(exc);
-            }
-        });
+    static async parse(appId: string, tokenValue: string): Promise<Error | Token> {
+        let db = await Database.createInstance(appId);
+        let token = await db.tokens.findOne({ value: tokenValue });
+        if (token == null) {
+            throw Errors.invalidToken(tokenValue);
+        }
+        return token;
     }
 }
