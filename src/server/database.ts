@@ -1,7 +1,7 @@
 /// <reference path="typings/mongodb/mongodb-1.4.9.d.ts" />
 import * as mongodb from 'mongodb';
 import * as settings from './settings';
-import { Errors } from './Errors';
+import { Errors } from './errors';
 
 let MongoClient = mongodb.MongoClient;
 
