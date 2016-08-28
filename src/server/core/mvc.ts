@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as url from 'url';
+import { EventEmitter } from 'events';
 
 class Errors {
     static notImplement(methodName: string) {
@@ -70,18 +71,31 @@ export class Controller {
     }
 }
 
+//class  eventNames {
+const CONTROLLER_CREATED = 'controllerCreated'
+//}
+
 export class Application {
     private server: http.Server;
     private port: number;
     private hostname: string;
     private controllersPath: string;
+    private event: EventEmitter;
+
+
 
     constructor(args: { port: number, hostname: string, controllersPath: string }) {
         this.port = args.port;
         this.hostname = args.hostname;
         this.controllersPath = args.controllersPath;
         this.server = http.createServer((req, res) => this.requestListen(req, res));
+        this.event = new EventEmitter();
     }
+
+    on_controllerCreated(callback: Function) {
+        this.event.on(CONTROLLER_CREATED, callback);
+    }
+
 
     private requestListen(request: http.IncomingMessage, response: http.ServerResponse) {
         let output: Promise<string> | string = '';
@@ -127,7 +141,8 @@ export class Application {
             }
 
             //let appid = '4C22F420-475F-4085-AA2F-BE5269DE6043';
-            let controller = this.createController(Controller);
+            let controller = new Controller();//this.createController(Controller);
+            this.event.emit(CONTROLLER_CREATED, controller);
             //let action = controller[actionName];
             if (controller[actionName] == null)
                 throw Errors.actionNotExists(actionName);
@@ -135,6 +150,14 @@ export class Application {
             controller.request = request;
             controller.response = response;
             let query = u.query;
+
+            //如果含有 JSON ，则转化为对象
+            for (let key in query) {
+                let value = (<string>query[key]).trim();
+                if (value[0] == '{' && value[value.length - 1] == '}') {
+                    query[key] = JSON.parse(value);
+                }
+            }
 
             actionResult = controller[actionName](query || {});
             if (actionResult == null || actionResult.then == null || actionResult.catch == null) {
@@ -170,9 +193,9 @@ export class Application {
 
     }
 
-    protected createController(Controller: ControllerConstructor) {
-        return new Controller();
-    }
+    // protected createController(Controller: ControllerConstructor) {
+    //     return new Controller();
+    // }
 
     private toJSONObject(obj: any): any {
 

@@ -8,6 +8,9 @@ let MongoClient = mongodb.MongoClient;
 export class Table<T extends Entity>{
     private source: mongodb.Collection;
     constructor(db: mongodb.Db, name: string) {
+        if (!db) throw Errors.argumentNull('db');
+        if (!name) throw Errors.argumentNull('name');
+
         this.source = db.collection(name);
     }
     insert(entity: T): Promise<any> {
@@ -23,7 +26,7 @@ export class Table<T extends Entity>{
                     reject(err);
                     return;
                 }
-                reslove(result);
+                reslove(entity);
             });
         });
     }
@@ -105,8 +108,9 @@ export class Database {
         return new Promise<Database>((reslove, reject) => {
             let connectionString = `mongodb://${settings.monogoHost}/${appId}`;
             MongoClient.connect(connectionString, (err, db) => {
-                if (err != null && reject != null) {
+                if (err != null) {
                     reject(err);
+                    return ;
                 }
 
                 let instance = new Database(db);

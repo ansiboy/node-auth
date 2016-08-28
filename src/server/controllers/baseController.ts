@@ -1,14 +1,13 @@
 import { Controller } from './../core/mvc';
-export interface BaseControllerConstructor {
-    new (appId: string): Controller;
-}
 export class BaseController extends Controller {
     private _applicationId;
-    constructor(appId: string) {
+    constructor() {
         super();
-        this._applicationId = appId;
     }
     get applicationId(): string {
         return this._applicationId;
+    }
+    set applicationId(value: string) {
+        this._applicationId = value;
     }
 }

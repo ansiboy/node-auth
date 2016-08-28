@@ -8,7 +8,7 @@ import {Errors} from '../errors'
 let verifyCodeLength = settings.verifyCodeLength;
 type SendCodeArgumentType = { mobile: string, type: 'register' | 'receivePassword' };
 export class SMSController extends BaseController {
-    sendCode({mobile, type}: SendCodeArgumentType): Promise<Error> {
+    async sendCode({mobile, type}: SendCodeArgumentType) {
         if (mobile == null)
             return Promise.reject<Error>(Errors.argumentNull('mobile'));
         if (type == null)

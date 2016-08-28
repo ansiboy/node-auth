@@ -10,47 +10,31 @@ class UserGroups {
     static normal = 'normal'
 }
 
-type LoginArguments = { username: string, password: string };
+//type LoginArguments = { username: string, password: string };
+settings.registerMode = 'username';
 export class UserController extends BaseController {
-    test() {
-        return new Promise(async (reslove, reject) => {
-            try {
-                let db = await Database.createInstance(this.applicationId);
-                await db.users.deleteMany({ username: 'maishu' });
-                let user = <User>{
-                    username: 'maishu',
-                    password: '1234',
-                    mobile: '13431426607',
-                    email: '81232259@qq.com'
-                }
-                let result = await this.register(user);
-                reslove(result);
-                return user;
-            }
-            catch (exc) {
-                reject(exc);
-            }
-        });
+    async  test() {
+        let db = await Database.createInstance(this.applicationId);
+        await db.users.deleteMany({ username: 'maishu' });
+        let user = <User>{
+            username: 'maishu',
+            password: '1234',
+            mobile: '13431426607',
+            email: '81232259@qq.com'
+        }
+        return this.register({user});
     }
-    private createUser(user: User) {
+    private async createUser(user: User) {
         let appId = this.applicationId;
-        return new Promise<Error | { id: string, token: string }>(async (reslove, reject) => {
-            try {
-                let db = await Database.createInstance(appId)
-                let u = await db.users.findOne({ username: user.username })//.then((result) => {
-                if (u != null) {
-                    reject(Errors.userExists(user.username));
-                    return;
-                }
-                let result = await db.users.insert(user);
-                reslove(result);
-            }
-            catch (exc) {
-                reject(exc);
-            }
-        });
+
+        let db = await Database.createInstance(appId)
+        let u = await db.users.findOne({ username: user.username })
+        if (u != null) {
+            throw Errors.userExists(user.username);
+        }
+        return db.users.insert(user);
     }
-    private registerByUserName(user: User) {
+    private async registerByUserName({user}: { user: User }) {
         if (user.username == null) {
             throw Errors.fieldNull('username', 'User');
         }
@@ -60,54 +44,50 @@ export class UserController extends BaseController {
 
         return this.createUser(user);
     }
-    private registerByMobile(user: User) {
+    private async registerByMobile({user, smsId, verifyCode}) {
         if (user.mobile == null) {
             throw Errors.fieldNull('username', 'User');
         }
         if (user.password == null) {
             throw Errors.fieldNull('password', 'User');
         }
+        if (user.smsId == null) {
+            throw Errors.argumentNull('smsId');
+        }
+        if (user.verifyCode == null) {
+            throw Errors.argumentNull('verifyCode');
+        }
 
         return this.createUser(user);
     }
-    register(user: User): Promise<Error | any> {
+    async register(args: { user: User }) {
         if (settings.registerMode == 'username')
-            return this.registerByUserName(user);
+            return this.registerByUserName(args);
         else if (settings.registerMode == 'mobile')
-            return this.registerByMobile(user);
+            return this.registerByMobile(<any>args);
         else if (settings.registerMode == 'notAllow')
-            return Promise.reject(Errors.notAllowRegister());
+            throw Errors.notAllowRegister();
         else
-            return Promise.reject(Errors.notImplement());
+            throw Errors.notImplement();
     }
-    async login({ username, password }: LoginArguments): Promise<{ token: string }> {
+    async login({ username, password }): Promise<{ token: string }> {
         if (username == null) {
             throw Errors.argumentNull('username');
         }
         if (password == null) {
-            throw Errors.argumentNull('password');;
+            throw Errors.argumentNull('password');
         }
 
-        // return new Promise<Error | { token: string }>(async (reslove, reject) => {
-        //     try {
         let db = await Database.createInstance(this.applicationId);
         let user = await db.users.findOne({ username: username });
         if (user == null) {
-            //reject(Errors.userNotExists(username));
             throw Errors.userNotExists(username);
         }
         if (user.password != password) {
-            //reject(Errors.passwordIncorect(username));
             throw Errors.passwordIncorect(username);
         }
         let token = await Token.create(this.applicationId, user.id, 'user');
         return { token: token.value };
-        //reslove({ token: token.value });
-        //     }
-        //     catch (exc) {
-        //         reject(exc);
-        //     }
-        // });
     }
     update(args: any) {
         let p = new Promise(() => { });
