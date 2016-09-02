@@ -46,20 +46,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        // babel: {
-        //     options: {
-        //         sourceMap: false,
-        //         presets: ['node6']
-        //     },
-        //     dist: {
-        //         files: [
-        //             {
-        //                 expand: true, cwd: `${release}/temp/server`,
-        //                 src: "**/*.js", dest: `${release}/server`
-        //             }
-        //         ]
-        //     }
-        // },
         stylus: {
             app: {
                 options: {
@@ -67,24 +53,12 @@ module.exports = function (grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: release + '/content',
+                    cwd: 'src/client/css/',
                     src: ['**/*.styl'],
-                    dest: 'src/client/css',
+                    dest: 'release/client/css',
                     ext: '.css'
                 }]
             },
-            // bootstrap: {
-            //     files: [{
-            //         src: [src_root + '/css/bootstrap-3.3.5/bootstrap.less'],
-            //         dest: dest_root + '/css/bootstrap.css'
-            //     }]
-            // },
-            // chitu: {
-            //     files: [{
-            //         src: [src_root + '/css/chitu.less'],
-            //         dest: dest_root + '/css/chitu.css'
-            //     }]
-            // }
         },
         copy: {
             client: {
@@ -106,6 +80,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-stylus');
     grunt.loadNpmTasks('grunt-ts');
 
-    grunt.registerTask('default', ['ts', 'copy']);
+    grunt.registerTask('default', ['ts', 'stylus',  'copy']);
 
 };

@@ -20,9 +20,9 @@ requirejs.config({
     paths: {
         ace: 'js/ace',
         bootstrap: 'js/bootstrap',
+        c: 'js/css',
         chitu: 'js/chitu',
         crossroads: 'js/crossroads',
-        c: 'js/css',
         hammer: 'js/hammer',
         iscroll: 'js/iscroll-probe',
         jquery: 'js/jquery-2.1.0',

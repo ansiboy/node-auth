@@ -2,14 +2,31 @@
 
 class PageModel {
     private page: ApplicationsPage;
+    apps: KnockoutObservableArray<any>;
     constructor(page: ApplicationsPage) {
         this.page = page;
+        this.apps = ko.observableArray([
+            { name: 'AAA' },
+            { name: 'BBB' },
+            { name: 'CCC' },
+            { name: 'DDD' },
+            { name: 'EEE' },
+            { name: 'FFF' },
+            { name: 'GGG' },
+            { name: 'AAA' },
+            { name: 'BBB' },
+            { name: 'CCC' },
+            { name: 'DDD' },
+            { name: 'EEE' },
+            { name: 'FFF' },
+            { name: 'GGG' },
+        ])
     }
     newApplication() {
         let $dlg_application = $(this.page.element).find('[name="dlg_application"]');
         (<any>$dlg_application).modal('show');
     }
-    appApplication(){
+    appApplication() {
 
     }
 }

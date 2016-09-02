@@ -10,7 +10,6 @@ class UserGroups {
     static normal = 'normal'
 }
 
-//type LoginArguments = { username: string, password: string };
 settings.registerMode = 'username';
 export class UserController extends BaseController {
     async  test() {
