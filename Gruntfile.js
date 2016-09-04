@@ -18,7 +18,7 @@ module.exports = function (grunt) {
                 }
             },
             client: {
-                src: ['src/client/**/*.ts'],
+                src: ['src/client/**/*.ts','src/client/**/*.tsx'],
                 dest: `${release}/client`,
                 options: {
                     target: 'es5',
@@ -26,6 +26,7 @@ module.exports = function (grunt) {
                     removeComments: true,
                     declaration: false,
                     sourceMap: false,
+                    jsx: 'react',
                     references: [
                         "src/client/**/*.ts"
                     ],

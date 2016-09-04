@@ -29,6 +29,9 @@ requirejs.config({
         knockout: 'js/knockout-3.2.0.debug',
         'knockout.validation': 'js/knockout.validation',
         move: 'js/move',
+        react: 'js/react',
+        'react-dom': 'js/react-dom',
+        reactstrap: 'js/react-bootstrap',
         text: 'js/text',
         wuzhui: 'js/wuzhui'
     }
