@@ -548,6 +548,9 @@ var wuzhui;
             _super.call(this, field);
             this._dataItem = dataItem;
             this._valueElement = document.createElement('span');
+            if (field.nullText) {
+                this._valueElement.innerHTML = field.nullText;
+            }
             this._editorElement = this.createControl();
             this.appendChild(this._valueElement);
             this.appendChild(this._editorElement);
