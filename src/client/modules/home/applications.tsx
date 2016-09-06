@@ -10,6 +10,19 @@ let apps = [
     { name: 'DDD', title: 'AAA' },
 ];
 
+class ApplicationsPage extends chitu.Page {
+    constructor(params) {
+        super(params);
+        this.load.add(this.page_load);
+    }
+
+    private page_load(sender: chitu.Page, args) {
+        let appListElement = document.createElement('div');
+        sender.element.appendChild(appListElement);
+        ReactDOM.render(React.createElement(PageView), appListElement);
+    }
+}
+
 function guid() {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000)
@@ -20,60 +33,26 @@ function guid() {
         s4() + '-' + s4() + s4() + s4();
 }
 
-class ApplicationsPage extends chitu.Page {
-    constructor(params) {
-        super(params);
-        this.load.add(this.page_load);
-    }
-
-    private page_load(sender: chitu.Page, args) {
-        let dialogElement = document.createElement('div');
-        sender.element.appendChild(dialogElement);
-        ReactDOM.render(React.createElement(Dialog), dialogElement);
-
-        let appListElement = document.createElement('div');
-        sender.element.appendChild(appListElement);
-        ReactDOM.render(React.createElement(AppList), appListElement);
-    }
-}
-
 interface App {
     title: string,
     name: string
 }
 
-class AppView extends React.Component<App, {}> {
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        return (
-            <li>
-                <p className="header smaller lighter green">
-                    {this.props.title}
-                </p>
-                <div className="pull-left">
-                    名称
-                </div>
-                <div>
-                    {this.props.name}
-                </div>
-            </li>
-        );
-    }
-}
-
-class AppList extends React.Component<{}, { apps: App[] }>{
+class PageView extends React.Component<{}, { apps: App[] }>{
     constructor(props) {
         super(props);
 
         this.state = { apps };
+        window.setTimeout(() => {
+            this.addApp();
+        }, 500);
     }
 
     addApp = () => {
-        apps[apps.length] = { name: 'EEE', title: 'AAA' };
-        this.setState({ apps });
+        let state = (this.refs["dialog"] as Dialog).state;
+        state.showModal = true;
+        state.title = '添加应用';
+        (this.refs["dialog"] as Dialog).setState(state);
     }
 
     render() {
@@ -81,7 +60,7 @@ class AppList extends React.Component<{}, { apps: App[] }>{
             <ul className="apps">
                 {
                     this.state.apps.map((item) => (
-                        <li>
+                        <li key={guid() }>
                             <div className="header">
                                 <p className="smaller lighter green">
                                     {item.title}
@@ -116,6 +95,7 @@ class AppList extends React.Component<{}, { apps: App[] }>{
                     <div style={{ paddingLeft: '50px' }} onClick={this.addApp}>
                         <i className="icon-plus" style={{ fontSize: '120px' }}></i>
                     </div>
+                    <Dialog key={guid() } ref="dialog" ></Dialog>
                 </li>
             </ul>
         );
