@@ -193,11 +193,24 @@ export class Application {
 
     }
 
-    // protected createController(Controller: ControllerConstructor) {
-    //     return new Controller();
-    // }
-
     private toJSONObject(obj: any): any {
+        let type = typeof obj;
+        if (type == 'object' && obj instanceof Array) {
+            type = 'array';
+        }
+
+        if (type == 'array') {
+            let arr = obj;
+            for (let i = 0; i < arr.length; i++) {
+                arr[i] = this.toJSONObject(arr[i]);
+            }
+            return arr;
+        }
+        else if (type == 'number' || type == 'string') {
+            return obj;
+        }
+
+        console.assert(type != 'function');
 
         let result = {};
         for (let key in obj) {
@@ -208,8 +221,9 @@ export class Application {
             result[name] = obj[name];
         }
 
-        return result;//JSON.stringify(result);
+        return result;
     }
+
 
     private findController(module: any, name): ControllerConstructor {
         for (var key in module) {
