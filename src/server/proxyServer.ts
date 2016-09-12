@@ -1,7 +1,5 @@
 import * as http from 'http';
 import * as https from 'https';
-//import * as settings from './settings';
-
 
 export class ProxyServer {
     private server: http.Server;

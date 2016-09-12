@@ -76,8 +76,9 @@ var wuzhui;
             this.selecting = $.Callbacks();
             this.selected = $.Callbacks();
             this.primaryKeys = primaryKeys;
+            this._currentSelectArguments = new DataSourceSelectArguments();
         }
-        Object.defineProperty(DataSource.prototype, "currentSelectArguments", {
+        Object.defineProperty(DataSource.prototype, "selectArguments", {
             get: function () {
                 return this._currentSelectArguments;
             },
@@ -128,25 +129,24 @@ var wuzhui;
         };
         DataSource.prototype.checkPrimaryKeys = function (item) {
             for (var key in item) {
-                if (item[key] == null)
+                if (item[key] == null && this.primaryKeys.indexOf(key) >= 0)
                     throw wuzhui.Errors.primaryKeyNull(key);
             }
         };
-        DataSource.prototype.select = function (args) {
+        DataSource.prototype.select = function () {
             var _this = this;
-            if (!args)
-                args = new DataSourceSelectArguments();
-            this._currentSelectArguments = args;
+            var args = this.selectArguments;
             this.selecting.fireWith(this, [this, { selectArguments: args }]);
             return this.executeSelect(args).done(function (data) {
                 var data_items;
+                var result = data;
                 if ($.isArray(data)) {
                     data_items = data;
                     args.totalRowCount = data_items.length;
                 }
-                else if (data.Type == 'DataSourceSelectResult') {
-                    data_items = data.DataItems;
-                    args.totalRowCount = data.TotalRowCount;
+                else if (result.dataItems !== undefined && result.totalRowCount !== undefined) {
+                    data_items = data.dataItems;
+                    args.totalRowCount = data.totalRowCount;
                 }
                 else {
                     throw new Error('Type of the query result is expected as Array or DataSourceSelectResult.');
@@ -696,12 +696,78 @@ var wuzhui;
         return GridViewEditableCell;
     }(wuzhui.GridViewCell));
     wuzhui.GridViewEditableCell = GridViewEditableCell;
+    var BoundFieldHeaderCell = (function (_super) {
+        __extends(BoundFieldHeaderCell, _super);
+        function BoundFieldHeaderCell(field) {
+            var _this = this;
+            _super.call(this, field);
+            this.ascHTML = '↑';
+            this.descHTML = '↓';
+            this.sortingHTML = '...';
+            this.sorting = wuzhui.callbacks();
+            this.sorted = wuzhui.callbacks();
+            if (field.sortExpression) {
+                var labelElement = document.createElement('a');
+                labelElement.href = 'javascript:';
+                labelElement.innerHTML = this.defaultHeaderText();
+                $(labelElement).click(function () { return _this.handleSort(); });
+                this._iconElement = document.createElement('span');
+                this.appendChild(labelElement);
+                this.appendChild(this._iconElement);
+                this.sorting.add(function () { return _this._iconElement.innerHTML = _this.sortingHTML; });
+                this.sorted.add(function () { return _this.updateSortIcon(); });
+            }
+            else {
+                this.element.innerHTML = this.defaultHeaderText();
+            }
+            this.style(field.headerStyle);
+        }
+        BoundFieldHeaderCell.prototype.handleSort = function () {
+            var _this = this;
+            var selectArguments = this.field.gridView.dataSource.selectArguments;
+            var sortType = this.sortType == 'asc' ? 'desc' : 'asc';
+            wuzhui.fireCallback(this.sorting, this, { sortType: sortType });
+            selectArguments.sortExpression = this.field.sortExpression + ' ' + sortType;
+            return this.field.gridView.dataSource.select()
+                .done(function () {
+                _this.sortType = sortType;
+                wuzhui.fireCallback(_this.sorted, _this, { sortType: sortType });
+            });
+        };
+        BoundFieldHeaderCell.prototype.defaultHeaderText = function () {
+            return this.field.headerText || this.field.dataField;
+        };
+        Object.defineProperty(BoundFieldHeaderCell.prototype, "sortType", {
+            get: function () {
+                return this._sortType;
+            },
+            set: function (value) {
+                this._sortType = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        BoundFieldHeaderCell.prototype.clearSortIcon = function () {
+            this._iconElement.innerHTML = '';
+        };
+        BoundFieldHeaderCell.prototype.updateSortIcon = function () {
+            if (this.sortType == 'asc') {
+                this._iconElement.innerHTML = '↑';
+            }
+            else if (this.sortType == 'desc') {
+                this._iconElement.innerHTML = '↓';
+            }
+            else {
+                this._iconElement.innerHTML = '';
+            }
+        };
+        return BoundFieldHeaderCell;
+    }(wuzhui.GridViewCell));
+    wuzhui.BoundFieldHeaderCell = BoundFieldHeaderCell;
     var BoundField = (function (_super) {
         __extends(BoundField, _super);
         function BoundField(params) {
             _super.call(this, params);
-            if (params.headerHTML == null)
-                params.headerHTML = this.headerHTML;
             this._params = params;
             this._valueElement = document.createElement('span');
         }
@@ -716,53 +782,13 @@ var wuzhui;
             configurable: true
         });
         BoundField.prototype.createHeaderCell = function () {
-            var _this = this;
-            var cell = new wuzhui.GridViewCell(this);
-            if (this.sortExpression) {
-                var a_1 = document.createElement('a');
-                a_1.href = 'javascript:';
-                a_1.innerHTML = this.params().headerHTML(this._sortType);
-                $(a_1).click(function () {
-                    _this.handleSort();
-                    a_1.innerHTML = _this.params().headerHTML(_this._sortType);
-                });
-                cell.appendChild(a_1);
-            }
-            else {
-                cell.element.innerHTML = this.params().headerHTML();
-            }
-            cell.style(this.headerStyle);
+            var cell = new BoundFieldHeaderCell(this);
             return cell;
-        };
-        BoundField.prototype.headerHTML = function (sortType) {
-            var headerText = this.headerText || this.dataField;
-            if (sortType == 'asc')
-                return headerText + '↑';
-            else if (sortType == 'desc')
-                return headerText + '↓';
-            else
-                return headerText;
         };
         BoundField.prototype.createItemCell = function (dataItem) {
             var cell = new GridViewEditableCell(this, dataItem);
             cell.style(this.itemStyle);
             return cell;
-        };
-        BoundField.prototype.handleSort = function () {
-            var selectArgument = this.gridView.dataSource.currentSelectArguments;
-            if (selectArgument == null)
-                return;
-            if (this._sortType == 'asc') {
-                this._sortType = 'desc';
-            }
-            else if (this._sortType == 'desc') {
-                this._sortType = 'asc';
-            }
-            else if (this._sortType == null) {
-                this._sortType = 'asc';
-            }
-            selectArgument.sortExpression = this.sortExpression + ' ' + this._sortType;
-            return this.gridView.dataSource.select(selectArgument);
         };
         Object.defineProperty(BoundField.prototype, "sortExpression", {
             get: function () {
@@ -1148,7 +1174,7 @@ var wuzhui;
     var GridViewRow = (function (_super) {
         __extends(GridViewRow, _super);
         function GridViewRow(rowType) {
-            var element = document.createElement('TR');
+            var element = document.createElement('tr');
             _super.call(this, element);
             this._rowType = rowType;
         }
@@ -1201,7 +1227,8 @@ var wuzhui;
         __extends(GridView, _super);
         function GridView(params) {
             var _this = this;
-            _super.call(this, document.createElement('TABLE'));
+            _super.call(this, params.element || document.createElement('table'));
+            this.emptyDataText = '暂无记录';
             this.rowCreated = wuzhui.callbacks();
             params = $.extend({
                 showHeader: true, showFooter: false,
@@ -1217,14 +1244,15 @@ var wuzhui;
             this._dataSource = params.dataSource;
             this._dataSource.selected.add(function (sender, e) { return _this.on_selectExecuted(e.items, e.selectArguments); });
             if (params.showHeader) {
-                this._header = new wuzhui.Control(document.createElement('THEAD'));
+                this._header = new wuzhui.Control(document.createElement('thead'));
                 this.appendChild(this._header);
                 this.appendHeaderRow();
             }
-            this._body = new wuzhui.Control(document.createElement('TBODY'));
+            this._body = new wuzhui.Control(document.createElement('tbody'));
             this.appendChild(this._body);
+            this.appendEmptyRow();
             if (params.showFooter) {
-                this._footer = new wuzhui.Control(document.createElement('TFOOT'));
+                this._footer = new wuzhui.Control(document.createElement('tfoot'));
                 this.appendChild(this._footer);
                 if (params.showFooter)
                     this.appendFooterRow();
@@ -1244,16 +1272,38 @@ var wuzhui;
             enumerable: true,
             configurable: true
         });
+        GridView.prototype.appendEmptyRow = function () {
+            this._emtpyRow = new GridViewRow(GridViewRowType.Empty);
+            this._emtpyRow.element.className = GridView.emptyRowClassName;
+            var cell = document.createElement('td');
+            cell.colSpan = this.columns.length;
+            var textElement = document.createElement('span');
+            textElement.innerText = this.emptyDataText;
+            cell.appendChild(textElement);
+            this._emtpyRow.appendChild(cell);
+            this._body.appendChild(this._emtpyRow);
+            wuzhui.fireCallback(this.rowCreated, this, { row: this._emtpyRow });
+        };
         GridView.prototype.appendDataRow = function (dataItem) {
             var row = new GridViewDataRow(this, dataItem);
+            row.element.className = GridView.dataRowClassName;
             this._body.appendChild(row);
             wuzhui.fireCallback(this.rowCreated, this, { row: row });
+        };
+        GridView.prototype.on_sort = function (sender, args) {
+            if (this._currentSortCell != null && this._currentSortCell != sender) {
+                this._currentSortCell.clearSortIcon();
+            }
+            this._currentSortCell = sender;
         };
         GridView.prototype.appendHeaderRow = function () {
             var row = new GridViewRow(GridViewRowType.Header);
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
                 var cell = column.createHeaderCell();
+                if (cell instanceof wuzhui.BoundFieldHeaderCell) {
+                    cell.sorting.add(this.on_sort);
+                }
                 row.appendChild(cell);
                 cell.visible = this.columns[i].visible;
             }
@@ -1270,11 +1320,13 @@ var wuzhui;
             this._footer.appendChild(row);
         };
         GridView.prototype.on_selectExecuted = function (items, args) {
+            var _this = this;
+            $("." + GridView.dataRowClassName).each(function (i, e) { return _this._body.element.removeChild(e); });
             if (items.length == 0) {
                 this.showEmptyRow();
                 return;
             }
-            this._body.element.innerHTML = "";
+            this.hideEmptyRow();
             for (var i = 0; i < items.length; i++) {
                 this.appendDataRow(items[i]);
             }
@@ -1282,10 +1334,13 @@ var wuzhui;
         GridView.prototype.on_updateExecuted = function (items) {
         };
         GridView.prototype.showEmptyRow = function () {
-            var row = new GridViewRow(GridViewRowType.Empty);
-            row.element.className = 'emtpy';
-            this._body.appendChild(row);
+            $(this._emtpyRow.element).show();
         };
+        GridView.prototype.hideEmptyRow = function () {
+            $(this._emtpyRow.element).hide();
+        };
+        GridView.emptyRowClassName = 'empty';
+        GridView.dataRowClassName = 'data';
         return GridView;
     }(wuzhui.Control));
     wuzhui.GridView = GridView;
@@ -1298,14 +1353,6 @@ var wuzhui;
         PagerPosition[PagerPosition["TopAndBottom"] = 2] = "TopAndBottom";
     })(wuzhui.PagerPosition || (wuzhui.PagerPosition = {}));
     var PagerPosition = wuzhui.PagerPosition;
-    ;
-    (function (PagerButtons) {
-        PagerButtons[PagerButtons["NextPrevious"] = 0] = "NextPrevious";
-        PagerButtons[PagerButtons["Numeric"] = 1] = "Numeric";
-        PagerButtons[PagerButtons["NextPreviousFirstLast"] = 2] = "NextPreviousFirstLast";
-        PagerButtons[PagerButtons["NumericFirstLast"] = 3] = "NumericFirstLast";
-    })(wuzhui.PagerButtons || (wuzhui.PagerButtons = {}));
-    var PagerButtons = wuzhui.PagerButtons;
     ;
     var PagingBar = (function () {
         function PagingBar() {
@@ -1384,115 +1431,184 @@ var wuzhui;
     wuzhui.PagingBar = PagingBar;
     var NumberPagingBar = (function (_super) {
         __extends(NumberPagingBar, _super);
-        function NumberPagingBar(dataSource, pagerSettings, element) {
-            if (!dataSource)
+        function NumberPagingBar(params) {
+            if (!params.dataSource)
                 throw wuzhui.Errors.argumentNull('dataSource');
-            if (!pagerSettings)
-                throw wuzhui.Errors.argumentNull('pagerSettings');
-            if (!element)
+            if (!params.element)
                 throw wuzhui.Errors.argumentNull('element');
-            pagerSettings = $.extend({
+            var pagerSettings = $.extend({
                 pageButtonCount: 10,
                 firstPageText: '<<',
                 lastPageText: '>>',
-                nextPageText: '>',
-                previousPageText: '<',
-                mode: PagerButtons.NextPreviousFirstLast
-            }, pagerSettings);
+                nextPageText: '...',
+                previousPageText: '...',
+            }, params.pagerSettings || {});
             _super.call(this);
-            this.dataSource = dataSource;
+            this.dataSource = params.dataSource;
             this.pagerSettings = pagerSettings;
-            this.element = element;
-            this._buttons = new Array();
-            this.init(dataSource);
+            this.element = params.element;
+            this.numberButtons = new Array();
+            this.createButton = params.createButton || this.createPagingButton;
+            this.createLabel = params.createTotal || this.createTotalLabel;
+            this.createPreviousButtons();
+            this.createNumberButtons();
+            this.createNextButtons();
+            this.totalElement = this.createLabel();
+            this.totalElement.visible = false;
+            this.init(params.dataSource);
         }
-        NumberPagingBar.prototype.init = function (dataSource) {
-            _super.prototype.init.call(this, dataSource);
-            var pagingBar = this;
-            pagingBar.dataSource.selected.add(function (sender, args) {
-                if (args.selectArguments.totalRowCount != null)
-                    $(pagingBar.totalElement).text(args.selectArguments.totalRowCount);
+        NumberPagingBar.prototype.createPagingButton = function () {
+            var _this = this;
+            var button = document.createElement('a');
+            button.href = 'javascript:';
+            this.element.appendChild(button);
+            var result = {
+                get visible() {
+                    return $(button).is(':visible');
+                },
+                set visible(value) {
+                    if (value)
+                        $(button).show();
+                    else
+                        $(button).hide();
+                },
+                get pageIndex() {
+                    return new Number($(button).attr('pageIndex')).valueOf();
+                },
+                set pageIndex(value) {
+                    $(button).attr('pageIndex', value);
+                },
+                get text() {
+                    return button.innerHTML;
+                },
+                set text(value) {
+                    button.innerHTML = value;
+                },
+                get active() {
+                    return button.href != null;
+                },
+                set active(value) {
+                    if (value == true) {
+                        $(button).removeAttr('href');
+                        return;
+                    }
+                    button.href = 'javascript:';
+                }
+            };
+            $(button).click(function () {
+                if (result.onclick) {
+                    result.onclick(result, _this);
+                }
             });
+            return result;
+        };
+        NumberPagingBar.prototype.createTotalLabel = function () {
+            var totalElement = document.createElement('span');
+            totalElement.className = 'total';
+            var textElement = document.createElement('span');
+            textElement.className = 'text';
+            textElement.innerHTML = '总记录：';
+            totalElement.appendChild(textElement);
+            var numberElement = document.createElement('span');
+            numberElement.className = 'number';
+            totalElement.appendChild(numberElement);
+            this.element.appendChild(totalElement);
+            return {
+                get text() {
+                    return numberElement.innerHTML;
+                },
+                set text(value) {
+                    numberElement.innerHTML = value;
+                },
+                get visible() {
+                    return $(totalElement).is(':visible');
+                },
+                set visible(value) {
+                    if (value == true)
+                        $(totalElement).show();
+                    else
+                        $(totalElement).hide();
+                }
+            };
+        };
+        NumberPagingBar.prototype.createPreviousButtons = function () {
+            this.firstPageButton = this.createButton();
+            this.firstPageButton.onclick = NumberPagingBar.on_buttonClick;
+            this.firstPageButton.text = this.pagerSettings.firstPageText;
+            this.firstPageButton.visible = false;
+            this.previousPageButton = this.createButton();
+            this.previousPageButton.onclick = NumberPagingBar.on_buttonClick;
+            this.previousPageButton.text = this.pagerSettings.previousPageText;
+            this.previousPageButton.visible = false;
+        };
+        NumberPagingBar.prototype.createNextButtons = function () {
+            this.nextPageButton = this.createButton();
+            this.nextPageButton.onclick = NumberPagingBar.on_buttonClick;
+            this.nextPageButton.text = this.pagerSettings.nextPageText;
+            this.nextPageButton.visible = false;
+            this.lastPageButton = this.createButton();
+            this.lastPageButton.onclick = NumberPagingBar.on_buttonClick;
+            this.lastPageButton.text = this.pagerSettings.lastPageText;
+            this.lastPageButton.visible = false;
+        };
+        NumberPagingBar.prototype.createNumberButtons = function () {
+            var pagingBar = this;
+            var buttonCount = this.pagerSettings.pageButtonCount;
+            for (var i = 0; i < buttonCount; i++) {
+                var button = this.createButton();
+                button.onclick = NumberPagingBar.on_buttonClick;
+                this.numberButtons[i] = button;
+            }
+            $(this.numberButtons).click(function () {
+                NumberPagingBar.on_buttonClick(this, pagingBar);
+            });
+        };
+        NumberPagingBar.on_buttonClick = function (button, pagingBar) {
+            var pageIndex = button.pageIndex;
+            if (!pageIndex == null) {
+                return;
+            }
+            var args = pagingBar.dataSource.selectArguments;
+            args.maximumRows = pagingBar.pageSize;
+            args.startRowIndex = pageIndex * pagingBar.pageSize;
+            pagingBar.pageIndex = pageIndex;
+            pagingBar.dataSource.select();
         };
         NumberPagingBar.prototype.render = function () {
             var pagerSettings = this.pagerSettings;
-            var pagingBar = this;
-            pagingBar.cell = this.element;
             var buttonCount = pagerSettings.pageButtonCount;
-            var FIRST_BUTTON = 0;
-            var PREVIOUS_PAGING_BUTTON = 1;
-            var NEXT_PAGING_BUTTON = pagerSettings.pageButtonCount + 2;
-            var LAST_BUTTON = pagerSettings.pageButtonCount + 3;
-            var OTHER_BUTTONS_COUNT = 4;
-            for (var i = 0; i < buttonCount + OTHER_BUTTONS_COUNT; i++) {
-                if (pagingBar._buttons[i] != null) {
-                    pagingBar.cell.removeChild(pagingBar._buttons[i]);
-                }
-                var url = document.createElement('a');
-                pagingBar.cell.appendChild(url);
-                pagingBar._buttons[i] = url;
-                url.style.paddingLeft = '4px';
-                url.href = 'javascript:';
-                url['pageIndex'] = i;
-                $(url).click(function () {
-                    var buttonIndex = pagingBar._buttons.indexOf(this);
-                    var index;
-                    var args = pagingBar.dataSource.currentSelectArguments;
-                    if (args == null)
-                        args = new wuzhui.DataSourceSelectArguments();
-                    args.maximumRows = pagingBar.pageSize;
-                    args.startRowIndex = this.pageIndex * pagingBar.pageSize;
-                    if (pagingBar.sortExpression) {
-                        args.sortExpression = pagingBar.sortExpression;
-                    }
-                    pagingBar.dataSource.select(args);
-                });
-            }
-            if (pagingBar.totalElement == null) {
-                pagingBar.totalElement = document.createElement('span');
-                $('<div style="float:right;margin-right:4px;">').text('总记录：').append(pagingBar.totalElement).appendTo(pagingBar.cell);
-            }
-            var pagingBarIndex = Math.floor(pagingBar.pageIndex / buttonCount);
-            for (var i = 0; i < buttonCount + OTHER_BUTTONS_COUNT; i++) {
-                var pageCount = pagingBar.pageCount;
-                var start = pagingBarIndex * buttonCount;
-                var index;
-                var url_1 = pagingBar._buttons[i];
-                if (i == PREVIOUS_PAGING_BUTTON) {
-                    url_1.innerHTML = '...';
-                    url_1['pageIndex'] = (pagingBarIndex - 1) * buttonCount;
-                }
-                else if (i == NEXT_PAGING_BUTTON) {
-                    url_1.innerHTML = '...';
-                    url_1['pageIndex'] = (pagingBarIndex + 1) * buttonCount;
-                }
-                else if (i == FIRST_BUTTON) {
-                    url_1.innerHTML = pagerSettings.firstPageText;
-                    url_1['pageIndex'] = 0;
-                }
-                else if (i == LAST_BUTTON) {
-                    url_1.innerHTML = pagerSettings.lastPageText;
-                    url_1['pageIndex'] = pageCount - 1;
+            var pagingBarIndex = Math.floor(this.pageIndex / buttonCount);
+            var pagingBarCount = Math.floor(this.pageCount / buttonCount) + 1;
+            this.previousPageButton.pageIndex = (pagingBarIndex - 1) * buttonCount;
+            this.nextPageButton.pageIndex = (pagingBarIndex + 1) * buttonCount;
+            this.firstPageButton.pageIndex = 0;
+            this.lastPageButton.pageIndex = this.pageCount - 1;
+            for (var i = 0; i < this.numberButtons.length; i++) {
+                var pageIndex = pagingBarIndex * buttonCount + i;
+                if (pageIndex < this.pageCount) {
+                    this.numberButtons[i].pageIndex = pageIndex;
+                    this.numberButtons[i].text = (pagingBarIndex * buttonCount + i + 1).toString();
+                    this.numberButtons[i].visible = true;
+                    this.numberButtons[i].active = pageIndex == this.pageIndex;
                 }
                 else {
-                    url_1.innerHTML = (start + i - PREVIOUS_PAGING_BUTTON);
-                    url_1['pageIndex'] = start + i - PREVIOUS_PAGING_BUTTON - 1;
-                    if (url_1['pageIndex'] == this.pageIndex)
-                        url_1.style.color = 'red';
+                    this.numberButtons[i].visible = false;
                 }
-                if (pageCount != null && url_1['pageIndex'] > pageCount - 1)
-                    url_1.style.display = 'none';
             }
-            if (pagingBarIndex > 0 && pagerSettings.mode == PagerButtons.NumericFirstLast)
-                pagingBar._buttons[LAST_BUTTON].style.removeProperty('display');
-            else
-                pagingBar._buttons[FIRST_BUTTON].style.display = 'none';
-            if (pageCount > 0 && pagingBar.pageIndex < pageCount - 1 && pagerSettings.mode == PagerButtons.NumericFirstLast)
-                pagingBar._buttons[LAST_BUTTON].style.removeProperty('display');
-            else
-                pagingBar._buttons[LAST_BUTTON].style.display = 'none';
-            if (pagingBarIndex == 0)
-                pagingBar._buttons[PREVIOUS_PAGING_BUTTON].style.display = 'none';
+            this.totalElement.text = this.totalRowCount;
+            this.totalElement.visible = true;
+            this.firstPageButton.visible = false;
+            this.previousPageButton.visible = false;
+            this.lastPageButton.visible = false;
+            this.nextPageButton.visible = false;
+            if (pagingBarIndex > 0) {
+                this.firstPageButton.visible = true;
+                this.previousPageButton.visible = true;
+            }
+            if (pagingBarIndex < pagingBarCount - 1) {
+                this.lastPageButton.visible = true;
+                this.nextPageButton.visible = true;
+            }
         };
         return NumberPagingBar;
     }(PagingBar));
@@ -1518,8 +1634,10 @@ var wuzhui;
         }).fail(function (jqXHR, textStatus) {
             var err = { Code: textStatus, status: jqXHR.status, Message: jqXHR.statusText };
             result.reject(err);
+        }).always(function () {
+            clearTimeout(timeoutid);
         });
-        setTimeout(function () {
+        var timeoutid = setTimeout(function () {
             if (result.state() == 'pending') {
                 result.reject({ Code: 'Timeout', Message: 'Ajax call timemout.' });
             }
