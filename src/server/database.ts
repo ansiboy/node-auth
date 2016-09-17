@@ -1,27 +1,24 @@
 /// <reference path="typings/mongodb/mongodb-1.4.9.d.ts" />
 import * as mongodb from 'mongodb';
 import * as settings from './settings';
-import { Errors } from './errors';
+import * as errors from './errors';
 
 let MongoClient = mongodb.MongoClient;
 
 export class Table<T extends Entity>{
     private source: mongodb.Collection;
     constructor(db: mongodb.Db, name: string) {
-        if (!db) throw Errors.argumentNull('db');
-        if (!name) throw Errors.argumentNull('name');
+        if (!db) throw errors.argumentNull('db');
+        if (!name) throw errors.argumentNull('name');
 
         this.source = db.collection(name);
     }
-    insert(entity: T): Promise<any> {
+    insertOne(entity: T): Promise<any> {
         return new Promise((reslove, reject) => {
-            if (entity.id == null)
-                entity.id = guid();
-
             if (entity.createDateTime == null)
                 entity.createDateTime = new Date(Date.now());
 
-            this.source.insert(entity, (err, result) => {
+            this.source.insertOne(entity, (err, result) => {
                 if (err != null) {
                     reject(err);
                     return;
@@ -30,20 +27,44 @@ export class Table<T extends Entity>{
             });
         });
     }
-    update(entity: T) {
-        if (entity.id == null) {
-            throw Errors.fieldNull('id', 'User');
-        }
-        this.source.update(`id='${entity.id}'`, entity);
+    updateOne(entity: T): Promise<Error> {
+        return new Promise((reslove, reject) => {
+            if (entity == null) {
+                reject(errors.argumentNull('entity'));
+                return;
+            }
+
+            if (entity._id == null) {
+                reject(errors.fieldNull('id', 'entity'));
+                return;
+            }
+
+            this.source.updateOne({ _id: entity._id }, entity, (err, result) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                if (result.upsertedCount == 0) {
+                    reject(errors.updateResultZero());
+                    return;
+                }
+                reject(errors.success());
+                return;
+            });
+        })
     }
-    deleteOne(filter: any) {
+    deleteOne(filter: any): Promise<Error> {
         return new Promise((reslove, reject) => {
             return this.source.deleteOne(filter, (err, result) => {
                 if (err != null) {
                     reject(err);
                     return;
                 }
-                reslove(result);
+                if (result.deletedCount == 0) {
+                    reject(errors.deleteResultZero());
+                    return;
+                }
+                reslove(errors.success());
             });
         });
     }
@@ -60,12 +81,18 @@ export class Table<T extends Entity>{
     }
     find(selector): Promise<Array<T>> {
         return new Promise((reslove, reject) => {
-            this.source.find(selector, (err: Error, result: Array<T>) => {
+            this.source.find(selector, (err: Error, result: mongodb.Cursor) => {
                 if (err != null) {
                     reject(err);
                     return;
                 }
-                reslove(result);
+                result.toArray((err, items: Array<T>) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    reslove(items);
+                });
             });
         });
     }
@@ -96,11 +123,13 @@ export class Database {
     private source: mongodb.Db;
     private _users: Users;
     private _tokens: Table<Token>;
-    
+    private _applications: Table<Appliation>;
+
     constructor(source: mongodb.Db) {
         this.source = source;
         this._users = new Users(source);
         this._tokens = new Table<Token>(source, 'Token');
+        this._applications = new Table<Appliation>(source, 'Appliation');
     }
 
     static async createInstance(appId: string) {
@@ -109,7 +138,7 @@ export class Database {
             MongoClient.connect(connectionString, (err, db) => {
                 if (err != null) {
                     reject(err);
-                    return ;
+                    return;
                 }
 
                 let instance = new Database(db);
@@ -120,6 +149,10 @@ export class Database {
 
     get users(): Users {
         return this._users;
+    }
+
+    get applications(): Table<Appliation> {
+        return this._applications;
     }
 
     get tokens(): Table<Token> {
@@ -138,7 +171,7 @@ export class Users extends Table<User> {
 }
 
 export interface Entity {
-    id?: string,
+    _id?: string,
     createDateTime?: Date,
 }
 
@@ -180,7 +213,7 @@ export class Token implements Entity {
         token.type = type;
 
         let db = await Database.createInstance(appId);
-        await db.tokens.insert(token);
+        await db.tokens.insertOne(token);
         return token;
     }
 
@@ -193,7 +226,7 @@ export class Token implements Entity {
         let db = await Database.createInstance(appId);
         let token = await db.tokens.findOne({ value: tokenValue });
         if (token == null) {
-            throw Errors.invalidToken(tokenValue);
+            throw errors.invalidToken(tokenValue);
         }
         return token;
     }

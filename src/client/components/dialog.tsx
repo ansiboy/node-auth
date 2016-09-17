@@ -2,10 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Popover, Tooltip, OverlayTrigger  } from 'reactstrap';
 
-// export interface DialogProperty {
-//     buttonLabel: string
-// }
-
 export interface DialogState {
     showModal: boolean,
     title: string,

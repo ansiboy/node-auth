@@ -2,7 +2,7 @@
 /// <reference path="./../typings/validator/validator.d.ts"/>
 import * as validator from 'validator';
 import { Database, User, Token } from './../database';
-import { Errors } from './../errors';
+import * as Errors from '../errors';
 import { BaseController } from './baseController'
 import * as settings from '../settings';
 
@@ -31,7 +31,7 @@ export class UserController extends BaseController {
         if (u != null) {
             throw Errors.userExists(user.username);
         }
-        return db.users.insert(user);
+        return db.users.insertOne(user);
     }
     private async registerByUserName({user}: { user: User }) {
         if (user.username == null) {
@@ -85,7 +85,7 @@ export class UserController extends BaseController {
         if (user.password != password) {
             throw Errors.passwordIncorect(username);
         }
-        let token = await Token.create(this.applicationId, user.id, 'user');
+        let token = await Token.create(this.applicationId, user._id, 'user');
         return { token: token.value };
     }
     update(args: any) {

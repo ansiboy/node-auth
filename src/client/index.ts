@@ -33,7 +33,7 @@ requirejs.config({
         'react-dom': 'js/react-dom',
         reactstrap: 'js/react-bootstrap',
         text: 'js/text',
-        wuzhui: 'js/wuzhui'
+        wuzhui: 'js/wuzhui',
     }
 });
 

@@ -29,7 +29,7 @@ requirejs.config({
     }
 });
 
-requirejs(['knockout', 'knockout.validation', 'services/user_service', 'jquery'], (ko: KnockoutStatic, val: KnockoutValidationStatic) => {
+requirejs(['knockout', 'knockout.validation', 'services/user_service', 'jquery'], (ko: KnockoutStatic, val: KnockoutValidationStatic, user_service) => {
     let login_model = {
         username: ko.observable<string>().extend({ required: true }),
         password: ko.observable<string>().extend({ required: true }),
@@ -40,7 +40,7 @@ requirejs(['knockout', 'knockout.validation', 'services/user_service', 'jquery']
                 validation.showAllMessages();
                 return;
             }
-            return services.UserService.login(username, password).done(() => {
+            return user_service.login(username, password).done(() => {
                 let redirect_url = 'index.html#home/index'
                 location.href = redirect_url;
             });

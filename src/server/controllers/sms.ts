@@ -3,7 +3,7 @@ import * as querystring from 'querystring';
 import { BaseController } from './baseController';
 import * as data from './../database';
 import * as settings from '../settings';
-import {Errors} from '../errors'
+import * as Errors from '../errors'
 
 let verifyCodeLength = settings.verifyCodeLength;
 type SendCodeArgumentType = { mobile: string, type: 'register' | 'receivePassword' };

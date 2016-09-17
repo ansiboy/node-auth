@@ -1,81 +1,106 @@
 
 
-export class Errors {
-    static names = {
-        ArgumentNull: 'ArgumentNull',
-        FieldNull: 'FieldNull',
-        NotAllowRegister: 'NotAllowRegister',
-        NotImplement: 'NotImplement',
-        PasswordIncorect: 'PasswordIncorect',
-        Success: 'Success',
-        UserExists: 'UserExists',
-        UserNotExists: 'UserNotExists',
-        InvalidToken: 'InvalidToken',
-    }
+//export class Errors {
+export let names = {
+    ApplicationExists: 'ApplicationExists',
+    ArgumentNull: 'ArgumentNull',
+    FieldNull: 'FieldNull',
+    NotAllowRegister: 'NotAllowRegister',
+    NotImplement: 'NotImplement',
+    PasswordIncorect: 'PasswordIncorect',
+    Success: 'Success',
+    UserExists: 'UserExists',
+    UserNotExists: 'UserNotExists',
+    InvalidToken: 'InvalidToken',
+    DeleteResultZero: 'DeleteResultZero',
+    UpdateResultZero: 'UpdateResultZero',
+}
 
-    static fieldNull(fieldName: string, className: string): Error {
-        let msg = `The '${fieldName}' field of '${className}' class cannt be null.`;
-        let error = new Error(msg);
-        error.name = Errors.names.FieldNull;
-        return error;
-    }
+export function fieldNull(fieldName: string, objectName: string): Error {
+    let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
+    let error = new Error(msg);
+    error.name = names.FieldNull;
+    return error;
+}
 
-    static argumentNull(argumentName: string) {
-        let msg = `Argument '${argumentName}' cannt be null`;
-        let error = new Error(msg);
-        error.name = Errors.names.ArgumentNull;
-        return error;
-    }
+export function argumentNull(argumentName: string) {
+    let msg = `Argument '${argumentName}' cannt be null`;
+    let error = new Error(msg);
+    error.name = names.ArgumentNull;
+    return error;
+}
 
-    static passwordIncorect(username: string) {
-        let msg = `Password incorect.`;
-        let error = new Error(msg);
-        error.name = Errors.names.PasswordIncorect;
-        return error;
-    }
+export function passwordIncorect(username: string) {
+    let msg = `Password incorect.`;
+    let error = new Error(msg);
+    error.name = names.PasswordIncorect;
+    return error;
+}
 
-    static userExists(username: string): Error {
-        let msg = `User '${username}' is exists.`;
-        let error = new Error(msg);
-        error.name = Errors.names.UserExists;
-        (<any>error).arguments = { username };
-        return error;
-    }
+export function userExists(username: string): Error {
+    let msg = `User '${username}' is exists.`;
+    let error = new Error(msg);
+    error.name = names.UserExists;
+    (<any>error).arguments = { username };
+    return error;
+}
 
-    static success(): Error {
-        let msg = `Success`;
-        let error = new Error(msg);
-        error.name = Errors.names.Success;
-        return error;
-    }
+export function success(): Error {
+    let msg = `Success`;
+    let error = new Error(msg);
+    error.name = names.Success;
+    error.stack = undefined;
+    return error;
+}
 
-    static notAllowRegister(): Error {
-        let msg = 'System is config to not allow register.'
-        let error = new Error(msg);
-        error.name = Errors.names.NotAllowRegister;
-        return error;
-    }
+export function notAllowRegister(): Error {
+    let msg = 'System is config to not allow register.'
+    let error = new Error(msg);
+    error.name = names.NotAllowRegister;
+    return error;
+}
 
-    static notImplement(): Error {
-        let msg = 'Not implement.';
-        let error = new Error(msg);
-        error.name = Errors.names.NotImplement;
-        return error;
-    }
+export function notImplement(): Error {
+    let msg = 'Not implement.';
+    let error = new Error(msg);
+    error.name = names.NotImplement;
+    return error;
+}
 
-    static userNotExists(username: string) {
-        let msg = `User '${username}' is not exists.`
-        let error = new Error(msg);
-        error.name = Errors.names.UserNotExists;
-        (<any>error).arguments = { username };
-        return error;
-    }
+export function userNotExists(username: string) {
+    let msg = `User '${username}' is not exists.`
+    let error = new Error(msg);
+    error.name = names.UserNotExists;
+    (<any>error).arguments = { username };
+    return error;
+}
 
-    static invalidToken(tokenValue: string):Error {
-        let msg = `Token '${tokenValue}' is not a valid token.`;
-        let error = new Error(msg);
-        error.name = Errors.names.InvalidToken;
-        (<any>error).arguments = { token: tokenValue };
-        return error;
-    }
+export function invalidToken(tokenValue: string): Error {
+    let msg = `Token '${tokenValue}' is not a valid token.`;
+    let error = new Error(msg);
+    error.name = names.InvalidToken;
+    (<any>error).arguments = { token: tokenValue };
+    return error;
+}
+
+export function applicationExists(name: string) {
+    let msg = `Application with name '${name}' is exists.`;
+    let error = new Error(msg);
+    error.name = names.ApplicationExists;
+    (<any>error).arguments = { name };
+    return error;
+}
+
+export function deleteResultZero() {
+    let msg = 'Deleted count is zero, maybe the object is not exists.'
+    let error = new Error(msg);
+    error.name = names.DeleteResultZero;
+    return error;
+}
+
+export function updateResultZero() {
+    let msg = 'Updated count is zero, maybe the object is not exists.'
+    let error = new Error(msg);
+    error.name = names.UpdateResultZero;
+    return error;
 }

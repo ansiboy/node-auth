@@ -1,15 +1,26 @@
-<!--<ul class="apps" data-bind="foreach:apps">
+<ul class="apps" data-bind="foreach:items">
   <li>
-    <p data-bind="text:name" class="header smaller lighter green">
-    </p>
-    <div class="pull-left">
-      名称
+    <div class=""="header">
+      <p data-bind="text:name" class="smaller lighter green">
+      </p>
     </div>
-    <div data-bind="text:name">
-      AAA
+    <div class="body">
+      <div class="pull-left">
+        名称
+      </div>
+      <div data-bind="text:name">
+      </div>
+    </div>
+    <div class="footer">
+      <div class="col-xs-6">
+        <button class="btn btn-primary btn-block">编辑</button>
+      </div>
+      <div class="col-xs-6">
+        <button class="btn btn-success btn-block">详细</button>
+      </div>
     </div>
   </li>
-</ul>-->
+</ul>
 
 <!--<h1>Applications</h1>
 <div name="categories" class="tabbable">

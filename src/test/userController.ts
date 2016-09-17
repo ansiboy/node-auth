@@ -1,7 +1,7 @@
 import * as assert from 'assert';
-import {User, Database} from './../server/database';
-import {UserController} from './../server/controllers/user';
-import {Errors} from './../server/errors';
+import {User, Database} from '../server/database';
+import {UserController} from '../server/controllers/user';
+import * as Errors from '../server/errors';
 
 let appId = "4C22F420-475F-4085-AA2F-BE5269DE6043";
 let user = <User>{
@@ -80,7 +80,9 @@ describe('UserController', function () {
 
                 let controller = createUserController();
                 await controller.register({ user });
-                let {username, password} = user;
+                //let {username, password} = user;
+                let username = user.username;
+                let password = user.password;
                 let result = await controller.login({ username, password: password + 'bbb' });
                 throw new Error('Error:不正确的密码也可以登录');
             }
