@@ -119,13 +119,31 @@ var wuzhui;
             });
         };
         DataSource.prototype.update = function (item) {
+            var _this = this;
             if (!this.canUpdate)
-                throw wuzhui.Errors.dataSourceCanntDelete();
+                throw wuzhui.Errors.dataSourceCanntUpdate();
             this.checkPrimaryKeys(item);
             this.updating.fireWith(this, [this, { item: item }]);
             return this.executeUpdate(item).done(function (data) {
                 $.extend(item, data);
+                _this.updated.fireWith(_this, [_this, { item: item }]);
             });
+        };
+        DataSource.prototype.isSameItem = function (theItem, otherItem) {
+            if (theItem == null)
+                throw wuzhui.Errors.argumentNull('theItem');
+            if (otherItem == null)
+                throw wuzhui.Errors.argumentNull('otherItem');
+            if (theItem != otherItem && this.primaryKeys.length == 0)
+                return false;
+            if (this.primaryKeys.length > 0) {
+                for (var _i = 0, _a = this.primaryKeys; _i < _a.length; _i++) {
+                    var pk = _a[_i];
+                    if (theItem[pk] != otherItem[pk])
+                        return false;
+                }
+            }
+            return true;
         };
         DataSource.prototype.checkPrimaryKeys = function (item) {
             for (var key in item) {
@@ -179,56 +197,10 @@ var wuzhui;
     }());
     wuzhui.DataSource = DataSource;
     var DataSourceSelectArguments = (function () {
-        function DataSourceSelectArguments(params) {
-            params = $.extend({
-                startRowIndex: 0,
-                maximumRows: 2147483647
-            }, params || {});
-            this._startRowIndex = params.startRowIndex;
-            this._totalRowCount = null;
-            this._maximumRows = params.maximumRows;
-            this._sortExpression = null;
+        function DataSourceSelectArguments() {
+            this.startRowIndex = 0;
+            this.maximumRows = 2147483647;
         }
-        Object.defineProperty(DataSourceSelectArguments.prototype, "startRowIndex", {
-            get: function () {
-                return this._startRowIndex;
-            },
-            set: function (value) {
-                this._startRowIndex = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(DataSourceSelectArguments.prototype, "totalRowCount", {
-            get: function () {
-                return this._totalRowCount;
-            },
-            set: function (value) {
-                this._totalRowCount = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(DataSourceSelectArguments.prototype, "maximumRows", {
-            get: function () {
-                return this._maximumRows;
-            },
-            set: function (value) {
-                this._maximumRows = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(DataSourceSelectArguments.prototype, "sortExpression", {
-            get: function () {
-                return this._sortExpression;
-            },
-            set: function (value) {
-                this._sortExpression = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
         return DataSourceSelectArguments;
     }());
     wuzhui.DataSourceSelectArguments = DataSourceSelectArguments;
@@ -440,6 +412,74 @@ var wuzhui;
         return GridViewCell;
     }(wuzhui.Control));
     wuzhui.GridViewCell = GridViewCell;
+    var GridViewHeaderCell = (function (_super) {
+        __extends(GridViewHeaderCell, _super);
+        function GridViewHeaderCell(field) {
+            var _this = this;
+            _super.call(this, field);
+            this.ascHTML = '↑';
+            this.descHTML = '↓';
+            this.sortingHTML = '...';
+            this.sorting = wuzhui.callbacks();
+            this.sorted = wuzhui.callbacks();
+            if (field.sortExpression) {
+                var labelElement = document.createElement('a');
+                labelElement.href = 'javascript:';
+                labelElement.innerHTML = this.defaultHeaderText();
+                $(labelElement).click(function () { return _this.handleSort(); });
+                this._iconElement = document.createElement('span');
+                this.appendChild(labelElement);
+                this.appendChild(this._iconElement);
+                this.sorting.add(function () { return _this._iconElement.innerHTML = _this.sortingHTML; });
+                this.sorted.add(function () { return _this.updateSortIcon(); });
+            }
+            else {
+                this.element.innerHTML = this.defaultHeaderText();
+            }
+            this.style(field.headerStyle);
+        }
+        GridViewHeaderCell.prototype.handleSort = function () {
+            var _this = this;
+            var selectArguments = this.field.gridView.dataSource.selectArguments;
+            var sortType = this.sortType == 'asc' ? 'desc' : 'asc';
+            wuzhui.fireCallback(this.sorting, this, { sortType: sortType });
+            selectArguments.sortExpression = this.field.sortExpression + ' ' + sortType;
+            return this.field.gridView.dataSource.select()
+                .done(function () {
+                _this.sortType = sortType;
+                wuzhui.fireCallback(_this.sorted, _this, { sortType: sortType });
+            });
+        };
+        GridViewHeaderCell.prototype.defaultHeaderText = function () {
+            return this.field.headerText || this.field.dataField || '';
+        };
+        Object.defineProperty(GridViewHeaderCell.prototype, "sortType", {
+            get: function () {
+                return this._sortType;
+            },
+            set: function (value) {
+                this._sortType = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        GridViewHeaderCell.prototype.clearSortIcon = function () {
+            this._iconElement.innerHTML = '';
+        };
+        GridViewHeaderCell.prototype.updateSortIcon = function () {
+            if (this.sortType == 'asc') {
+                this._iconElement.innerHTML = '↑';
+            }
+            else if (this.sortType == 'desc') {
+                this._iconElement.innerHTML = '↓';
+            }
+            else {
+                this._iconElement.innerHTML = '';
+            }
+        };
+        return GridViewHeaderCell;
+    }(GridViewCell));
+    wuzhui.GridViewHeaderCell = GridViewHeaderCell;
     var DataControlField = (function () {
         function DataControlField(params) {
             if (params.visible == null)
@@ -513,10 +553,18 @@ var wuzhui;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(DataControlField.prototype, "sortExpression", {
+            get: function () {
+                return this._params.sortExpression;
+            },
+            set: function (value) {
+                this._params.sortExpression = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
         DataControlField.prototype.createHeaderCell = function () {
-            var cell = new GridViewCell(this);
-            cell.html = this.headerText || '';
-            cell.style(this.headerStyle);
+            var cell = new GridViewHeaderCell(this);
             return cell;
         };
         DataControlField.prototype.createFooterCell = function () {
@@ -696,74 +744,6 @@ var wuzhui;
         return GridViewEditableCell;
     }(wuzhui.GridViewCell));
     wuzhui.GridViewEditableCell = GridViewEditableCell;
-    var BoundFieldHeaderCell = (function (_super) {
-        __extends(BoundFieldHeaderCell, _super);
-        function BoundFieldHeaderCell(field) {
-            var _this = this;
-            _super.call(this, field);
-            this.ascHTML = '↑';
-            this.descHTML = '↓';
-            this.sortingHTML = '...';
-            this.sorting = wuzhui.callbacks();
-            this.sorted = wuzhui.callbacks();
-            if (field.sortExpression) {
-                var labelElement = document.createElement('a');
-                labelElement.href = 'javascript:';
-                labelElement.innerHTML = this.defaultHeaderText();
-                $(labelElement).click(function () { return _this.handleSort(); });
-                this._iconElement = document.createElement('span');
-                this.appendChild(labelElement);
-                this.appendChild(this._iconElement);
-                this.sorting.add(function () { return _this._iconElement.innerHTML = _this.sortingHTML; });
-                this.sorted.add(function () { return _this.updateSortIcon(); });
-            }
-            else {
-                this.element.innerHTML = this.defaultHeaderText();
-            }
-            this.style(field.headerStyle);
-        }
-        BoundFieldHeaderCell.prototype.handleSort = function () {
-            var _this = this;
-            var selectArguments = this.field.gridView.dataSource.selectArguments;
-            var sortType = this.sortType == 'asc' ? 'desc' : 'asc';
-            wuzhui.fireCallback(this.sorting, this, { sortType: sortType });
-            selectArguments.sortExpression = this.field.sortExpression + ' ' + sortType;
-            return this.field.gridView.dataSource.select()
-                .done(function () {
-                _this.sortType = sortType;
-                wuzhui.fireCallback(_this.sorted, _this, { sortType: sortType });
-            });
-        };
-        BoundFieldHeaderCell.prototype.defaultHeaderText = function () {
-            return this.field.headerText || this.field.dataField;
-        };
-        Object.defineProperty(BoundFieldHeaderCell.prototype, "sortType", {
-            get: function () {
-                return this._sortType;
-            },
-            set: function (value) {
-                this._sortType = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoundFieldHeaderCell.prototype.clearSortIcon = function () {
-            this._iconElement.innerHTML = '';
-        };
-        BoundFieldHeaderCell.prototype.updateSortIcon = function () {
-            if (this.sortType == 'asc') {
-                this._iconElement.innerHTML = '↑';
-            }
-            else if (this.sortType == 'desc') {
-                this._iconElement.innerHTML = '↓';
-            }
-            else {
-                this._iconElement.innerHTML = '';
-            }
-        };
-        return BoundFieldHeaderCell;
-    }(wuzhui.GridViewCell));
-    wuzhui.BoundFieldHeaderCell = BoundFieldHeaderCell;
     var BoundField = (function (_super) {
         __extends(BoundField, _super);
         function BoundField(params) {
@@ -781,22 +761,11 @@ var wuzhui;
             enumerable: true,
             configurable: true
         });
-        BoundField.prototype.createHeaderCell = function () {
-            var cell = new BoundFieldHeaderCell(this);
-            return cell;
-        };
         BoundField.prototype.createItemCell = function (dataItem) {
             var cell = new GridViewEditableCell(this, dataItem);
             cell.style(this.itemStyle);
             return cell;
         };
-        Object.defineProperty(BoundField.prototype, "sortExpression", {
-            get: function () {
-                return this.params().sortExpression;
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(BoundField.prototype, "dataField", {
             get: function () {
                 return this.params().dataField;
@@ -1151,7 +1120,7 @@ var wuzhui;
         };
         CustomField.prototype.createItemCell = function (dataItem) {
             if (this.params().createItemCell) {
-                var cell = this.params().createItemCell(dataItem);
+                var cell = this.params().createItemCell(this, dataItem);
                 cell.style(this.params().itemStyle);
                 return cell;
             }
@@ -1194,6 +1163,19 @@ var wuzhui;
                     console.assert(this._gridView != null);
                 }
                 return this._gridView;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(GridViewRow.prototype, "cells", {
+            get: function () {
+                var cells = new Array();
+                for (var i = 0; i < this.element.cells.length; i++) {
+                    var cell = wuzhui.Control.getControlByElement(this.element.cells[i]);
+                    console.assert(cell != null);
+                    cells[i] = cell;
+                }
+                return cells;
             },
             enumerable: true,
             configurable: true
@@ -1243,6 +1225,7 @@ var wuzhui;
             }
             this._dataSource = params.dataSource;
             this._dataSource.selected.add(function (sender, e) { return _this.on_selectExecuted(e.items, e.selectArguments); });
+            this._dataSource.updated.add(function (sender, e) { return _this.on_updateExecuted(e.item); });
             if (params.showHeader) {
                 this._header = new wuzhui.Control(document.createElement('thead'));
                 this.appendChild(this._header);
@@ -1301,7 +1284,7 @@ var wuzhui;
             for (var i = 0; i < this.columns.length; i++) {
                 var column = this.columns[i];
                 var cell = column.createHeaderCell();
-                if (cell instanceof wuzhui.BoundFieldHeaderCell) {
+                if (cell instanceof wuzhui.GridViewHeaderCell) {
                     cell.sorting.add(this.on_sort);
                 }
                 row.appendChild(cell);
@@ -1321,7 +1304,7 @@ var wuzhui;
         };
         GridView.prototype.on_selectExecuted = function (items, args) {
             var _this = this;
-            $("." + GridView.dataRowClassName).each(function (i, e) { return _this._body.element.removeChild(e); });
+            $(this._body.element).find("." + GridView.dataRowClassName).each(function (i, e) { return _this._body.element.removeChild(e); });
             if (items.length == 0) {
                 this.showEmptyRow();
                 return;
@@ -1331,7 +1314,32 @@ var wuzhui;
                 this.appendDataRow(items[i]);
             }
         };
-        GridView.prototype.on_updateExecuted = function (items) {
+        GridView.prototype.on_updateExecuted = function (item) {
+            console.assert(item != null);
+            for (var i = 0; i < this._body.element.rows.length; i++) {
+                var row_element = this._body.element.rows[i];
+                var row = $(row_element).data('Control');
+                if (!(row instanceof GridViewDataRow))
+                    continue;
+                var dataItem = row.dataItem;
+                if (!this.dataSource.isSameItem(item, dataItem))
+                    continue;
+                for (var i_1 = 0; i_1 < this.columns.length; i_1++) {
+                    var col = this.columns[i_1];
+                    if (!(col instanceof wuzhui.BoundField))
+                        continue;
+                    var cell = row.cells[i_1];
+                    if (cell instanceof wuzhui.GridViewEditableCell) {
+                        var c = cell;
+                        var value = item[col.dataField];
+                        if (value !== undefined) {
+                            c.value = value;
+                            dataItem[col.dataField] = value;
+                        }
+                    }
+                }
+                break;
+            }
         };
         GridView.prototype.showEmptyRow = function () {
             $(this._emtpyRow.element).show();
