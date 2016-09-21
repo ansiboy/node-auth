@@ -1,85 +1,24 @@
 
-class ObjectTraver {
-    private obj;
+function isError(data) {
+    if ((data.name as string || '').toLowerCase() == 'success')
+        return false;
 
-    constructor(obj) {
-        this.obj = obj;
-    }
+    if (data.name != undefined && data.message != undefined && data.stack != undefined)
+        return true;
 
-    execute(): any {
-        return this.visit(this.obj);
-    }
-
-    protected visitField() {
-
-    }
-
-    protected visitArray(obj: Array<any>): any {
-        let result = [];
-        for (let i = 0; i < (obj as []).length; i++) {
-            result[i] = this.visit(obj[i]);
-        }
-        return result;
-    }
-
-    protected visitNumber(obj: number): any {
-        return obj;
-    }
-
-    protected visitObject(obj: Object) {
-        let result = {};
-        for (let key in obj) {
-            result[key] = this.visit(obj[key]);
-        }
-        return result;
-    }
-
-    protected visit(obj): Object {
-        if ($.isArray(obj)) {
-            return this.visitArray(obj);
-        }
-        else if ($.isPlainObject(obj)) {
-            return this.visitObject(obj);
-        }
-        else if ($.isNumeric(obj)) {
-            return this.visitNumber(obj);
-        }
-        else if (typeof obj == 'string') {
-            return obj;
-        }
-        else {
-            throw 'not implment';
-        }
-    }
+    return false;
 }
 
-class MyObjectTraver extends ObjectTraver {
-    constructor(obj) {
-        super(obj);
-    }
-
-    protected visitObject(obj) {
-        let result = {};
-        for (let key in obj) {
-            let value = this.visit(obj[key]);;
-            if (key == '_id') {
-                result['id'] = value;
-            }
-            else {
-                result[key] = this.visit(obj[key]);
-            }
-        }
-        return result;
-    }
-}
-
+export let error = $.Callbacks();
+export let ajaxTimeout = 5000;
 
 let HTTP = 'http://';
-const HTTP_LENGTH = 7;
 let host = 'http://localhost:3000/';
+const HTTP_LENGTH = 7;
+
 export function ajax<T>(url: string, data?: any): JQueryDeferred<T> {
 
-    if (url.length < HTTP_LENGTH || url.substr(0, HTTP.length) != HTTP) {
+    if (url.length < HTTP_LENGTH || url.substr(0, HTTP_LENGTH).toLowerCase() != HTTP) {
         url = host + url;
     }
 
@@ -88,9 +27,34 @@ export function ajax<T>(url: string, data?: any): JQueryDeferred<T> {
     $.ajax(url, {
         data: data
     }).done(function (data) {
-        let d = new MyObjectTraver(data).execute();
-        result.resolve(d);
+        if (isError(data)) {
+            error.fire(data);
+            result.reject(data);
+            return;
+        }
+        result.resolve(data);
+
+    }).fail(function (jqXHR, textStatus) {
+        var err = new Error(jqXHR.statusText);
+        err.name = textStatus;
+        if (jqXHR.status == 0 && jqXHR.statusText == 'error') {
+            err.name = 'ConnectRemoteServerFail';
+            err.message = 'Cannt not connect remote server';
+        }
+        error.fire(err);
+        result.reject(err);
+
+    }).always(function () {
+        clearTimeout(timeoutid);
     });
+
+    //超时处理
+    let timeoutid = setTimeout(() => {
+        if (result.state() == 'pending') {
+            result.reject({ Code: 'Timeout', Message: 'Ajax call timemout.' });
+        }
+        clearTimeout(timeoutid);
+    }, ajaxTimeout);
 
     return result;
 }
