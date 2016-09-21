@@ -1,4 +1,6 @@
 
+import * as $ from 'jquery';
+
 function isError(data) {
     if ((data.name as string || '').toLowerCase() == 'success')
         return false;
