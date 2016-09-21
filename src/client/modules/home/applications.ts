@@ -1,15 +1,6 @@
 import * as application_service from 'services/application_service';
 
-let apps = [
-    { name: 'AAA', title: 'AAA' },
-    { name: 'BBB', title: 'AAA' },
-    { name: 'CCC', title: 'AAA' },
-    { name: 'DDD', title: 'AAA' },
-];
-
 class ApplicationsPage extends chitu.Page {
-
-    private items: KnockoutObservableArray<any>;
 
     constructor(params) {
         super(params);
@@ -25,6 +16,15 @@ class ApplicationsPage extends chitu.Page {
             this.items(data);
         })
     }
+
+    //==========================================================
+    // 绑定
+    private items: KnockoutObservableArray<any>;
+
+    private addApp() {
+        (<any>$(this.element).find('[name="dlg_application"]')).modal();
+    }
+    //==========================================================
 }
 
 export = ApplicationsPage;

@@ -1,6 +1,7 @@
-<ul class="apps" data-bind="foreach:items">
+<ul class="apps">
+  <!-- ko foreach:items -->
   <li>
-    <div class=""="header">
+    <div class="header">
       <p data-bind="text:name" class="smaller lighter green">
       </p>
     </div>
@@ -20,31 +21,39 @@
       </div>
     </div>
   </li>
+  <!-- /ko -->
+  <li>
+    <div class="header">
+      <p class="smaller lighter green">
+        添加应用
+      </p>
+    </div>
+    <div data-bind="click:addApp" style="padding-left:50px;padding-top:8px;">
+      <i class="icon-plus" style="font-size:120px"></i>
+    </div>
+  </li>
 </ul>
 
-<!--<h1>Applications</h1>
-<div name="categories" class="tabbable">
-  <ul id="myTab" class="nav nav-tabs">
-    <li class="pull-right">
-      <button data-bind="click:newApplication" class="btn btn-primary btn-sm">添加</button>
-    </li>
-  </ul>
-</div>
-
-<div class="modal fade" name="dlg_application" data-bind="click:newApplication">
+<div class="modal fade" name="dlg_application">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Modal title</h4>
+        <h4 class="modal-title">添加应用</h4>
       </div>
       <div class="modal-body">
-        <p>One fine body&hellip;</p>
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">名称</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" placeholder="请输入应用名称" autofocus="autofocus">
+            </div>
+          </div>
+        </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary">确定</button>
       </div>
     </div>
   </div>
-</div>-->
