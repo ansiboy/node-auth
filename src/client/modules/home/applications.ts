@@ -12,7 +12,7 @@ class ApplicationsPage extends chitu.Page {
     }
 
     private page_load(sender: chitu.Page, args) {
-        application_service.list().done((data: Array<any>) => {
+        return application_service.list().done((data: Array<any>) => {
             this.items(data);
         })
     }

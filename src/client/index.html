@@ -58,29 +58,29 @@
 
             <div id="sidebar" class="sidebar">
                 <ul data-bind="foreach:menus" class="nav nav-list">
-                    <li data-bind="visible:Visible">
-                        <a data-bind="attr:{href:Url,'class':VisibleChildren.length > 0 ? 'dropdown-toggle' : '' }" class="dropdown-toggle">
-                            <i data-bind="attr:{'class':Icon}"></i>
+                    <li data-bind="visible:visible">
+                        <a data-bind="attr:{href:url,'class':visibleChildren.length > 0 ? 'dropdown-toggle' : '' }" class="dropdown-toggle">
+                            <i data-bind="attr:{'class':icon}"></i>
                             <!--class="icon-bar-chart"-->
-                            <span data-bind="text:Title" class="menu-text"></span>
-                            <b data-bind="visible:VisibleChildren.length > 0" class="arrow icon-angle-down"></b>
+                            <span data-bind="text:title" class="menu-text"></span>
+                            <b data-bind="visible:visibleChildren.length > 0" class="arrow icon-angle-down"></b>
                         </a>
-                        <ul data-bind="visible:VisibleChildren.length > 0,foreach:VisibleChildren" class="submenu">
-                            <li data-bind="visible:Visible">
+                        <ul data-bind="visible:visibleChildren.length > 0,foreach:visibleChildren" class="submenu">
+                            <li data-bind="visible:visible">
                                 <!---->
-                                <a data-bind="attr:{href:Url,'class':Children.length>0?'dropdown-toggle':''}">
+                                <a data-bind="attr:{href:url,'class':children.length>0?'dropdown-toggle':''}">
                                     <i class="icon-double-angle-right"></i>
-                                    <i data-bind="attr:{'class':'menu-icon '+Icon},visible:Icon"></i>
-                                    <span data-bind="text:Title" class="menu-text"></span>
-                                    <b data-bind="visible:Children.length > 0" class="arrow icon-angle-down"></b>
+                                    <i data-bind="attr:{'class':'menu-icon '+icon},visible:icon"></i>
+                                    <span data-bind="text:title" class="menu-text"></span>
+                                    <b data-bind="visible:children.length > 0" class="arrow icon-angle-down"></b>
                                 </a>
-                                <ul data-bind="visible:Children.length > 0,foreach:Children" class="submenu">
+                                <ul data-bind="visible:children.length > 0,foreach:children" class="submenu">
                                     <li>
                                         <!---->
-                                        <a data-bind="attr:{href:Url}">
-                                            <i data-bind="attr:{'class':'menu-icon '+Icon},visible:Icon"></i>
-                                            <span data-bind="text:Title" class="menu-text"></span>
-                                            <b data-bind="visible:Children.length > 0" class="arrow icon-angle-down"></b>
+                                        <a data-bind="attr:{href:url}">
+                                            <i data-bind="attr:{'class':'menu-icon '+ icon},visible:icon"></i>
+                                            <span data-bind="text:title" class="menu-text"></span>
+                                            <b data-bind="visible:children.length > 0" class="arrow icon-angle-down"></b>
                                         </a>
                                     </li>
                                 </ul>
@@ -90,10 +90,6 @@
                     </li>
                 </ul>
                 <!-- /.nav-list -->
-
-                <div class="sidebar-collapse" id="sidebar-collapse">
-                    <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
-                </div>
             </div>
 
             <div class="main-content">

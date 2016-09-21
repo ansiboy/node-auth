@@ -55,17 +55,17 @@ requirejs(['application', 'knockout', 'menus', 'ace', 'wuzhui'], (app: chitu.App
 
     while (stack.length > 0) {
         var item = stack.pop();
-        item.Url = item.Url || '';
-        item.Children = item.Children || [];
-        item.Icon = item.Icon || '';
-        item.Visible = (item.Visible === undefined) ? true : item.Visible;
-        item.VisibleChildren = [];
+        item.url = item.url || '';
+        item.children = item.children || [];
+        item.icon = item.icon || '';
+        item.visible = (item.visible === undefined) ? true : item.visible;
+        item.visibleChildren = [];
 
-        for (var i = 0; i < item.Children.length; i++) {
-            if (item.Children[i].Visible === undefined || item.Children[i].Visible !== false)
-                item.VisibleChildren.push(item.Children[i]);
+        for (var i = 0; i < item.children.length; i++) {
+            if (item.children[i].visible === undefined || item.children[i].visible !== false)
+                item.visibleChildren.push(item.children[i]);
 
-            stack.push(item.Children[i]);
+            stack.push(item.children[i]);
         }
     }
 
