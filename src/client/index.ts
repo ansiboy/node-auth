@@ -15,6 +15,9 @@ requirejs.config({
         },
         wuzhui: {
             deps: ['jquery']
+        },
+        application: {
+            deps: ['errorHandle']
         }
     },
     paths: {

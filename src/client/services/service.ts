@@ -58,3 +58,4 @@ export function ajax<T>(url: string, data?: any): JQueryDeferred<T> {
 
     return result;
 }
+
