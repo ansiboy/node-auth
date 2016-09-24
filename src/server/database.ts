@@ -34,12 +34,12 @@ export class Table<T extends Entity>{
                 return;
             }
 
-            if (entity._id == null) {
+            if (entity.id == null) {
                 reject(errors.fieldNull('id', 'entity'));
                 return;
             }
 
-            this.source.updateOne({ _id: entity._id }, entity, (err, result) => {
+            this.source.updateOne({ _id: entity.id }, entity, (err, result) => {
                 if (err) {
                     reject(err);
                     return;
@@ -171,7 +171,7 @@ export class Users extends Table<User> {
 }
 
 export interface Entity {
-    _id?: string,
+    id?: string,
     createDateTime?: Date,
 }
 

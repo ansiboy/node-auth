@@ -16,12 +16,12 @@ export class ApplicationController extends BaseController {
         await db.applications.insertOne(app);
         return errors.success();
     }
-    async delete({_id}): Promise<Error> {
-        if (_id == null)
-            return errors.argumentNull('_id');
+    async delete({id}): Promise<Error> {
+        if (id == null)
+            return errors.argumentNull('id');
 
         let db = await data.Database.createInstance(this.applicationId);
-        await db.applications.deleteOne({ _id });
+        await db.applications.deleteOne({ _id: id });
         return errors.success();
     }
     async list(): Promise<Array<data.Appliation>> {
@@ -33,8 +33,8 @@ export class ApplicationController extends BaseController {
         if (app == null)
             return errors.argumentNull('app');
 
-        if (app._id == null)
-            return errors.fieldNull('_id', 'app');
+        if (app.id == null)
+            return errors.fieldNull('id', 'app');
 
         let db = await data.Database.createInstance(this.applicationId);
         let item = await db.applications.findOne({ name: app.name });

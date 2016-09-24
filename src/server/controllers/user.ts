@@ -21,7 +21,7 @@ export class UserController extends BaseController {
             mobile: '13431426607',
             email: '81232259@qq.com'
         }
-        return this.register({user});
+        return this.register({ user });
     }
     private async createUser(user: User) {
         let appId = this.applicationId;
@@ -85,7 +85,7 @@ export class UserController extends BaseController {
         if (user.password != password) {
             throw Errors.passwordIncorect(username);
         }
-        let token = await Token.create(this.applicationId, user._id, 'user');
+        let token = await Token.create(this.applicationId, user.id, 'user');
         return { token: token.value };
     }
     update(args: any) {
