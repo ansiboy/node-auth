@@ -80,7 +80,11 @@ var chitu;
             config = config || {};
             this._config = $.extend({
                 container: $.proxy(function (routeData, previous) {
-                    return chitu.PageContainerFactory.createInstance({ app: this.app, previous: previous, routeData: routeData });
+                    var element = document.createElement('div');
+                    element.className = 'page-container';
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    return chitu.PageContainerFactory.createInstance({ app: this.app, previous: previous, routeData: routeData, element: element });
                 }, { app: this })
             }, config);
             var urlParser = new UrlParser(this._config.pathBase);
@@ -874,7 +878,7 @@ var chitu;
             this.pageCreated = chitu.Callbacks();
             this.is_closing = false;
             params = $.extend({ enableGesture: true, enableSwipeClose: true }, params);
-            this._node = this.createNode();
+            this._node = params.element;
             this._loading = this.createLoading(this._node);
             this._previous = params.previous;
             this._app = params.app;
@@ -902,13 +906,6 @@ var chitu;
         PageContainer.prototype.on_closed = function (args) {
             return chitu.fireCallback(this.closed, this, args);
         };
-        PageContainer.prototype.createNode = function () {
-            this._node = document.createElement('div');
-            this._node.className = 'page-container';
-            this._node.style.display = 'none';
-            document.body.appendChild(this._node);
-            return this._node;
-        };
         PageContainer.prototype.createLoading = function (parent) {
             var loading_element = document.createElement('div');
             loading_element.className = 'page-loading';
@@ -917,16 +914,14 @@ var chitu;
             return loading_element;
         };
         PageContainer.prototype.show = function () {
-            if (this.visible == true)
-                return;
             this.on_showing(this.routeData.values);
-            $(this._node).show();
+            this._node.style.display = 'block';
             this.on_shown(this.routeData.values);
         };
         PageContainer.prototype.hide = function () {
-            if (this.visible == false)
-                return;
-            $(this._node).hide();
+            this.on_hiding(this.routeData.values);
+            this._node.style.display = 'none';
+            this.on_hidden(this.routeData.values);
         };
         PageContainer.prototype.close = function () {
             this.on_closing(this.routeData.values);
@@ -940,19 +935,6 @@ var chitu;
         PageContainer.prototype.hideLoading = function () {
             this._loading.style.display = 'none';
         };
-        Object.defineProperty(PageContainer.prototype, "visible", {
-            get: function () {
-                return $(this._node).is(':visible');
-            },
-            set: function (value) {
-                if (value)
-                    $(this._node).show();
-                else
-                    $(this._node).hide();
-            },
-            enumerable: true,
-            configurable: true
-        });
         Object.defineProperty(PageContainer.prototype, "element", {
             get: function () {
                 return this._node;
@@ -989,6 +971,11 @@ var chitu;
                     console.warn(chitu.Utility.format('加载活动“{0}”失败。', routeData.pageName));
                     result.reject();
                     return;
+                }
+                if ($.isPlainObject(Type)) {
+                    var obj = Type;
+                    if (obj['default'])
+                        Type = obj['default'];
                 }
                 if (!$.isFunction(Type) || Type.prototype == null)
                     throw chitu.Errors.actionTypeError(routeData.pageName);

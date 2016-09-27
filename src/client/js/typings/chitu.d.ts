@@ -179,6 +179,8 @@ declare namespace chitu {
         private _routeData;
         showing: Callback<PageContainer, any>;
         shown: Callback<PageContainer, any>;
+        hiding: Callback<PageContainer, any>;
+        hidden: Callback<PageContainer, any>;
         closing: Callback<PageContainer, any>;
         closed: Callback<PageContainer, any>;
         pageCreated: chitu.Callback<PageContainer, Page>;
@@ -186,13 +188,15 @@ declare namespace chitu {
             app: Application;
             routeData: RouteData;
             previous?: PageContainer;
+            element: HTMLElement;
         });
         on_pageCreated(page: chitu.Page): JQueryPromise<any>;
         on_showing(args: any): JQueryPromise<any>;
         on_shown(args: any): JQueryPromise<any>;
+        on_hiding(args: any): JQueryPromise<any>;
+        on_hidden(args: any): JQueryPromise<any>;
         on_closing(args: any): JQueryPromise<any>;
         on_closed(args: any): JQueryPromise<any>;
-        protected createNode(): HTMLElement;
         protected createLoading(parent: HTMLElement): HTMLElement;
         show(): void;
         hide(): void;
@@ -200,12 +204,12 @@ declare namespace chitu {
         close(): void;
         private showLoading();
         private hideLoading();
-        visible: boolean;
         element: HTMLElement;
         page: Page;
         previous: PageContainer;
         routeData: RouteData;
         private createActionDeferred(routeData);
+        private findPage();
         private createViewDeferred(url);
         private createPage(routeData);
     }
@@ -218,6 +222,7 @@ declare namespace chitu {
             previous?: PageContainer;
             enableGesture?: boolean;
             enableSwipeClose?: boolean;
+            element: HTMLElement;
         }): PageContainer;
     }
 }
@@ -231,6 +236,6 @@ declare namespace chitu {
         static loadjs(...modules: string[]): JQueryPromise<any>;
     }
 }
-declare module "chitu" { 
-    export = chitu; 
+declare module 'chitu' {
+    export = chitu;
 }

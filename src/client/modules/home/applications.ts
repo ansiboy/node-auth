@@ -40,4 +40,4 @@ class ApplicationsPage extends chitu.Page {
     //==========================================================
 }
 
-export = ApplicationsPage;
+export default ApplicationsPage;

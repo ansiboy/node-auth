@@ -21,7 +21,7 @@ module.exports = function (grunt) {
                 src: ['src/client/**/*.ts','src/client/**/*.tsx'],
                 dest: `${release}/client`,
                 options: {
-                    target: 'es5',
+                    target: 'es6',
                     module: 'amd',
                     removeComments: true,
                     declaration: false,

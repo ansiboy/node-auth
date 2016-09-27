@@ -2,4 +2,4 @@ class UsersPage extends chitu.Page {
 
 }
 
-export = UsersPage;
+export default UsersPage;

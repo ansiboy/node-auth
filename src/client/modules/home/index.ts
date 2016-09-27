@@ -2,4 +2,4 @@ class IndexPage extends chitu.Page {
 
 }
 
-export = IndexPage;
+export default IndexPage;
