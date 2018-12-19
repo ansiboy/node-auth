@@ -1,63 +1,124 @@
+import * as chitu from 'maishu-chitu';
 
-import * as $ from 'jquery';
-
-function isError(data) {
-    if ((data.name as string || '').toLowerCase() == 'success')
-        return false;
-
-    if (data.name != undefined && data.message != undefined && data.stack != undefined)
-        return true;
-
-    return false;
-}
-
-export let error = $.Callbacks();
-export let ajaxTimeout = 5000;
-
-let HTTP = 'http://';
-let host = 'http://localhost:3000/';
-const HTTP_LENGTH = 7;
-
-export function ajax<T>(url: string, data?: any): JQueryDeferred<T> {
-
-    if (url.length < HTTP_LENGTH || url.substr(0, HTTP_LENGTH).toLowerCase() != HTTP) {
-        url = host + url;
+export default class Service extends chitu.Service {
+    constructor() {
+        super();
     }
 
-    let result = $.Deferred<T>();
-    data = data || {};
-    $.ajax(url, {
-        data: data
-    }).done(function (data) {
-        if (isError(data)) {
-            error.fire(data);
-            result.reject(data);
-            return;
+    ajax<T>(url: string, options?: chitu.AjaxOptions): Promise<T> {
+        return super.ajax<T>(url, options).then((data) => {
+            if (data != null && data['DataItems'] != null && data['TotalRowCount'] != null) {
+                let d: any = {};
+                let keys = Object.keys(data);
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    let k = (key as string)[0].toLowerCase() + (key as string).substr(1);
+                    d[k] = data[key];
+                }
+
+                data = d;
+            }
+
+            this.travelJSON(data);
+            return data;
+        });
+    }
+
+    /**
+     * 遍历 JSON 对象各个字段，将日期字符串转换为 Date 对象
+     * @param obj 要转换的 JSON 对象
+     */
+    private travelJSON(obj: any) {
+
+        if (typeof obj === 'string' && this.isDateString(obj)) {
+            return new Date(obj);
         }
-        result.resolve(data);
-
-    }).fail(function (jqXHR, textStatus) {
-        var err = new Error(jqXHR.statusText);
-        err.name = textStatus;
-        if (jqXHR.status == 0 && jqXHR.statusText == 'error') {
-            err.name = 'ConnectRemoteServerFail';
-            err.message = 'Cannt not connect remote server';
+        else if (typeof obj === 'string') {
+            return obj;
         }
-        error.fire(err);
-        result.reject(err);
+        var stack = new Array();
+        stack.push(obj);
+        while (stack.length > 0) {
+            var item = stack.pop();
+            for (var key in item) {
+                var value = item[key];
+                if (value == null)
+                    continue;
 
-    }).always(function () {
-        clearTimeout(timeoutid);
-    });
-
-    //超时处理
-    let timeoutid = setTimeout(() => {
-        if (result.state() == 'pending') {
-            result.reject({ Code: 'Timeout', Message: 'Ajax call timemout.' });
+                if (value instanceof Array) {
+                    for (var i = 0; i < value.length; i++) {
+                        stack.push(value[i]);
+                    }
+                    continue;
+                }
+                if (typeof value == 'object') {
+                    stack.push(value);
+                    continue;
+                }
+                if (typeof value == 'string' && this.isDateString(value)) {
+                    item[key] = new Date(value);
+                }
+            }
         }
-        clearTimeout(timeoutid);
-    }, ajaxTimeout);
+        return obj;
+    }
 
-    return result;
+    private isDateString(text: string): boolean {
+        const datePattern = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+        const datePattern1 = /\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}/;
+        return text.match(datePattern) != null || text.match(datePattern1) != null
+    }
+
+    public getByJson<T>(url: string, data?: any) {
+        if (data && Object.getOwnPropertyNames(data).length > 0)
+            url = `${url}?${JSON.stringify(data)}`;
+
+        let headers = { "content-type": 'application/json' };
+        return this.ajax<T>(url, { headers, method: 'get' })
+    }
+
+    protected putByJson<T>(url: string, data?: any) {
+        let headers = { "content-type": 'application/json' };
+        return this.ajax<T>(url, { headers, data, method: 'put' });
+    }
+
+    protected postByJson<T>(url: string, data?: any) {
+        let headers = { "content-type": 'application/json' };
+        return this.ajax<T>(url, { headers, data, method: 'post' });
+    }
+
+    protected deleteByJson<T>(url: string, data: any) {
+        let headers = { "content-type": 'application/json' };
+        return this.ajax<T>(url, { headers, data, method: 'delete' });
+    }
+
+
+    protected get<T>(url: string, data?: any) {
+        data = data || {};
+        let params = "";
+        for (let key in data) {
+            params = params ? `${params}&${key}=${data[key]}` : `${key}=${data[key]}`;
+        }
+
+        if (params) {
+            url = `${url}?${params}`;
+        }
+
+        return this.ajax<T>(url, { method: 'get' })
+    }
+
+    protected put<T>(url: string, data?: any) {
+        let headers = { "content-type": 'application/x-www-form-urlencoded' };
+        return this.ajax<T>(url, { headers, data, method: 'put' });
+    }
+
+    protected post<T>(url: string, data?: any) {
+        let headers = { "content-type": 'application/x-www-form-urlencoded' };
+        return this.ajax<T>(url, { headers, data, method: 'post', });
+    }
+
+    protected delete<T>(url: string, data: any) {
+        let headers = { "content-type": 'application/x-www-form-urlencoded' };
+        return this.ajax<T>(url, { headers, data, method: 'delete' });
+    }
 }
-

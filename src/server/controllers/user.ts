@@ -1,98 +1,207 @@
+import { connect, execute, guid } from '../database';
+import { errors } from '../errors';
+import { Token } from '../token';
 
-/// <reference path="./../typings/validator/validator.d.ts"/>
-import * as validator from 'validator';
-import { Database, User, Token } from './../database';
-import * as Errors from '../errors';
-import { BaseController } from './baseController'
-import * as settings from '../settings';
 
-class UserGroups {
-    static normal = 'normal'
+
+interface Application {
+    id: string,
+    name: string,
+    data: object,
+    user_id: string,
+    create_date_time
 }
 
-settings.registerMode = 'username';
-export class UserController extends BaseController {
-    async  test() {
-        let db = await Database.createInstance(this.applicationId);
-        await db.users.deleteMany({ username: 'maishu' });
-        let user = <User>{
-            username: 'maishu',
-            password: '1234',
-            mobile: '13431426607',
-            email: '81232259@qq.com'
-        }
-        return this.register({ user });
-    }
-    private async createUser(user: User) {
-        let appId = this.applicationId;
+export default class UserController {
 
-        let db = await Database.createInstance(appId)
-        let u = await db.users.findOne({ username: user.username })
-        if (u != null) {
-            throw Errors.userExists(user.username);
-        }
-        return db.users.insertOne(user);
-    }
-    private async registerByUserName({user}: { user: User }) {
-        if (user.username == null) {
-            throw Errors.fieldNull('username', 'User');
-        }
-        if (user.password == null) {
-            throw Errors.fieldNull('password', 'User');
-        }
+    //====================================================
+    // 商家注册
+    /** 手机是否已注册 */
+    async isMobileRegister({ mobile }) {
+        if (!mobile) throw errors.argumentNull('mobile')
 
-        return this.createUser(user);
+        return connect(async conn => {
+            let sql = `select id from user where mobile = ? limit 1`
+            let [rows] = await execute(conn, sql, [mobile])
+            return (rows || []).length > 0
+        })
     }
-    private async registerByMobile({user, smsId, verifyCode}) {
-        if (user.mobile == null) {
-            throw Errors.fieldNull('username', 'User');
-        }
-        if (user.password == null) {
-            throw Errors.fieldNull('password', 'User');
-        }
-        if (user.smsId == null) {
-            throw Errors.argumentNull('smsId');
-        }
-        if (user.verifyCode == null) {
-            throw Errors.argumentNull('verifyCode');
-        }
 
-        return this.createUser(user);
-    }
-    async register(args: { user: User }) {
-        if (settings.registerMode == 'username')
-            return this.registerByUserName(args);
-        else if (settings.registerMode == 'mobile')
-            return this.registerByMobile(<any>args);
-        else if (settings.registerMode == 'notAllow')
-            throw Errors.notAllowRegister();
-        else
-            throw Errors.notImplement();
-    }
-    async login({ username, password }): Promise<{ token: string }> {
-        if (username == null) {
-            throw Errors.argumentNull('username');
-        }
-        if (password == null) {
-            throw Errors.argumentNull('password');
-        }
+    async register({ mobile, password, smsId, verifyCode }: { mobile: string, password: string, smsId: string, verifyCode: string }) {
+        if (mobile == null)
+            throw errors.argumentNull('mobile');
 
-        let db = await Database.createInstance(this.applicationId);
-        let user = await db.users.findOne({ username: username });
+        if (!password)
+            throw errors.argumentNull('password')
+
+        if (smsId == null)
+            throw errors.argumentNull('smsId');
+
+        if (verifyCode == null)
+            throw errors.argumentNull('verifyCode');
+
+
+        let user = await connect(async conn => {
+
+            let sql = `select code from sms_record where id = ?`
+            let [rows] = await execute(conn, sql, [smsId])
+            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                throw errors.verifyCodeIncorrect(verifyCode)
+            }
+
+            let user = {
+                id: guid(), mobile, password,
+                create_date_time: new Date(Date.now()),
+            } as User
+
+            sql = 'insert into user set ?'
+            await execute(conn, sql, user)
+            return user
+        })
+
+        let token = await Token.create({ user_id: user.id } as UserToken);
+        return { token: token.id, userId: user.id };
+    }
+
+    async resetPassword({ mobile, password, smsId, verifyCode }) {
+        if (mobile == null)
+            throw errors.argumentNull('mobile');
+
+        if (!password)
+            throw errors.argumentNull('password')
+
+        if (smsId == null)
+            throw errors.argumentNull('smsId');
+
+        if (verifyCode == null)
+            throw errors.argumentNull('verifyCode');
+
+        let result = await connect(async conn => {
+            let sql = `select * from user where mobile = ?`
+            let [rows] = await execute(conn, sql, [mobile, password])
+
+            let user: User = rows == null ? null : rows[0]
+            if (user == null) {
+                throw errors.mobileNotExists(mobile)
+            }
+
+            sql = `update user set password = ? where mobile = ?`
+            await execute(conn, sql, [password, mobile])
+
+            let token = await Token.create({ user_id: user.id } as UserToken);
+            return { token: token.id, userId: user.id };
+        })
+
+        return result
+    }
+
+    async loginByUserName({ username, password }) {
+
+        if (!username) throw errors.argumentNull("username")
+        if (!password) throw errors.argumentNull('password')
+
+        //TODO: 检查 username 类型
+        let type: 'mobile' | 'username' | 'email' = 'mobile'
+        let [rows] = await connect(conn => {
+            let sql: string
+            switch (type) {
+                default:
+                case 'mobile':
+                    sql = `select * from user where mobile = ? and password = ?`
+                    break
+                case 'username':
+                    sql = `select * from user where user_name = ? and password = ?`
+                    break
+                case 'email':
+                    sql = `select * from user where email = ? and password = ?`
+                    break
+            }
+            return execute(conn, sql, [username, password])
+        })
+
+        let user: User = rows == null ? null : rows[0]
         if (user == null) {
-            throw Errors.userNotExists(username);
+            throw errors.usernameOrPasswordIncorrect(username)
         }
-        if (user.password != password) {
-            throw Errors.passwordIncorect(username);
-        }
-        let token = await Token.create(this.applicationId, user.id, 'user');
-        return { token: token.value };
-    }
-    update(args: any) {
-        let p = new Promise(() => { });
 
+        let token = await Token.create({ user_id: user.id, SellerId: user.id } as UserToken)
+        return { token: token.id, userId: user.id }
+    }
+    async loginByOpenId<T extends { openid }>(args: T) {
+        let { openid } = args
+        if (!openid) throw errors.argumentNull('openid')
+        let user = await connect(async conn => {
+            let sql = `select * from user where openid = ?`
+            let [rows] = await execute(conn, sql, [openid])
+            if (rows.length > 0) {
+                return rows[0] as User
+            }
+
+            let user = {
+                id: guid(), openid, create_date_time: new Date(Date.now()),
+                data: JSON.stringify(args)
+            } as User
+            sql = `insert into user set ?`
+            await execute(conn, sql, user)
+            return user
+        })
+
+        let token = await Token.create({ user_id: user.id } as UserToken);
+        return { token: token.id, userId: user.id };
+    }
+    async login(args: any): Promise<{ token: string, userId: string }> {
+        args = args || {}
+        if (args.openid) {
+            return this.loginByOpenId(args)
+        }
+
+        return this.loginByUserName(args)
+    }
+
+
+    async me({ userId }) {
+        let user = await connect(async conn => {
+            let sql = `select id, user_name, mobile, openid from user where id = ?`
+            let [rows] = await execute(conn, sql, [userId])
+            return rows[0]
+        })
+
+        return user
+    }
+
+    async getRoles({ userId }) {
+        let roles = await connect(async conn => {
+            let sql = `select r.*
+                       from user_role as ur left join role as r on ur.role_id = r.id
+                       where ur.user_id = ?`
+            let [rows] = await execute(conn, sql, [userId])
+            return rows
+        })
+
+        return roles
+    }
+
+    async setRoles({ userId, roleIds }) {
+        if (!userId) throw errors.argumentNull('userId')
+        if (!roleIds) throw errors.argumentNull('roleIds')
+        if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
+        if (roleIds.length == 0) {
+            return
+        }
+
+        await connect(async conn => {
+
+            let deleteSQL = `delete from user_role where user_id = ?`
+            execute(conn, deleteSQL, [userId])
+
+            let values = []
+            let sql = `insert into user_role (user_id, role_id) values `
+            for (let i = 0; i < roleIds.length; i++) {
+                sql = sql + "(?,?)"
+                values.push(userId, roleIds[i])
+            }
+            execute(conn, sql, values)
+        })
     }
 }
-
-
 

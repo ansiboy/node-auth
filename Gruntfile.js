@@ -1,86 +1,98 @@
 
-var release = 'release';
+// let build = 'build';
+let release = 'release';
+let debug = 'debug';
 module.exports = function (grunt) {
-    var config = {
-        ts: {
-            server: {
-                src: ['src/server/**/*.ts'],
-                dest: `${release}/server`,
+    // var config = {
+    //     shell: {
+    //         client: {
+    //             command: 'tsc -p ./src/client',
+    //             options: {
+    //                 failOnError: false
+    //             }
+    //         },
+    //         server: {
+    //             command: 'tsc -p ./src/server',
+    //             options: {
+    //                 failOnError: false
+    //             }
+    //         }
+    //     }
+    // };
+
+
+    // grunt.initConfig(config);
+
+    // grunt.loadNpmTasks('grunt-contrib-copy');
+    // grunt.loadNpmTasks('grunt-contrib-less');
+    // grunt.loadNpmTasks('grunt-shell');
+
+    // grunt.registerTask('default', ['shell', 'stylus', 'copy']);
+
+    require('load-grunt-tasks')(grunt);
+
+    let node_modules = "../../node_modules"
+    let excludes = ['react', 'react-dom', 'maishu-chitu', 'maishu-chitu-react', 'maishu-chitu-admin', 'maishu-dilu', 'maishu-ui-toolkit']
+    grunt.initConfig({
+        browserify: {
+            dist: {
+                files: {
+                    "out/client/bundle.js": "out/client/application.js"
+                },
                 options: {
-                    target: 'es6',
-                    module: 'commonjs',
-                    removeComments: true,
-                    declaration: false,
-                    sourceMap: true,
-                    references: [
-                        "src/server/**/*.ts",
-                    ],
-                }
-            },
-            client: {
-                src: ['src/client/**/*.ts','src/client/**/*.tsx'],
-                dest: `${release}/client`,
-                options: {
-                    target: 'es6',
-                    module: 'amd',
-                    removeComments: true,
-                    declaration: false,
-                    sourceMap: false,
-                    jsx: 'react',
-                    references: [
-                        "src/client/**/*.ts"
-                    ],
-                }
-            },
-            test: {
-                src: ['src/test/**/*.ts'],
-                dest: `${release}`,
-                options: {
-                    target: 'es6',
-                    module: 'commonjs',
-                    removeComments: true,
-                    declaration: false,
-                    sourceMap: false,
-                    references: [
-                        "src/test/**/*.ts"
-                    ],
+                    transform: ['brfs'],
+                    browserifyOptions: {
+                        standalone: 'maishu_node_auth',
+                    },
+                    external: excludes
                 }
             }
         },
-        stylus: {
-            app: {
-                options: {
-                    compress: false,
-                },
-                files: [{
-                    expand: true,
-                    cwd: 'src/client/css/',
-                    src: ['**/*.styl'],
-                    dest: 'release/client/css',
-                    ext: '.css'
-                }]
-            },
+        concat: {
+            lib_es6: {
+                src: ['out/client/bundle.js', 'out/client/modules.js'],
+                dest: `dist/client/index.js`
+            }
         },
-        copy: {
+        requirejs: {
             client: {
-                files: [
-                    {
-                        expand: true, cwd: 'src/client',
-                        src: ['**/*.html', '**/*.js', '**/*.css', 'font/*.*'],
-                        dest: `${release}/client`
+                options: {
+                    baseUrl: 'out/client',
+                    paths: {
+                        "react": `${node_modules}/react/umd/react.development`,
+                        "react-dom": `${node_modules}/react-dom/umd/react-dom.development`,
+                        "maishu-chitu": `${node_modules}/maishu-chitu/dist/chitu`,
+                        "maishu-chitu-admin": `${node_modules}/maishu-chitu-admin/dist/chitu_admin`,
+                        "maishu-chitu-react": `${node_modules}/maishu-chitu-react/out/index`,
+                        "maishu-dilu": `${node_modules}/maishu-dilu/dist/dilu`,
+                        "maishu-ui-toolkit": `${node_modules}/maishu-ui-toolkit/dist/index`
                     },
-                ]
+                    include: [
+                        `modules/forget-password`,
+                        `modules/login`,
+                        `modules/register`,
+                    ],
+                    exclude: excludes,
+                    out: 'out/client/modules.js',
+                    optimize: 'none',
+                }
+            }
+        },
+        shell: {
+            client: {
+                command: 'tsc -p ./src/client',
+                options: {
+                    failOnError: false
+                }
+            },
+            server: {
+                command: 'tsc -p ./src/server',
+                options: {
+                    failOnError: false
+                }
             }
         }
-    };
+    })
 
-
-    grunt.initConfig(config);
-
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-stylus');
-    grunt.loadNpmTasks('grunt-ts');
-
-    grunt.registerTask('default', ['ts', 'stylus',  'copy']);
-
+    grunt.registerTask('default', ['shell', 'requirejs', 'browserify', 'concat'])
 };

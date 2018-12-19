@@ -1,75 +1,29 @@
-
+let node_modules = "../../node_modules"
 requirejs.config({
     shim: {
-        ace: {
-            deps: ['jquery', 'bootstrap']
+        "maishu-chitu-admin": {
+            deps: ['react', 'react-dom', 'maishu-chitu', 'maishu-chitu-react', 'maishu-ui-toolkit']
         },
-        bootstrap: {
-            deps: ['jquery']
+        "application": {
+            deps: ['maishu-chitu-admin', 'maishu-ui-toolkit', 'services/user']
         },
-        chitu: {
-            deps: ['jquery', 'hammer', 'move'],
-        },
-        move: {
-            exports: window['move']
-        },
-        wuzhui: {
-            deps: ['jquery']
-        },
-        application: {
-            deps: ['errorHandle']
+        "services/user": {
+            deps: ['../config']
         }
     },
     paths: {
-        ace: 'js/ace',
-        bootstrap: 'js/bootstrap',
-        c: 'js/css',
-        chitu: 'js/chitu',
-        crossroads: 'js/crossroads',
-        hammer: 'js/hammer',
-        iscroll: 'js/iscroll-probe',
-        jquery: 'js/jquery-2.1.0',
-        knockout: 'js/knockout-3.2.0.debug',
-        'knockout.validation': 'js/knockout.validation',
-        move: 'js/move',
-        react: 'js/react',
-        'react-dom': 'js/react-dom',
-        reactstrap: 'js/react-bootstrap',
-        text: 'js/text',
-        wuzhui: 'js/wuzhui',
+        "react": `${node_modules}/react/umd/react.development`,
+        "react-dom": `${node_modules}/react-dom/umd/react-dom.development`,
+        "maishu-chitu": `${node_modules}/maishu-chitu/dist/chitu`,
+        "maishu-chitu-admin": `${node_modules}/maishu-chitu-admin/dist/chitu_admin`,
+        "maishu-chitu-react": `${node_modules}/maishu-chitu-react/out/index`,
+        "maishu-dilu": `${node_modules}/maishu-dilu/dist/dilu`,
+        "maishu-ui-toolkit": `${node_modules}/maishu-ui-toolkit/dist/index`
     }
-});
+})
 
-
-requirejs(['application', 'knockout', 'menus', 'ace', 'wuzhui'], (app: chitu.Application, ko: KnockoutStatic, menus) => {
-    if (!location.hash) {
-        location.hash = '#home/index';
-    }
-    window['ko'] = window['ko'] || ko;
-    var model = {
-        menus: ko.observableArray()
-    };
-    var stack = [];
-    for (var i = 0; i < menus.length; i++)
-        stack.push(menus[i]);
-
-    while (stack.length > 0) {
-        var item = stack.pop();
-        item.url = item.url || '';
-        item.children = item.children || [];
-        item.icon = item.icon || '';
-        item.visible = (item.visible === undefined) ? true : item.visible;
-        item.visibleChildren = [];
-
-        for (var i = 0; i < item.children.length; i++) {
-            if (item.children[i].visible === undefined || item.children[i].visible !== false)
-                item.visibleChildren.push(item.children[i]);
-
-            stack.push(item.children[i]);
-        }
-    }
-
-    model.menus(menus);
-    ko.applyBindings(model, document.getElementById('sidebar'));
-    ko.applyBindings(model, document.getElementById('navbar'));
-});
+requirejs(['application'], function (chitu_admin) {
+    // define('modules/index', function () {
+    //     return modules_admin
+    // })
+})

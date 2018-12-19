@@ -1,8 +1,26 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "amd",
+        "outDir": "../../out/client",
         "jsx": "react",
-        "sourceMap": true
+        "baseUrl": "../../",
+        "module": "umd",
+        "target": "es6",
+        "paths": {
+            "maishu-chitu": [
+                "node_modules/maishu-chitu/dist/chitu.d.ts"
+            ],
+            "maishu-chitu-admin": [
+                "node_modules/maishu-chitu-admin/dist/chitu_admin.d.ts"
+            ],
+            "maishu-chitu-react": [
+                "node_modules/maishu-chitu-react/out/index.d.ts"
+            ],
+            "maishu-dilu": [
+                "node_modules/maishu-dilu/dist/dilu.d.ts"
+            ],
+            "maishu-ui-toolkit": [
+                "node_modules/maishu-ui-toolkit/dist/index.d.ts"
+            ]
+        }
     }
 }
