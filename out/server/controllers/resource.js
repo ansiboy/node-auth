@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -10,82 +16,89 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("../database");
 const errors_1 = require("../errors");
-function add({ name, path, parent_id, sort_number, type }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!name)
-            throw errors_1.errors.argumentNull('name');
-        if (sort_number != null && typeof sort_number != 'number')
-            throw errors_1.errors.argumentTypeIncorrect('sort_number', 'number');
-        let item = {
-            id: database_1.guid(), name, path,
-            parent_id, sort_number, create_date_time: new Date(Date.now()),
-            type
-        };
-        yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            if (item.sort_number == null) {
-                let s = `select max(sort_number) as value from resource`;
-                let rows;
-                if (type == null) {
-                    s = s + ` where type is null`;
-                    [rows] = yield database_1.execute(conn, s);
+const db = require("maishu-mysql-helper");
+const controller_1 = require("../controller");
+class ResourceController {
+    add({ name, path, parent_id, sort_number, type }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!name)
+                throw errors_1.errors.argumentNull('name');
+            if (sort_number != null && typeof sort_number != 'number')
+                throw errors_1.errors.argumentTypeIncorrect('sort_number', 'number');
+            let item = {
+                id: database_1.guid(), name, path,
+                parent_id, sort_number, create_date_time: new Date(Date.now()),
+                type
+            };
+            yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                if (item.sort_number == null) {
+                    let s = `select max(sort_number) as value from resource`;
+                    let rows;
+                    if (type == null) {
+                        s = s + ` where type is null`;
+                        [rows] = yield database_1.execute(conn, s);
+                    }
+                    else {
+                        s = s + ` where type = ?`;
+                        [rows] = yield database_1.execute(conn, s, type);
+                    }
+                    console.log(rows);
+                    let max_sort_number = rows.length == 0 ? 0 : rows[0].value;
+                    item.sort_number = max_sort_number + 10;
                 }
-                else {
-                    s = s + ` where type = ?`;
-                    [rows] = yield database_1.execute(conn, s, type);
-                }
-                console.log(rows);
-                let max_sort_number = rows.length == 0 ? 0 : rows[0].value;
-                item.sort_number = max_sort_number + 10;
+                let sql = `insert into resource set ?`;
+                return database_1.execute(conn, sql, item);
+            }));
+            return { id: item.id };
+        });
+    }
+    update({ id, name, path, parent_id, sort_number, type }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!id)
+                throw errors_1.errors.argumentNull('id');
+            if (!name)
+                throw errors_1.errors.argumentNull('name');
+            let item = {
+                name, path,
+                parent_id, sort_number, create_date_time: new Date(Date.now()),
+                type
+            };
+            yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                let sql = `update resource set ? where id = ?`;
+                return database_1.execute(conn, sql, [item, id]);
+            }));
+            return { id: item.id };
+        });
+    }
+    remove({ id }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!id)
+                throw errors_1.errors.argumentNull('id');
+            let sql = `delete from resource where id = ?`;
+            yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                return database_1.execute(conn, sql, id);
+            }));
+        });
+    }
+    list({ args, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!args.sortExpression) {
+                args.sortExpression = 'sort_number asc';
             }
-            let sql = `insert into resource set ?`;
-            return database_1.execute(conn, sql, item);
-        }));
-        return { id: item.id };
-    });
+            let result = yield db.list(conn, 'resource', args);
+            return result;
+        });
+    }
+    temp() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let conn = yield db.getConnection();
+            let resources = yield db.list(conn, 'resource');
+            return resources;
+        });
+    }
 }
-exports.add = add;
-function update({ id, name, path, parent_id, sort_number, type }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!id)
-            throw errors_1.errors.argumentNull('id');
-        if (!name)
-            throw errors_1.errors.argumentNull('name');
-        let item = {
-            name, path,
-            parent_id, sort_number, create_date_time: new Date(Date.now()),
-            type
-        };
-        yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            let sql = `update resource set ? where id = ?`;
-            return database_1.execute(conn, sql, [item, id]);
-        }));
-        return { id: item.id };
-    });
-}
-exports.update = update;
-function remove({ id }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!id)
-            throw errors_1.errors.argumentNull('id');
-        let sql = `delete from resource where id = ?`;
-        yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            return database_1.execute(conn, sql, id);
-        }));
-    });
-}
-exports.remove = remove;
-function list({ type }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let [rows] = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            let sql = `select * from resource`;
-            if (type) {
-                sql = sql + ` where type = ?`;
-            }
-            sql = sql + ' order by sort_number';
-            return database_1.execute(conn, sql, type);
-        }));
-        return rows;
-    });
-}
-exports.list = list;
+__decorate([
+    controller_1.action()
+], ResourceController.prototype, "list", null);
+exports.default = ResourceController;
 //# sourceMappingURL=resource.js.map

@@ -50,7 +50,7 @@ module.exports = function (grunt) {
         },
         concat: {
             lib_es6: {
-                src: ['out/client/bundle.js', 'out/client/modules.js'],
+                src: ['out/client/modules.js', 'out/client/bundle.js'],
                 dest: `dist/client/index.js`
             }
         },

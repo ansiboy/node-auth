@@ -5,7 +5,7 @@ requirejs.config({
             deps: ['react', 'react-dom', 'maishu-chitu', 'maishu-chitu-react', 'maishu-ui-toolkit']
         },
         "application": {
-            deps: ['maishu-chitu-admin', 'maishu-ui-toolkit', 'services/user']
+            deps: ['maishu-chitu-admin', 'maishu-ui-toolkit', 'maishu-dilu', 'services/user']
         },
         "services/user": {
             deps: ['../config']

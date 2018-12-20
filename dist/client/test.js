@@ -5,14 +5,11 @@ requirejs.config({
         "maishu-chitu-admin": {
             deps: ['react', 'react-dom', 'maishu-chitu', 'maishu-chitu-react', 'maishu-ui-toolkit']
         },
-        "application": {
-            deps: ['maishu-chitu-admin', 'maishu-ui-toolkit', 'services/user']
+        "index": {
+            deps: ['maishu-chitu-admin', 'maishu-ui-toolkit', 'maishu-dilu', 'services/user']
         },
         "services/user": {
             deps: ['../config']
-        },
-        'index': {
-            deps: ['maishu-chitu-admin']
         }
     },
     paths: {
@@ -37,8 +34,9 @@ define('modules/index', ['react'], function (React) {
     }
 })
 
-requirejs(['react', 'react-dom', 'maishu-chitu-react'], function () {
-    requirejs(['index'], function (chitu_admin) {
+requirejs(['react', 'react-dom', 'maishu-chitu-react', "maishu-chitu-admin",'../../out/client/modules'], function () {
+    requirejs(['../../out/client/bundle'], function (mod) {
         debugger
+        mod.app.run()
     });
 })

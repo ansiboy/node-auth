@@ -12,6 +12,7 @@ interface Resource {
     sort_number: number,
     type: string,
     create_date_time: Date,
+    visible?: boolean
 }
 
 
@@ -27,9 +28,22 @@ export class UserService extends Service {
     url(path: string) {
         return `${protocol}//${config.authServiceHost}/${path}`
     }
-    resources() {
+    async resources(): Promise<Resource[]> {
         let url = this.url('resource/list')
-        let resources = this.get<Resource[]>(url, { type: 'platform' })
+
+        type T = Resource & { data?: { visible?: boolean } }
+        let args = { filter: `type = "${config.menuType}"` }
+        let result = await this.getByJson<any>(url, { args })
+        let resources: T[] = result.dataItems
+        for (let i = 0; i < resources.length; i++) {
+            let data = resources[i].data
+            if (data) {
+                delete resources[i].data
+                Object.assign(resources[i], data)
+            }
+
+        }
+
         return resources
     }
     async login(username: string, password: string) {

@@ -63,16 +63,6 @@
     exports.default = ForgetPassword;
 });
 
-// interface Config {
-//     firstPanelWidth: string,
-//     authServiceHost: string,
-//     menuType: string,
-//     login: {
-//         title: string,
-//         showForgetPassword: boolean,
-//         showRegister: boolean,
-//     }
-// }
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
@@ -84,11 +74,6 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // let defaultConfig = {
-    //     login: { showForgetPassword: true, showRegister: true }
-    // } as Config
-    // export let config: Config = window['adminConfig'] || {}
-    // config.login = Object.assign(defaultConfig.login, config.login || {})
     const maishu_chitu_admin_1 = require("maishu-chitu-admin");
     maishu_chitu_admin_1.app.config.login = Object.assign({
         showForgetPassword: true, showRegister: true
@@ -241,9 +226,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return `${protocol}//${config_1.config.authServiceHost}/${path}`;
         }
         resources() {
-            let url = this.url('resource/list');
-            let resources = this.get(url, { type: 'platform' });
-            return resources;
+            return __awaiter(this, void 0, void 0, function* () {
+                let url = this.url('resource/list');
+                let args = { filter: `type = "${config_1.config.menuType}"` };
+                let result = yield this.getByJson(url, { args });
+                let resources = result.dataItems;
+                for (let i = 0; i < resources.length; i++) {
+                    let data = resources[i].data;
+                    if (data) {
+                        delete resources[i].data;
+                        Object.assign(resources[i], data);
+                    }
+                }
+                return resources;
+            });
         }
         login(username, password) {
             return __awaiter(this, void 0, void 0, function* () {

@@ -19,18 +19,18 @@
     maishu_chitu_admin_1.app.error.add((sender, error, page) => {
         ui.alert({ title: '错误', message: error.message });
     });
-    console.assert(maishu_chitu_admin_1.app.currentPage != null);
-    let userService = maishu_chitu_admin_1.app.currentPage.createService(user_1.UserService);
+    let userService = new user_1.UserService();
     userService.resources().then(resources => {
         let menus = resources.filter(o => o.parent_id == null)
-            .map(o => ({ id: o.id, name: o.name, path: o.path }));
+            .map(o => ({ id: o.id, name: o.name, path: o.path, visible: o.visible }));
         for (let i = 0; i < menus.length; i++) {
             menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
                 .map(o => ({
                 id: o.id,
                 name: o.name,
                 path: o.path,
-                parent: menus[i]
+                parent: menus[i],
+                visible: o.visible,
             }));
         }
         maishu_chitu_admin_1.app.masterPage.setMenus(menus);
@@ -38,7 +38,7 @@
     class Toolbar extends React.Component {
         constructor(props) {
             super(props);
-            this.state = { currentPageName: maishu_chitu_admin_1.app.currentPage.name };
+            this.state = { currentPageName: null };
         }
         componentDidMount() {
             maishu_chitu_admin_1.app.pageShowing.add((sender, page) => {
@@ -59,16 +59,6 @@
 });
 
 },{"./services/user":4,"maishu-chitu-admin":"maishu-chitu-admin","maishu-ui-toolkit":"maishu-ui-toolkit","react":"react"}],2:[function(require,module,exports){
-// interface Config {
-//     firstPanelWidth: string,
-//     authServiceHost: string,
-//     menuType: string,
-//     login: {
-//         title: string,
-//         showForgetPassword: boolean,
-//         showRegister: boolean,
-//     }
-// }
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
@@ -80,11 +70,6 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // let defaultConfig = {
-    //     login: { showForgetPassword: true, showRegister: true }
-    // } as Config
-    // export let config: Config = window['adminConfig'] || {}
-    // config.login = Object.assign(defaultConfig.login, config.login || {})
     const maishu_chitu_admin_1 = require("maishu-chitu-admin");
     maishu_chitu_admin_1.app.config.login = Object.assign({
         showForgetPassword: true, showRegister: true
@@ -239,9 +224,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return `${protocol}//${config_1.config.authServiceHost}/${path}`;
         }
         resources() {
-            let url = this.url('resource/list');
-            let resources = this.get(url, { type: 'platform' });
-            return resources;
+            return __awaiter(this, void 0, void 0, function* () {
+                let url = this.url('resource/list');
+                let args = { filter: `type = "${config_1.config.menuType}"` };
+                let result = yield this.getByJson(url, { args });
+                let resources = result.dataItems;
+                for (let i = 0; i < resources.length; i++) {
+                    let data = resources[i].data;
+                    if (data) {
+                        delete resources[i].data;
+                        Object.assign(resources[i], data);
+                    }
+                }
+                return resources;
+            });
         }
         login(username, password) {
             return __awaiter(this, void 0, void 0, function* () {

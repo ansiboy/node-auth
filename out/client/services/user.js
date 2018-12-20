@@ -25,9 +25,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return `${protocol}//${config_1.config.authServiceHost}/${path}`;
         }
         resources() {
-            let url = this.url('resource/list');
-            let resources = this.get(url, { type: 'platform' });
-            return resources;
+            return __awaiter(this, void 0, void 0, function* () {
+                let url = this.url('resource/list');
+                let args = { filter: `type = "${config_1.config.menuType}"` };
+                let result = yield this.getByJson(url, { args });
+                let resources = result.dataItems;
+                for (let i = 0; i < resources.length; i++) {
+                    let data = resources[i].data;
+                    if (data) {
+                        delete resources[i].data;
+                        Object.assign(resources[i], data);
+                    }
+                }
+                return resources;
+            });
         }
         login(username, password) {
             return __awaiter(this, void 0, void 0, function* () {

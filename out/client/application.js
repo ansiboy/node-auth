@@ -18,18 +18,18 @@
     maishu_chitu_admin_1.app.error.add((sender, error, page) => {
         ui.alert({ title: '错误', message: error.message });
     });
-    console.assert(maishu_chitu_admin_1.app.currentPage != null);
-    let userService = maishu_chitu_admin_1.app.currentPage.createService(user_1.UserService);
+    let userService = new user_1.UserService();
     userService.resources().then(resources => {
         let menus = resources.filter(o => o.parent_id == null)
-            .map(o => ({ id: o.id, name: o.name, path: o.path }));
+            .map(o => ({ id: o.id, name: o.name, path: o.path, visible: o.visible }));
         for (let i = 0; i < menus.length; i++) {
             menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
                 .map(o => ({
                 id: o.id,
                 name: o.name,
                 path: o.path,
-                parent: menus[i]
+                parent: menus[i],
+                visible: o.visible,
             }));
         }
         maishu_chitu_admin_1.app.masterPage.setMenus(menus);
@@ -37,7 +37,7 @@
     class Toolbar extends React.Component {
         constructor(props) {
             super(props);
-            this.state = { currentPageName: maishu_chitu_admin_1.app.currentPage.name };
+            this.state = { currentPageName: null };
         }
         componentDidMount() {
             maishu_chitu_admin_1.app.pageShowing.add((sender, page) => {

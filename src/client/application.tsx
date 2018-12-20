@@ -8,19 +8,19 @@ app.error.add((sender, error, page) => {
     ui.alert({ title: '错误', message: error.message })
 })
 
-console.assert(app.currentPage != null)
-
-let userService = app.currentPage.createService(UserService)
+let userService = new UserService();
 userService.resources().then(resources => {
     let menus = resources.filter(o => o.parent_id == null)
-        .map(o => ({ id: o.id, name: o.name, path: o.path } as Menu))
+        .map(o => ({ id: o.id, name: o.name, path: o.path, visible: o.visible } as Menu))
+
     for (let i = 0; i < menus.length; i++) {
         menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
             .map(o => ({
                 id: o.id,
                 name: o.name,
                 path: o.path,
-                parent: menus[i]
+                parent: menus[i],
+                visible: o.visible,
             } as Menu))
     }
     app.masterPage.setMenus(menus)
@@ -31,7 +31,7 @@ class Toolbar extends React.Component<{}, { currentPageName: string }> {
     constructor(props) {
         super(props)
 
-        this.state = { currentPageName: app.currentPage.name }
+        this.state = { currentPageName: null }
     }
     componentDidMount() {
         app.pageShowing.add((sender, page) => {
@@ -54,5 +54,8 @@ class Toolbar extends React.Component<{}, { currentPageName: string }> {
 }
 
 app.masterPage.setToolbar(<Toolbar />)
+
+
+
 
 
