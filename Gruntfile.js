@@ -52,6 +52,10 @@ module.exports = function (grunt) {
             lib_es6: {
                 src: ['out/client/modules.js', 'out/client/bundle.js'],
                 dest: `dist/client/index.js`
+            },
+            declare: {
+                src: ['src/client/declare.d.ts'],
+                dest: `dist/client/index.d.ts`
             }
         },
         requirejs: {

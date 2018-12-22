@@ -243,7 +243,10 @@ function createTargetResquest(host, path, port, token, req, res) {
     return request;
 }
 function outputError(response, err) {
-    console.assert(err != null, 'error is null');
+    if (err == null) {
+        err = new Error('Error is null');
+        err.name = 'NullError';
+    }
     const StatusCodeDefaultError = 600;
     response.statusCode = StatusCodeDefaultError;
     response.statusMessage = err.name; // statusMessage 不能为中文，否则会出现 invalid chartset 的异常
@@ -293,4 +296,5 @@ process.on('unhandledRejection', (reason, p) => {
     debugger;
     console.log(reason);
 });
+``;
 //# sourceMappingURL=app.js.map

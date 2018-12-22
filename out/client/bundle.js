@@ -22,7 +22,10 @@
     let userService = new user_1.UserService();
     userService.resources().then(resources => {
         let menus = resources.filter(o => o.parent_id == null)
-            .map(o => ({ id: o.id, name: o.name, path: o.path, visible: o.visible }));
+            .map(o => ({
+            id: o.id, name: o.name, visible: o.visible,
+            path: `${o.path}?resource_id=${o.id}`
+        }));
         for (let i = 0; i < menus.length; i++) {
             menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
                 .map(o => ({

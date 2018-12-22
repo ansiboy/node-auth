@@ -52,21 +52,21 @@ class ResourceController {
             return { id: item.id };
         });
     }
-    update({ id, name, path, parent_id, sort_number, type }) {
+    update({ item, conn }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!id)
-                throw errors_1.errors.argumentNull('id');
-            if (!name)
-                throw errors_1.errors.argumentNull('name');
-            let item = {
-                name, path,
-                parent_id, sort_number, create_date_time: new Date(Date.now()),
-                type
-            };
-            yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-                let sql = `update resource set ? where id = ?`;
-                return database_1.execute(conn, sql, [item, id]);
-            }));
+            if (!item)
+                throw errors_1.errors.argumentNull('item');
+            if (!item.id)
+                throw errors_1.errors.fieldNull('id', 'item');
+            if (!item.name)
+                throw errors_1.errors.fieldNull('name', 'item');
+            // delete item.create_date_time
+            // item.data = JSON.stringify(item.data || {}) as any
+            // await connect(async conn => {
+            //     let sql = `update resource set ? where id = ?`
+            //     return execute(conn, sql, [item, item.id])
+            // })
+            yield db.update(conn, 'resource', item);
             return { id: item.id };
         });
     }
@@ -82,6 +82,7 @@ class ResourceController {
     }
     list({ args, conn }) {
         return __awaiter(this, void 0, void 0, function* () {
+            args = args || {};
             if (!args.sortExpression) {
                 args.sortExpression = 'sort_number asc';
             }
@@ -97,6 +98,9 @@ class ResourceController {
         });
     }
 }
+__decorate([
+    controller_1.action()
+], ResourceController.prototype, "update", null);
 __decorate([
     controller_1.action()
 ], ResourceController.prototype, "list", null);

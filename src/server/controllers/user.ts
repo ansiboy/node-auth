@@ -1,6 +1,8 @@
 import { connect, execute, guid } from '../database';
 import { errors } from '../errors';
 import { Token } from '../token';
+import * as db from 'maishu-mysql-helper';
+import { action } from '../controller';
 
 
 
@@ -202,6 +204,12 @@ export default class UserController {
             }
             execute(conn, sql, values)
         })
+    }
+
+    @action()
+    async list({ args, conn }: { args: db.SelectArguments, conn: db.Connection }) {
+        let result = await db.list<User>(conn, 'user', args)
+        return result
     }
 }
 

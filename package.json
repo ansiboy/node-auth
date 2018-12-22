@@ -1,6 +1,6 @@
 {
   "name": "maishu-node-auth",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "devDependencies": {
     "@types/memory-cache": "^0.2.0",
@@ -30,7 +30,7 @@
     "maishu-chitu-admin": "^1.0.21",
     "maishu-chitu-react": "^1.0.8",
     "maishu-dilu": "^1.0.2",
-    "maishu-mysql-helper": "^1.0.7",
+    "maishu-mysql-helper": "^1.0.13",
     "maishu-ui-toolkit": "^1.0.1",
     "memory-cache": "^0.2.0",
     "mysql": "^2.15.0",

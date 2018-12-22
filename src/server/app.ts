@@ -273,7 +273,10 @@ function createTargetResquest(host: string, path: string, port: number, token: T
 }
 
 function outputError(response: http.ServerResponse, err: Error) {
-    console.assert(err != null, 'error is null');
+    if (err == null) {
+        err = new Error('Error is null')
+        err.name = 'NullError'
+    }
 
     const StatusCodeDefaultError = 600;
 
@@ -339,5 +342,5 @@ process.on('unhandledRejection', (reason, p) => {
     debugger;
     console.log(reason);
 });
-
+``
 

@@ -11,7 +11,10 @@ app.error.add((sender, error, page) => {
 let userService = new UserService();
 userService.resources().then(resources => {
     let menus = resources.filter(o => o.parent_id == null)
-        .map(o => ({ id: o.id, name: o.name, path: o.path, visible: o.visible } as Menu))
+        .map(o => ({
+            id: o.id, name: o.name, visible: o.visible,
+            path: `${o.path}?resource_id=${o.id}`
+        } as Menu))
 
     for (let i = 0; i < menus.length; i++) {
         menus[i].children = resources.filter(o => o.parent_id == menus[i].id)

@@ -12,6 +12,7 @@ interface Resource {
     sort_number: number,
     type: string,
     create_date_time: Date,
+    data?: object,
 }
 
 export default class ResourceController {
@@ -54,21 +55,13 @@ export default class ResourceController {
         return { id: item.id }
     }
 
-    async update({ id, name, path, parent_id, sort_number, type }) {
-        if (!id) throw errors.argumentNull('id')
-        if (!name) throw errors.argumentNull('name')
+    @action()
+    async update({ item, conn }: { item: Resource, conn: db.Connection }) {
+        if (!item) throw errors.argumentNull('item')
+        if (!item.id) throw errors.fieldNull('id', 'item')
+        if (!item.name) throw errors.fieldNull('name', 'item')
 
-        let item: Resource = {
-            name, path,
-            parent_id, sort_number, create_date_time: new Date(Date.now()),
-            type
-        }
-
-        await connect(async conn => {
-            let sql = `update resource set ? where id = ?`
-            return execute(conn, sql, [item, id])
-        })
-
+        await db.update(conn, 'resource', item)
         return { id: item.id }
     }
 
@@ -83,6 +76,7 @@ export default class ResourceController {
 
     @action()
     async list({ args, conn }: { args: db.SelectArguments, conn: db.Connection }) {
+        args = args || {}
         if (!args.sortExpression) {
             args.sortExpression = 'sort_number asc'
         }
