@@ -19,33 +19,30 @@ const errors_1 = require("../errors");
 const db = require("maishu-mysql-helper");
 const controller_1 = require("../controller");
 class ResourceController {
-    add({ name, path, parent_id, sort_number, type }) {
+    add({ item }) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!name)
-                throw errors_1.errors.argumentNull('name');
-            if (sort_number != null && typeof sort_number != 'number')
-                throw errors_1.errors.argumentTypeIncorrect('sort_number', 'number');
-            let item = {
-                id: database_1.guid(), name, path,
-                parent_id, sort_number, create_date_time: new Date(Date.now()),
-                type
-            };
+            if (!item.name)
+                throw errors_1.errors.fieldNull('name', 'item');
+            item.id = database_1.guid();
+            item.create_date_time = new Date(Date.now());
             yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 if (item.sort_number == null) {
                     let s = `select max(sort_number) as value from resource`;
                     let rows;
-                    if (type == null) {
+                    if (item.type == null) {
                         s = s + ` where type is null`;
                         [rows] = yield database_1.execute(conn, s);
                     }
                     else {
                         s = s + ` where type = ?`;
-                        [rows] = yield database_1.execute(conn, s, type);
+                        [rows] = yield database_1.execute(conn, s, item.type);
                     }
                     console.log(rows);
                     let max_sort_number = rows.length == 0 ? 0 : rows[0].value;
                     item.sort_number = max_sort_number + 10;
                 }
+                if (item.data && typeof item.data == 'object')
+                    item.data = JSON.stringify(item.data);
                 let sql = `insert into resource set ?`;
                 return database_1.execute(conn, sql, item);
             }));
@@ -60,12 +57,6 @@ class ResourceController {
                 throw errors_1.errors.fieldNull('id', 'item');
             if (!item.name)
                 throw errors_1.errors.fieldNull('name', 'item');
-            // delete item.create_date_time
-            // item.data = JSON.stringify(item.data || {}) as any
-            // await connect(async conn => {
-            //     let sql = `update resource set ? where id = ?`
-            //     return execute(conn, sql, [item, item.id])
-            // })
             yield db.update(conn, 'resource', item);
             return { id: item.id };
         });
@@ -100,7 +91,13 @@ class ResourceController {
 }
 __decorate([
     controller_1.action()
+], ResourceController.prototype, "add", null);
+__decorate([
+    controller_1.action()
 ], ResourceController.prototype, "update", null);
+__decorate([
+    controller_1.action()
+], ResourceController.prototype, "remove", null);
 __decorate([
     controller_1.action()
 ], ResourceController.prototype, "list", null);

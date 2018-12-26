@@ -1,6 +1,5 @@
 import { connect, execute, guid } from "../database";
 import { errors } from "../errors";
-import { conn } from "../settings";
 import * as db from 'maishu-mysql-helper'
 import { action } from "../controller";
 
@@ -17,16 +16,12 @@ interface Resource {
 
 export default class ResourceController {
 
-    async add({ name, path, parent_id, sort_number, type }) {
-        if (!name) throw errors.argumentNull('name')
-        if (sort_number != null && typeof sort_number != 'number')
-            throw errors.argumentTypeIncorrect('sort_number', 'number')
-
-        let item: Resource = {
-            id: guid(), name, path,
-            parent_id, sort_number, create_date_time: new Date(Date.now()),
-            type
-        }
+    @action()
+    async add({ item }: { item: Resource }) {//name, path, parent_id, sort_number, type 
+        if (!item.name) throw errors.fieldNull('name', 'item')
+     
+        item.id = guid()
+        item.create_date_time = new Date(Date.now())
 
         await connect(async conn => {
 
@@ -34,19 +29,22 @@ export default class ResourceController {
                 let s = `select max(sort_number) as value from resource`
 
                 let rows: any[]
-                if (type == null) {
+                if (item.type == null) {
                     s = s + ` where type is null`;
                     [rows] = await execute(conn, s)
                 }
                 else {
                     s = s + ` where type = ?`;
-                    [rows] = await execute(conn, s, type)
+                    [rows] = await execute(conn, s, item.type)
                 }
 
                 console.log(rows)
                 let max_sort_number = rows.length == 0 ? 0 : rows[0].value
                 item.sort_number = max_sort_number + 10
             }
+
+            if (item.data && typeof item.data == 'object')
+                item.data = JSON.stringify(item.data) as any
 
             let sql = `insert into resource set ?`
             return execute(conn, sql, item)
@@ -65,6 +63,7 @@ export default class ResourceController {
         return { id: item.id }
     }
 
+    @action()
     async remove({ id }) {
         if (!id) throw errors.argumentNull('id')
 
