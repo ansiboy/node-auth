@@ -83,7 +83,7 @@ export function get({ id, APP_ID }) {
  * resourceIds 角色所允许访问的资源 ID 数组
  * appId 应用 ID
  */
-export function setResources({ roleId, resourceIds, APP_ID }: { roleId: string, resourceIds: string[], APP_ID: string }) {
+export function setResources({ roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
     return connect(async conn => {
         let sql = `select * from role_resource where role_id = ?`
         let [rows] = await execute(conn, sql, roleId)
@@ -117,16 +117,16 @@ export function setResources({ roleId, resourceIds, APP_ID }: { roleId: string, 
         }
 
         if (addResourceIds.length > 0) {
-            sql = `insert into role_resource (id, resource_id, role_id, create_date_time, application_id) values `
+            sql = `insert into role_resource (id, resource_id, role_id, create_date_time) values `
             let values = new Array<any>()
             for (let i = 0; i < addResourceIds.length; i++) {
                 if (i == 0) {
-                    sql = sql + '(?, ?, ?, ?, ?)'
+                    sql = sql + '(?, ?, ?, ?)'
                 }
                 else {
-                    sql = sql + ',(?, ?, ?, ?, ?)'
+                    sql = sql + ',(?, ?, ?, ?)'
                 }
-                values.push(...[guid(), addResourceIds[i], roleId, new Date(Date.now()), APP_ID])
+                values.push(...[guid(), addResourceIds[i], roleId, new Date(Date.now())])
             }
             await execute(conn, sql, values)
         }
@@ -139,14 +139,12 @@ export function setResources({ roleId, resourceIds, APP_ID }: { roleId: string, 
  * 获取角色的资源编号
  * @param param0 
  * roleId: 角色编号 
- * appId: 应用编号
  */
-export function resourceIds({ roleId, APP_ID }) {
+export function resourceIds({ roleId }) {
     if (!roleId) throw errors.argumentNull('roleId')
-    if (!APP_ID) throw errors.argumentNull('APP_ID')
     return connect(async conn => {
-        let sql = `select resource_id from role_resource where role_id = ? and application_id = ?`
-        let [rows] = await execute(conn, sql, [roleId, APP_ID])
+        let sql = `select resource_id from role_resource where role_id = ?`
+        let [rows] = await execute(conn, sql, [roleId])
         return rows
     })
 }

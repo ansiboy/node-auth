@@ -228,7 +228,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         resources() {
             return __awaiter(this, void 0, void 0, function* () {
                 let url = this.url('resource/list');
-                let args = { filter: `type = "${config_1.config.menuType}"` };
+                let args = { filter: `category = "${config_1.config.menuType}"` };
                 let result = yield this.getByJson(url, { args });
                 let resources = result.dataItems;
                 for (let i = 0; i < resources.length; i++) {
@@ -434,6 +434,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const ui = require("maishu-ui-toolkit");
     const user_1 = require("./services/user");
     const React = require("react");
+    maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'index', 'login', 'register']);
     maishu_chitu_admin_1.app.error.add((sender, error, page) => {
         ui.alert({ title: '错误', message: error.message });
     });
@@ -647,7 +648,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         resources() {
             return __awaiter(this, void 0, void 0, function* () {
                 let url = this.url('resource/list');
-                let args = { filter: `type = "${config_1.config.menuType}"` };
+                let args = { filter: `category = "${config_1.config.menuType}"` };
                 let result = yield this.getByJson(url, { args });
                 let resources = result.dataItems;
                 for (let i = 0; i < resources.length; i++) {

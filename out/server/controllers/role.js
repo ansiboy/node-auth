@@ -79,7 +79,7 @@ exports.get = get;
  * resourceIds 角色所允许访问的资源 ID 数组
  * appId 应用 ID
  */
-function setResources({ roleId, resourceIds, APP_ID }) {
+function setResources({ roleId, resourceIds }) {
     return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
         let sql = `select * from role_resource where role_id = ?`;
         let [rows] = yield database_1.execute(conn, sql, roleId);
@@ -108,16 +108,16 @@ function setResources({ roleId, resourceIds, APP_ID }) {
             yield database_1.execute(conn, sql, [roleId, ...removeResourceIds]);
         }
         if (addResourceIds.length > 0) {
-            sql = `insert into role_resource (id, resource_id, role_id, create_date_time, application_id) values `;
+            sql = `insert into role_resource (id, resource_id, role_id, create_date_time) values `;
             let values = new Array();
             for (let i = 0; i < addResourceIds.length; i++) {
                 if (i == 0) {
-                    sql = sql + '(?, ?, ?, ?, ?)';
+                    sql = sql + '(?, ?, ?, ?)';
                 }
                 else {
-                    sql = sql + ',(?, ?, ?, ?, ?)';
+                    sql = sql + ',(?, ?, ?, ?)';
                 }
-                values.push(...[database_1.guid(), addResourceIds[i], roleId, new Date(Date.now()), APP_ID]);
+                values.push(...[database_1.guid(), addResourceIds[i], roleId, new Date(Date.now())]);
             }
             yield database_1.execute(conn, sql, values);
         }
@@ -129,16 +129,13 @@ exports.setResources = setResources;
  * 获取角色的资源编号
  * @param param0
  * roleId: 角色编号
- * appId: 应用编号
  */
-function resourceIds({ roleId, APP_ID }) {
+function resourceIds({ roleId }) {
     if (!roleId)
         throw errors_1.errors.argumentNull('roleId');
-    if (!APP_ID)
-        throw errors_1.errors.argumentNull('APP_ID');
     return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-        let sql = `select resource_id from role_resource where role_id = ? and application_id = ?`;
-        let [rows] = yield database_1.execute(conn, sql, [roleId, APP_ID]);
+        let sql = `select resource_id from role_resource where role_id = ?`;
+        let [rows] = yield database_1.execute(conn, sql, [roleId]);
         return rows;
     }));
 }

@@ -1,4 +1,4 @@
-export { app } from './application'
+// export { app } from './application'
 // let node_modules = "../../node_modules"
 // requirejs.config({
 //     shim: {
