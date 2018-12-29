@@ -4,7 +4,7 @@ import * as ui from 'maishu-ui-toolkit'
 import { UserService } from './services/user'
 import React = require('react')
 
-app.masterPage.setHideMenuPages(['forget-password', 'index', 'login', 'register'])
+app.masterPage.setHideMenuPages(['forget-password', 'login', 'register'])
 
 app.error.add((sender, error, page) => {
     ui.alert({ title: '错误', message: error.message })

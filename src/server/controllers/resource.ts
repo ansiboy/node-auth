@@ -79,6 +79,7 @@ export default class ResourceController {
         if (!args.sortExpression) {
             args.sortExpression = 'sort_number asc'
         }
+        conn.applicationId = null
         let result = await db.list<Resource>(conn, 'resource', args)
         return result
     }

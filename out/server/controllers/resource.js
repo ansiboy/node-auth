@@ -77,6 +77,7 @@ class ResourceController {
             if (!args.sortExpression) {
                 args.sortExpression = 'sort_number asc';
             }
+            conn.applicationId = null;
             let result = yield db.list(conn, 'resource', args);
             return result;
         });

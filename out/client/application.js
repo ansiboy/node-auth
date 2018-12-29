@@ -15,7 +15,7 @@
     const ui = require("maishu-ui-toolkit");
     const user_1 = require("./services/user");
     const React = require("react");
-    maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'index', 'login', 'register']);
+    maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'login', 'register']);
     maishu_chitu_admin_1.app.error.add((sender, error, page) => {
         ui.alert({ title: '错误', message: error.message });
     });

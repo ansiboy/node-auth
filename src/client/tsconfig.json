@@ -3,6 +3,7 @@
         "outDir": "../../out/client",
         "jsx": "react",
         "baseUrl": "../../",
+        "declaration": true,
         "module": "umd",
         "target": "es6",
         "paths": {

@@ -21,7 +21,6 @@ const db = require("maishu-mysql-helper");
 const controller_1 = require("../controller");
 class UserController {
     //====================================================
-    // 商家注册
     /** 手机是否已注册 */
     isMobileRegister({ mobile }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +29,28 @@ class UserController {
             return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 let sql = `select id from user where mobile = ? limit 1`;
                 let [rows] = yield database_1.execute(conn, sql, [mobile]);
+                return (rows || []).length > 0;
+            }));
+        });
+    }
+    isUserNameRegister({ user_name }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!user_name)
+                throw errors_1.errors.argumentNull('user_name');
+            return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                let sql = `select id from user where user_name = ? limit 1`;
+                let [rows] = yield database_1.execute(conn, sql, [user_name]);
+                return (rows || []).length > 0;
+            }));
+        });
+    }
+    isEmailRegister({ email }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!email)
+                throw errors_1.errors.argumentNull('user_name');
+            return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                let sql = `select id from user where user_name = ? limit 1`;
+                let [rows] = yield database_1.execute(conn, sql, [email]);
                 return (rows || []).length > 0;
             }));
         });
@@ -151,50 +172,60 @@ class UserController {
             return this.loginByUserName(args);
         });
     }
-    me({ userId }) {
+    /** 获取登录用户的信息 */
+    me({ USER_ID }) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 let sql = `select id, user_name, mobile, openid from user where id = ?`;
-                let [rows] = yield database_1.execute(conn, sql, [userId]);
+                let [rows] = yield database_1.execute(conn, sql, [USER_ID]);
                 return rows[0];
             }));
             return user;
         });
     }
-    getRoles({ userId }) {
+    /**
+     * 获取用户角色
+     * @param param0
+     * 1. userId string
+     */
+    getRoles({ USER_ID }) {
         return __awaiter(this, void 0, void 0, function* () {
             let roles = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 let sql = `select r.*
                        from user_role as ur left join role as r on ur.role_id = r.id
                        where ur.user_id = ?`;
-                let [rows] = yield database_1.execute(conn, sql, [userId]);
+                let [rows] = yield database_1.execute(conn, sql, [USER_ID]);
                 return rows;
             }));
             return roles;
         });
     }
-    setRoles({ userId, roleIds }) {
+    /**
+     * 设置用户权限
+     * @param param0
+     * 1. userId string, 用设置权限的用户 ID
+     * 1. roleIds string[], 角色 ID 数组
+     */
+    setRoles({ userId, roleIds, conn }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
-                throw errors_1.errors.argumentNull('userId');
+                throw errors_1.errors.argumentNull('USER_ID');
             if (!roleIds)
                 throw errors_1.errors.argumentNull('roleIds');
+            if (!conn)
+                throw errors_1.errors.argumentNull('conn');
             if (!Array.isArray(roleIds))
                 throw errors_1.errors.argumentTypeIncorrect('roleIds', 'array');
-            if (roleIds.length == 0) {
-                return;
-            }
-            yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-                let deleteSQL = `delete from user_role where user_id = ?`;
-                database_1.execute(conn, deleteSQL, [userId]);
+            yield db.execute(conn, `delete from user_role where user_id = ?`, userId);
+            if (roleIds.length > 0) {
                 let values = [];
                 let sql = `insert into user_role (user_id, role_id) values `;
                 for (let i = 0; i < roleIds.length; i++) {
                     sql = sql + "(?,?)";
                     values.push(userId, roleIds[i]);
                 }
-                database_1.execute(conn, sql, values);
-            }));
+                yield db.execute(conn, sql, values);
+            }
         });
     }
     list({ args, conn }) {
@@ -203,9 +234,45 @@ class UserController {
             return result;
         });
     }
+    /** 添加用户 */
+    add({ item, conn, roleIds }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            if (item.mobile) {
+                let isMobileRegister = yield this.isMobileRegister({ mobile: item.mobile });
+                if (isMobileRegister)
+                    return Promise.reject(errors_1.errors.mobileExists(item.mobile));
+            }
+            if (item.email) {
+                let isEmailRegister = yield this.isEmailRegister({ email: item.email });
+                if (isEmailRegister)
+                    return Promise.reject(errors_1.errors.emailExists(item.email));
+            }
+            if (item.user_name) {
+                let isUserNameRegister = yield this.isUserNameRegister({ user_name: item.user_name });
+                if (isUserNameRegister)
+                    return Promise.reject(errors_1.errors.usernameExists(item.user_name));
+            }
+            item.id = database_1.guid();
+            item.create_date_time = new Date(Date.now());
+            yield db.insert(conn, 'user', item);
+            roleIds = roleIds || [];
+            for (let i = 0; i < roleIds.length; i++) {
+                let userRole = { user_id: item.id, role_id: roleIds[i] };
+                yield conn.source.query("insert into user_role set ?", userRole);
+            }
+            return { id: item.id };
+        });
+    }
 }
 __decorate([
     controller_1.action()
+], UserController.prototype, "setRoles", null);
+__decorate([
+    controller_1.action()
 ], UserController.prototype, "list", null);
+__decorate([
+    controller_1.action()
+], UserController.prototype, "add", null);
 exports.default = UserController;
 //# sourceMappingURL=user.js.map

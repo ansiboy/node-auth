@@ -7,3 +7,8 @@ interface User {
     openid?: string,
     create_date_time: Date,
 }
+
+interface UserRole {
+    user_id: string,
+    role_id: string,
+}

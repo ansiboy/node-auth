@@ -12,7 +12,7 @@
     const React = require("react");
     class IndexPage extends React.Component {
         render() {
-            return React.createElement("div", null, "Index Page");
+            return React.createElement("div", null);
         }
     }
     exports.default = IndexPage;

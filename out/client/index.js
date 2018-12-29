@@ -22,8 +22,22 @@
 //         "maishu-ui-toolkit": `${node_modules}/maishu-ui-toolkit/dist/index`
 //     }
 // })
-// requirejs(['application'], function (chitu_admin) {
-//     // define('modules/index', function () {
-//     //     return modules_admin
-//     // })
-// })
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "./application"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    // requirejs(['application'], function (chitu_admin) {
+    //     // define('modules/index', function () {
+    //     //     return modules_admin
+    //     // })
+    // })
+    var application_1 = require("./application");
+    exports.app = application_1.app;
+});

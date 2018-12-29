@@ -48,6 +48,20 @@ export let errors = {
         err.name = names.CanntGetRedirectUrl;
         return err;
     },
+    emailExists(email: string): Error {
+        let msg = `邮箱 '${email}' 已被注册`;
+        let error = new Error(msg);
+        error.name = errors.emailExists.name;
+        (<any>error).arguments = { email };
+        return error;
+    },
+    usernameExists(username: string): Error {
+        let msg = `用户名 '${username}' 已被注册`;
+        let error = new Error(msg);
+        error.name = errors.emailExists.name;
+        (<any>error).arguments = { username };
+        return error;
+    },
     forbidden(path) {
         let msg = `Path ${path} can not access`;
         let error = new Error(msg);
@@ -72,13 +86,6 @@ export let errors = {
         let error = new Error(msg);
         error.name = errors.mobileNotExists.name;
         (<any>error).arguments = { mobile };
-        return error;
-    },
-    usernameExists(username: string): Error {
-        let msg = `用户名 '${username}' 已被注册`;
-        let error = new Error(msg);
-        error.name = names.UserExists;
-        (<any>error).arguments = { username };
         return error;
     },
     actionNotExists(controller: string, action: string): Error {
@@ -141,6 +148,12 @@ export let errors = {
         let err = new Error(msg) as MyError;
         err.name = errors.argumentTypeIncorrect.name
         err.arguments = { paramName, typeName: expectedTypeName }
+        return err
+    },
+    userNameFormatError(username: string) {
+        let msg = `用户名 '${username}' 格式错误`
+        let err = new Error(msg) as MyError;
+        err.name = errors.userNameFormatError.name
         return err
     }
 }

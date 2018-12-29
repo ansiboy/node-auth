@@ -29,3 +29,4 @@
 //     //     return modules_admin
 //     // })
 // })
+export { app } from './application'
