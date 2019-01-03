@@ -58,8 +58,6 @@ export default class ApplicationController {
             return app
 
         })
-
-
         return obj
     }
 

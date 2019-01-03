@@ -84,11 +84,4 @@ export default class ResourceController {
         return result
     }
 
-    async temp() {
-        let conn = await db.getConnection()
-        let resources = await db.list<Resource>(conn, 'resource')
-        return resources
-    }
-
-
 }

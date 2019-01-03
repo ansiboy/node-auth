@@ -17,7 +17,7 @@ export async function sendVerifyCode({ mobile, type }: { mobile: string, type: '
     if (!mobile) throw errors.argumentNull('mobile')
     if (!type) throw errors.argumentNull('type')
 
-    let verifyCode = getRandomInt(1000, 9999).toFixed(0) //((Math.random()) * 10000).toFixed(0)
+    let verifyCode = getRandomInt(1000, 9999).toFixed(0) 
     let verifyCodeText: string = settings.verifyCodeText.default;
 
     let msg = verifyCodeText.replace('{0}', verifyCode);

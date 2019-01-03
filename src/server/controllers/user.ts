@@ -116,13 +116,13 @@ export default class UserController {
             switch (type) {
                 default:
                 case 'mobile':
-                    sql = `select * from user where mobile = ? and password = ?`
+                    sql = `select id from user where mobile = ? and password = ?`
                     break
                 case 'username':
-                    sql = `select * from user where user_name = ? and password = ?`
+                    sql = `select id from user where user_name = ? and password = ?`
                     break
                 case 'email':
-                    sql = `select * from user where email = ? and password = ?`
+                    sql = `select id from user where email = ? and password = ?`
                     break
             }
             return execute(conn, sql, [username, password])
@@ -133,14 +133,14 @@ export default class UserController {
             throw errors.usernameOrPasswordIncorrect(username)
         }
 
-        let token = await Token.create({ user_id: user.id, SellerId: user.id } as UserToken)
+        let token = await Token.create({ user_id: user.id } as UserToken)
         return { token: token.id, userId: user.id }
     }
     async loginByOpenId<T extends { openid }>(args: T) {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
         let user = await connect(async conn => {
-            let sql = `select * from user where openid = ?`
+            let sql = `select id from user where openid = ?`
             let [rows] = await execute(conn, sql, [openid])
             if (rows.length > 0) {
                 return rows[0] as User
@@ -158,10 +158,34 @@ export default class UserController {
         let token = await Token.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
+    async loginByVerifyCode(args: { mobile: string, smsId: string, verifyCode: string }) {
+        let { mobile, smsId, verifyCode } = args
+        let r = await connect(async conn => {
+            let sql = `select id form user where mobile = ?`
+            let [rows] = await execute(conn, sql, [args.mobile])
+            if (rows.length == 0) {
+                throw errors.mobileNotExists(mobile)
+            }
+
+            sql = `select code from sms_record where id = ?`;
+            [rows] = await execute(conn, sql, [smsId])
+            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                throw errors.verifyCodeIncorrect(verifyCode)
+            }
+
+            let user = rows[0]
+            let token = await Token.create({ user_id: user.id } as UserToken)
+            return { token: token.id, userId: user.id }
+        })
+        return r
+    }
     async login(args: any): Promise<{ token: string, userId: string }> {
         args = args || {}
         if (args.openid) {
             return this.loginByOpenId(args)
+        }
+        else if (args.smsId) {
+            return this.loginByVerifyCode(args)
         }
 
         return this.loginByUserName(args)
