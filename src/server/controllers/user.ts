@@ -3,6 +3,7 @@ import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
 import { action } from '../controller';
+import { update } from 'maishu-mysql-helper';
 
 export default class UserController {
 
@@ -194,9 +195,9 @@ export default class UserController {
     /** 获取登录用户的信息 */
     async me({ USER_ID }) {
         let user = await connect(async conn => {
-            let sql = `select id, user_name, mobile, openid from user where id = ?`
+            let sql = `select id, user_name, mobile, openid, data from user where id = ?`
             let [rows] = await execute(conn, sql, [USER_ID])
-            return rows[0]
+            return rows[0] as User
         })
 
         return user
@@ -286,6 +287,16 @@ export default class UserController {
         }
 
         return { id: item.id }
+    }
+
+    @action()
+    async update({ USER_ID, user, conn }) {
+        if (!user) throw errors.argumentNull('user')
+        let u = user as User
+        u.id = USER_ID
+
+        let result = await db.update(conn, 'user', user)
+        return result
     }
 }
 

@@ -40,6 +40,7 @@ export let redirectInfos = {
         { rootDir: 'UserMember', targetUrl: `http://${target_host}:9020/User` },
         { rootDir: 'UserWeiXin', targetUrl: `http://${target_host}:9030/User` },
         { rootDir: 'UserAccount', targetUrl: `http://${target_host}:9035/User` },
+        { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
     ]
 }
 

@@ -82,13 +82,6 @@ class ResourceController {
             return result;
         });
     }
-    temp() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let conn = yield db.getConnection();
-            let resources = yield db.list(conn, 'resource');
-            return resources;
-        });
-    }
 }
 __decorate([
     controller_1.action()

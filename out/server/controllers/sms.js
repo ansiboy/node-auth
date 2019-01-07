@@ -18,7 +18,7 @@ function sendVerifyCode({ mobile, type }) {
             throw errors_1.errors.argumentNull('mobile');
         if (!type)
             throw errors_1.errors.argumentNull('type');
-        let verifyCode = getRandomInt(1000, 9999).toFixed(0); //((Math.random()) * 10000).toFixed(0)
+        let verifyCode = getRandomInt(1000, 9999).toFixed(0);
         let verifyCodeText = settings.verifyCodeText.default;
         let msg = verifyCodeText.replace('{0}', verifyCode);
         let obj = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {

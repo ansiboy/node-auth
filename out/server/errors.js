@@ -66,7 +66,7 @@ exports.errors = {
         return error;
     },
     invalidObjectId(objectId) {
-        let msg = `inval;d ObjectId:'${objectId}'`;
+        let msg = `invald ObjectId:'${objectId}'`;
         let err = new Error(msg);
         err.name = 'invalidObjectId';
         return err;

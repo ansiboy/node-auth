@@ -121,13 +121,13 @@ class UserController {
                 switch (type) {
                     default:
                     case 'mobile':
-                        sql = `select * from user where mobile = ? and password = ?`;
+                        sql = `select id from user where mobile = ? and password = ?`;
                         break;
                     case 'username':
-                        sql = `select * from user where user_name = ? and password = ?`;
+                        sql = `select id from user where user_name = ? and password = ?`;
                         break;
                     case 'email':
-                        sql = `select * from user where email = ? and password = ?`;
+                        sql = `select id from user where email = ? and password = ?`;
                         break;
                 }
                 return database_1.execute(conn, sql, [username, password]);
@@ -136,7 +136,7 @@ class UserController {
             if (user == null) {
                 throw errors_1.errors.usernameOrPasswordIncorrect(username);
             }
-            let token = yield token_1.Token.create({ user_id: user.id, SellerId: user.id });
+            let token = yield token_1.Token.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
         });
     }
@@ -146,7 +146,7 @@ class UserController {
             if (!openid)
                 throw errors_1.errors.argumentNull('openid');
             let user = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-                let sql = `select * from user where openid = ?`;
+                let sql = `select id from user where openid = ?`;
                 let [rows] = yield database_1.execute(conn, sql, [openid]);
                 if (rows.length > 0) {
                     return rows[0];
@@ -163,11 +163,35 @@ class UserController {
             return { token: token.id, userId: user.id };
         });
     }
+    loginByVerifyCode(args) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { mobile, smsId, verifyCode } = args;
+            let r = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                let sql = `select id form user where mobile = ?`;
+                let [rows] = yield database_1.execute(conn, sql, [args.mobile]);
+                if (rows.length == 0) {
+                    throw errors_1.errors.mobileNotExists(mobile);
+                }
+                sql = `select code from sms_record where id = ?`;
+                [rows] = yield database_1.execute(conn, sql, [smsId]);
+                if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                    throw errors_1.errors.verifyCodeIncorrect(verifyCode);
+                }
+                let user = rows[0];
+                let token = yield token_1.Token.create({ user_id: user.id });
+                return { token: token.id, userId: user.id };
+            }));
+            return r;
+        });
+    }
     login(args) {
         return __awaiter(this, void 0, void 0, function* () {
             args = args || {};
             if (args.openid) {
                 return this.loginByOpenId(args);
+            }
+            else if (args.smsId) {
+                return this.loginByVerifyCode(args);
             }
             return this.loginByUserName(args);
         });
@@ -176,7 +200,7 @@ class UserController {
     me({ USER_ID }) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-                let sql = `select id, user_name, mobile, openid from user where id = ?`;
+                let sql = `select id, user_name, mobile, openid, data from user where id = ?`;
                 let [rows] = yield database_1.execute(conn, sql, [USER_ID]);
                 return rows[0];
             }));
@@ -264,6 +288,16 @@ class UserController {
             return { id: item.id };
         });
     }
+    update({ USER_ID, user, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!user)
+                throw errors_1.errors.argumentNull('user');
+            let u = user;
+            u.id = USER_ID;
+            let result = yield db.update(conn, 'user', user);
+            return result;
+        });
+    }
 }
 __decorate([
     controller_1.action()
@@ -274,5 +308,8 @@ __decorate([
 __decorate([
     controller_1.action()
 ], UserController.prototype, "add", null);
+__decorate([
+    controller_1.action()
+], UserController.prototype, "update", null);
 exports.default = UserController;
 //# sourceMappingURL=user.js.map
