@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
 //===========================================
-exports.bindIP = '127.0.0.1';
+exports.bindIP = '0.0.0.0';
 //===========================================
 // 机器名称，用于集群，让客户端知道是哪台机器
 exports.MACHINE_NAME = 'local-pc';
@@ -23,7 +23,7 @@ const USER_TOKEN = 'token';
 const STORE_KEY = 'store-key';
 exports.allowHeaders = `${APP_KEY}, ${USER_TOKEN}, ${STORE_KEY}, content-type`;
 exports.conn = {
-    auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2' },
+    auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 },
 };
 exports.port = 2856;
 exports.redirectInfos = {
@@ -40,7 +40,10 @@ exports.redirectInfos = {
         { rootDir: 'UserMember', targetUrl: `http://${target_host}:9020/User` },
         { rootDir: 'UserWeiXin', targetUrl: `http://${target_host}:9030/User` },
         { rootDir: 'UserAccount', targetUrl: `http://${target_host}:9035/User` },
+        { rootDir: 'app', targetUrl: `http://${target_host}:2893` },
         { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
+        { rootDir: 'msg', targetUrl: `http://${target_host}:2895` },
+        { rootDir: 'image', targetUrl: `http://${target_host}:48628` }
     ]
 };
 exports.verifyCodeText = {

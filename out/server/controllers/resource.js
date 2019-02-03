@@ -55,8 +55,6 @@ class ResourceController {
                 throw errors_1.errors.argumentNull('item');
             if (!item.id)
                 throw errors_1.errors.fieldNull('id', 'item');
-            if (!item.name)
-                throw errors_1.errors.fieldNull('name', 'item');
             yield db.update(conn, 'resource', item);
             return { id: item.id };
         });

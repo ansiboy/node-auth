@@ -57,7 +57,6 @@ export default class ResourceController {
     async update({ item, conn }: { item: Resource, conn: db.Connection }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.fieldNull('id', 'item')
-        if (!item.name) throw errors.fieldNull('name', 'item')
 
         await db.update(conn, 'resource', item)
         return { id: item.id }
