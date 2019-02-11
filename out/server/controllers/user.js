@@ -226,9 +226,6 @@ class UserController {
                 console.assert(conn != null);
                 // connect(async conn => {
                 let now = new Date(Date.now());
-                let lastest_login = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
-                //     this.update({ USER_ID: o.userId, user: { lastest_login }, conn })
-                // })
                 db.update(conn, 'user', { id: o.userId, lastest_login: now });
                 return o;
             });
