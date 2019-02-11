@@ -45,7 +45,8 @@ export default class LoginPage extends React.Component<Props, State> {
             return
         }
 
-        this.props.app.redirect('index')
+        let indexPageName = this.props.app.config.login.indexPageName || 'index'
+        this.props.app.redirect(indexPageName)
     }
 
     componentDidMount() {

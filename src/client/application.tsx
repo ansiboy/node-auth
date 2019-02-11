@@ -1,14 +1,14 @@
 import { app, MenuItem as Menu } from 'maishu-chitu-admin'
 export { app } from 'maishu-chitu-admin'
-import * as ui from 'maishu-ui-toolkit'
 import { UserService } from './services/user'
+export { UserService } from './services/user'
 import React = require('react')
 
 app.masterPage.setHideMenuPages(['forget-password', 'login', 'register'])
 
-app.error.add((sender, error, page) => {
-    ui.alert({ title: '错误', message: error.message })
-})
+// app.error.add((sender, error, page) => {
+//     ui.alert({ title: '错误', message: error.message })
+// })
 
 let userService = app.createService(UserService);
 // userService.resources().then(resources => {

@@ -3,7 +3,6 @@ import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
 import { action } from '../controller';
-import { update } from 'maishu-mysql-helper';
 
 export default class UserController {
 
@@ -105,6 +104,37 @@ export default class UserController {
         return result
     }
 
+    async resetMobile({ mobile, smsId, verifyCode, USER_ID }) {
+        if (mobile == null)
+            throw errors.argumentNull('mobile');
+
+        if (smsId == null)
+            throw errors.argumentNull('smsId');
+
+        if (verifyCode == null)
+            throw errors.argumentNull('verifyCode');
+
+        let isMobileRegister = await this.isMobileRegister({ mobile })
+        if (isMobileRegister)
+            throw errors.mobileExists(mobile)
+
+        let result = await connect(async conn => {
+
+            let sql = `select code from sms_record where id = ?`
+            let [rows] = await execute(conn, sql, [smsId])
+            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                throw errors.verifyCodeIncorrect(verifyCode)
+            }
+
+            sql = `update user set mobile = ? where id = ?`
+            await execute(conn, sql, [mobile, USER_ID])
+
+            return {};
+        })
+
+        return result
+    }
+
     async loginByUserName({ username, password }) {
 
         if (!username) throw errors.argumentNull("username")
@@ -180,16 +210,35 @@ export default class UserController {
         })
         return r
     }
+
+    @action()
     async login(args: any): Promise<{ token: string, userId: string }> {
         args = args || {}
+
+        let p: Promise<{ token: string, userId: string }>
         if (args.openid) {
-            return this.loginByOpenId(args)
+            p = this.loginByOpenId(args)
         }
         else if (args.smsId) {
-            return this.loginByVerifyCode(args)
+            p = this.loginByVerifyCode(args)
+        }
+        else {
+            p = this.loginByUserName(args)
         }
 
-        return this.loginByUserName(args)
+        p.then(o => {
+            let conn = args.conn
+            console.assert(conn != null)
+            // connect(async conn => {
+            let now = new Date(Date.now())
+            let lastest_login = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`
+            //     this.update({ USER_ID: o.userId, user: { lastest_login }, conn })
+            // })
+            db.update<User>(conn, 'user', { id: o.userId, lastest_login: now })
+            return o;
+        })
+
+        return p
     }
 
     /** 获取登录用户的信息 */
@@ -298,6 +347,7 @@ export default class UserController {
         let result = await db.update(conn, 'user', user)
         return result
     }
+
 }
 
 

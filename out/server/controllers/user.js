@@ -108,6 +108,30 @@ class UserController {
             return result;
         });
     }
+    resetMobile({ mobile, smsId, verifyCode, USER_ID }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (mobile == null)
+                throw errors_1.errors.argumentNull('mobile');
+            if (smsId == null)
+                throw errors_1.errors.argumentNull('smsId');
+            if (verifyCode == null)
+                throw errors_1.errors.argumentNull('verifyCode');
+            let isMobileRegister = yield this.isMobileRegister({ mobile });
+            if (isMobileRegister)
+                throw errors_1.errors.mobileExists(mobile);
+            let result = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                let sql = `select code from sms_record where id = ?`;
+                let [rows] = yield database_1.execute(conn, sql, [smsId]);
+                if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                    throw errors_1.errors.verifyCodeIncorrect(verifyCode);
+                }
+                sql = `update user set mobile = ? where id = ?`;
+                yield database_1.execute(conn, sql, [mobile, USER_ID]);
+                return {};
+            }));
+            return result;
+        });
+    }
     loginByUserName({ username, password }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username)
@@ -187,13 +211,28 @@ class UserController {
     login(args) {
         return __awaiter(this, void 0, void 0, function* () {
             args = args || {};
+            let p;
             if (args.openid) {
-                return this.loginByOpenId(args);
+                p = this.loginByOpenId(args);
             }
             else if (args.smsId) {
-                return this.loginByVerifyCode(args);
+                p = this.loginByVerifyCode(args);
             }
-            return this.loginByUserName(args);
+            else {
+                p = this.loginByUserName(args);
+            }
+            p.then(o => {
+                let conn = args.conn;
+                console.assert(conn != null);
+                // connect(async conn => {
+                let now = new Date(Date.now());
+                let lastest_login = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}`;
+                //     this.update({ USER_ID: o.userId, user: { lastest_login }, conn })
+                // })
+                db.update(conn, 'user', { id: o.userId, lastest_login: now });
+                return o;
+            });
+            return p;
         });
     }
     /** 获取登录用户的信息 */
@@ -299,6 +338,9 @@ class UserController {
         });
     }
 }
+__decorate([
+    controller_1.action()
+], UserController.prototype, "login", null);
 __decorate([
     controller_1.action()
 ], UserController.prototype, "setRoles", null);

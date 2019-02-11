@@ -6,6 +6,7 @@ declare namespace chitu_admin {
             title?: string;
             showForgetPassword: boolean;
             showRegister: boolean;
+            indexPageName?: string;
         };
     }
 }

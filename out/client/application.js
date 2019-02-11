@@ -4,7 +4,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "maishu-chitu-admin", "maishu-chitu-admin", "maishu-ui-toolkit", "./services/user", "react"], factory);
+        define(["require", "exports", "maishu-chitu-admin", "maishu-chitu-admin", "./services/user", "./services/user", "react"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -12,13 +12,14 @@
     const maishu_chitu_admin_1 = require("maishu-chitu-admin");
     var maishu_chitu_admin_2 = require("maishu-chitu-admin");
     exports.app = maishu_chitu_admin_2.app;
-    const ui = require("maishu-ui-toolkit");
     const user_1 = require("./services/user");
+    var user_2 = require("./services/user");
+    exports.UserService = user_2.UserService;
     const React = require("react");
     maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'login', 'register']);
-    maishu_chitu_admin_1.app.error.add((sender, error, page) => {
-        ui.alert({ title: '错误', message: error.message });
-    });
+    // app.error.add((sender, error, page) => {
+    //     ui.alert({ title: '错误', message: error.message })
+    // })
     let userService = maishu_chitu_admin_1.app.createService(user_1.UserService);
     // userService.resources().then(resources => {
     //     let menus = resources.filter(o => o.parent_id == null)

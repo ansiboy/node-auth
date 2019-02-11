@@ -6,7 +6,8 @@ interface User {
     password?: string,
     openid?: string,
     create_date_time: Date,
-    data?: any
+    data?: any,
+    lastest_login?: Date,
 }
 
 interface UserRole {

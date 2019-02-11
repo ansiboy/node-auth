@@ -5,7 +5,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "maishu-chitu-admin", "maishu-chitu-admin", "maishu-ui-toolkit", "./services/user", "react"], factory);
+        define(["require", "exports", "maishu-chitu-admin", "maishu-chitu-admin", "./services/user", "./services/user", "react"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -13,32 +13,33 @@
     const maishu_chitu_admin_1 = require("maishu-chitu-admin");
     var maishu_chitu_admin_2 = require("maishu-chitu-admin");
     exports.app = maishu_chitu_admin_2.app;
-    const ui = require("maishu-ui-toolkit");
     const user_1 = require("./services/user");
+    var user_2 = require("./services/user");
+    exports.UserService = user_2.UserService;
     const React = require("react");
     maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'login', 'register']);
-    maishu_chitu_admin_1.app.error.add((sender, error, page) => {
-        ui.alert({ title: '错误', message: error.message });
-    });
-    let userService = new user_1.UserService();
-    userService.resources().then(resources => {
-        let menus = resources.filter(o => o.parent_id == null)
-            .map(o => ({
-            id: o.id, name: o.name, visible: o.visible,
-            path: `${o.path}?resource_id=${o.id}`
-        }));
-        for (let i = 0; i < menus.length; i++) {
-            menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
-                .map(o => ({
-                id: o.id,
-                name: o.name,
-                path: o.path,
-                parent: menus[i],
-                visible: o.visible,
-            }));
-        }
-        maishu_chitu_admin_1.app.masterPage.setMenus(menus);
-    });
+    // app.error.add((sender, error, page) => {
+    //     ui.alert({ title: '错误', message: error.message })
+    // })
+    let userService = maishu_chitu_admin_1.app.createService(user_1.UserService);
+    // userService.resources().then(resources => {
+    //     let menus = resources.filter(o => o.parent_id == null)
+    //         .map(o => ({
+    //             id: o.id, name: o.name, visible: o.visible,
+    //             path: `${o.path}?resource_id=${o.id}`
+    //         } as Menu))
+    //     for (let i = 0; i < menus.length; i++) {
+    //         menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
+    //             .map(o => ({
+    //                 id: o.id,
+    //                 name: o.name,
+    //                 path: o.path,
+    //                 parent: menus[i],
+    //                 visible: o.visible,
+    //             } as Menu))
+    //     }
+    //     app.masterPage.setMenus(menus)
+    // })
     class Toolbar extends React.Component {
         constructor(props) {
             super(props);
@@ -62,7 +63,7 @@
     maishu_chitu_admin_1.app.masterPage.setToolbar(React.createElement(Toolbar, null));
 });
 
-},{"./services/user":4,"maishu-chitu-admin":"maishu-chitu-admin","maishu-ui-toolkit":"maishu-ui-toolkit","react":"react"}],2:[function(require,module,exports){
+},{"./services/user":4,"maishu-chitu-admin":"maishu-chitu-admin","react":"react"}],2:[function(require,module,exports){
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
