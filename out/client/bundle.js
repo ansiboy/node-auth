@@ -18,48 +18,63 @@
     exports.UserService = user_2.UserService;
     const React = require("react");
     maishu_chitu_admin_1.app.masterPage.setHideMenuPages(['forget-password', 'login', 'register']);
-    // app.error.add((sender, error, page) => {
-    //     ui.alert({ title: '错误', message: error.message })
-    // })
-    let userService = maishu_chitu_admin_1.app.createService(user_1.UserService);
-    // userService.resources().then(resources => {
-    //     let menus = resources.filter(o => o.parent_id == null)
-    //         .map(o => ({
-    //             id: o.id, name: o.name, visible: o.visible,
-    //             path: `${o.path}?resource_id=${o.id}`
-    //         } as Menu))
-    //     for (let i = 0; i < menus.length; i++) {
-    //         menus[i].children = resources.filter(o => o.parent_id == menus[i].id)
-    //             .map(o => ({
-    //                 id: o.id,
-    //                 name: o.name,
-    //                 path: o.path,
-    //                 parent: menus[i],
-    //                 visible: o.visible,
-    //             } as Menu))
-    //     }
-    //     app.masterPage.setMenus(menus)
-    // })
     class Toolbar extends React.Component {
         constructor(props) {
             super(props);
+            this.pageShowin = (sender, page) => {
+                this.setState({ currentPageName: page.name });
+            };
             this.state = { currentPageName: null };
+            this.init();
+        }
+        init() {
+            const LOGIN_INFO = 'app-login-info';
+            if (localStorage[LOGIN_INFO]) {
+                let obj = JSON.parse(localStorage[LOGIN_INFO]);
+                user_1.UserService.loginInfo.value = obj;
+                // this.loadUserInfo(this.loginInfo.value.userId)
+                // instanceMessangerStart(UserService.loginInfo.value.userId, this.createService(MessageService))
+            }
+            user_1.UserService.loginInfo.add((value) => {
+                if (!value) {
+                    localStorage.removeItem(LOGIN_INFO);
+                    // this.isDistributorAuth.value = false
+                    // this.isPersonAuth.value = false
+                    // instanceMessangerStop()
+                }
+                else {
+                    localStorage.setItem(LOGIN_INFO, JSON.stringify(value));
+                    // this.loadUserInfo(value.userId)
+                    // instanceMessangerStart(value.userId, this.createService(MessageService))
+                }
+            });
+        }
+        get userId() {
+            if (user_1.UserService.loginInfo.value == null)
+                return null;
+            return user_1.UserService.loginInfo.value.userId;
         }
         componentDidMount() {
-            maishu_chitu_admin_1.app.pageShowing.add((sender, page) => {
-                this.setState({ currentPageName: page.name });
-            });
+            maishu_chitu_admin_1.app.pageShowing.add(this.pageShowin);
+        }
+        componentWillUnmount() {
+            maishu_chitu_admin_1.app.pageShowing.remove(this.pageShowin);
         }
         render() {
             let showLoginButton = ['forget-password', 'login', 'register'].indexOf(this.state.currentPageName) < 0;
             return React.createElement("ul", null, showLoginButton ? React.createElement("li", { className: "light-blue pull-right", style: { color: 'white', paddingTop: 4, cursor: 'pointer' }, onClick: () => {
-                    userService.logout();
+                    logout();
                     maishu_chitu_admin_1.app.redirect('login');
                 } },
                 React.createElement("i", { className: "icon-off" }),
                 React.createElement("span", { style: { paddingLeft: 4 } }, "\u9000\u51FA")) : null);
         }
     }
+    function logout() {
+        let userService = maishu_chitu_admin_1.app.createService(user_1.UserService);
+        userService.logout();
+    }
+    exports.logout = logout;
     maishu_chitu_admin_1.app.masterPage.setToolbar(React.createElement(Toolbar, null));
 });
 
@@ -248,22 +263,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return __awaiter(this, void 0, void 0, function* () {
                 let url = this.url('user/login');
                 let result = yield this.postByJson(url, { username, password });
-                UserService.token.value = result.token;
+                // UserService.token.value = result.token
+                UserService.loginInfo.value = result;
             });
         }
         logout() {
-            UserService.token.value = '';
+            // UserService.token.value = ''
+            UserService.loginInfo.value = null;
         }
         static get isLogin() {
-            return (UserService.token.value || '') != '';
+            // return (UserService.token.value || '') != ''
+            return UserService.loginInfo.value != null;
         }
     }
-    UserService.token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    // static token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    UserService.loginInfo = new chitu.ValueStore();
     exports.UserService = UserService;
-    UserService.token.add((value) => {
-        localStorage.setItem("adminToken", value);
-    });
 });
+// UserService.token.add((value) => {
+//     localStorage.setItem("adminToken", value);
+// });
 
 },{"../config":2,"./service":3}]},{},[1])(1)
 });

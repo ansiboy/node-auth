@@ -53,9 +53,16 @@ module.exports = function (grunt) {
                 src: ['out/client/modules.js', 'out/client/bundle.js'],
                 dest: `dist/client/index.js`
             },
-            declare: {
-                src: ['src/client/declare.d.ts'],
-                dest: `dist/client/index.d.ts`
+            // declare: {
+            //     src: ['src/client/declare.d.ts'],
+            //     dest: `dist/client/index.d.ts`
+            // }
+        },
+        copy: {
+            dist: {
+                files: [
+                    { expand: true, cwd: 'out/client', src: ['**/*.d.ts'], dest: 'dist/client', filter: 'isFile' },
+                ]
             }
         },
         requirejs: {

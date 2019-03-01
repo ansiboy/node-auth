@@ -44,19 +44,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             return __awaiter(this, void 0, void 0, function* () {
                 let url = this.url('user/login');
                 let result = yield this.postByJson(url, { username, password });
-                UserService.token.value = result.token;
+                // UserService.token.value = result.token
+                UserService.loginInfo.value = result;
             });
         }
         logout() {
-            UserService.token.value = '';
+            // UserService.token.value = ''
+            UserService.loginInfo.value = null;
         }
         static get isLogin() {
-            return (UserService.token.value || '') != '';
+            // return (UserService.token.value || '') != ''
+            return UserService.loginInfo.value != null;
         }
     }
-    UserService.token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    // static token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    UserService.loginInfo = new chitu.ValueStore();
     exports.UserService = UserService;
-    UserService.token.add((value) => {
-        localStorage.setItem("adminToken", value);
-    });
 });
+// UserService.token.add((value) => {
+//     localStorage.setItem("adminToken", value);
+// });

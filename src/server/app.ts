@@ -339,7 +339,6 @@ function combinePaths(path1: string, path2: string) {
 }
 
 process.on('unhandledRejection', (reason, p) => {
-    debugger;
     console.log(reason);
 });
 

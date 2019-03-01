@@ -3,7 +3,7 @@ import { connect, execute, guid } from "../database";
 import { action } from "../controller";
 import * as db from 'maishu-mysql-helper'
 
-interface Application {
+export interface Application {
     id: string,
     name: string,
     data: string,

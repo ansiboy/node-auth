@@ -235,9 +235,15 @@ class UserController {
     /** 获取登录用户的信息 */
     me({ USER_ID }) {
         return __awaiter(this, void 0, void 0, function* () {
+            return this.item({ userId: USER_ID });
+        });
+    }
+    /** 获取用户信息 */
+    item({ userId }) {
+        return __awaiter(this, void 0, void 0, function* () {
             let user = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 let sql = `select id, user_name, mobile, openid, data from user where id = ?`;
-                let [rows] = yield database_1.execute(conn, sql, [USER_ID]);
+                let [rows] = yield database_1.execute(conn, sql, [userId]);
                 return rows[0];
             }));
             return user;
@@ -334,6 +340,21 @@ class UserController {
             return result;
         });
     }
+    /** 显示用户所拥有的应用 */
+    ownAppliactions({ USER_ID, conn }) {
+        if (!USER_ID)
+            throw errors_1.errors.argumentNull('USER_ID');
+        if (!conn)
+            throw errors_1.errors.argumentNull('conn');
+        return db.list(conn, 'application', { filter: `user_id = '${USER_ID}'` });
+    }
+    /** 显示用户所允许访问的应用 */
+    canVisitApplicationIds({ USER_ID, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let items = yield db.select(conn, 'application_user', { filter: `user_id = '${USER_ID}'` });
+            return items.map(o => o.application_id);
+        });
+    }
 }
 __decorate([
     controller_1.action()
@@ -350,5 +371,11 @@ __decorate([
 __decorate([
     controller_1.action()
 ], UserController.prototype, "update", null);
+__decorate([
+    controller_1.action()
+], UserController.prototype, "ownAppliactions", null);
+__decorate([
+    controller_1.action()
+], UserController.prototype, "canVisitApplicationIds", null);
 exports.default = UserController;
 //# sourceMappingURL=user.js.map

@@ -293,7 +293,6 @@ function combinePaths(path1, path2) {
     return path1 + path2;
 }
 process.on('unhandledRejection', (reason, p) => {
-    debugger;
     console.log(reason);
 });
 //# sourceMappingURL=app.js.map

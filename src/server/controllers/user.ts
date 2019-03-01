@@ -3,6 +3,7 @@ import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
 import { action } from '../controller';
+import { Application } from './application';
 
 export default class UserController {
 
@@ -240,9 +241,14 @@ export default class UserController {
 
     /** 获取登录用户的信息 */
     async me({ USER_ID }) {
+        return this.item({ userId: USER_ID })
+    }
+
+    /** 获取用户信息 */
+    async item({ userId }: { userId: string }) {
         let user = await connect(async conn => {
             let sql = `select id, user_name, mobile, openid, data from user where id = ?`
-            let [rows] = await execute(conn, sql, [USER_ID])
+            let [rows] = await execute(conn, sql, [userId])
             return rows[0] as User
         })
 
@@ -345,6 +351,22 @@ export default class UserController {
         return result
     }
 
+    /** 显示用户所拥有的应用 */
+    @action()
+    ownAppliactions({ USER_ID, conn }) {
+        if (!USER_ID) throw errors.argumentNull('USER_ID')
+        if (!conn) throw errors.argumentNull('conn')
+
+        return db.list<Application>(conn, 'application', { filter: `user_id = '${USER_ID}'` })
+    }
+
+    /** 显示用户所允许访问的应用 */
+    @action()
+    async canVisitApplicationIds({ USER_ID, conn }) {
+        type ApplicationUser = { user_id: string, application_id: string }
+        let items = await db.select<ApplicationUser>(conn, 'application_user', { filter: `user_id = '${USER_ID}'` })
+        return items.map(o => o.application_id)
+    }
 }
 
 

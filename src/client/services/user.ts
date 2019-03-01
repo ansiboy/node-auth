@@ -17,13 +17,15 @@ interface Resource {
 
 
 interface LoginResult {
-    token: string
+    token: string,
+    userId: string
 }
 
 
 export class UserService extends Service {
 
-    static token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    // static token = new chitu.ValueStore(localStorage['adminToken'] || '');
+    static loginInfo = new chitu.ValueStore<LoginResult>();
 
     url(path: string) {
         return `${protocol}//${config.authServiceHost}/${path}`
@@ -49,16 +51,19 @@ export class UserService extends Service {
     async login(username: string, password: string) {
         let url = this.url('user/login')
         let result = await this.postByJson<LoginResult>(url, { username, password })
-        UserService.token.value = result.token
+        // UserService.token.value = result.token
+        UserService.loginInfo.value = result
     }
     logout() {
-        UserService.token.value = ''
+        // UserService.token.value = ''
+        UserService.loginInfo.value = null
     }
     static get isLogin() {
-        return (UserService.token.value || '') != ''
+        // return (UserService.token.value || '') != ''
+        return UserService.loginInfo.value != null
     }
 }
 
-UserService.token.add((value) => {
-    localStorage.setItem("adminToken", value);
-});
+// UserService.token.add((value) => {
+//     localStorage.setItem("adminToken", value);
+// });
