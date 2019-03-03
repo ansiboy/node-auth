@@ -13,6 +13,8 @@ exports.MACHINE_NAME = 'local-pc';
 exports.headers = [
     { name: 'Content-Type', value: 'application/json;charset=utf-8' },
     { name: 'gateway_machine', value: exports.MACHINE_NAME },
+    { name: 'Transfer-Encoding', value: 'identity' },
+    { name: 'Connection', value: 'close' },
     { name: 'Access-Control-Allow-Origin', value: '*' },
     { name: 'Access-Control-Allow-Methods', value: '*' },
     { name: 'Access-Control-Allow-Headers', value: '*' },
@@ -43,6 +45,7 @@ exports.redirectInfos = {
         { rootDir: 'app', targetUrl: `http://${target_host}:2893` },
         { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
         { rootDir: 'msg', targetUrl: `http://${target_host}:2895` },
+        { rootDir: 'distributor', targetUrl: `http://${target_host}:2896` },
         { rootDir: 'image', targetUrl: `http://${target_host}:48628` }
     ]
 };
