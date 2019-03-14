@@ -37,7 +37,7 @@ export default class UserController {
         })
     }
 
-    async register({ mobile, password, smsId, verifyCode }: { mobile: string, password: string, smsId: string, verifyCode: string }) {
+    async register({ mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -50,7 +50,7 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-
+        data = data || {}
         let user = await connect(async conn => {
 
             let sql = `select code from sms_record where id = ?`
@@ -60,7 +60,7 @@ export default class UserController {
             }
 
             let user = {
-                id: guid(), mobile, password,
+                id: guid(), mobile, password, data: JSON.stringify(data),
                 create_date_time: new Date(Date.now()),
             } as User
 

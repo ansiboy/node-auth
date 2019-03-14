@@ -1,7 +1,7 @@
 import { connect, execute, guid } from "../database";
 import { errors } from "../errors";
 import { action } from "../controller";
-import { Connection, list, get } from "maishu-mysql-helper";
+import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 
 interface Role {
     id: string
@@ -146,5 +146,39 @@ export default class RoleController {
             let [rows] = await execute(conn, sql, [roleId])
             return rows.map(o => o.resource_id)
         })
+    }
+
+    /**
+     * 获取用户角色编号
+     */
+    @action()
+    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }) {
+        if (userIds == null) throw errors.argumentNull('userIds')
+        if (conn == null) throw errors.argumentNull('conn')
+
+        let str = userIds.map(o => `"${o}"`).join(',');
+        // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
+        let sql = `select * from user_role where user_id in (${str})`
+        let r = await executeSQL(conn, sql, null)
+        return r
+    }
+
+    /**
+     * 获取用户角色编号
+     */
+    @action()
+    async userRoles({ userIds, conn }: { userIds: string[], conn: Connection }) {
+        if (userIds == null)
+            throw errors.argumentNull('userIds');
+        if (conn == null)
+            throw errors.argumentNull('conn');
+        let str = userIds.map(o => `"${o}"`).join(',');
+        let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (?)`;
+        let rows: any[] = await executeSQL(conn, sql, userIds);
+        let items: { [key: string]: Role[] } = {}
+        for (let i = 0; i < userIds.length; i++) {
+            items[userIds[i]] = rows.filter(o => o.user_id == userIds[i])
+        }
+        return items;
     }
 }

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 //===========================================
 // 目标主机，服务所在的主机
-const target_host = '192.168.1.9' //'127.0.0.1';
+const target_host = '127.0.0.1';
 //===========================================
 exports.bindIP = '0.0.0.0';
 //===========================================
@@ -13,8 +13,8 @@ exports.MACHINE_NAME = 'local-pc';
 exports.headers = [
     { name: 'Content-Type', value: 'application/json;charset=utf-8' },
     { name: 'gateway_machine', value: exports.MACHINE_NAME },
-    { name: 'Transfer-Encoding', value: 'identity' },
-    { name: 'Connection', value: 'close' },
+    // { name: 'Transfer-Encoding', value: 'identity' },
+    // { name: 'Connection', value: 'close' },
     { name: 'Access-Control-Allow-Origin', value: '*' },
     { name: 'Access-Control-Allow-Methods', value: '*' },
     { name: 'Access-Control-Allow-Headers', value: '*' },
@@ -46,7 +46,8 @@ exports.redirectInfos = {
         { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
         { rootDir: 'msg', targetUrl: `http://${target_host}:2895` },
         { rootDir: 'distributor', targetUrl: `http://${target_host}:2896` },
-        { rootDir: 'image', targetUrl: `http://${target_host}:48628` }
+        { rootDir: 'tool', targetUrl: `http://${target_host}:2897` },
+        { rootDir: 'image', targetUrl: `http://${target_host}:48628` },
     ]
 };
 exports.verifyCodeText = {

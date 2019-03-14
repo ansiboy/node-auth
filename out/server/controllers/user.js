@@ -55,7 +55,7 @@ class UserController {
             }));
         });
     }
-    register({ mobile, password, smsId, verifyCode }) {
+    register({ mobile, password, smsId, verifyCode, data }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (mobile == null)
                 throw errors_1.errors.argumentNull('mobile');
@@ -65,6 +65,7 @@ class UserController {
                 throw errors_1.errors.argumentNull('smsId');
             if (verifyCode == null)
                 throw errors_1.errors.argumentNull('verifyCode');
+            data = data || {};
             let user = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
                 let sql = `select code from sms_record where id = ?`;
                 let [rows] = yield database_1.execute(conn, sql, [smsId]);
@@ -72,7 +73,7 @@ class UserController {
                     throw errors_1.errors.verifyCodeIncorrect(verifyCode);
                 }
                 let user = {
-                    id: database_1.guid(), mobile, password,
+                    id: database_1.guid(), mobile, password, data: JSON.stringify(data),
                     create_date_time: new Date(Date.now()),
                 };
                 sql = 'insert into user set ?';

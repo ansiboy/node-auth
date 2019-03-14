@@ -138,6 +138,41 @@ class RoleController {
             return rows.map(o => o.resource_id);
         }));
     }
+    /**
+     * 获取用户角色编号
+     */
+    userRoleIds({ userIds, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (userIds == null)
+                throw errors_1.errors.argumentNull('userIds');
+            if (conn == null)
+                throw errors_1.errors.argumentNull('conn');
+            let str = userIds.map(o => `"${o}"`).join(',');
+            // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
+            let sql = `select * from user_role where user_id in (${str})`;
+            let r = yield maishu_mysql_helper_1.execute(conn, sql, null);
+            return r;
+        });
+    }
+    /**
+     * 获取用户角色编号
+     */
+    userRoles({ userIds, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (userIds == null)
+                throw errors_1.errors.argumentNull('userIds');
+            if (conn == null)
+                throw errors_1.errors.argumentNull('conn');
+            let str = userIds.map(o => `"${o}"`).join(',');
+            let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (?)`;
+            let rows = yield maishu_mysql_helper_1.execute(conn, sql, userIds);
+            let items = {};
+            for (let i = 0; i < userIds.length; i++) {
+                items[userIds[i]] = rows.filter(o => o.user_id == userIds[i]);
+            }
+            return items;
+        });
+    }
 }
 __decorate([
     controller_1.action()
@@ -145,5 +180,11 @@ __decorate([
 __decorate([
     controller_1.action()
 ], RoleController.prototype, "get", null);
+__decorate([
+    controller_1.action()
+], RoleController.prototype, "userRoleIds", null);
+__decorate([
+    controller_1.action()
+], RoleController.prototype, "userRoles", null);
 exports.default = RoleController;
 //# sourceMappingURL=role.js.map
