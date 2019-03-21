@@ -4,6 +4,7 @@ import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
 import { action } from '../controller';
 import { Application } from './application';
+import RoleController from './role';
 
 export default class UserController {
 
@@ -280,7 +281,7 @@ export default class UserController {
      */
     @action()
     async setRoles({ userId, roleIds, conn }) {
-        if (!userId) throw errors.argumentNull('USER_ID')
+        if (!userId) throw errors.argumentNull('userId')
         if (!roleIds) throw errors.argumentNull('roleIds')
         if (!conn) throw errors.argumentNull('conn')
         if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
@@ -297,6 +298,34 @@ export default class UserController {
 
             await db.execute(conn, sql, values)
         }
+    }
+
+    @action()
+    async addRoles({ userId, roleIds, conn }) {
+        if (!userId) throw errors.argumentNull("userId")
+        if (!roleIds) throw errors.argumentNull("roleIds")
+        if (!conn) throw errors.argumentNull("conn")
+
+        if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
+        if (roleIds.length == 0)
+            return errors.argumentEmptyArray("roleIds")
+
+        // await db.execute(conn, `delete from user_role where user_id = ? and role_id in (${roleIds.map(o => '?').join(',')})`, [userId, ...roleIds])
+        let roleController = new RoleController()
+        let userRoles = await roleController.userRoleIds({ userIds: [userId], conn })
+        let userRoleIds = userRoles.map(o => o.role_id)
+        let values = []
+        let sql = `insert into user_role (user_id, role_id) values `
+        for (let i = 0; i < roleIds.length; i++) {
+            if (userRoleIds.indexOf(roleIds[i]) >= 0)
+                continue
+
+            sql = sql + "(?,?)"
+            values.push(userId, roleIds[i])
+        }
+        
+        if (values.length > 0)
+            await db.execute(conn, sql, values)
     }
 
     @action()

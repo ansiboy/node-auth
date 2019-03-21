@@ -152,7 +152,7 @@ export default class RoleController {
      * 获取用户角色编号
      */
     @action()
-    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }) {
+    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }):Promise<UserRole[]> {
         if (userIds == null) throw errors.argumentNull('userIds')
         if (conn == null) throw errors.argumentNull('conn')
 

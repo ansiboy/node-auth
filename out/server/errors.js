@@ -39,6 +39,13 @@ exports.errors = {
         error.arguments = { argumentName };
         return error;
     },
+    argumentEmptyArray(argumentName) {
+        let msg = `Argument '${argumentName}' can not an emtpy array.`;
+        let error = new Error(msg);
+        error.name = exports.errors.argumentEmptyArray.name;
+        error.arguments = { argumentName };
+        return error;
+    },
     canntGetRedirectUrl(rootDir) {
         let msg = `Can not find redirect url for '${rootDir}'`;
         let err = new Error(msg);

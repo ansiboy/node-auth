@@ -19,6 +19,7 @@ const errors_1 = require("../errors");
 const token_1 = require("../token");
 const db = require("maishu-mysql-helper");
 const controller_1 = require("../controller");
+const role_1 = require("./role");
 class UserController {
     //====================================================
     /** 手机是否已注册 */
@@ -276,7 +277,7 @@ class UserController {
     setRoles({ userId, roleIds, conn }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
-                throw errors_1.errors.argumentNull('USER_ID');
+                throw errors_1.errors.argumentNull('userId');
             if (!roleIds)
                 throw errors_1.errors.argumentNull('roleIds');
             if (!conn)
@@ -293,6 +294,34 @@ class UserController {
                 }
                 yield db.execute(conn, sql, values);
             }
+        });
+    }
+    addRoles({ userId, roleIds, conn }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!userId)
+                throw errors_1.errors.argumentNull("userId");
+            if (!roleIds)
+                throw errors_1.errors.argumentNull("roleIds");
+            if (!conn)
+                throw errors_1.errors.argumentNull("conn");
+            if (!Array.isArray(roleIds))
+                throw errors_1.errors.argumentTypeIncorrect('roleIds', 'array');
+            if (roleIds.length == 0)
+                return errors_1.errors.argumentEmptyArray("roleIds");
+            // await db.execute(conn, `delete from user_role where user_id = ? and role_id in (${roleIds.map(o => '?').join(',')})`, [userId, ...roleIds])
+            let roleController = new role_1.default();
+            let userRoles = yield roleController.userRoleIds({ userIds: [userId], conn });
+            let userRoleIds = userRoles.map(o => o.role_id);
+            let values = [];
+            let sql = `insert into user_role (user_id, role_id) values `;
+            for (let i = 0; i < roleIds.length; i++) {
+                if (userRoleIds.indexOf(roleIds[i]) >= 0)
+                    continue;
+                sql = sql + "(?,?)";
+                values.push(userId, roleIds[i]);
+            }
+            if (values.length > 0)
+                yield db.execute(conn, sql, values);
         });
     }
     list({ args, conn }) {
@@ -363,6 +392,9 @@ __decorate([
 __decorate([
     controller_1.action()
 ], UserController.prototype, "setRoles", null);
+__decorate([
+    controller_1.action()
+], UserController.prototype, "addRoles", null);
 __decorate([
     controller_1.action()
 ], UserController.prototype, "list", null);
