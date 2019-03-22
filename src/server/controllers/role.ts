@@ -152,7 +152,7 @@ export default class RoleController {
      * 获取用户角色编号
      */
     @action()
-    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }):Promise<UserRole[]> {
+    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }): Promise<UserRole[]> {
         if (userIds == null) throw errors.argumentNull('userIds')
         if (conn == null) throw errors.argumentNull('conn')
 
@@ -172,13 +172,18 @@ export default class RoleController {
             throw errors.argumentNull('userIds');
         if (conn == null)
             throw errors.argumentNull('conn');
-        let str = userIds.map(o => `"${o}"`).join(',');
-        let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (?)`;
-        let rows: any[] = await executeSQL(conn, sql, userIds);
+
         let items: { [key: string]: Role[] } = {}
-        for (let i = 0; i < userIds.length; i++) {
-            items[userIds[i]] = rows.filter(o => o.user_id == userIds[i])
+
+        if (userIds.length > 0) {
+            let str = userIds.map(o => `"${o}"`).join(',');
+            let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (${str})`;
+            let rows: any[] = await executeSQL(conn, sql, null);
+            for (let i = 0; i < userIds.length; i++) {
+                items[userIds[i]] = rows.filter(o => o.user_id == userIds[i])
+            }
         }
+
         return items;
     }
 }
