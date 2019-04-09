@@ -243,11 +243,15 @@ export default class UserController {
 
     /** 获取登录用户的信息 */
     async me({ USER_ID }) {
+        if (!USER_ID) throw errors.argumentNull('USER_ID')
+
         return this.item({ userId: USER_ID })
     }
 
     /** 获取用户信息 */
     async item({ userId }: { userId: string }) {
+        if (!userId) throw errors.argumentNull("userId")
+
         let user = await connect(async conn => {
             let sql = `select id, user_name, mobile, openid, data from user where id = ?`
             let [rows] = await execute(conn, sql, [userId])
@@ -263,6 +267,8 @@ export default class UserController {
      * 1. userId string 
      */
     async getRoles({ USER_ID }) {
+        if (!USER_ID) throw errors.argumentNull('USER_ID')
+        
         let roles = await connect(async conn => {
             let sql = `select r.*
                        from user_role as ur left join role as r on ur.role_id = r.id
