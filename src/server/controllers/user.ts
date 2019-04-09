@@ -143,7 +143,8 @@ export default class UserController {
         if (!password) throw errors.argumentNull('password')
 
         //TODO: 检查 username 类型
-        let type: 'mobile' | 'username' | 'email' = 'mobile'
+        let usernameRegex = /^[a-zA-Z]+$/;
+        let type: 'mobile' | 'username' | 'email' = usernameRegex.test(username) ? 'username' : 'mobile'
         let [rows] = await connect(conn => {
             let sql: string
             switch (type) {
@@ -323,7 +324,7 @@ export default class UserController {
             sql = sql + "(?,?)"
             values.push(userId, roleIds[i])
         }
-        
+
         if (values.length > 0)
             await db.execute(conn, sql, values)
     }
