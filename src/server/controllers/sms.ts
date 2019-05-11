@@ -17,7 +17,7 @@ export async function sendVerifyCode({ mobile, type }: { mobile: string, type: '
     if (!mobile) throw errors.argumentNull('mobile')
     if (!type) throw errors.argumentNull('type')
 
-    let verifyCode = getRandomInt(1000, 9999).toFixed(0) 
+    let verifyCode = getRandomInt(1000, 9999).toFixed(0)
     let verifyCodeText: string = settings.verifyCodeText.default;
 
     let msg = verifyCodeText.replace('{0}', verifyCode);
@@ -42,6 +42,23 @@ export async function sendVerifyCode({ mobile, type }: { mobile: string, type: '
     })
 
     return { smsId: obj.id }
+}
+
+export async function checkVerifyCode({ smsId, verifyCode }): Promise<boolean> {
+    if (!smsId) throw errors.argumentNull('smsId')
+    if (!verifyCode) throw errors.argumentNull('verifyCode')
+
+    let r = await connect(async conn => {
+        let sql = `select code from sms_record where id = ?`;
+        let [rows] = await execute(conn, sql, [smsId])
+        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            return false
+        }
+
+        return true
+    })
+
+    return r
 }
 
 /**

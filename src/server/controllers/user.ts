@@ -143,7 +143,8 @@ export default class UserController {
         if (!password) throw errors.argumentNull('password')
 
         //TODO: 检查 username 类型
-        let type: 'mobile' | 'username' | 'email' = 'mobile'
+        let usernameRegex = /^[a-zA-Z\-]+$/;
+        let type: 'mobile' | 'username' | 'email' = usernameRegex.test(username) ? 'username' : 'mobile' //'mobile'
         let [rows] = await connect(conn => {
             let sql: string
             switch (type) {
@@ -267,7 +268,7 @@ export default class UserController {
      */
     async getRoles({ USER_ID }) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
-        
+
         let roles = await connect(async conn => {
             let sql = `select r.*
                        from user_role as ur left join role as r on ur.role_id = r.id
