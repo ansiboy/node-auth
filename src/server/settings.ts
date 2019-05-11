@@ -27,7 +27,6 @@ const STORE_KEY = 'store-key';
 export let allowHeaders = `${APP_KEY}, ${USER_TOKEN}, ${STORE_KEY}, content-type`;
 export let conn = {
     auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 } as ConnectionConfig,
-    // auth: { host: 'z.bailunmei.com', user: 'root', password: 'Zxgt20150511', database: 'node_auth2', port: 43306 } as ConnectionConfig,
 }
 export let port = 2856;
 export let redirectInfos = {
