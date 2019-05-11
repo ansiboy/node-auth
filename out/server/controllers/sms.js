@@ -12,36 +12,51 @@ const QcloudSms = require("qcloudsms_js");
 const settings = require("../settings");
 const errors_1 = require("../errors");
 const database_1 = require("../database");
-function sendVerifyCode({ mobile, type }) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!mobile)
-            throw errors_1.errors.argumentNull('mobile');
-        if (!type)
-            throw errors_1.errors.argumentNull('type');
-        let verifyCode = getRandomInt(1000, 9999).toFixed(0);
-        let verifyCodeText = settings.verifyCodeText.default;
-        let msg = verifyCodeText.replace('{0}', verifyCode);
-        let obj = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            if (type == 'register') {
-                // 检查手机号码未被注册
-                let sql = 'select mobile from user where mobile = ?';
-                let [rows] = yield database_1.execute(conn, sql, [mobile]);
-                if (rows.length != 0)
-                    throw errors_1.errors.mobileExists(mobile);
+class SMSController {
+    sendVerifyCode({ mobile, type }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!mobile)
+                throw errors_1.errors.argumentNull('mobile');
+            if (!type)
+                throw errors_1.errors.argumentNull('type');
+            let verifyCode = getRandomInt(1000, 9999).toFixed(0);
+            let verifyCodeText = settings.verifyCodeText.default;
+            let msg = verifyCodeText.replace('{0}', verifyCode);
+            let obj = yield database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
+                if (type == 'register') {
+                    // 检查手机号码未被注册
+                    let sql = 'select mobile from user where mobile = ?';
+                    let [rows] = yield database_1.execute(conn, sql, [mobile]);
+                    if (rows.length != 0)
+                        throw errors_1.errors.mobileExists(mobile);
+                }
+                let sql = 'insert into sms_record set ?';
+                let obj = {
+                    id: database_1.guid(), mobile, content: msg,
+                    code: verifyCode, create_date_time: new Date(Date.now())
+                };
+                yield database_1.execute(conn, sql, obj);
+                sendMobileMessage(mobile, msg);
+                return obj;
+            }));
+            return { smsId: obj.id };
+        });
+    }
+    checkVerifyCode({ conn, smsId, verifyCode }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!conn)
+                throw errors_1.errors.argumentNull('conn');
+            let sql = `select code from sms_record where id = ?`;
+            let [rows] = yield database_1.execute(conn.source, sql, [smsId]);
+            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+                // throw errors.verifyCodeIncorrect(verifyCode)
+                return false;
             }
-            let sql = 'insert into sms_record set ?';
-            let obj = {
-                id: database_1.guid(), mobile, content: msg,
-                code: verifyCode, create_date_time: new Date(Date.now())
-            };
-            yield database_1.execute(conn, sql, obj);
-            sendMobileMessage(mobile, msg);
-            return obj;
-        }));
-        return { smsId: obj.id };
-    });
+            return true;
+        });
+    }
 }
-exports.sendVerifyCode = sendVerifyCode;
+exports.default = SMSController;
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
  * Using Math.round() will give you a non-uniform distribution!

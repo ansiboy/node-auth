@@ -2,6 +2,7 @@ import * as QcloudSms from 'qcloudsms_js'
 import * as settings from '../settings'
 import { errors } from '../errors';
 import { connect, execute, guid } from '../database';
+import { Connection } from 'maishu-mysql-helper';
 
 interface SMSRecord {
     id: string,
@@ -11,37 +12,49 @@ interface SMSRecord {
     create_date_time: Date
 }
 
+export default class SMSController {
+    async sendVerifyCode({ mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
-export async function sendVerifyCode({ mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+        if (!mobile) throw errors.argumentNull('mobile')
+        if (!type) throw errors.argumentNull('type')
 
-    if (!mobile) throw errors.argumentNull('mobile')
-    if (!type) throw errors.argumentNull('type')
+        let verifyCode = getRandomInt(1000, 9999).toFixed(0)
+        let verifyCodeText: string = settings.verifyCodeText.default;
 
-    let verifyCode = getRandomInt(1000, 9999).toFixed(0)
-    let verifyCodeText: string = settings.verifyCodeText.default;
+        let msg = verifyCodeText.replace('{0}', verifyCode);
+        let obj = await connect(async conn => {
 
-    let msg = verifyCodeText.replace('{0}', verifyCode);
-    let obj = await connect(async conn => {
+            if (type == 'register') {
+                // 检查手机号码未被注册
+                let sql = 'select mobile from user where mobile = ?'
+                let [rows] = await execute(conn, sql, [mobile])
+                if (rows.length != 0)
+                    throw errors.mobileExists(mobile)
+            }
 
-        if (type == 'register') {
-            // 检查手机号码未被注册
-            let sql = 'select mobile from user where mobile = ?'
-            let [rows] = await execute(conn, sql, [mobile])
-            if (rows.length != 0)
-                throw errors.mobileExists(mobile)
+            let sql = 'insert into sms_record set ?'
+            let obj: SMSRecord = {
+                id: guid(), mobile, content: msg,
+                code: verifyCode, create_date_time: new Date(Date.now())
+            }
+            await execute(conn, sql, obj)
+            sendMobileMessage(mobile, msg)
+            return obj
+        })
+
+        return { smsId: obj.id }
+    }
+    async checkVerifyCode({ conn, smsId, verifyCode }: { conn: Connection, smsId: string, verifyCode: string }) {
+        if (!conn) throw errors.argumentNull('conn')
+        let sql = `select code from sms_record where id = ?`
+        let [rows] = await execute(conn.source, sql, [smsId])
+        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            // throw errors.verifyCodeIncorrect(verifyCode)
+            return false
         }
+        return true
+    }
 
-        let sql = 'insert into sms_record set ?'
-        let obj: SMSRecord = {
-            id: guid(), mobile, content: msg,
-            code: verifyCode, create_date_time: new Date(Date.now())
-        }
-        await execute(conn, sql, obj)
-        sendMobileMessage(mobile, msg)
-        return obj
-    })
-
-    return { smsId: obj.id }
 }
 
 export async function checkVerifyCode({ smsId, verifyCode }): Promise<boolean> {

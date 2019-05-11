@@ -141,7 +141,8 @@ class UserController {
             if (!password)
                 throw errors_1.errors.argumentNull('password');
             //TODO: 检查 username 类型
-            let type = 'mobile';
+            let usernameRegex = /^[a-zA-Z]+$/;
+            let type = usernameRegex.test(username) ? 'username' : 'mobile';
             let [rows] = yield database_1.connect(conn => {
                 let sql;
                 switch (type) {

@@ -163,12 +163,14 @@ class RoleController {
                 throw errors_1.errors.argumentNull('userIds');
             if (conn == null)
                 throw errors_1.errors.argumentNull('conn');
-            let str = userIds.map(o => `"${o}"`).join(',');
-            let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (?)`;
-            let rows = yield maishu_mysql_helper_1.execute(conn, sql, userIds);
             let items = {};
-            for (let i = 0; i < userIds.length; i++) {
-                items[userIds[i]] = rows.filter(o => o.user_id == userIds[i]);
+            if (userIds.length > 0) {
+                let str = userIds.map(o => `"${o}"`).join(',');
+                let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (${str})`;
+                let rows = yield maishu_mysql_helper_1.execute(conn, sql, null);
+                for (let i = 0; i < userIds.length; i++) {
+                    items[userIds[i]] = rows.filter(o => o.user_id == userIds[i]);
+                }
             }
             return items;
         });
