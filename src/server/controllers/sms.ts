@@ -1,8 +1,10 @@
 import * as QcloudSms from 'qcloudsms_js'
 import * as settings from '../settings'
 import { errors } from '../errors';
-import { connect, execute, guid } from '../database';
+import { connect, execute, guid, connection } from '../database';
 import { Connection } from 'maishu-mysql-helper';
+import { controller, action, formData } from 'maishu-node-mvc';
+import * as mysql from 'mysql'
 
 interface SMSRecord {
     id: string,
@@ -12,8 +14,10 @@ interface SMSRecord {
     create_date_time: Date
 }
 
+@controller('sms')
 export default class SMSController {
-    async sendVerifyCode({ mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    @action()
+    async sendVerifyCode(@formData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
@@ -44,10 +48,12 @@ export default class SMSController {
 
         return { smsId: obj.id }
     }
-    async checkVerifyCode({ conn, smsId, verifyCode }: { conn: Connection, smsId: string, verifyCode: string }) {
+
+    @action()
+    async checkVerifyCode(@connection conn: mysql.Connection, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
         if (!conn) throw errors.argumentNull('conn')
         let sql = `select code from sms_record where id = ?`
-        let [rows] = await execute(conn.source, sql, [smsId])
+        let [rows] = await execute(conn, sql, [smsId])
         if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
             // throw errors.verifyCodeIncorrect(verifyCode)
             return false
@@ -57,22 +63,22 @@ export default class SMSController {
 
 }
 
-export async function checkVerifyCode({ smsId, verifyCode }): Promise<boolean> {
-    if (!smsId) throw errors.argumentNull('smsId')
-    if (!verifyCode) throw errors.argumentNull('verifyCode')
+// export async function checkVerifyCode(@connection conn: mysql.Connection, { smsId, verifyCode }): Promise<boolean> {
+//     if (!smsId) throw errors.argumentNull('smsId')
+//     if (!verifyCode) throw errors.argumentNull('verifyCode')
 
-    let r = await connect(async conn => {
-        let sql = `select code from sms_record where id = ?`;
-        let [rows] = await execute(conn, sql, [smsId])
-        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-            return false
-        }
+//     // let r = await connect(async conn => {
+//     let sql = `select code from sms_record where id = ?`;
+//     let [rows] = await execute(conn, sql, [smsId])
+//     if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+//         return false
+//     }
 
-        return true
-    })
+//     return true
+//     // })
 
-    return r
-}
+//     // return r
+// }
 
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)

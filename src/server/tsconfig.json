@@ -7,9 +7,10 @@
         "baseUrl": "../../",
         "paths": {
             "maishu-mysql-helper": [
-                "node_modules/maishu-mysql-helper/index.d.ts"
+                "node_modules/maishu-mysql-helper/out/index.d.ts"
             ]
         },
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata":true
     }
 }

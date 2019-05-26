@@ -1,0 +1,10 @@
+{
+    "port": 2856,
+    "db": {
+        "username": "root",
+        "password": "81263",
+        "name": "node_auth2",
+        "host": "localhost",
+        "port": 3306
+    }
+}

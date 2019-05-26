@@ -1,7 +1,8 @@
 import { errors } from "../errors";
-import { connect, execute, guid } from "../database";
-import { action } from "../controller";
-import * as db from 'maishu-mysql-helper'
+import { connect, execute, guid, connection, list, select } from "../database";
+// import * as db from 'maishu-mysql-helper'
+import { controller, formData, action } from "maishu-node-mvc";
+import * as mysql from 'mysql';
 
 export interface Application {
     id: string,
@@ -11,9 +12,13 @@ export interface Application {
     create_date_time
 }
 
+@controller("/application")
 export default class ApplicationController {
     /** 添加应用 */
-    async add({ name, userId, data }: { name: string, userId: string, data?: object }): Promise<Application> {
+    @action()
+    async add(@connection conn: mysql.Connection,
+        @formData { name, userId, data }: { name: string, userId: string, data?: object }): Promise<Application> {
+
         if (!name) throw errors.argumentNull('name')
         if (!userId) throw errors.argumentNull('userId')
 
@@ -25,70 +30,75 @@ export default class ApplicationController {
             create_date_time: new Date(Date.now())
         }
 
-        await connect(conn => {
-            let sql = `insert into application set ?`
-            return execute(conn, sql, application)
-        })
+        // await connect(conn => {
+        let sql = `insert into application set ?`
+        await execute(conn, sql, application)
+        // })
 
         return application
     }
 
     /** 添加应用 */
-    async update({ id, name, userId, data }: { id, name?: string, userId: string, data?: object }): Promise<Application> {
+    @action()
+    async update(@connection conn: mysql.Connection,
+        @formData { id, name, userId, data }: { id, name?: string, userId: string, data?: object }): Promise<Application> {
+
         if (!id) throw errors.argumentNull('id')
         if (!userId) throw errors.argumentNull('userId')
 
-        let obj = await connect(async conn => {
-            let sql = `select * from application where id = ? and user_id = ?`
-            let [rows] = await execute(conn, sql, [id, userId])
-            let app: Application = rows[0]
-            if (app == null)
-                throw errors.objectNotExistWithId(id, name)
+        // let obj = await connect(async conn => {
+        let sql = `select * from application where id = ? and user_id = ?`
+        let [rows] = await execute(conn, sql, [id, userId])
+        let app: Application = rows[0]
+        if (app == null)
+            throw errors.objectNotExistWithId(id, name)
 
-            let obj = {} as Application
-            if (name)
-                obj.name = name
+        let obj = {} as Application
+        if (name)
+            obj.name = name
 
-            if (data)
-                obj.data = JSON.stringify(data)
+        if (data)
+            obj.data = JSON.stringify(data)
 
-            sql = `update application set ? where id = ?`
-            execute(conn, sql, [obj, id])
+        sql = `update application set ? where id = ?`
+        execute(conn, sql, [obj, id])
 
-            return app
+        return app
 
-        })
-        return obj
+        // })
+        // return obj
     }
 
-    async remove({ id, userId }) {
+    @action()
+    async remove(@connection conn: mysql.Connection, @formData { id, userId }) {
         if (!id) throw errors.argumentNull('id');
 
-        return connect(conn => {
-            let sql = `delete from application where id = ? and user_id = ?`
-            return execute(conn, sql, [id, userId])
-        })
+        // return connect(conn => {
+        let sql = `delete from application where id = ? and user_id = ?`
+        return execute(conn, sql, [id, userId])
+        // })
     }
 
     /** 显示指定用户的 Application */
-    async list({ userId }) {
+    @action()
+    async list(@connection conn: mysql.Connection, @formData { userId }) {
         if (!userId) throw errors.argumentNull('userId')
-        let [rows] = await connect(conn => {
-            let sql = `select * from application where user_id = ?`
-            return execute(conn, sql, [userId])
-        })
+        // let [rows] = await connect(conn => {
+        let sql = `select * from application where user_id = ?`
+        let [rows] = await execute(conn, sql, [userId])
+        // })
         return rows
     }
 
     /** 显示 ID 为 APP_ID 应用下的用户 */
     @action()
-    async users({ args, APP_ID, conn }) {
+    async users(@connection conn, @formData { args, APP_ID }) {
         if (!APP_ID) throw errors.argumentNull('APP_ID')
         if (!conn) throw errors.argumentNull("conn")
 
         let source = `(select t1.* from application_user as t0 left join user as t1 on t0.user_id = t1.id
                         where t0.application_id = '${APP_ID}') as t1`
-        let r = await db.list<User>(conn, source, args)
+        let r = await list<User>(conn, source, args)
         if (r.dataItems.length == 0) {
             return r
         }
@@ -97,7 +107,7 @@ export default class ApplicationController {
         // let sql = `select user_id, role_id from user_role where user_id in (?) `
         let userIds = users.map((o: User) => `'${o.id}'`).join(',')
         let filter = `user_id in (${userIds})`
-        let rows = await db.select<UserRole>(conn, 'user_role', { filter, sortExpression: 'user_id' })
+        let rows = await select<UserRole>(conn, 'user_role', { filter, sortExpression: 'user_id' })
 
         users.forEach(user => {
             // let rows = role_result.dataItems;
@@ -108,7 +118,8 @@ export default class ApplicationController {
 
     }
 
-    async addUser({ appId, mobile, roleIds }: { appId: string, mobile: string, roleIds: string[] }) {
+    @action()
+    async addUser(@formData { appId, mobile, roleIds }: { appId: string, mobile: string, roleIds: string[] }) {
         if (!appId)
             throw errors.argumentNull('appId')
 
@@ -152,7 +163,8 @@ export default class ApplicationController {
         })
     }
 
-    async updateUser({ appId, userId, roleIds }) {
+    @action()
+    async updateUser(@formData { appId, userId, roleIds }) {
         if (!appId)
             throw errors.argumentNull('appId')
 
@@ -181,14 +193,16 @@ export default class ApplicationController {
         })
     }
 
-    async removeUser({ appId, userId }) {
+    @action()
+    async removeUser(@formData { appId, userId }) {
         return connect(async conn => {
             let sql = `delete from application_user where application_id = ? and user_id = ?`
             await execute(conn, sql, [appId, userId])
         })
     }
 
-    async get({ id }) {
+    @action()
+    async get(@formData { id }) {
         if (!id) throw errors.argumentNull('id')
         let [rows] = await connect(conn => {
             let sql = `select * from application where id = ?`
