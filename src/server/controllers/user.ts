@@ -7,6 +7,7 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
+import { conn } from '../settings';
 
 @controller('user')
 export default class UserController {
@@ -14,38 +15,41 @@ export default class UserController {
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister({ mobile }): Promise<boolean> {
+    async isMobileRegister(@connection conn, @formData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
+        if (!conn) throw errors.argumentNull('conn')
 
-        return connect(async conn => {
-            let sql = `select id from user where mobile = ? limit 1`
-            let [rows] = await execute(conn, sql, [mobile])
-            return (rows || []).length > 0
-        })
+        // return connect(async conn => {
+        let sql = `select id from user where mobile = ? limit 1`
+        let [rows] = await execute(conn, sql, [mobile])
+        return (rows || []).length > 0
+        // })
     }
 
     @action()
-    async isUserNameRegister({ user_name }): Promise<boolean> {
+    async isUserNameRegister(@connection conn, @formData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
-        return connect(async conn => {
-            let sql = `select id from user where user_name = ? limit 1`
-            let [rows] = await execute(conn, sql, [user_name])
-            return (rows || []).length > 0
-        })
+        if (!conn) throw errors.argumentNull('conn')
+        // return connect(async conn => {
+        let sql = `select id from user where user_name = ? limit 1`
+        let [rows] = await execute(conn, sql, [user_name])
+        return (rows || []).length > 0
+        // })
     }
 
     @action()
-    async isEmailRegister({ email }): Promise<boolean> {
+    async isEmailRegister(@connection conn, @formData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
-        return connect(async conn => {
-            let sql = `select id from user where user_name = ? limit 1`
-            let [rows] = await execute(conn, sql, [email])
-            return (rows || []).length > 0
-        })
+        // return connect(async conn => {
+        let sql = `select id from user where user_name = ? limit 1`
+        let [rows] = await execute(conn, sql, [email])
+        return (rows || []).length > 0
+        // })
     }
 
     @action()
-    async register({ mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
+    async register(@connection conn,
+        @formData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -59,30 +63,30 @@ export default class UserController {
             throw errors.argumentNull('verifyCode');
 
         data = data || {}
-        let user = await connect(async conn => {
+        // let user = await connect(async conn => {
 
-            let sql = `select code from sms_record where id = ?`
-            let [rows] = await execute(conn, sql, [smsId])
-            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-                throw errors.verifyCodeIncorrect(verifyCode)
-            }
+        let sql = `select code from sms_record where id = ?`
+        let [rows] = await execute(conn, sql, [smsId])
+        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            throw errors.verifyCodeIncorrect(verifyCode)
+        }
 
-            let user = {
-                id: guid(), mobile, password, data: JSON.stringify(data),
-                create_date_time: new Date(Date.now()),
-            } as User
+        let user = {
+            id: guid(), mobile, password, data: JSON.stringify(data),
+            create_date_time: new Date(Date.now()),
+        } as User
 
-            sql = 'insert into user set ?'
-            await execute(conn, sql, user)
-            return user
-        })
+        sql = 'insert into user set ?'
+        await execute(conn, sql, user)
+        // return user
+        // })
 
         let token = await Token.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
 
     @action()
-    async resetPassword({ mobile, password, smsId, verifyCode }) {
+    async resetPassword(@connection conn, @formData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -95,27 +99,27 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        let result = await connect(async conn => {
-            let sql = `select * from user where mobile = ?`
-            let [rows] = await execute(conn, sql, [mobile, password])
+        // let result = await connect(async conn => {
+        let sql = `select * from user where mobile = ?`
+        let [rows] = await execute(conn, sql, [mobile, password])
 
-            let user: User = rows == null ? null : rows[0]
-            if (user == null) {
-                throw errors.mobileNotExists(mobile)
-            }
+        let user: User = rows == null ? null : rows[0]
+        if (user == null) {
+            throw errors.mobileNotExists(mobile)
+        }
 
-            sql = `update user set password = ? where mobile = ?`
-            await execute(conn, sql, [password, mobile])
+        sql = `update user set password = ? where mobile = ?`
+        await execute(conn, sql, [password, mobile])
 
-            let token = await Token.create({ user_id: user.id } as UserToken);
-            return { token: token.id, userId: user.id };
-        })
+        let token = await Token.create({ user_id: user.id } as UserToken);
+        return { token: token.id, userId: user.id };
+        // })
 
-        return result
+        // return result
     }
 
     @action()
-    async resetMobile(@formData { mobile, smsId, verifyCode, USER_ID }) {
+    async resetMobile(@connection conn, @formData { mobile, smsId, verifyCode, USER_ID }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -125,52 +129,55 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        let isMobileRegister = await this.isMobileRegister({ mobile })
+        let isMobileRegister = await this.isMobileRegister(conn, { mobile })
         if (isMobileRegister)
             throw errors.mobileExists(mobile)
 
-        let result = await connect(async conn => {
+        // let result = await connect(async conn => {
 
-            let sql = `select code from sms_record where id = ?`
-            let [rows] = await execute(conn, sql, [smsId])
-            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-                throw errors.verifyCodeIncorrect(verifyCode)
-            }
+        let sql = `select code from sms_record where id = ?`
+        let [rows] = await execute(conn, sql, [smsId])
+        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            throw errors.verifyCodeIncorrect(verifyCode)
+        }
 
-            sql = `update user set mobile = ? where id = ?`
-            await execute(conn, sql, [mobile, USER_ID])
+        sql = `update user set mobile = ? where id = ?`
+        await execute(conn, sql, [mobile, USER_ID])
 
-            return {};
-        })
+        return {};
+        // })
 
-        return result
+        // return result
     }
 
     @action()
-    async loginByUserName(@formData { username, password }) {
+    async loginByUserName(@connection conn, @formData { username, password }) {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
 
         //TODO: 检查 username 类型
         let usernameRegex = /^[a-zA-Z\-]+$/;
-        let type: 'mobile' | 'username' | 'email' = usernameRegex.test(username) ? 'username' : 'mobile' //'mobile'
-        let [rows] = await connect(conn => {
-            let sql: string
-            switch (type) {
-                default:
-                case 'mobile':
-                    sql = `select id from user where mobile = ? and password = ?`
-                    break
-                case 'username':
-                    sql = `select id from user where user_name = ? and password = ?`
-                    break
-                case 'email':
-                    sql = `select id from user where email = ? and password = ?`
-                    break
-            }
-            return execute(conn, sql, [username, password])
-        })
+        let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        let type: 'mobile' | 'username' | 'email' =
+            usernameRegex.test(username) ? 'username' :
+                emailRegex.test(username) ? 'email' : 'mobile' //'mobile'
+        // let [rows] = await connect(conn => {
+        let sql: string
+        switch (type) {
+            default:
+            case 'mobile':
+                sql = `select id from user where mobile = ? and password = ?`
+                break
+            case 'username':
+                sql = `select id from user where user_name = ? and password = ?`
+                break
+            case 'email':
+                sql = `select id from user where email = ? and password = ?`
+                break
+        }
+        let [rows] = await execute(conn, sql, [username, password])
+        // })
 
         let user: User = rows == null ? null : rows[0]
         if (user == null) {
@@ -242,7 +249,7 @@ export default class UserController {
             p = this.loginByVerifyCode(conn, args)
         }
         else {
-            p = this.loginByUserName(args)
+            p = this.loginByUserName(conn, args)
         }
 
         p.then(o => {
@@ -366,19 +373,19 @@ export default class UserController {
 
         let p: Promise<boolean>[] = []
         if (item.mobile) {
-            let isMobileRegister = await this.isMobileRegister({ mobile: item.mobile })
+            let isMobileRegister = await this.isMobileRegister(conn, { mobile: item.mobile })
             if (isMobileRegister)
                 return Promise.reject(errors.mobileExists(item.mobile))
         }
 
         if (item.email) {
-            let isEmailRegister = await this.isEmailRegister({ email: item.email })
+            let isEmailRegister = await this.isEmailRegister(conn, { email: item.email })
             if (isEmailRegister)
                 return Promise.reject(errors.emailExists(item.email))
         }
 
         if (item.user_name) {
-            let isUserNameRegister = await this.isUserNameRegister({ user_name: item.user_name })
+            let isUserNameRegister = await this.isUserNameRegister(conn, { user_name: item.user_name })
             if (isUserNameRegister)
                 return Promise.reject(errors.usernameExists(item.user_name))
         }
