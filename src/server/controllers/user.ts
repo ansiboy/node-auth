@@ -1,4 +1,4 @@
-import { connect, execute, guid, connection, list, insert, update } from '../database';
+import { connect, execute, guid, connection, list, insert, update, select } from '../database';
 import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
@@ -7,7 +7,7 @@ import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
 import { conn } from '../settings';
-import { userVariable } from '../user-variable';
+import { UserId } from '../decorators';
 
 @controller('/user')
 export default class UserController {
@@ -15,7 +15,7 @@ export default class UserController {
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister(@connection conn, @formData { mobile }): Promise<boolean> {
+    async isMobileRegister(@connection conn: mysql.Connection, @formData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
         if (!conn) throw errors.argumentNull('conn')
 
@@ -27,7 +27,7 @@ export default class UserController {
     }
 
     @action()
-    async isUserNameRegister(@connection conn, @formData { user_name }): Promise<boolean> {
+    async isUserNameRegister(@connection conn: mysql.Connection, @formData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
         if (!conn) throw errors.argumentNull('conn')
         // return connect(async conn => {
@@ -38,7 +38,7 @@ export default class UserController {
     }
 
     @action()
-    async isEmailRegister(@connection conn, @formData { email }): Promise<boolean> {
+    async isEmailRegister(@connection conn: mysql.Connection, @formData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
         // return connect(async conn => {
         let sql = `select id from user where user_name = ? limit 1`
@@ -48,7 +48,7 @@ export default class UserController {
     }
 
     @action()
-    async register(@connection conn,
+    async register(@connection conn: mysql.Connection,
         @formData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -86,7 +86,7 @@ export default class UserController {
     }
 
     @action()
-    async resetPassword(@connection conn, @formData { mobile, password, smsId, verifyCode }) {
+    async resetPassword(@connection conn: mysql.Connection, @formData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -115,7 +115,7 @@ export default class UserController {
     }
 
     @action()
-    async resetMobile(@connection conn, @formData { mobile, smsId, verifyCode, USER_ID }) {
+    async resetMobile(@connection conn: mysql.Connection, @formData { mobile, smsId, verifyCode, USER_ID }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -141,7 +141,7 @@ export default class UserController {
         return {};
     }
 
-    async loginByUserName(@connection conn, @formData { username, password }) {
+    async loginByUserName(conn: mysql.Connection, { username, password }) {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -200,7 +200,7 @@ export default class UserController {
         return { token: token.id, userId: user.id };
     }
 
-    private async loginByVerifyCode(@connection conn: mysql.Connection, args: { mobile: string, smsId: string, verifyCode: string }) {
+    private async loginByVerifyCode(@connection conn: mysql.Connection, @formData args: { mobile: string, smsId: string, verifyCode: string }) {
         let { mobile, smsId, verifyCode } = args
         // let r = await connect(async conn => {
         let sql = `select id form user where mobile = ?`
@@ -251,7 +251,7 @@ export default class UserController {
 
     /** 获取登录用户的信息 */
     @action()
-    async me(@userVariable('user-id') USER_ID) {
+    async me(@UserId USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
 
         return this.item({ userId: USER_ID })
@@ -259,7 +259,7 @@ export default class UserController {
 
     /** 获取用户信息 */
     @action()
-    async item({ userId }: { userId: string }) {
+    async item(@formData { userId }: { userId: string }) {
         if (!userId) throw errors.argumentNull("userId")
 
         let user = await connect(async conn => {
@@ -277,7 +277,7 @@ export default class UserController {
      * 1. userId string 
      */
     @action()
-    async getRoles(@userVariable('user-id') USER_ID) {
+    async getRoles(@UserId USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
 
         let roles = await connect(async conn => {
@@ -298,13 +298,13 @@ export default class UserController {
      * 1. roleIds string[], 角色 ID 数组
      */
     @action()
-    async setRoles({ userId, roleIds, conn }) {
+    async setRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
         if (!userId) throw errors.argumentNull('userId')
         if (!roleIds) throw errors.argumentNull('roleIds')
         if (!conn) throw errors.argumentNull('conn')
         if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
 
-        await db.execute(conn, `delete from user_role where user_id = ?`, userId)
+        await execute(conn, `delete from user_role where user_id = ?`, userId)
 
         if (roleIds.length > 0) {
             let values = []
@@ -314,7 +314,7 @@ export default class UserController {
                 values.push(userId, roleIds[i])
             }
 
-            await db.execute(conn, sql, values)
+            await execute(conn, sql, values)
         }
     }
 
@@ -346,14 +346,14 @@ export default class UserController {
     }
 
     @action()
-    async list(@connection conn: mysql.Connection, { args }: { args: db.SelectArguments }) {
+    async list(@connection conn: mysql.Connection, @formData { args }: { args: db.SelectArguments }) {
         let result = await list<User>(conn, 'user', args)
         return result
     }
 
     /** 添加用户 */
     @action()
-    async add(@connection conn: mysql.Connection, { item, roleIds }: Args.addUser) {
+    async add(@connection conn: mysql.Connection, @formData { item, roleIds }: Args.addUser) {
 
         let p: Promise<boolean>[] = []
         if (item.mobile) {
@@ -388,7 +388,7 @@ export default class UserController {
     }
 
     @action()
-    async update(@connection conn: mysql.Connection, @userVariable('user-id') USER_ID, @formData { user }) {
+    async update(@connection conn: mysql.Connection, @UserId USER_ID, @formData { user }) {
         if (!user) throw errors.argumentNull('user')
         let u = user as User
         u.id = USER_ID
@@ -399,7 +399,7 @@ export default class UserController {
 
     /** 显示用户所拥有的应用 */
     @action()
-    ownAppliactions(@connection conn, @userVariable('user-id') USER_ID) {
+    ownAppliactions(@connection conn, @UserId USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
         if (!conn) throw errors.argumentNull('conn')
 
@@ -408,9 +408,9 @@ export default class UserController {
 
     /** 显示用户所允许访问的应用 */
     @action()
-    async canVisitApplicationIds({ USER_ID, conn }) {
+    async canVisitApplicationIds(@connection conn: mysql.Connection, @UserId USER_ID, ) {
         type ApplicationUser = { user_id: string, application_id: string }
-        let items = await db.select<ApplicationUser>(conn, 'application_user', { filter: `user_id = '${USER_ID}'` })
+        let items = await select<ApplicationUser>(conn, 'application_user', { filter: `user_id = '${USER_ID}'` })
         return items.map(o => o.application_id)
     }
 }

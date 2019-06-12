@@ -3,68 +3,37 @@ import { Token } from './token';
 import http = require('http')
 import querystring = require('querystring');
 import url = require('url');
-import { errors } from './errors';
 
-export async function tokenConttent(req: http.IncomingMessage): Promise<Object> {
+export let UserId = createParameterDecorator(async (req) => {
     let tokenText = req.headers['token'] as string
     if (!tokenText)
-        return {}
+        return null
 
     let token = await Token.parse(tokenText);
     if (!token)
-        return {}
+        return null
 
     try {
         var obj = JSON.parse(token.content);
-        return obj
+        let userId = obj.UserId || (obj as UserToken).user_id
+        return userId
     }
     catch (err) {
         console.error(err)
-        return {}
+        return null
     }
-}
+})
 
-/** 获取与用户相关的变量 */
-export function userVariable(key: 'user-id' | 'app-id') {
-    let userIdDecorator = createParameterDecorator(async (req) => {
-        let tokenText = req.headers['token'] as string
-        if (!tokenText)
-            return null
+export let ApplicationId = createParameterDecorator(async (req) => {
 
-        let token = await Token.parse(tokenText);
-        if (!token)
-            return null
+    let appId = req.headers['application-id']
+    if (appId)
+        return appId
 
-        try {
-            var obj = JSON.parse(token.content);
-            let userId = obj.UserId || (obj as UserToken).user_id
-            return userId
-        }
-        catch (err) {
-            console.error(err)
-            return null
-        }
-    })
+    let formData = getFormData(req)
+    return formData['application-id']
+})
 
-    let appIdDecorator = createParameterDecorator(async (req) => {
-
-        let appId = req.headers['application-id']
-        if (appId)
-            return appId
-
-        let formData = getFormData(req)
-        return formData['application-id']
-    })
-
-
-    if (key == 'user-id')
-        return userIdDecorator
-
-    if (key == 'app-id')
-        return appIdDecorator
-
-    throw errors.notImplement()
-}
 
 async function getFormData(req: http.IncomingMessage) {
 

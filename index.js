@@ -3,6 +3,7 @@ const config = require('./config.json')
 const path = require('path')
 const http = require('http')
 const { tokenConttent } = require('./out/server/user-variable')
+const { Token } = require('./out/server/token');
 
 //===========================================
 // 目标主机，服务所在的主机
@@ -42,25 +43,24 @@ startServer({
  * @param {http.IncomingMessage} req 
  */
 async function proxyHeader(req) {
-    let header = await tokenConttent(req)
+    let header = {}
+    let tokenText = req.headers['token']
+    if (tokenText) {
+        try {
+            let token = await Token.parse(tokenText);
+            var obj = JSON.parse(token.content);
+            header = obj
+        }
+        catch (err) {
+            console.error(err)
+        }
+    }
+
     if (header.user_id) {
         header['SellerId'] = header.user_id
         header['UserId'] = header.user_id
     }
 
     return header
-    // return {}
 }
 
-// { name: 'Content-Type', value: 'application/json;charset=utf-8' },
-// { name: 'gateway_machine', value: MACHINE_NAME },
-// { name: 'Access-Control-Allow-Origin', value: '*' },
-// { name: 'Access-Control-Allow-Methods', value: '*' },
-// { name: 'Access-Control-Allow-Headers', value: '*' },
-
-        // { rootDir: 'AdminSite', targetUrl: `http://${target_host}:9000/Admin` },
-        // { rootDir: 'AdminStock', targetUrl: `http://${target_host}:9005/Admin` },
-        // { rootDir: 'AdminShop', targetUrl: `http://${target_host}:9010/Admin` },
-        // { rootDir: 'AdminMember', targetUrl: `http://${target_host}:9020/Admin` },
-        // { rootDir: 'AdminWeiXin', targetUrl: `http://${target_host}:9030/Admin` },
-        // { rootDir: 'AdminAccount', targetUrl: `http://${target_host}:9035/Admin` },

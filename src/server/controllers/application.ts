@@ -3,7 +3,7 @@ import { connect, execute, guid, connection, list, select } from "../database";
 // import * as db from 'maishu-mysql-helper'
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql';
-import { userVariable } from "../user-variable";
+import { UserId, ApplicationId } from "../decorators";
 
 export interface Application {
     id: string,
@@ -68,7 +68,7 @@ export default class ApplicationController {
     }
 
     @action()
-    async remove(@connection conn: mysql.Connection, @userVariable('user-id') userId, @formData { id }) {
+    async remove(@connection conn: mysql.Connection, @UserId userId, @formData { id }) {
         if (!id) throw errors.argumentNull('id');
 
         let sql = `delete from application where id = ? and user_id = ?`
@@ -77,7 +77,7 @@ export default class ApplicationController {
 
     /** 显示指定用户的 Application */
     @action()
-    async list(@connection conn: mysql.Connection, @userVariable('user-id') userId) {
+    async list(@connection conn: mysql.Connection, @UserId userId) {
         if (!userId) throw errors.argumentNull('userId')
         let sql = `select * from application where user_id = ?`
         let [rows] = await execute(conn, sql, [userId])
@@ -86,7 +86,7 @@ export default class ApplicationController {
 
     /** 显示 ID 为 APP_ID 应用下的用户 */
     @action()
-    async users(@connection conn, @formData { args }, @userVariable('app-id') APP_ID) {
+    async users(@connection conn, @formData { args }, @ApplicationId APP_ID) {
         if (!APP_ID) throw errors.argumentNull('APP_ID')
         if (!conn) throw errors.argumentNull("conn")
 
