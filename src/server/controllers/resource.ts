@@ -20,13 +20,11 @@ interface Resource {
 export default class ResourceController {
 
     @action()
-    async add(@connection conn: mysql.Connection, @formData { item }: { item: Resource }) {//name, path, parent_id, sort_number, type 
+    async add(@connection conn: mysql.Connection, @formData { item }: { item: Resource }) {
         if (!item.name) throw errors.fieldNull('name', 'item')
 
         item.id = guid()
         item.create_date_time = new Date(Date.now())
-
-        // await connect(async conn => {
 
         if (item.sort_number == null) {
             let s = `select max(sort_number) as value from resource`
@@ -51,8 +49,6 @@ export default class ResourceController {
 
         let sql = `insert into resource set ?`
         await execute(conn, sql, item)
-        // })
-
         return { id: item.id }
     }
 
@@ -70,9 +66,7 @@ export default class ResourceController {
         if (!id) throw errors.argumentNull('id')
 
         let sql = `delete from resource where id = ?`;
-        // await connect(async conn => {
         await execute(conn, sql, id)
-        // })
     }
 
     @action()
@@ -81,7 +75,6 @@ export default class ResourceController {
         if (!args.sortExpression) {
             args.sortExpression = 'sort_number asc'
         }
-        // conn.applicationId = null
         let result = await list<Resource>(conn, 'resource', args)
         return result
     }

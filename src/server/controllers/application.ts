@@ -3,6 +3,7 @@ import { connect, execute, guid, connection, list, select } from "../database";
 // import * as db from 'maishu-mysql-helper'
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql';
+import { userVariable } from "../user-variable";
 
 export interface Application {
     id: string,
@@ -14,6 +15,7 @@ export interface Application {
 
 @controller("/application")
 export default class ApplicationController {
+
     /** 添加应用 */
     @action()
     async add(@connection conn: mysql.Connection,
@@ -46,7 +48,6 @@ export default class ApplicationController {
         if (!id) throw errors.argumentNull('id')
         if (!userId) throw errors.argumentNull('userId')
 
-        // let obj = await connect(async conn => {
         let sql = `select * from application where id = ? and user_id = ?`
         let [rows] = await execute(conn, sql, [id, userId])
         let app: Application = rows[0]
@@ -64,35 +65,28 @@ export default class ApplicationController {
         execute(conn, sql, [obj, id])
 
         return app
-
-        // })
-        // return obj
     }
 
     @action()
-    async remove(@connection conn: mysql.Connection, @formData { id, userId }) {
+    async remove(@connection conn: mysql.Connection, @userVariable('user-id') userId, @formData { id }) {
         if (!id) throw errors.argumentNull('id');
 
-        // return connect(conn => {
         let sql = `delete from application where id = ? and user_id = ?`
         return execute(conn, sql, [id, userId])
-        // })
     }
 
     /** 显示指定用户的 Application */
     @action()
-    async list(@connection conn: mysql.Connection, @formData { userId }) {
+    async list(@connection conn: mysql.Connection, @userVariable('user-id') userId) {
         if (!userId) throw errors.argumentNull('userId')
-        // let [rows] = await connect(conn => {
         let sql = `select * from application where user_id = ?`
         let [rows] = await execute(conn, sql, [userId])
-        // })
         return rows
     }
 
     /** 显示 ID 为 APP_ID 应用下的用户 */
     @action()
-    async users(@connection conn, @formData { args, APP_ID }) {
+    async users(@connection conn, @formData { args }, @userVariable('app-id') APP_ID) {
         if (!APP_ID) throw errors.argumentNull('APP_ID')
         if (!conn) throw errors.argumentNull("conn")
 
@@ -104,13 +98,11 @@ export default class ApplicationController {
         }
 
         let users = r.dataItems
-        // let sql = `select user_id, role_id from user_role where user_id in (?) `
         let userIds = users.map((o: User) => `'${o.id}'`).join(',')
         let filter = `user_id in (${userIds})`
         let rows = await select<UserRole>(conn, 'user_role', { filter, sortExpression: 'user_id' })
 
         users.forEach(user => {
-            // let rows = role_result.dataItems;
             (user as any).role_ids = rows.filter(r => r.user_id == user.id).map(o => o.role_id)
         })
 

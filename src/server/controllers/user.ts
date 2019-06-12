@@ -1,15 +1,15 @@
-import { connect, execute, guid, connection, list, insert } from '../database';
+import { connect, execute, guid, connection, list, insert, update } from '../database';
 import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
-import { action } from '../controller';
 import { Application } from './application';
 import RoleController from './role';
-import { controller, formData } from 'maishu-node-mvc';
+import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
 import { conn } from '../settings';
+import { userVariable } from '../user-variable';
 
-@controller('user')
+@controller('/user')
 export default class UserController {
 
     //====================================================
@@ -99,7 +99,6 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        // let result = await connect(async conn => {
         let sql = `select * from user where mobile = ?`
         let [rows] = await execute(conn, sql, [mobile, password])
 
@@ -113,9 +112,6 @@ export default class UserController {
 
         let token = await Token.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
-        // })
-
-        // return result
     }
 
     @action()
@@ -133,8 +129,6 @@ export default class UserController {
         if (isMobileRegister)
             throw errors.mobileExists(mobile)
 
-        // let result = await connect(async conn => {
-
         let sql = `select code from sms_record where id = ?`
         let [rows] = await execute(conn, sql, [smsId])
         if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
@@ -145,12 +139,8 @@ export default class UserController {
         await execute(conn, sql, [mobile, USER_ID])
 
         return {};
-        // })
-
-        // return result
     }
 
-    @action()
     async loginByUserName(@connection conn, @formData { username, password }) {
 
         if (!username) throw errors.argumentNull("username")
@@ -162,7 +152,7 @@ export default class UserController {
         let type: 'mobile' | 'username' | 'email' =
             usernameRegex.test(username) ? 'username' :
                 emailRegex.test(username) ? 'email' : 'mobile' //'mobile'
-        // let [rows] = await connect(conn => {
+
         let sql: string
         switch (type) {
             default:
@@ -177,7 +167,6 @@ export default class UserController {
                 break
         }
         let [rows] = await execute(conn, sql, [username, password])
-        // })
 
         let user: User = rows == null ? null : rows[0]
         if (user == null) {
@@ -191,7 +180,6 @@ export default class UserController {
     private async loginByOpenId<T extends { openid }>(conn: mysql.Connection, args: T) {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
-        // let user = await connect(async conn => {
         let sql = `select id from user where openid = ?`
         let [rows] = await execute(conn, sql, [openid])
 
@@ -207,9 +195,6 @@ export default class UserController {
             sql = `insert into user set ?`
             await execute(conn, sql, user)
         }
-
-        // return user
-        // })
 
         let token = await Token.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
@@ -266,7 +251,7 @@ export default class UserController {
 
     /** 获取登录用户的信息 */
     @action()
-    async me({ USER_ID }) {
+    async me(@userVariable('user-id') USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
 
         return this.item({ userId: USER_ID })
@@ -287,12 +272,12 @@ export default class UserController {
     }
 
     /**
-     * 获取用户角色
+     * 获取当前登录用户角色
      * @param param0
      * 1. userId string 
      */
     @action()
-    async getRoles({ USER_ID }) {
+    async getRoles(@userVariable('user-id') USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
 
         let roles = await connect(async conn => {
@@ -343,7 +328,6 @@ export default class UserController {
         if (roleIds.length == 0)
             return errors.argumentEmptyArray("roleIds")
 
-        // await db.execute(conn, `delete from user_role where user_id = ? and role_id in (${roleIds.map(o => '?').join(',')})`, [userId, ...roleIds])
         let roleController = new RoleController()
         let userRoles = await roleController.userRoleIds(conn, { userIds: [userId] })
         let userRoleIds = userRoles.map(o => o.role_id)
@@ -404,18 +388,18 @@ export default class UserController {
     }
 
     @action()
-    async update({ USER_ID, user, conn }) {
+    async update(@connection conn: mysql.Connection, @userVariable('user-id') USER_ID, @formData { user }) {
         if (!user) throw errors.argumentNull('user')
         let u = user as User
         u.id = USER_ID
 
-        let result = await db.update(conn, 'user', user)
+        let result = await update(conn, 'user', user)
         return result
     }
 
     /** 显示用户所拥有的应用 */
     @action()
-    ownAppliactions({ USER_ID, conn }) {
+    ownAppliactions(@connection conn, @userVariable('user-id') USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
         if (!conn) throw errors.argumentNull('conn')
 
