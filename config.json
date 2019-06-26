@@ -1,8 +1,8 @@
 {
     "port": 2857,
     "db": {
-        "username": "root",
-        "password": "81263",
+        "user": "liuyunyuan",
+        "password": "Xuan520Lv",
         "name": "node_auth2",
         "host": "localhost",
         "port": 3306

@@ -26,8 +26,14 @@ const USER_TOKEN = 'token';
 const STORE_KEY = 'store-key';
 export let allowHeaders = `${APP_KEY}, ${USER_TOKEN}, ${STORE_KEY}, content-type`;
 export let conn = {
-    auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 } as ConnectionConfig,
+    // auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 } as ConnectionConfig,
+    auth: null as ConnectionConfig,
 }
+
+export function setConnection(value: ConnectionConfig) {
+    conn.auth = value
+}
+
 export let port = 2856;
 export let redirectInfos = {
     pathInfos: [
@@ -44,13 +50,13 @@ export let redirectInfos = {
         // { rootDir: 'UserMember', targetUrl: `http://${target_host}:9020/User` },
         // { rootDir: 'UserWeiXin', targetUrl: `http://${target_host}:9030/User` },
         // { rootDir: 'UserAccount', targetUrl: `http://${target_host}:9035/User` },
-        
+
         { rootDir: 'app', targetUrl: `http://${target_host}:2893` },
         { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
         { rootDir: 'msg', targetUrl: `http://${target_host}:2895` },
         { rootDir: 'distributor', targetUrl: `http://${target_host}:2896` },
         { rootDir: 'tool', targetUrl: `http://${target_host}:2897` },
-        
+
         { rootDir: 'image', targetUrl: `http://${target_host}:48628` },
     ]
 }

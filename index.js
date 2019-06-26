@@ -1,8 +1,8 @@
 const { startServer } = require('maishu-node-mvc')
+const { start } = require('./out/server/index')
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')
-const { tokenConttent } = require('./out/server/user-variable')
 const { Token } = require('./out/server/token');
 
 //===========================================
@@ -10,17 +10,14 @@ const { Token } = require('./out/server/token');
 const target_host = '127.0.0.1';
 //===========================================
 
-startServer({
+start({
     port: config.port,
-    db: config.db,
-    rootPath: __dirname,
-    controllerDirectory: path.join(__dirname, './out/server/controllers'),
-    staticRootDirectory: path.join(__dirname, './out/client/'),
-    headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': '*',
-        'Access-Control-Allow-Headers': '*'
+    db: {
+        host: config.db.host,
+        port: config.db.port,
+        username: config.db.user,
+        password: config.db.password,
+        database: config.db.name
     },
     proxy: {
         '/AdminSite/(\\S+)': { targetUrl: `http://${target_host}:9000/Admin/$1`, headers: proxyHeader },

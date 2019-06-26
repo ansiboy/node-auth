@@ -314,3 +314,4 @@ export async function insert<T extends { id: string }>(conn: mysql.Connection, t
         }
     })
 }
+

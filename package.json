@@ -31,11 +31,13 @@
     "maishu-chitu-react": "^1.0.8",
     "maishu-dilu": "^1.0.2",
     "maishu-mysql-helper": "^1.1.0",
-    "maishu-node-mvc": "^1.4.10",
+    "maishu-node-mvc": "^1.6.5",
     "maishu-ui-toolkit": "^1.0.1",
     "memory-cache": "^0.2.0",
     "mysql": "^2.15.0",
     "qcloudsms_js": "^0.1.1",
+    "requirejs": "^2.3.6",
+    "typeorm": "^0.2.18",
     "webpack": "^4.27.1"
   },
   "scripts": {
