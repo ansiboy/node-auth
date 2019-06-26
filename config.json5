@@ -1,9 +1,0 @@
-{
-    "maishu-mysql-helper": {
-        host: 'localhost',
-        user: 'liuyunyuan',
-        password: 'Xuan520Lv',
-        database: 'node_auth2'
-    }
-}
-
