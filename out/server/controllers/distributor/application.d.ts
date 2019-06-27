@@ -1,5 +1,5 @@
 import { AuthDataContext } from "../../dataContext";
-import { Application } from "entities";
+import { Application } from "../../entities";
 export default class ApplicationController {
     list(dc: AuthDataContext, userId: string): Promise<Application[]>;
     add(dc: AuthDataContext, { app }: {

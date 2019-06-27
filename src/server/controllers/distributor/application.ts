@@ -3,7 +3,7 @@ import { list, guid } from "../../database";
 import { authDataContext, AuthDataContext } from "../../dataContext";
 import { UserId } from "../../decorators";
 import { errors } from "../../errors";
-import { Application } from "entities";
+import { Application } from "../../entities";
 
 @controller("distributor/application")
 export default class ApplicationController {

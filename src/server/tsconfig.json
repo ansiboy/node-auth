@@ -5,12 +5,6 @@
         "outDir": "../../out/server",
         "sourceMap": true,
         "declaration": true,
-        "baseUrl": "./",
-        "paths": {
-            "maishu-mysql-helper": [
-                "node_modules/maishu-mysql-helper/out/index.d.ts"
-            ]
-        },
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     }

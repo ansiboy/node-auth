@@ -64,7 +64,7 @@ async function proxyHeader(req) {
 
 startWeb({
     port: config.port + 1,
-    roleId: '535e89a2-5b17-4e65-fecb-0259015b1a9b',
+    roleId: config.roleId,
     controllerPath: path.join(__dirname, 'out/server/controllers'),
     gateway: `127.0.0.1:${config.port}`,
     clientRootDirectory: path.join(__dirname, "out/public"),

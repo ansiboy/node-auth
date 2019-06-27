@@ -1,0 +1,15 @@
+.page-container {
+    padding: 20px;
+}
+
+.pagingBar .total {
+    position: relative;
+    top: 8px;
+    margin-bottom: 12px;
+}
+
+.pagination {
+    margin: 0;
+    position: relative;
+    top: 3px;
+}

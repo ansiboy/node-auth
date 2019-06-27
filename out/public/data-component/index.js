@@ -4,7 +4,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./list-page", "./fields/custom-data-field", "./fields/date-time-field", "./fields/operationField"], factory);
+        define(["require", "exports", "./list-page", "./fields/custom-data-field", "./fields/date-time-field", "./fields/operationField", "./fields/value-text-field"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -18,4 +18,6 @@
     exports.dateTimeField = date_time_field_1.dateTimeField;
     var operationField_1 = require("./fields/operationField");
     exports.operationField = operationField_1.operationField;
+    var value_text_field_1 = require("./fields/value-text-field");
+    exports.valueTextField = value_text_field_1.valueTextField;
 });

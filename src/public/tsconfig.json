@@ -17,7 +17,7 @@
                 "../../node_modules/maishu-chitu-service/out/index.d.ts"
             ],
             "maishu-chitu-admin": [
-                "../../node_modules/maishu-chitu-admin/out/index.d.ts"
+                "../../node_modules/maishu-chitu-admin/out/public/_main.d.ts"
             ],
             "maishu-chitu-react": [
                 "../../node_modules/maishu-chitu-react/out/index.d.ts"

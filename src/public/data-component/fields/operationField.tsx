@@ -8,7 +8,7 @@ import { GridViewCell, DataSource } from "maishu-wuzhui";
 import { ListPageProps } from "data-component/list-page";
 import { Resource } from "maishu-services-sdk";
 
-export function operationField<T extends Entity>(props: ListPageProps, dataSource: DataSource<T>, width?: string, callback?: (dataItem: T, resource: Resource) => void) {
+export function operationField<T extends Entity>(props: ListPageProps, dataSource: DataSource<any>, width?: string, callback?: (dataItem: T, resource: Resource) => void) {
 
     width = width || '120px'
 
