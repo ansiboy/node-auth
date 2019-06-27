@@ -1,8 +1,7 @@
 import { connect, execute, guid, connection, update, list } from "../database";
 import { errors } from "../errors";
 import * as db from 'maishu-mysql-helper'
-import { action } from "../controller";
-import { controller, formData } from "maishu-node-mvc";
+import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
 
 interface Resource {
@@ -70,7 +69,7 @@ export default class ResourceController {
     }
 
     @action()
-    async list(@connection conn: mysql.Connection, { args }: { args: db.SelectArguments }) {
+    async list(@connection conn: mysql.Connection, @formData { args }: { args: db.SelectArguments }) {
         args = args || {}
         if (!args.sortExpression) {
             args.sortExpression = 'sort_number asc'

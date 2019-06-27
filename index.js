@@ -1,9 +1,9 @@
 const { startServer } = require('maishu-node-mvc')
-const { start } = require('./out/server/index')
+const { start: startWeb } = require("maishu-chitu-admin")
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')
-const { Token } = require('./out/server/token');
+const { start } = require('./out/server/index')
 
 //===========================================
 // 目标主机，服务所在的主机
@@ -35,6 +35,7 @@ start({
     }
 })
 
+
 /**
  * 
  * @param {http.IncomingMessage} req 
@@ -61,3 +62,12 @@ async function proxyHeader(req) {
     return header
 }
 
+startWeb({
+    port: config.port + 1,
+    roleId: '535e89a2-5b17-4e65-fecb-0259015b1a9b',
+    controllerPath: path.join(__dirname, 'out/server/controllers'),
+    gateway: `127.0.0.1:${config.port}`,
+    clientRootDirectory: path.join(__dirname, "out/public"),
+})
+
+console.log(`web: http://127.0.0.1:${config.port + 1}`)

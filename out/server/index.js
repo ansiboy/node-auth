@@ -7,7 +7,7 @@ function start(options) {
     maishu_node_mvc_1.startServer({
         port: options.port, rootPath: __dirname,
         controllerDirectory: path.join(__dirname, 'controllers'),
-        staticRootDirectory: path.join(__dirname, '../../src/client'),
+        staticRootDirectory: path.join(__dirname, '../../out/client'),
         headers: {
             'Content-Type': 'application/json;charset=utf-8',
             'Access-Control-Allow-Origin': '*',

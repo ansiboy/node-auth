@@ -31,7 +31,8 @@ export let conn = {
 }
 
 export function setConnection(value: ConnectionConfig) {
-    conn.auth = value
+    conn.auth = value;
+    conn.auth['user'] = conn.auth.username;
 }
 
 export let port = 2856;
