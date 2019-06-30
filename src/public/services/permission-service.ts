@@ -2,18 +2,12 @@ import { DataSourceSelectResult, DataSourceSelectArguments } from "maishu-wuzhui
 import { errors } from '../errors'
 import { PermissionService as Service, User, MenuItem, ResourceType, Resource, Role } from 'maishu-services-sdk'
 import { alert } from "maishu-ui-toolkit";
-import * as settings from "../settings";
-
-// let config = app.config;
-let { protocol } = location;
+import { Category } from "../../../out/server/entities"
 
 export type Admin = User & { role_ids: string[] }
 
 
 
-interface LoginResult {
-    token: string
-}
 
 let menuItems: MenuItem[]
 
@@ -24,40 +18,110 @@ export class PermissionService extends Service {
 
     constructor() {
         super()
+    }
+    role = {
+        list: () => {
+            let url = this.url("role/list")
+            return this.get<Role[]>(url);
+        },
+        item: (id: string) => {
+            let url = this.url("role/item");
+            return this.get<Role>(url);
+        },
+        add: (item: Partial<Role>) => {
+            let url = this.url("role/add");
+            return this.postByJson(url, { item })
+        },
+        remove: (id: string) => {
+            let url = this.url("role/remove");
+            return this.postByJson(url, { id });
+        }
+    };
 
-        // this.error.add((sender, err) => {
-        //     ui.alert({ title: '错误', message: err.message })
-        // })
+    resource = {
+        list: (args: DataSourceSelectArguments) => {
+            let url = this.url("resource/list");
+            return this.getByJson<DataSourceSelectResult<Resource>>(url, { args });
+        },
+        item: (id) => {
+            let url = this.url("resource/item");
+            return this.getByJson<Resource>(url, { id })
+        },
+        remove: (id) => {
+            let url = this.url("resource/remove");
+            return this.post(url, { id });
+        },
+        add: (item: Partial<Resource>) => {
+            let url = this.url("resource/add");
+            return this.postByJson<{ id: string }>(url, { item })
+        }
+    };
+    menu = (() => {
+
+        let convertToMenuItem = (resource: Resource) => {
+            let o = {
+                id: resource.id,
+                name: resource.name,
+                parent_id: resource.parent_id,
+                path: resource.path,
+                icon: (resource.data || {}).icon,
+                sort_number: resource.sort_number,
+                category: resource.category,
+                create_date_time: resource.create_date_time,
+            } as MenuItem;
+
+            return o;
+        }
+
+        return {
+            list: async (args: DataSourceSelectArguments) => {
+                let r = await this.resource.list(args);
+                let resources = r.dataItems.filter(o => o.type == 'menu');
+                let menuItems = resources.map(o => convertToMenuItem(o));
+
+                let stack: MenuItem[] = menuItems.filter(o => !o.parent_id);
+
+                let result: MenuItem[] = [];
+                while (stack.length > 0) {
+                    let item = stack.shift();
+                    result.push(item);
+
+                    item.children = menuItems.filter(o => o.parent_id == item.id);
+
+                    if (item.parent_id) {
+                        item.parent = menuItems.filter(o => o.id == item.parent_id)[0];
+                    }
+
+                    console.assert(item.children)
+                    if (item.children.length > 0) {
+                        stack.unshift(...item.children)
+                    }
+                    // if (item.children.length > 0)
+                    //     stack.push(...item.children)
+
+
+                }
+
+                return result;
+            },
+            item: async (id: string) => {
+                let resource = await this.resource.item(id);
+                let menuItem = convertToMenuItem(resource);
+                return menuItem;
+            }
+        }
+
+    })();
+
+    /** 系统类别，例如：平台，经销商 */
+    category = {
+        list: async () => {
+            let url = this.url("category/list");
+            let r = await this.getByJson<Category[]>(url);
+            return r;
+        }
     }
 
-    // url(path: string) {
-    //     return `${protocol}//${config.authServiceHost}/${path}`
-    // }
-
-    // async addResource(item: Partial<Resource>) {
-    //     let url = this.url('resource/add')
-    //     let result = await this.postByJson<{ id: string }>(url, { item })
-    //     Object.assign(item, result)
-    //     return result
-    // }
-    // async updateResource(item: Partial<Resource>) {
-    //     let url = this.url('resource/update')
-    //     let result = await this.postByJson(url, { item })
-    //     Object.assign(item, result)
-    //     return result
-    // }
-    async getMenuResource(startRowIndex: number, maximumRows: number, filter?: string) {
-        let args = new DataSourceSelectArguments()
-        let menuType: ResourceType = 'menu'
-        if (!filter)
-            args.filter = `(type = "${menuType}")`
-        else
-            args.filter = `(${filter}) and (type = "${menuType}")`
-
-        args.maximumRows = maximumRows
-        args.startRowIndex = startRowIndex
-        return this.resourceList(args)
-    }
     async resourceList(args: DataSourceSelectArguments): Promise<DataSourceSelectResult<Resource>> {
         let url = this.url('resource/list')
         if (!args.sortExpression)
@@ -298,7 +362,7 @@ export class PermissionService extends Service {
             return ""
 
         let o = menuItem
-        let path = `${o.path}?resource_id=${o.id}&object_type=${(o.path || '').split('/')[0]}`
+        let path = `${o.path}?resourceId=${o.id}&objectType=${(o.path || '').split('/')[0]}`
         return path
     }
     // async login(username: string, password: string) {

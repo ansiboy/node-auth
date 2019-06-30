@@ -27,8 +27,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             super(props);
             this.state = {};
             this.dataSource = this.props.dataSource;
-            if (this.dataSource == null)
-                throw new Error(`Data source ${this.props.data.object_type} is not exists`);
+            // let url = location.hash.substr(1);
+            // let obj = parseUrl(url)
+            // let arr = obj.pageName.split('/')
+            // if (this.dataSource == null)
+            //     throw new Error(`Data source ${this.props.data.objectType} is not exists`)
             if (props.data.resourceId) {
                 let ps = this.props.createService(maishu_services_sdk_1.PermissionService);
                 ps.getResourceList({ filter: `id = '${props.data.resourceId}'` })
@@ -51,7 +54,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 let addItem = (menuItemChildren || []).filter(o => o.name == '添加')[0];
                 if (!addItem)
                     return null;
-                let path = `${this.props.data.object_type}/item?resource_id=${menuItem.id}`;
+                let objectType = common_1.getObjectType(location);
+                let path = `${objectType}/item?resourceId=${menuItem.id}`;
                 let addButton = React.createElement("button", { className: "btn btn-primary pull-right", onClick: () => {
                         this.props.app.forward(path, this.props.data);
                     } },

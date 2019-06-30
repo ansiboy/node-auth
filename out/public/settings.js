@@ -9,5 +9,5 @@
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.gatewayHost = "127.0.0.1:2858";
+    exports.gatewayHost = "127.0.0.1:2857";
 });

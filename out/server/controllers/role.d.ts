@@ -1,36 +1,29 @@
 import * as mysql from 'mysql';
-interface Role {
-    id: string;
-    name: string;
-    remark: string;
-    create_date_time: Date;
-    application_id: string;
-}
+import { Role } from "../entities";
+import { AuthDataContext } from "../dataContext";
 export default class RoleController {
-    add({ APP_ID, name, remark }: {
-        APP_ID: any;
+    add(dc: AuthDataContext, appId: string, { name, remark }: {
         name: any;
         remark: any;
-    }): Promise<Role>;
+    }): {
+        id: string;
+    };
     update({ id, name, remark }: {
         id: any;
         name: any;
         remark: any;
     }): Promise<Role>;
-    remove({ id, APP_ID }: {
+    remove(dc: AuthDataContext, appId: string, { id }: {
         id: any;
-        APP_ID: any;
     }): Promise<{
         id: any;
     }>;
     /** 获取角色列表 */
     list(conn: any): Promise<Role[]>;
     /** 获取单个角色 */
-    get(conn: any, { id }: {
+    get(dc: AuthDataContext, { id }: {
         id: any;
-    }): Promise<{
-        id: any;
-    }>;
+    }): Promise<Role>;
     /**
      * 设置角色所允许访问的资源
      * @param param0 参数
@@ -53,16 +46,9 @@ export default class RoleController {
     /**
      * 获取用户角色编号
      */
-    userRoleIds(conn: mysql.Connection, { userIds }: {
-        userIds: string[];
-    }): Promise<UserRole[]>;
-    /**
-     * 获取用户角色编号
-     */
     userRoles(conn: mysql.Connection, { userIds }: {
         userIds: string[];
     }): Promise<{
         [key: string]: Role[];
     }>;
 }
-export {};

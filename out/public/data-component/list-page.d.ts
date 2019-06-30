@@ -9,7 +9,6 @@ export interface ListPageProps {
     app: Application;
     data: {
         resourceId: string;
-        object_type: string;
     };
     createService: Page["createService"];
     columns: DataControlField<any>[];

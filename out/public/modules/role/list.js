@@ -22,7 +22,7 @@
                     maishu_wuzhui_helper_1.boundField({ dataField: 'id', headerText: '编号', headerStyle: { width: '300px' }, itemStyle: { textAlign: 'center' } }),
                     maishu_wuzhui_helper_1.boundField({ dataField: 'name', headerText: '用户身份' }),
                     index_1.dateTimeField({ dataField: 'create_date_time', headerText: '创建时间' }),
-                    index_1.operationField(this.props, dataSources_1.dataSources.role, '160px')
+                    index_1.operationField(this.props, 'role', '160px')
                 ] }));
         }
     }

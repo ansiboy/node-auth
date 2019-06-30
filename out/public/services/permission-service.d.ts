@@ -1,12 +1,34 @@
 import { DataSourceSelectResult, DataSourceSelectArguments } from "maishu-wuzhui";
 import { PermissionService as Service, User, MenuItem, Resource, Role } from 'maishu-services-sdk';
+import { Category } from "../../../out/server/entities";
 export declare type Admin = User & {
     role_ids: string[];
 };
 export declare class PermissionService extends Service {
     private roleResourceIds;
     constructor();
-    getMenuResource(startRowIndex: number, maximumRows: number, filter?: string): Promise<DataSourceSelectResult<Resource>>;
+    role: {
+        list: () => Promise<Role[]>;
+        item: (id: string) => Promise<Role>;
+        add: (item: Partial<Role>) => Promise<unknown>;
+        remove: (id: string) => Promise<unknown>;
+    };
+    resource: {
+        list: (args: DataSourceSelectArguments) => Promise<DataSourceSelectResult<Resource>>;
+        item: (id: any) => Promise<Resource>;
+        remove: (id: any) => Promise<unknown>;
+        add: (item: Partial<Resource>) => Promise<{
+            id: string;
+        }>;
+    };
+    menu: {
+        list: (args: DataSourceSelectArguments) => Promise<MenuItem[]>;
+        item: (id: string) => Promise<MenuItem>;
+    };
+    /** 系统类别，例如：平台，经销商 */
+    category: {
+        list: () => Promise<Category[]>;
+    };
     resourceList(args: DataSourceSelectArguments): Promise<DataSourceSelectResult<Resource>>;
     getResources(): Promise<({
         children: Resource[];

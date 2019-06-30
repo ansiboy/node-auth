@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "maishu-services-sdk", "../common", "react-dom", "react", "maishu-wuzhui-helper", "maishu-ui-toolkit", "maishu-wuzhui"], factory);
+        define(["require", "exports", "maishu-services-sdk", "../common", "react-dom", "react", "maishu-wuzhui-helper", "maishu-ui-toolkit", "maishu-wuzhui", "dataSources"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -24,11 +24,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const maishu_wuzhui_helper_1 = require("maishu-wuzhui-helper");
     const ui = require("maishu-ui-toolkit");
     const maishu_wuzhui_1 = require("maishu-wuzhui");
-    function operationField(props, dataSource, width, callback) {
+    const dataSources_1 = require("dataSources");
+    function operationField(props, objectType, width, callback) {
         width = width || '120px';
+        let dataSource = dataSources_1.dataSources[objectType];
         let resourceId = props.data.resourceId;
         let app = props.app;
-        let object_type = props.data.object_type;
         let permissionService = app.currentPage.createService(maishu_services_sdk_1.PermissionService);
         return maishu_wuzhui_helper_1.customField({
             headerText: '操作',
@@ -55,7 +56,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                             button.title = '点击查看';
                             iconClassName = 'icon-eye-open';
                             button.onclick = function () {
-                                app.forward(`${object_type}/item?object_type=${object_type}&mode=view&id=${dataItem.id}&resource_id=${resources[i].id}`);
+                                app.forward(`${objectType}/item?objectType=${objectType}&mode=view&id=${dataItem.id}&resource_id=${resources[i].id}`);
                             };
                             ReactDOM.render(React.createElement("i", { className: iconClassName }, " "), button);
                             break;
@@ -64,7 +65,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                             button.title = '点击编辑';
                             iconClassName = 'icon-pencil';
                             button.onclick = function () {
-                                app.forward(`${object_type}/item?object_type=${object_type}&mode=edit&id=${dataItem.id}&resource_id=${resources[i].id}`);
+                                app.forward(`${objectType}/item?objectType=${objectType}&mode=edit&id=${dataItem.id}&resource_id=${resources[i].id}`);
                             };
                             ReactDOM.render(React.createElement("i", { className: iconClassName }, " "), button);
                             break;
@@ -91,7 +92,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                                     callback(dataItem, resources[i]);
                                     return;
                                 }
-                                app.forward(`${resources[i].path}?object_type=${object_type}&mode=edit&id=${dataItem.id}&resource_id=${resources[i].id}`);
+                                app.forward(`${resources[i].path}?objectType=${objectType}&mode=edit&id=${dataItem.id}&resource_id=${resources[i].id}`);
                             };
                             break;
                     }

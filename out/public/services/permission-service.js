@@ -21,44 +21,99 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const errors_1 = require("../errors");
     const maishu_services_sdk_1 = require("maishu-services-sdk");
     const maishu_ui_toolkit_1 = require("maishu-ui-toolkit");
-    // let config = app.config;
-    let { protocol } = location;
     let menuItems;
     class PermissionService extends maishu_services_sdk_1.PermissionService {
         constructor() {
             super();
             this.roleResourceIds = {};
-            // this.error.add((sender, err) => {
-            //     ui.alert({ title: '错误', message: err.message })
-            // })
-        }
-        // url(path: string) {
-        //     return `${protocol}//${config.authServiceHost}/${path}`
-        // }
-        // async addResource(item: Partial<Resource>) {
-        //     let url = this.url('resource/add')
-        //     let result = await this.postByJson<{ id: string }>(url, { item })
-        //     Object.assign(item, result)
-        //     return result
-        // }
-        // async updateResource(item: Partial<Resource>) {
-        //     let url = this.url('resource/update')
-        //     let result = await this.postByJson(url, { item })
-        //     Object.assign(item, result)
-        //     return result
-        // }
-        getMenuResource(startRowIndex, maximumRows, filter) {
-            return __awaiter(this, void 0, void 0, function* () {
-                let args = new maishu_wuzhui_1.DataSourceSelectArguments();
-                let menuType = 'menu';
-                if (!filter)
-                    args.filter = `(type = "${menuType}")`;
-                else
-                    args.filter = `(${filter}) and (type = "${menuType}")`;
-                args.maximumRows = maximumRows;
-                args.startRowIndex = startRowIndex;
-                return this.resourceList(args);
-            });
+            this.role = {
+                list: () => {
+                    let url = this.url("role/list");
+                    return this.get(url);
+                },
+                item: (id) => {
+                    let url = this.url("role/item");
+                    return this.get(url);
+                },
+                add: (item) => {
+                    let url = this.url("role/add");
+                    return this.postByJson(url, { item });
+                },
+                remove: (id) => {
+                    let url = this.url("role/remove");
+                    return this.postByJson(url, { id });
+                }
+            };
+            this.resource = {
+                list: (args) => {
+                    let url = this.url("resource/list");
+                    return this.getByJson(url, { args });
+                },
+                item: (id) => {
+                    let url = this.url("resource/item");
+                    return this.getByJson(url, { id });
+                },
+                remove: (id) => {
+                    let url = this.url("resource/remove");
+                    return this.post(url, { id });
+                },
+                add: (item) => {
+                    let url = this.url("resource/add");
+                    return this.postByJson(url, { item });
+                }
+            };
+            this.menu = (() => {
+                let convertToMenuItem = (resource) => {
+                    let o = {
+                        id: resource.id,
+                        name: resource.name,
+                        parent_id: resource.parent_id,
+                        path: resource.path,
+                        icon: (resource.data || {}).icon,
+                        sort_number: resource.sort_number,
+                        category: resource.category,
+                        create_date_time: resource.create_date_time,
+                    };
+                    return o;
+                };
+                return {
+                    list: (args) => __awaiter(this, void 0, void 0, function* () {
+                        let r = yield this.resource.list(args);
+                        let resources = r.dataItems.filter(o => o.type == 'menu');
+                        let menuItems = resources.map(o => convertToMenuItem(o));
+                        let stack = menuItems.filter(o => !o.parent_id);
+                        let result = [];
+                        while (stack.length > 0) {
+                            let item = stack.shift();
+                            result.push(item);
+                            item.children = menuItems.filter(o => o.parent_id == item.id);
+                            if (item.parent_id) {
+                                item.parent = menuItems.filter(o => o.id == item.parent_id)[0];
+                            }
+                            console.assert(item.children);
+                            if (item.children.length > 0) {
+                                stack.unshift(...item.children);
+                            }
+                            // if (item.children.length > 0)
+                            //     stack.push(...item.children)
+                        }
+                        return result;
+                    }),
+                    item: (id) => __awaiter(this, void 0, void 0, function* () {
+                        let resource = yield this.resource.item(id);
+                        let menuItem = convertToMenuItem(resource);
+                        return menuItem;
+                    })
+                };
+            })();
+            /** 系统类别，例如：平台，经销商 */
+            this.category = {
+                list: () => __awaiter(this, void 0, void 0, function* () {
+                    let url = this.url("category/list");
+                    let r = yield this.getByJson(url);
+                    return r;
+                })
+            };
         }
         resourceList(args) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -310,7 +365,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             if (!menuItem.path)
                 return "";
             let o = menuItem;
-            let path = `${o.path}?resource_id=${o.id}&object_type=${(o.path || '').split('/')[0]}`;
+            let path = `${o.path}?resourceId=${o.id}&objectType=${(o.path || '').split('/')[0]}`;
             return path;
         }
         // async login(username: string, password: string) {

@@ -242,11 +242,11 @@ let UserController = class UserController {
         });
     }
     /** 获取登录用户的信息 */
-    me(USER_ID) {
+    me(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!USER_ID)
+            if (!userId)
                 throw errors_1.errors.argumentNull('USER_ID');
-            return this.item({ userId: USER_ID });
+            return this.item({ userId: userId });
         });
     }
     /** 获取用户信息 */
@@ -309,6 +309,22 @@ let UserController = class UserController {
             }
         });
     }
+    /**
+     * 获取用户角色编号
+     */
+    userRoleIds(conn, { userIds }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (userIds == null)
+                throw errors_1.errors.argumentNull('userIds');
+            if (conn == null)
+                throw errors_1.errors.argumentNull('conn');
+            let str = userIds.map(o => `"${o}"`).join(',');
+            // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
+            let sql = `select * from user_role where user_id in (${str})`;
+            let r = yield database_1.executeSQL(conn, sql, null);
+            return r;
+        });
+    }
     addRoles(conn, { userId, roleIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
@@ -322,7 +338,7 @@ let UserController = class UserController {
             if (roleIds.length == 0)
                 return errors_1.errors.argumentEmptyArray("roleIds");
             let roleController = new role_1.default();
-            let userRoles = yield roleController.userRoleIds(conn, { userIds: [userId] });
+            let userRoles = yield this.userRoleIds(conn, { userIds: [userId] });
             let userRoleIds = userRoles.map(o => o.role_id);
             let values = [];
             let sql = `insert into user_role (user_id, role_id) values `;
@@ -483,7 +499,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "setRoles", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action("/role/userRoleIds", "role/ids"),
+    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "userRoleIds", null);
+__decorate([
+    maishu_node_mvc_1.action("addRoles", "role/add"),
     __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
@@ -511,7 +534,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action("ownAppliactions", "applicaion/list"),
     __param(0, database_1.connection), __param(1, decorators_1.UserId),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

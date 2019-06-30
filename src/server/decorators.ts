@@ -25,7 +25,6 @@ export let UserId = createParameterDecorator(async (req) => {
 })
 
 export let ApplicationId = createParameterDecorator(async (req) => {
-
     let appId = req.headers['application-id']
     if (appId)
         return appId

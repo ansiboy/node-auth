@@ -25,22 +25,21 @@ const errors_1 = require("../errors");
 // import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
+const decorators_1 = require("../decorators");
+const dataContext_1 = require("../dataContext");
 let RoleController = class RoleController {
-    add({ APP_ID, name, remark }) {
-        if (!APP_ID)
-            throw errors_1.errors.argumentNull('APP_ID');
+    add(dc, appId, { name, remark }) {
         if (!name)
             throw errors_1.errors.argumentNull('name');
-        return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            let sql = `insert into role set ?`;
-            let role = {
-                id: database_1.guid(), name, remark,
-                create_date_time: new Date(Date.now()),
-                application_id: APP_ID
-            };
-            yield database_1.execute(conn, sql, role);
-            return role;
-        }));
+        let role = {
+            id: database_1.guid(), name, remark,
+            create_date_time: new Date(Date.now()),
+            application_id: appId
+        };
+        if (appId)
+            role.application_id = appId;
+        dc.roles.save(role);
+        return { id: role.id };
     }
     update({ id, name, remark }) {
         return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
@@ -50,16 +49,18 @@ let RoleController = class RoleController {
             return role;
         }));
     }
-    remove({ id, APP_ID }) {
-        if (!id)
-            throw errors_1.errors.argumentNull('id');
-        if (!APP_ID)
-            throw errors_1.errors.argumentNull('APP_ID');
-        return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            let sql = `delete from role where id = ? and application_id = ?`;
-            yield database_1.execute(conn, sql, [id, APP_ID]);
+    remove(dc, appId, { id }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!id)
+                throw errors_1.errors.argumentNull('id');
+            yield dc.roles.delete({ id });
+            // return connect(async conn => {
+            //     let sql = `delete from role where id = ? and application_id = ?`
+            //     await execute(conn, sql, [id, APP_ID])
+            //     return { id }
+            // })
             return { id };
-        }));
+        });
     }
     /** 获取角色列表 */
     list(conn) {
@@ -69,13 +70,15 @@ let RoleController = class RoleController {
         });
     }
     /** 获取单个角色 */
-    get(conn, { id }) {
+    get(dc, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!id)
                 throw errors_1.errors.argumentNull('id');
-            if (!conn)
-                throw errors_1.errors.argumentNull('conn');
-            let r = yield database_1.get(conn, 'role', { id });
+            if (!dc)
+                throw errors_1.errors.argumentNull('dc');
+            // let r = await get(conn, 'role', { id })
+            // return r
+            let r = yield dc.roles.findOne(id);
             return r;
         });
     }
@@ -150,22 +153,6 @@ let RoleController = class RoleController {
     /**
      * 获取用户角色编号
      */
-    userRoleIds(conn, { userIds }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (userIds == null)
-                throw errors_1.errors.argumentNull('userIds');
-            if (conn == null)
-                throw errors_1.errors.argumentNull('conn');
-            let str = userIds.map(o => `"${o}"`).join(',');
-            // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
-            let sql = `select * from user_role where user_id in (${str})`;
-            let r = yield database_1.executeSQL(conn, sql, null);
-            return r;
-        });
-    }
-    /**
-     * 获取用户角色编号
-     */
     userRoles(conn, { userIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (userIds == null)
@@ -187,9 +174,9 @@ let RoleController = class RoleController {
 };
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.ApplicationId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
     __metadata("design:returntype", void 0)
 ], RoleController.prototype, "add", null);
 __decorate([
@@ -201,10 +188,10 @@ __decorate([
 ], RoleController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.ApplicationId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
+    __metadata("design:returntype", Promise)
 ], RoleController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(),
@@ -214,33 +201,26 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "list", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action("get", "item"),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "get", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action("setResources", "resource/set"),
     __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "setResources", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action("resourceIds", "resource/ids"),
     __param(0, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "resourceIds", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], RoleController.prototype, "userRoleIds", null);
 __decorate([
     maishu_node_mvc_1.action(),
     __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),

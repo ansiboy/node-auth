@@ -3,14 +3,17 @@ import { errors } from "../errors";
 // import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 import { controller, action, formData } from "maishu-node-mvc";
 import * as mysql from 'mysql'
+import { UserId, ApplicationId } from "../decorators";
+import { Role } from "../entities";
+import { AuthDataContext, authDataContext } from "../dataContext";
 
-interface Role {
-    id: string
-    name: string
-    remark: string
-    create_date_time: Date,
-    application_id: string
-}
+// interface Role {
+//     id: string
+//     name: string
+//     remark: string
+//     create_date_time: Date,
+//     application_id?: string
+// }
 
 type RoleResource = {
     id: string,
@@ -24,21 +27,21 @@ type RoleResource = {
 export default class RoleController {
 
     @action()
-    add(@formData { APP_ID, name, remark }) {
-        if (!APP_ID) throw errors.argumentNull('APP_ID')
+    add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { name, remark }) {
         if (!name) throw errors.argumentNull('name')
 
-        return connect(async conn => {
-            let sql = `insert into role set ?`
-            let role: Role = {
-                id: guid(), name, remark,
-                create_date_time: new Date(Date.now()),
-                application_id: APP_ID
-            }
-            await execute(conn, sql, role)
+        let role: Role = {
+            id: guid(), name, remark,
+            create_date_time: new Date(Date.now()),
+            application_id: appId
+        }
 
-            return role
-        })
+        if (appId)
+            role.application_id = appId;
+
+        dc.roles.save(role);
+
+        return { id: role.id };
     }
 
     @action()
@@ -53,15 +56,15 @@ export default class RoleController {
     }
 
     @action()
-    remove(@formData { id, APP_ID }) {
+    async remove(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { id }) {
         if (!id) throw errors.argumentNull('id')
-        if (!APP_ID) throw errors.argumentNull('APP_ID')
-
-        return connect(async conn => {
-            let sql = `delete from role where id = ? and application_id = ?`
-            await execute(conn, sql, [id, APP_ID])
-            return { id }
-        })
+        await dc.roles.delete({ id })
+        // return connect(async conn => {
+        //     let sql = `delete from role where id = ? and application_id = ?`
+        //     await execute(conn, sql, [id, APP_ID])
+        //     return { id }
+        // })
+        return { id };
     }
 
     /** 获取角色列表 */
@@ -72,13 +75,15 @@ export default class RoleController {
     }
 
     /** 获取单个角色 */
-    @action()
-    async get(@connection conn, @formData { id }) {
+    @action("get", "item")
+    async get(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Role> {
         if (!id) throw errors.argumentNull('id')
-        if (!conn) throw errors.argumentNull('conn')
+        if (!dc) throw errors.argumentNull('dc')
 
-        let r = await get(conn, 'role', { id })
-        return r
+        // let r = await get(conn, 'role', { id })
+        // return r
+        let r = await dc.roles.findOne(id);
+        return r;
     }
 
     /**
@@ -88,7 +93,7 @@ export default class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    @action()
+    @action("setResources", "resource/set")
     async setResources(@connection conn: mysql.Connection, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
         // return connect(async conn => {
         let sql = `select * from role_resource where role_id = ?`
@@ -146,7 +151,7 @@ export default class RoleController {
      * @param param0 
      * roleId: 角色编号 
      */
-    @action()
+    @action("resourceIds", "resource/ids")
     resourceIds(@formData { roleId }): Promise<string[]> {
         if (!roleId) throw errors.argumentNull('roleId')
         return connect(async conn => {
@@ -156,21 +161,7 @@ export default class RoleController {
         })
     }
 
-    /**
-     * 获取用户角色编号
-     */
-    @action()
-    async userRoleIds(@connection conn: mysql.Connection, @formData { userIds }: { userIds: string[] }): Promise<UserRole[]> {
-        if (userIds == null) throw errors.argumentNull('userIds')
-        if (conn == null) throw errors.argumentNull('conn')
-
-        let str = userIds.map(o => `"${o}"`).join(',');
-        // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
-        let sql = `select * from user_role where user_id in (${str})`
-        let r = await executeSQL(conn, sql, null) as UserRole[]
-        return r
-    }
-
+    
     /**
      * 获取用户角色编号
      */

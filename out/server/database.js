@@ -71,7 +71,7 @@ exports.guid = guid;
 function list(conn, tableName, args) {
     return __awaiter(this, void 0, void 0, function* () {
         args = Object.assign({
-            startRowIndex: 0, maximumRows: 100
+            startRowIndex: 0, maximumRows: Number.MAX_SAFE_INTEGER
         }, args || {});
         if (args.filter) {
             let expr = maishu_mysql_helper_1.Parser.parseExpression(args.filter);

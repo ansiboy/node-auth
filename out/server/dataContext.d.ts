@@ -1,10 +1,12 @@
 import "reflect-metadata";
 import { EntityManager, Repository } from "typeorm";
-import { Role, Application } from "./entities";
+import { Role, Application, Category, Resource } from "./entities";
 export declare class AuthDataContext {
     private entityManager;
+    categories: Repository<Category>;
     roles: Repository<Role>;
     applications: Repository<Application>;
+    resources: Repository<Resource>;
     constructor(entityManager: EntityManager);
     dispose(): Promise<void>;
 }

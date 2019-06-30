@@ -3,17 +3,9 @@ import { errors } from "../errors";
 import * as db from 'maishu-mysql-helper'
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
+import { Resource } from "../entities";
 
-interface Resource {
-    id?: string,
-    name: string,
-    path?: string,
-    parent_id: string,
-    sort_number: number,
-    type: string,
-    create_date_time: Date,
-    data?: object,
-}
+
 
 @controller("resource")
 export default class ResourceController {

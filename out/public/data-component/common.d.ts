@@ -1,4 +1,6 @@
 import { ImageService } from "maishu-services-sdk";
+import { Rule } from "maishu-dilu";
+import { DataSource } from "maishu-wuzhui";
 export declare let constants: {
     pageSize: number;
     buttonTexts: {
@@ -13,3 +15,12 @@ export declare let constants: {
 export declare let services: {
     imageService: ImageService;
 };
+export interface ValidateDataField {
+    validateRules?: Rule[];
+}
+export interface NameValue {
+    name: string;
+    value: any;
+}
+export declare function getObjectType(location: Location): string;
+export declare function toDataSource<T>(source: Promise<T[]>): DataSource<T>;

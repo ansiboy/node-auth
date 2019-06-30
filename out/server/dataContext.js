@@ -19,6 +19,8 @@ class AuthDataContext {
         this.entityManager = entityManager;
         this.roles = this.entityManager.getRepository(entities_1.Role);
         this.applications = this.entityManager.getRepository(entities_1.Application);
+        this.categories = this.entityManager.getRepository(entities_1.Category);
+        this.resources = this.entityManager.getRepository(entities_1.Resource);
     }
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {

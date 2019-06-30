@@ -51,7 +51,7 @@ export default class UserController {
         userId: string;
     }>;
     /** 获取登录用户的信息 */
-    me(USER_ID: any): Promise<User>;
+    me(userId: any): Promise<User>;
     /** 获取用户信息 */
     item({ userId }: {
         userId: string;
@@ -72,6 +72,12 @@ export default class UserController {
         userId: any;
         roleIds: any;
     }): Promise<void>;
+    /**
+     * 获取用户角色编号
+     */
+    userRoleIds(conn: mysql.Connection, { userIds }: {
+        userIds: string[];
+    }): Promise<UserRole[]>;
     addRoles(conn: mysql.Connection, { userId, roleIds }: {
         userId: any;
         roleIds: any;

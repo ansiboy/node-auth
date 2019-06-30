@@ -2,18 +2,22 @@ import "reflect-metadata";
 import { createConnection, EntityManager, Repository } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Application } from "./entities";
+import { Role, Application, Category, Resource } from "./entities";
 import path = require("path");
 
 export class AuthDataContext {
     private entityManager: EntityManager;
+    categories: Repository<Category>;
     roles: Repository<Role>;
     applications: Repository<Application>;
+    resources: Repository<Resource>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
         this.roles = this.entityManager.getRepository(Role);
         this.applications = this.entityManager.getRepository(Application);
+        this.categories = this.entityManager.getRepository(Category);
+        this.resources = this.entityManager.getRepository(Resource);
     }
 
     async dispose() {

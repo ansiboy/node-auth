@@ -69,7 +69,7 @@ export function guid() {
 
 export async function list<T>(conn: mysql.Connection, tableName: string, args?: SelectArguments): Promise<SelectResult<T>> {
     args = Object.assign({
-        startRowIndex: 0, maximumRows: 100
+        startRowIndex: 0, maximumRows: Number.MAX_SAFE_INTEGER
     } as SelectArguments, args || {})
 
     if (args.filter) {

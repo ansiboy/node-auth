@@ -12,13 +12,16 @@ export class Role {
     remark: string;
 
     @Column({ type: "json" })
-    data: any;
+    data?: any;
+
+    @Column()
+    category?: string;
 
     @Column({ name: "create_date_time" })
-    createDateTime: Date;
+    create_date_time: Date;
 
     @Column({ name: "application_id" })
-    applicationId: string;
+    application_id: string;
 }
 
 @Entity("application")
@@ -33,8 +36,50 @@ export class Application {
     name: string;
 
     @Column({ name: "user_id" })
-    userId: string;
+    user_id: string;
 
     @Column({ name: "create_date_time" })
-    createDateTime: Date;
+    create_date_time: Date;
+}
+
+@Entity("category")
+export class Category {
+    @PrimaryColumn()
+    id: string;
+
+    @Column()
+    code: string;
+
+    @Column()
+    name: string;
+
+    @Column()
+    create_date_time: Date;
+}
+
+@Entity("resource")
+export class Resource {
+    @PrimaryColumn()
+    id: string;
+
+    @Column()
+    name: string;
+
+    @Column()
+    path?: string;
+
+    @Column()
+    parent_id: string;
+
+    @Column()
+    sort_number: number;
+
+    @Column()
+    type: string;
+
+    @Column()
+    create_date_time: Date;
+
+    @Column({ type: "json" })
+    data?: object;
 }

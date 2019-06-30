@@ -1,4 +1,4 @@
-import { connect, execute, guid, connection, list, insert, update, select } from '../database';
+import { connect, execute, guid, connection, list, insert, update, select, executeSQL } from '../database';
 import { errors } from '../errors';
 import { Token } from '../token';
 import * as db from 'maishu-mysql-helper';
@@ -251,10 +251,10 @@ export default class UserController {
 
     /** 获取登录用户的信息 */
     @action()
-    async me(@UserId USER_ID) {
-        if (!USER_ID) throw errors.argumentNull('USER_ID')
+    async me(@UserId userId) {
+        if (!userId) throw errors.argumentNull('USER_ID')
 
-        return this.item({ userId: USER_ID })
+        return this.item({ userId: userId })
     }
 
     /** 获取用户信息 */
@@ -318,7 +318,23 @@ export default class UserController {
         }
     }
 
-    @action()
+    /**
+     * 获取用户角色编号
+     */
+    @action("/role/userRoleIds", "role/ids")
+    async userRoleIds(@connection conn: mysql.Connection, @formData { userIds }: { userIds: string[] }): Promise<UserRole[]> {
+        if (userIds == null) throw errors.argumentNull('userIds')
+        if (conn == null) throw errors.argumentNull('conn')
+
+        let str = userIds.map(o => `"${o}"`).join(',');
+        // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
+        let sql = `select * from user_role where user_id in (${str})`
+        let r = await executeSQL(conn, sql, null) as UserRole[]
+        return r
+    }
+
+
+    @action("addRoles", "role/add")
     async addRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
         if (!userId) throw errors.argumentNull("userId")
         if (!roleIds) throw errors.argumentNull("roleIds")
@@ -329,7 +345,7 @@ export default class UserController {
             return errors.argumentEmptyArray("roleIds")
 
         let roleController = new RoleController()
-        let userRoles = await roleController.userRoleIds(conn, { userIds: [userId] })
+        let userRoles = await this.userRoleIds(conn, { userIds: [userId] })
         let userRoleIds = userRoles.map(o => o.role_id)
         let values = []
         let sql = `insert into user_role (user_id, role_id) values `
@@ -398,7 +414,7 @@ export default class UserController {
     }
 
     /** 显示用户所拥有的应用 */
-    @action()
+    @action("ownAppliactions", "applicaion/list")
     ownAppliactions(@connection conn, @UserId USER_ID) {
         if (!USER_ID) throw errors.argumentNull('USER_ID')
         if (!conn) throw errors.argumentNull('conn')

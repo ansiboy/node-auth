@@ -1,9 +1,10 @@
 import React = require("react");
 import { DataSource, GridView, DataControlField } from "maishu-wuzhui";
 import { createGridView } from "maishu-wuzhui-helper";
-import { constants } from "./common";
+import { constants, getObjectType } from "./common";
 import { PermissionService } from 'maishu-services-sdk'
 import { Application, Page } from "maishu-chitu-react";
+import { parseUrl } from "maishu-chitu";
 
 interface State {
     addButton?: JSX.Element,
@@ -14,7 +15,7 @@ export interface ListPageProps {
     app: Application;
     data: {
         resourceId: string,
-        object_type: string,
+        // objectType: string,
     };
     createService: Page["createService"];
     columns: DataControlField<any>[],
@@ -39,8 +40,13 @@ export class ListPage extends React.Component<Props, State> {
 
         this.state = {};
         this.dataSource = this.props.dataSource;
-        if (this.dataSource == null)
-            throw new Error(`Data source ${this.props.data.object_type} is not exists`)
+
+        // let url = location.hash.substr(1);
+        // let obj = parseUrl(url)
+        // let arr = obj.pageName.split('/')
+
+        // if (this.dataSource == null)
+        //     throw new Error(`Data source ${this.props.data.objectType} is not exists`)
 
         if (props.data.resourceId) {
             let ps = this.props.createService<PermissionService>(PermissionService)
@@ -65,7 +71,8 @@ export class ListPage extends React.Component<Props, State> {
         let addItem = (menuItemChildren || []).filter(o => o.name == '添加')[0]
         if (!addItem) return null
 
-        let path = `${this.props.data.object_type}/item?resource_id=${menuItem.id}`
+        let objectType = getObjectType(location);
+        let path = `${objectType}/item?resourceId=${menuItem.id}`
         let addButton = <button className="btn btn-primary pull-right"
             onClick={() => {
                 this.props.app.forward(path, this.props.data)

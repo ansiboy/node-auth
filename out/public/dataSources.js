@@ -42,87 +42,110 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             primaryKeys: ['id'],
             select() {
                 return __awaiter(this, void 0, void 0, function* () {
-                    let roles = yield permissionService.getRoles();
+                    let roles = yield permissionService.role.list();
                     return { dataItems: roles, totalRowCount: roles.length };
                 });
             },
             getItem(id) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    let role = yield permissionService.getRole(id);
+                    let role = yield permissionService.role.item(id);
                     return role;
+                });
+            },
+            insert(item) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    let r = yield permissionService.role.add(item);
+                    return r;
+                });
+            },
+            delete(item) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    let r = yield permissionService.role.remove(item.id);
+                    return r;
                 });
             }
         });
         return roleDataSource;
     }
-    let menuDataSource = new MyDataSource({
-        primaryKeys: ['id'],
-        select(args) {
-            return __awaiter(this, void 0, void 0, function* () {
-                let r = yield permissionService.getMenuResource(args.startRowIndex, args.maximumRows, args.filter);
-                return r;
-            });
-        },
-        getItem(id) {
-            return __awaiter(this, void 0, void 0, function* () {
-                let menuItem = yield permissionService.getMenuItem(id);
-                menuItem.originalChildren = Object.assign([], menuItem.children);
-                return menuItem;
-            });
-        },
-        delete(item) {
-            return permissionService.deleteResource(item.id);
-        },
-        insert(item) {
-            return __awaiter(this, void 0, void 0, function* () {
-                let obj = JSON.parse(JSON.stringify(item));
-                delete obj.children;
-                delete obj.originalChildren;
-                delete obj.visible;
-                let r = yield permissionService.addResource(obj);
-                console.assert(r.id != null);
-                Object.assign(item, r);
-                item.children.forEach(child => {
-                    child.parent_id = item.id;
-                    permissionService.addResource(child);
+    function createMenuDataSource() {
+        let menuDataSource = new MyDataSource({
+            primaryKeys: ['id'],
+            select(args) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    let r = yield permissionService.menu.list(args);
+                    return { dataItems: r, totalRowCount: r.length };
                 });
-                return r;
-            });
-        },
-        update(item) {
-            return __awaiter(this, void 0, void 0, function* () {
-                item.children = item.children || [];
-                item.originalChildren = item.originalChildren || [];
-                // 查找要删除的
-                for (let i = 0; i < item.originalChildren.length; i++) {
-                    let child = item.children.filter(o => o.id == item.originalChildren[i].id)[0];
-                    if (child == null) {
-                        permissionService.deleteResource(item.originalChildren[i].id);
+            },
+            getItem(id) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    // let menuItem = await permissionService.getMenuItem(id)
+                    // menuItem.originalChildren = Object.assign([], menuItem.children)
+                    // return menuItem
+                    let r = yield permissionService.resource.item(id);
+                    return r;
+                });
+            },
+            delete(item) {
+                // return permissionService.deleteResource(item.id)
+                return permissionService.resource.remove(item.id);
+            },
+            insert(item) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    let obj = JSON.parse(JSON.stringify(item));
+                    delete obj.children;
+                    delete obj.originalChildren;
+                    delete obj.visible;
+                    let r = yield permissionService.resource.add(obj);
+                    console.assert(r.id != null);
+                    Object.assign(item, r);
+                    item.children.forEach(child => {
+                        child.parent_id = item.id;
+                        permissionService.addResource(child);
+                    });
+                    return r;
+                });
+            },
+            update(item) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    item.children = item.children || [];
+                    item.originalChildren = item.originalChildren || [];
+                    // 查找要删除的
+                    for (let i = 0; i < item.originalChildren.length; i++) {
+                        let child = item.children.filter(o => o.id == item.originalChildren[i].id)[0];
+                        if (child == null) {
+                            permissionService.deleteResource(item.originalChildren[i].id);
+                        }
                     }
-                }
-                // 查找要添加的
-                for (let i = 0; i < item.children.length; i++) {
-                    let child = item.originalChildren.filter(o => o.id == item.children[i].id)[0];
-                    if (child == null) {
-                        console.assert(item.children[i].parent_id == item.id);
-                        let obj = Object.assign({}, item.children[i]);
-                        delete obj.children;
-                        delete obj.originalChildren;
-                        delete obj.visible;
-                        permissionService.addResource(obj);
+                    // 查找要添加的
+                    for (let i = 0; i < item.children.length; i++) {
+                        let child = item.originalChildren.filter(o => o.id == item.children[i].id)[0];
+                        if (child == null) {
+                            console.assert(item.children[i].parent_id == item.id);
+                            let obj = Object.assign({}, item.children[i]);
+                            delete obj.children;
+                            delete obj.originalChildren;
+                            delete obj.visible;
+                            permissionService.addResource(obj);
+                        }
                     }
-                }
-                item.parent_id = !item.parent_id ? null : item.parent_id;
-                let obj = JSON.parse(JSON.stringify(item));
-                delete obj.children;
-                delete obj.originalChildren;
-                yield permissionService.updateResource(obj);
-                item.children = Object.assign([], item.originalChildren);
-            });
+                    item.parent_id = !item.parent_id ? null : item.parent_id;
+                    let obj = JSON.parse(JSON.stringify(item));
+                    delete obj.children;
+                    delete obj.originalChildren;
+                    yield permissionService.updateResource(obj);
+                    item.children = Object.assign([], item.originalChildren);
+                });
+            }
+        });
+        return menuDataSource;
+    }
+    exports.createMenuDataSource = createMenuDataSource;
+    class DataSources {
+        constructor() {
+            this.role = createRoleDataSource();
+            this.menu = createMenuDataSource();
         }
-    });
-    exports.dataSources = {
-        role: createRoleDataSource(),
-        menu: menuDataSource,
-    };
+    }
+    exports.DataSources = DataSources;
+    exports.dataSources = new DataSources();
 });

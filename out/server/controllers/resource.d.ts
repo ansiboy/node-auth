@@ -1,15 +1,6 @@
 import * as db from 'maishu-mysql-helper';
 import * as mysql from 'mysql';
-interface Resource {
-    id?: string;
-    name: string;
-    path?: string;
-    parent_id: string;
-    sort_number: number;
-    type: string;
-    create_date_time: Date;
-    data?: object;
-}
+import { Resource } from "../entities";
 export default class ResourceController {
     add(conn: mysql.Connection, { item }: {
         item: Resource;
@@ -28,4 +19,3 @@ export default class ResourceController {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<Resource>>;
 }
-export {};

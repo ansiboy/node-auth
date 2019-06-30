@@ -29,13 +29,17 @@ __decorate([
     __metadata("design:type", Object)
 ], Role.prototype, "data", void 0);
 __decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Role.prototype, "category", void 0);
+__decorate([
     typeorm_1.Column({ name: "create_date_time" }),
     __metadata("design:type", Date)
-], Role.prototype, "createDateTime", void 0);
+], Role.prototype, "create_date_time", void 0);
 __decorate([
     typeorm_1.Column({ name: "application_id" }),
     __metadata("design:type", String)
-], Role.prototype, "applicationId", void 0);
+], Role.prototype, "application_id", void 0);
 Role = __decorate([
     typeorm_1.Entity("role")
 ], Role);
@@ -57,13 +61,73 @@ __decorate([
 __decorate([
     typeorm_1.Column({ name: "user_id" }),
     __metadata("design:type", String)
-], Application.prototype, "userId", void 0);
+], Application.prototype, "user_id", void 0);
 __decorate([
     typeorm_1.Column({ name: "create_date_time" }),
     __metadata("design:type", Date)
-], Application.prototype, "createDateTime", void 0);
+], Application.prototype, "create_date_time", void 0);
 Application = __decorate([
     typeorm_1.Entity("application")
 ], Application);
 exports.Application = Application;
+let Category = class Category {
+};
+__decorate([
+    typeorm_1.PrimaryColumn(),
+    __metadata("design:type", String)
+], Category.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Category.prototype, "code", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Category.prototype, "name", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Date)
+], Category.prototype, "create_date_time", void 0);
+Category = __decorate([
+    typeorm_1.Entity("category")
+], Category);
+exports.Category = Category;
+let Resource = class Resource {
+};
+__decorate([
+    typeorm_1.PrimaryColumn(),
+    __metadata("design:type", String)
+], Resource.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Resource.prototype, "name", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Resource.prototype, "path", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Resource.prototype, "parent_id", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Resource.prototype, "sort_number", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Resource.prototype, "type", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", Date)
+], Resource.prototype, "create_date_time", void 0);
+__decorate([
+    typeorm_1.Column({ type: "json" }),
+    __metadata("design:type", Object)
+], Resource.prototype, "data", void 0);
+Resource = __decorate([
+    typeorm_1.Entity("resource")
+], Resource);
+exports.Resource = Resource;
 //# sourceMappingURL=entities.js.map
