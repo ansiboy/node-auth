@@ -29,8 +29,8 @@ export interface NameValue {
     value: any,
 }
 
-export function getObjectType(location: Location) {
-    let url = location.hash.substr(1);
+export function getObjectType(url: string) {
+    // let url = location.hash.substr(1);
     let obj = parseUrl(url)
     let arr = obj.pageName.split('/')
     return arr[0];

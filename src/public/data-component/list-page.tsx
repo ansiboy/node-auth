@@ -20,7 +20,8 @@ export interface ListPageProps {
     createService: Page["createService"];
     columns: DataControlField<any>[],
     showHeader?: boolean,
-    pageSize?: number
+    pageSize?: number,
+    source: Page,
 }
 
 interface Props extends ListPageProps {
@@ -71,7 +72,7 @@ export class ListPage extends React.Component<Props, State> {
         let addItem = (menuItemChildren || []).filter(o => o.name == '添加')[0]
         if (!addItem) return null
 
-        let objectType = getObjectType(location);
+        let objectType = getObjectType(this.props.source.url);
         let path = `${objectType}/item?resourceId=${menuItem.id}`
         let addButton = <button className="btn btn-primary pull-right"
             onClick={() => {

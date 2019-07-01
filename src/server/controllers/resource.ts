@@ -4,6 +4,7 @@ import * as db from 'maishu-mysql-helper'
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
 import { Resource } from "../entities";
+import { authDataContext, AuthDataContext } from "../dataContext";
 
 
 
@@ -68,6 +69,14 @@ export default class ResourceController {
         }
         let result = await list<Resource>(conn, 'resource', args)
         return result
+    }
+
+    @action()
+    async item(@authDataContext dc: AuthDataContext, @formData { id }) {
+        if (!id) throw errors.fieldNull("id", "formData");
+
+        let item = await dc.resources.findOne(id);
+        return item;
     }
 
 }

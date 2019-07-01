@@ -3,7 +3,7 @@ import * as ui from 'maishu-ui-toolkit'
 import { dataSources, MyDataSource } from "dataSources";
 import { FormValidator, ValidateField } from 'maishu-dilu'
 import { Page } from "maishu-chitu-react";
-import { ValidateDataField } from "./common";
+import { ValidateDataField, getObjectType } from "./common";
 import { Application } from "maishu-chitu-admin"
 
 interface State {
@@ -24,7 +24,6 @@ export interface ItemPageProps<T> {
         id: string,
         sourceId: string,
         resourceId: string,
-        objectType: string,
         mode?: string
     };
     createService: Page["createService"];
@@ -41,23 +40,15 @@ export class ItemPage<T> extends React.Component<ItemPageProps<T>, State> {
 
     constructor(props) {
         super(props)
-
+        getObjectType(this.props.source.url)
         this.state = { dataItem: {}, originalDataItem: {} }
         if (this.props.afterGetItem) {
             this.props.afterGetItem(this.state.dataItem)
         }
-        console.assert(this.props.data.objectType != null)
-        this.dataSource = dataSources[this.props.data.objectType]
+
+        let objectType = getObjectType(this.props.source.url);
+        this.dataSource = dataSources[objectType];
         if (this.props.data.id || this.props.data.sourceId) {
-            // let itemId = this.props.data.id || this.props.data.sourceId
-            // this.dataSource.getItem(itemId).then(item => {
-            //     console.assert(item != null)
-            //     let originalDataItem = JSON.parse(JSON.stringify(item))
-            //     this.setState({ dataItem: item, originalDataItem })
-            //     if (this.props.afterGetItem) {
-            //         this.props.afterGetItem(item)
-            //     }
-            // })
             this.loadDataItem(this.props.data.id || this.props.data.sourceId)
         }
         this.beforeSaves = []
@@ -66,8 +57,8 @@ export class ItemPage<T> extends React.Component<ItemPageProps<T>, State> {
         }
     }
     loadDataItem(itemId: string) {
-        this.dataSource = dataSources[this.props.data.objectType]
-        // let itemId = this.props.data.id || this.props.data.sourceId
+        let objectType = getObjectType(this.props.source.url);
+        this.dataSource = dataSources[objectType];
         this.dataSource.getItem(itemId).then(item => {
             console.assert(item != null)
             let originalDataItem = JSON.parse(JSON.stringify(item))

@@ -28,11 +28,14 @@ const mysql = require("mysql");
 const decorators_1 = require("../decorators");
 const dataContext_1 = require("../dataContext");
 let RoleController = class RoleController {
-    add(dc, appId, { name, remark }) {
-        if (!name)
-            throw errors_1.errors.argumentNull('name');
+    add(dc, appId, { item }) {
+        if (!item)
+            throw errors_1.errors.argumentNull('item');
+        if (!item.name)
+            throw errors_1.errors.fieldNull("name", "item");
         let role = {
-            id: database_1.guid(), name, remark,
+            id: database_1.guid(), name: item.name, remark: item.remark,
+            category: item.category,
             create_date_time: new Date(Date.now()),
             application_id: appId
         };
@@ -54,11 +57,6 @@ let RoleController = class RoleController {
             if (!id)
                 throw errors_1.errors.argumentNull('id');
             yield dc.roles.delete({ id });
-            // return connect(async conn => {
-            //     let sql = `delete from role where id = ? and application_id = ?`
-            //     await execute(conn, sql, [id, APP_ID])
-            //     return { id }
-            // })
             return { id };
         });
     }

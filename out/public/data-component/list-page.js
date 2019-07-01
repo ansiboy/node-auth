@@ -54,7 +54,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
                 let addItem = (menuItemChildren || []).filter(o => o.name == '添加')[0];
                 if (!addItem)
                     return null;
-                let objectType = common_1.getObjectType(location);
+                let objectType = common_1.getObjectType(this.props.source.url);
                 let path = `${objectType}/item?resourceId=${menuItem.id}`;
                 let addButton = React.createElement("button", { className: "btn btn-primary pull-right", onClick: () => {
                         this.props.app.forward(path, this.props.data);

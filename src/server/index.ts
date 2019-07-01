@@ -1,16 +1,7 @@
 import { startServer, Config } from 'maishu-node-mvc'
 import path = require('path')
-import { settings } from 'cluster';
 import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
-
-// export type DatabaseConfig = {
-//     username: string,
-//     password: string,
-//     name: string,
-//     host: string,
-//     port: number
-// }
 
 interface Options {
     port: number,

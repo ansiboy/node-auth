@@ -20,7 +20,6 @@ export interface ItemPageProps<T> {
         id: string;
         sourceId: string;
         resourceId: string;
-        objectType: string;
         mode?: string;
     };
     createService: Page["createService"];

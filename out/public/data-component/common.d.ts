@@ -22,5 +22,5 @@ export interface NameValue {
     name: string;
     value: any;
 }
-export declare function getObjectType(location: Location): string;
+export declare function getObjectType(url: string): string;
 export declare function toDataSource<T>(source: Promise<T[]>): DataSource<T>;

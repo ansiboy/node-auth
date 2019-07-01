@@ -24,6 +24,7 @@ const database_1 = require("../database");
 const errors_1 = require("../errors");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
+const dataContext_1 = require("../dataContext");
 let ResourceController = class ResourceController {
     add(conn, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -81,6 +82,14 @@ let ResourceController = class ResourceController {
             return result;
         });
     }
+    item(dc, { id }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!id)
+                throw errors_1.errors.fieldNull("id", "formData");
+            let item = yield dc.resources.findOne(id);
+            return item;
+        });
+    }
 };
 __decorate([
     maishu_node_mvc_1.action(),
@@ -110,6 +119,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "list", null);
+__decorate([
+    maishu_node_mvc_1.action(),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
+], ResourceController.prototype, "item", null);
 ResourceController = __decorate([
     maishu_node_mvc_1.controller("resource")
 ], ResourceController);

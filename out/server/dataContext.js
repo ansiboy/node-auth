@@ -30,7 +30,6 @@ class AuthDataContext {
 }
 exports.AuthDataContext = AuthDataContext;
 exports.authDataContext = maishu_node_mvc_1.createParameterDecorator(() => __awaiter(this, void 0, void 0, function* () {
-    // if (!zxgtDataContextInstance)
     let dc = yield createDataContext();
     return dc;
 }), (dc) => __awaiter(this, void 0, void 0, function* () {

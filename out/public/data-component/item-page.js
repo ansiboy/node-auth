@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "react", "maishu-ui-toolkit", "dataSources", "maishu-dilu"], factory);
+        define(["require", "exports", "react", "maishu-ui-toolkit", "dataSources", "maishu-dilu", "./common"], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -21,6 +21,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     const ui = require("maishu-ui-toolkit");
     const dataSources_1 = require("dataSources");
     const maishu_dilu_1 = require("maishu-dilu");
+    const common_1 = require("./common");
     exports.ItemPageContext = React.createContext({
         dataItem: {}, updatePageState: (dataItem) => null,
         beforeSave: (callback) => null,
@@ -28,22 +29,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     class ItemPage extends React.Component {
         constructor(props) {
             super(props);
+            common_1.getObjectType(this.props.source.url);
             this.state = { dataItem: {}, originalDataItem: {} };
             if (this.props.afterGetItem) {
                 this.props.afterGetItem(this.state.dataItem);
             }
-            console.assert(this.props.data.objectType != null);
-            this.dataSource = dataSources_1.dataSources[this.props.data.objectType];
+            let objectType = common_1.getObjectType(this.props.source.url);
+            this.dataSource = dataSources_1.dataSources[objectType];
             if (this.props.data.id || this.props.data.sourceId) {
-                // let itemId = this.props.data.id || this.props.data.sourceId
-                // this.dataSource.getItem(itemId).then(item => {
-                //     console.assert(item != null)
-                //     let originalDataItem = JSON.parse(JSON.stringify(item))
-                //     this.setState({ dataItem: item, originalDataItem })
-                //     if (this.props.afterGetItem) {
-                //         this.props.afterGetItem(item)
-                //     }
-                // })
                 this.loadDataItem(this.props.data.id || this.props.data.sourceId);
             }
             this.beforeSaves = [];
@@ -52,8 +45,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
             }
         }
         loadDataItem(itemId) {
-            this.dataSource = dataSources_1.dataSources[this.props.data.objectType];
-            // let itemId = this.props.data.id || this.props.data.sourceId
+            let objectType = common_1.getObjectType(this.props.source.url);
+            this.dataSource = dataSources_1.dataSources[objectType];
             this.dataSource.getItem(itemId).then(item => {
                 console.assert(item != null);
                 let originalDataItem = JSON.parse(JSON.stringify(item));

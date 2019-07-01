@@ -7,14 +7,6 @@ import { UserId, ApplicationId } from "../decorators";
 import { Role } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
 
-// interface Role {
-//     id: string
-//     name: string
-//     remark: string
-//     create_date_time: Date,
-//     application_id?: string
-// }
-
 type RoleResource = {
     id: string,
     resource_id: string,
@@ -27,11 +19,13 @@ type RoleResource = {
 export default class RoleController {
 
     @action()
-    add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { name, remark }) {
-        if (!name) throw errors.argumentNull('name')
+    add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { item }: { item: Role }) {
+        if (!item) throw errors.argumentNull('item')
+        if (!item.name) throw errors.fieldNull("name", "item");
 
         let role: Role = {
-            id: guid(), name, remark,
+            id: guid(), name: item.name, remark: item.remark,
+            category: item.category,
             create_date_time: new Date(Date.now()),
             application_id: appId
         }
@@ -59,11 +53,6 @@ export default class RoleController {
     async remove(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { id }) {
         if (!id) throw errors.argumentNull('id')
         await dc.roles.delete({ id })
-        // return connect(async conn => {
-        //     let sql = `delete from role where id = ? and application_id = ?`
-        //     await execute(conn, sql, [id, APP_ID])
-        //     return { id }
-        // })
         return { id };
     }
 
@@ -161,7 +150,7 @@ export default class RoleController {
         })
     }
 
-    
+
     /**
      * 获取用户角色编号
      */

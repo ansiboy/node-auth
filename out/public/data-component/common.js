@@ -34,8 +34,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     exports.services = {
         imageService: new maishu_services_sdk_1.ImageService()
     };
-    function getObjectType(location) {
-        let url = location.hash.substr(1);
+    function getObjectType(url) {
+        // let url = location.hash.substr(1);
         let obj = maishu_chitu_1.parseUrl(url);
         let arr = obj.pageName.split('/');
         return arr[0];

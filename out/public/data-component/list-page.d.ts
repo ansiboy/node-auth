@@ -14,6 +14,7 @@ export interface ListPageProps {
     columns: DataControlField<any>[];
     showHeader?: boolean;
     pageSize?: number;
+    source: Page;
 }
 interface Props extends ListPageProps {
     search?: JSX.Element;

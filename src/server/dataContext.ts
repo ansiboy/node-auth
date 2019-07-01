@@ -27,7 +27,6 @@ export class AuthDataContext {
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
-        // if (!zxgtDataContextInstance)
         let dc = await createDataContext()
         return dc
     },

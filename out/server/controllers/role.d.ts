@@ -2,9 +2,8 @@ import * as mysql from 'mysql';
 import { Role } from "../entities";
 import { AuthDataContext } from "../dataContext";
 export default class RoleController {
-    add(dc: AuthDataContext, appId: string, { name, remark }: {
-        name: any;
-        remark: any;
+    add(dc: AuthDataContext, appId: string, { item }: {
+        item: Role;
     }): {
         id: string;
     };
