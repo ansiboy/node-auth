@@ -35,12 +35,8 @@ let RoleController = class RoleController {
             throw errors_1.errors.fieldNull("name", "item");
         let role = {
             id: database_1.guid(), name: item.name, remark: item.remark,
-            category: item.category,
             create_date_time: new Date(Date.now()),
-            application_id: appId
         };
-        if (appId)
-            role.application_id = appId;
         dc.roles.save(role);
         return { id: role.id };
     }

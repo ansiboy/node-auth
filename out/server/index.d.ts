@@ -5,5 +5,5 @@ interface Options {
     db: ConnectionConfig;
     proxy: Config['proxy'];
 }
-export declare function start(options: Options): void;
+export declare function start(options: Options): Promise<void>;
 export {};

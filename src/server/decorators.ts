@@ -5,7 +5,8 @@ import querystring = require('querystring');
 import url = require('url');
 
 export let UserId = createParameterDecorator(async (req) => {
-    let tokenText = req.headers['token'] as string
+    let formData = await getFormData(req);
+    let tokenText = (req.headers['token'] as string) || formData["token"];
     if (!tokenText)
         return null
 

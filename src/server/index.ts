@@ -2,6 +2,7 @@ import { startServer, Config } from 'maishu-node-mvc'
 import path = require('path')
 import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
+import { initDatabase } from './dataContext';
 
 interface Options {
     port: number,
@@ -9,7 +10,12 @@ interface Options {
     proxy: Config['proxy']
 }
 
-export function start(options: Options) {
+export async function start(options: Options) {
+
+    setConnection(options.db);
+
+    await initDatabase();
+
     startServer({
         port: options.port, rootPath: __dirname,
         controllerDirectory: path.join(__dirname, 'controllers'),
@@ -22,5 +28,4 @@ export function start(options: Options) {
         },
     })
 
-    setConnection(options.db)
 }

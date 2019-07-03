@@ -30,7 +30,7 @@ exports.conn = {
 };
 function setConnection(value) {
     exports.conn.auth = value;
-    exports.conn.auth['user'] = exports.conn.auth.username;
+    exports.conn.auth['user'] = exports.conn.auth.user;
 }
 exports.setConnection = setConnection;
 exports.port = 2856;

@@ -1,9 +1,9 @@
 {
     "port": 2857,
     "db": {
-        "user": "liuyunyuan",
-        "password": "Xuan520Lv",
-        "name": "node_auth2",
+        "user": "root",
+        "password": "81263",
+        "name": "shop_auth",
         "host": "localhost",
         "port": 3306
     },

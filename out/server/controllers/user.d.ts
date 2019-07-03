@@ -1,6 +1,7 @@
 import * as db from 'maishu-mysql-helper';
 import { Application } from './application';
 import * as mysql from 'mysql';
+import { AuthDataContext } from '../dataContext';
 export default class UserController {
     /** 手机是否已注册 */
     isMobileRegister(conn: mysql.Connection, { mobile }: {
@@ -46,7 +47,7 @@ export default class UserController {
     }>;
     private loginByOpenId;
     private loginByVerifyCode;
-    login(conn: mysql.Connection, args: any): Promise<{
+    login(dc: AuthDataContext, conn: mysql.Connection, args: any): Promise<{
         token: string;
         userId: string;
     }>;

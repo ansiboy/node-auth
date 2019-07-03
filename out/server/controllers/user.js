@@ -28,6 +28,7 @@ const role_1 = require("./role");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
 const decorators_1 = require("../decorators");
+const dataContext_1 = require("../dataContext");
 let UserController = class UserController {
     //====================================================
     /** 手机是否已注册 */
@@ -217,27 +218,28 @@ let UserController = class UserController {
             // return r
         });
     }
-    login(conn, args) {
+    login(dc, conn, args) {
         return __awaiter(this, void 0, void 0, function* () {
             args = args || {};
             let p;
             if (args.openid) {
-                p = this.loginByOpenId(conn, args);
+                p = yield this.loginByOpenId(conn, args);
             }
             else if (args.smsId) {
-                p = this.loginByVerifyCode(conn, args);
+                p = yield this.loginByVerifyCode(conn, args);
             }
             else {
-                p = this.loginByUserName(conn, args);
+                p = yield this.loginByUserName(conn, args);
             }
-            p.then(o => {
-                let conn = args.conn;
-                console.assert(conn != null);
-                // connect(async conn => {
-                let now = new Date(Date.now());
-                db.update(conn, 'user', { id: o.userId, lastest_login: now });
-                return o;
-            });
+            // let o = await p;
+            let r = yield dc.userLatestLogins.findOne(p.userId); //.then(r => {
+            if (r == null) {
+                r = { id: p.userId, latest_login: new Date(Date.now()) };
+            }
+            else {
+                r.latest_login = new Date(Date.now());
+            }
+            yield dc.userLatestLogins.save(r);
             return p;
         });
     }
@@ -465,9 +467,9 @@ __decorate([
 ], UserController.prototype, "loginByVerifyCode", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([

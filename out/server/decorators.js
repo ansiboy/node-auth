@@ -13,7 +13,8 @@ const token_1 = require("./token");
 const querystring = require("querystring");
 const url = require("url");
 exports.UserId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
-    let tokenText = req.headers['token'];
+    let formData = yield getFormData(req);
+    let tokenText = req.headers['token'] || formData["token"];
     if (!tokenText)
         return null;
     let token = yield token_1.Token.parse(tokenText);

@@ -8,6 +8,7 @@ import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
 import { conn } from '../settings';
 import { UserId } from '../decorators';
+import { authDataContext, AuthDataContext } from '../dataContext';
 
 @controller('/user')
 export default class UserController {
@@ -223,28 +224,30 @@ export default class UserController {
     }
 
     @action()
-    async login(@connection conn: mysql.Connection, @formData args: any): Promise<{ token: string, userId: string }> {
+    async login(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData args: any): Promise<{ token: string, userId: string }> {
         args = args || {}
 
-        let p: Promise<{ token: string, userId: string }>
+        let p: { token: string, userId: string };
         if (args.openid) {
-            p = this.loginByOpenId(conn, args)
+            p = await this.loginByOpenId(conn, args)
         }
         else if (args.smsId) {
-            p = this.loginByVerifyCode(conn, args)
+            p = await this.loginByVerifyCode(conn, args)
         }
         else {
-            p = this.loginByUserName(conn, args)
+            p = await this.loginByUserName(conn, args)
         }
 
-        p.then(o => {
-            let conn = args.conn
-            console.assert(conn != null)
-            // connect(async conn => {
-            let now = new Date(Date.now())
-            db.update<User>(conn, 'user', { id: o.userId, lastest_login: now })
-            return o;
-        })
+        // let o = await p;
+        let r = await dc.userLatestLogins.findOne(p.userId);//.then(r => {
+        if (r == null) {
+            r = { id: p.userId, latest_login: new Date(Date.now()) }
+        }
+        else {
+            r.latest_login = new Date(Date.now());
+        }
+        await dc.userLatestLogins.save(r);
+
 
         return p
     }

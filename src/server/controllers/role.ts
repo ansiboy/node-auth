@@ -25,13 +25,8 @@ export default class RoleController {
 
         let role: Role = {
             id: guid(), name: item.name, remark: item.remark,
-            category: item.category,
             create_date_time: new Date(Date.now()),
-            application_id: appId
         }
-
-        if (appId)
-            role.application_id = appId;
 
         dc.roles.save(role);
 

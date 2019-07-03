@@ -3,16 +3,8 @@ export declare class Role {
     name: string;
     remark: string;
     data?: any;
-    category?: string;
     create_date_time: Date;
-    application_id: string;
-}
-export declare class Application {
-    id: string;
-    data: any;
-    name: string;
-    user_id: string;
-    create_date_time: Date;
+    resources?: Resource[];
 }
 export declare class Category {
     id: string;
@@ -24,9 +16,29 @@ export declare class Resource {
     id: string;
     name: string;
     path?: string;
-    parent_id: string;
+    parent_id?: string;
     sort_number: number;
     type: string;
     create_date_time: Date;
     data?: object;
+}
+export declare class Token {
+    id: string;
+    content: string;
+    contentType: string;
+    createDateTime: Date;
+}
+export declare class User {
+    id: string;
+    user_name?: string;
+    mobile?: string;
+    email?: string;
+    password: string;
+    create_date_time: Date;
+    data?: object;
+    roles?: Role[];
+}
+export declare class UserLatestLogin {
+    id: string;
+    latest_login: Date;
 }

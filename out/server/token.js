@@ -12,6 +12,8 @@ const errors_1 = require("./errors");
 const settings = require("./settings");
 const mysql = require("mysql");
 const cache = require("memory-cache");
+const database_1 = require("./database");
+const dataContext_1 = require("./dataContext");
 const tableName = 'token';
 function mongoObjectId() {
     var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
@@ -56,15 +58,23 @@ class Token {
                 content = JSON.stringify(content);
                 contentType = 'application/json';
             }
-            token.id = mongoObjectId();
+            token.id = database_1.guid();
             token.content = content;
             token.contentType = contentType;
             token.createDateTime = new Date(Date.now());
-            return execute(conn => {
-                return query(conn, `insert into ${tableName} set ?`, token);
-            }).then(o => {
+            // return execute(conn => {
+            //     return query(conn, `insert into ${tableName} set ?`, token) as any;
+            // }).then(o => {
+            //     return token;
+            // });
+            let dc = yield dataContext_1.createDataContext("token");
+            try {
+                yield dc.tokens.save(token);
                 return token;
-            });
+            }
+            finally {
+                dc.dispose();
+            }
         });
     }
     /**
@@ -76,8 +86,6 @@ class Token {
         return __awaiter(this, void 0, void 0, function* () {
             if (!tokenValue)
                 return Promise.reject(errors_1.errors.argumentNull('tokenValue'));
-            if (tokenValue.length != 24)
-                return Promise.reject(errors_1.errors.invalidObjectId(tokenValue));
             let token = cache.get(tokenValue);
             if (token == null) {
                 token = yield execute((conn) => __awaiter(this, void 0, void 0, function* () {

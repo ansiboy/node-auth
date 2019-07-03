@@ -15,7 +15,7 @@ start({
     db: {
         host: config.db.host,
         port: config.db.port,
-        username: config.db.user,
+        user: config.db.user,
         password: config.db.password,
         database: config.db.name
     },

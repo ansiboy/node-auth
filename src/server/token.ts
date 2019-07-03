@@ -2,6 +2,8 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
+import { guid } from './database';
+import { createDataContext } from './dataContext';
 
 const tableName = 'token';
 
@@ -61,17 +63,25 @@ export class Token {
             contentType = 'application/json'
         }
 
-        token.id = mongoObjectId();
+        token.id = guid();
         token.content = content;
         token.contentType = contentType;
         token.createDateTime = new Date(Date.now());
 
 
-        return execute(conn => {
-            return query(conn, `insert into ${tableName} set ?`, token) as any;
-        }).then(o => {
+        // return execute(conn => {
+        //     return query(conn, `insert into ${tableName} set ?`, token) as any;
+        // }).then(o => {
+        //     return token;
+        // });
+        let dc = await createDataContext("token");
+        try {
+            await dc.tokens.save(token);
             return token;
-        });
+        }
+        finally {
+            dc.dispose();
+        }
     }
 
     /**
@@ -83,9 +93,6 @@ export class Token {
 
         if (!tokenValue)
             return Promise.reject(errors.argumentNull('tokenValue'));
-
-        if (tokenValue.length != 24)
-            return Promise.reject(errors.invalidObjectId(tokenValue));
 
         let token: Token = cache.get(tokenValue);
 
