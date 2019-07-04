@@ -159,7 +159,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    typeorm_1.Column({ type: "varchar", length: 45 }),
+    typeorm_1.Column({ type: "varchar", length: 45, nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
@@ -170,6 +170,10 @@ __decorate([
     typeorm_1.Column({ type: "json", nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "data", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 45, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "openid", void 0);
 __decorate([
     typeorm_1.ManyToMany(() => Role, { cascade: true }),
     typeorm_1.JoinTable({
@@ -197,4 +201,30 @@ UserLatestLogin = __decorate([
     typeorm_1.Entity("user-latest-login")
 ], UserLatestLogin);
 exports.UserLatestLogin = UserLatestLogin;
+let SMSRecord = class SMSRecord {
+};
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], SMSRecord.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 45 }),
+    __metadata("design:type", String)
+], SMSRecord.prototype, "mobile", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 200 }),
+    __metadata("design:type", String)
+], SMSRecord.prototype, "content", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 10 }),
+    __metadata("design:type", String)
+], SMSRecord.prototype, "code", void 0);
+__decorate([
+    typeorm_1.Column({ type: "datetime" }),
+    __metadata("design:type", Date)
+], SMSRecord.prototype, "createDateTime", void 0);
+SMSRecord = __decorate([
+    typeorm_1.Entity("sms_record")
+], SMSRecord);
+exports.SMSRecord = SMSRecord;
 //# sourceMappingURL=entities.js.map

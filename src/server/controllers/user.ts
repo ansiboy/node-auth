@@ -6,9 +6,9 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
-import { conn } from '../settings';
 import { UserId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
+import { UserLatestLogin, User, Role } from '../entities';
 
 @controller('/user')
 export default class UserController {
@@ -16,36 +16,31 @@ export default class UserController {
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister(@connection conn: mysql.Connection, @formData { mobile }): Promise<boolean> {
+    async isMobileRegister(@authDataContext dc: AuthDataContext, @formData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
-        if (!conn) throw errors.argumentNull('conn')
+        if (!dc) throw errors.argumentNull('dc')
 
-        // return connect(async conn => {
-        let sql = `select id from user where mobile = ? limit 1`
-        let [rows] = await execute(conn, sql, [mobile])
-        return (rows || []).length > 0
-        // })
+        let user = await dc.users.findOne({ mobile });
+        return user != null;
     }
 
     @action()
-    async isUserNameRegister(@connection conn: mysql.Connection, @formData { user_name }): Promise<boolean> {
+    async isUserNameRegister(@authDataContext dc: AuthDataContext, @formData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
-        if (!conn) throw errors.argumentNull('conn')
-        // return connect(async conn => {
-        let sql = `select id from user where user_name = ? limit 1`
-        let [rows] = await execute(conn, sql, [user_name])
-        return (rows || []).length > 0
-        // })
+        if (!dc) throw errors.argumentNull('dc')
+
+        let user = await dc.users.findOne({ user_name });
+        return user != null;
+
     }
 
     @action()
-    async isEmailRegister(@connection conn: mysql.Connection, @formData { email }): Promise<boolean> {
+    async isEmailRegister(@authDataContext dc: AuthDataContext, @formData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
-        // return connect(async conn => {
-        let sql = `select id from user where user_name = ? limit 1`
-        let [rows] = await execute(conn, sql, [email])
-        return (rows || []).length > 0
-        // })
+        if (!dc) throw errors.argumentNull('dc')
+
+        let user = await dc.users.findOne({ email });
+        return user != null;
     }
 
     @action()
@@ -73,7 +68,7 @@ export default class UserController {
         }
 
         let user = {
-            id: guid(), mobile, password, data: JSON.stringify(data),
+            id: guid(), mobile, password, data,
             create_date_time: new Date(Date.now()),
         } as User
 
@@ -116,7 +111,7 @@ export default class UserController {
     }
 
     @action()
-    async resetMobile(@connection conn: mysql.Connection, @formData { mobile, smsId, verifyCode, USER_ID }) {
+    async resetMobile(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { mobile, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -126,23 +121,21 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        let isMobileRegister = await this.isMobileRegister(conn, { mobile })
+        let isMobileRegister = await this.isMobileRegister(dc, { mobile })
         if (isMobileRegister)
             throw errors.mobileExists(mobile)
 
-        let sql = `select code from sms_record where id = ?`
-        let [rows] = await execute(conn, sql, [smsId])
-        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+        let smsRecord = await dc.smsRecords.findOne({ id: smsId });
+        if (smsRecord == null || smsRecord.code != verifyCode) {
             throw errors.verifyCodeIncorrect(verifyCode)
         }
 
-        sql = `update user set mobile = ? where id = ?`
-        await execute(conn, sql, [mobile, USER_ID])
+        await dc.users.update({ id: userId }, { mobile })
 
-        return {};
+        return { id: userId };
     }
 
-    async loginByUserName(conn: mysql.Connection, { username, password }) {
+    async loginByUserName(dc: AuthDataContext, { username, password }) {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -155,21 +148,26 @@ export default class UserController {
                 emailRegex.test(username) ? 'email' : 'mobile' //'mobile'
 
         let sql: string
+        let user: User;
         switch (type) {
             default:
             case 'mobile':
-                sql = `select id from user where mobile = ? and password = ?`
+                // sql = `select id from user where mobile = ? and password = ?`
+                user = await dc.users.findOne({ mobile: username, password });
                 break
             case 'username':
-                sql = `select id from user where user_name = ? and password = ?`
+                // sql = `select id from user where user_name = ? and password = ?`
+                user = await dc.users.findOne({ user_name: username, password });
                 break
             case 'email':
-                sql = `select id from user where email = ? and password = ?`
+                // sql = `select id from user where email = ? and password = ?`
+                user = await dc.users.findOne({ email: username, password });
                 break
         }
-        let [rows] = await execute(conn, sql, [username, password])
 
-        let user: User = rows == null ? null : rows[0]
+        // let [rows] = await execute(conn, sql, [username, password])
+
+        // let user: User = rows == null ? null : rows[0]
         if (user == null) {
             throw errors.usernameOrPasswordIncorrect(username)
         }
@@ -178,26 +176,24 @@ export default class UserController {
         return { token: token.id, userId: user.id }
     }
 
-    private async loginByOpenId<T extends { openid }>(conn: mysql.Connection, args: T) {
+    private async loginByOpenId<T extends { openid }>(dc: AuthDataContext, args: T) {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
-        let sql = `select id from user where openid = ?`
-        let [rows] = await execute(conn, sql, [openid])
-
-        let user: User
-        if (rows.length > 0) {
-            user = rows[0] as User
-        }
-        else {
+        // let sql = `select id from user where openid = ?`
+        // let [rows] = await execute(conn, sql, [openid])
+        let user = await dc.users.findOne({ openid: openid });
+        // let user: User
+        if (user == null) {
             user = {
                 id: guid(), openid, create_date_time: new Date(Date.now()),
-                data: JSON.stringify(args)
+                data: args
             } as User
-            sql = `insert into user set ?`
-            await execute(conn, sql, user)
+            // sql = `insert into user set ?`
+            // await execute(conn, sql, user)
+            await dc.users.save(user);
         }
 
-        let token = await Token.create({ user_id: user.id } as UserToken);
+        let token = await Token.create({ user_id: user.id });
         return { token: token.id, userId: user.id };
     }
 
@@ -229,13 +225,13 @@ export default class UserController {
 
         let p: { token: string, userId: string };
         if (args.openid) {
-            p = await this.loginByOpenId(conn, args)
+            p = await this.loginByOpenId(dc, args)
         }
         else if (args.smsId) {
             p = await this.loginByVerifyCode(conn, args)
         }
         else {
-            p = await this.loginByUserName(conn, args)
+            p = await this.loginByUserName(dc, args)
         }
 
         // let o = await p;
@@ -372,36 +368,37 @@ export default class UserController {
 
     /** 添加用户 */
     @action()
-    async add(@connection conn: mysql.Connection, @formData { item, roleIds }: Args.addUser) {
+    async add(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData { item, roleIds }: Args.addUser) {
 
         let p: Promise<boolean>[] = []
         if (item.mobile) {
-            let isMobileRegister = await this.isMobileRegister(conn, { mobile: item.mobile })
+            let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
             if (isMobileRegister)
                 return Promise.reject(errors.mobileExists(item.mobile))
         }
 
         if (item.email) {
-            let isEmailRegister = await this.isEmailRegister(conn, { email: item.email })
+            let isEmailRegister = await this.isEmailRegister(dc, { email: item.email })
             if (isEmailRegister)
                 return Promise.reject(errors.emailExists(item.email))
         }
 
         if (item.user_name) {
-            let isUserNameRegister = await this.isUserNameRegister(conn, { user_name: item.user_name })
+            let isUserNameRegister = await this.isUserNameRegister(dc, { user_name: item.user_name })
             if (isUserNameRegister)
                 return Promise.reject(errors.usernameExists(item.user_name))
         }
 
         item.id = guid()
         item.create_date_time = new Date(Date.now())
-        await insert(conn, 'user', item)
+        item.roles = roleIds.map(o => ({ id: o }) as Role)
+        await dc.users.save(item)
 
-        roleIds = roleIds || []
-        for (let i = 0; i < roleIds.length; i++) {
-            let userRole: UserRole = { user_id: item.id, role_id: roleIds[i] }
-            await conn.query("insert into user_role set ?", userRole)
-        }
+        // roleIds = roleIds || []
+        // for (let i = 0; i < roleIds.length; i++) {
+        //     let userRole: UserRole = { user_id: item.id, role_id: roleIds[i] }
+        //     await conn.query("insert into user_role set ?", userRole)
+        // }
 
         return { id: item.id }
     }
@@ -431,6 +428,16 @@ export default class UserController {
         type ApplicationUser = { user_id: string, application_id: string }
         let items = await select<ApplicationUser>(conn, 'application_user', { filter: `user_id = '${USER_ID}'` })
         return items.map(o => o.application_id)
+    }
+
+    @action()
+    async UserLatestLogin(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }) {
+        let items = await dc.userLatestLogins.createQueryBuilder()
+            .where(" id in (...:userIds)")
+            .setParameter("userIds", userIds)
+            .getMany();
+
+        return items;
     }
 }
 

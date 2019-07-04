@@ -29,24 +29,33 @@ const decorators_1 = require("../decorators");
 const dataContext_1 = require("../dataContext");
 let RoleController = class RoleController {
     add(dc, appId, { item }) {
-        if (!item)
-            throw errors_1.errors.argumentNull('item');
-        if (!item.name)
-            throw errors_1.errors.fieldNull("name", "item");
-        let role = {
-            id: database_1.guid(), name: item.name, remark: item.remark,
-            create_date_time: new Date(Date.now()),
-        };
-        dc.roles.save(role);
-        return { id: role.id };
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!item)
+                throw errors_1.errors.argumentNull('item');
+            if (!item.name)
+                throw errors_1.errors.fieldNull("name", "item");
+            let role = {
+                id: database_1.guid(), name: item.name, remark: item.remark,
+                create_date_time: new Date(Date.now()),
+            };
+            yield dc.roles.save(role);
+            return { id: role.id };
+        });
     }
-    update({ id, name, remark }) {
-        return database_1.connect((conn) => __awaiter(this, void 0, void 0, function* () {
-            let sql = `update role set ? where id = ?`;
-            let role = { name, remark };
-            yield database_1.execute(conn, sql, [role, id]);
-            return role;
-        }));
+    update(dc, { item }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!item)
+                throw errors_1.errors.fieldNull("item", "formData");
+            if (!item.id)
+                throw errors_1.errors.fieldNull("id", "item");
+            let role = yield dc.roles.findOne({ id: item.id });
+            if (!role)
+                throw errors_1.errors.objectNotExistWithId(item.id, "role");
+            role.name = item.name || role.name;
+            role.remark = item.remark || role.remark;
+            yield dc.roles.save(role);
+            return { id: role.id };
+        });
     }
     remove(dc, appId, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -171,14 +180,14 @@ __decorate([
     __param(0, dataContext_1.authDataContext), __param(1, decorators_1.ApplicationId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], RoleController.prototype, "add", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
 ], RoleController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(),

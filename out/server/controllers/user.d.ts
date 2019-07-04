@@ -2,15 +2,16 @@ import * as db from 'maishu-mysql-helper';
 import { Application } from './application';
 import * as mysql from 'mysql';
 import { AuthDataContext } from '../dataContext';
+import { UserLatestLogin, User } from '../entities';
 export default class UserController {
     /** 手机是否已注册 */
-    isMobileRegister(conn: mysql.Connection, { mobile }: {
+    isMobileRegister(dc: AuthDataContext, { mobile }: {
         mobile: any;
     }): Promise<boolean>;
-    isUserNameRegister(conn: mysql.Connection, { user_name }: {
+    isUserNameRegister(dc: AuthDataContext, { user_name }: {
         user_name: any;
     }): Promise<boolean>;
-    isEmailRegister(conn: mysql.Connection, { email }: {
+    isEmailRegister(dc: AuthDataContext, { email }: {
         email: any;
     }): Promise<boolean>;
     register(conn: mysql.Connection, { mobile, password, smsId, verifyCode, data }: {
@@ -32,13 +33,14 @@ export default class UserController {
         token: string;
         userId: string;
     }>;
-    resetMobile(conn: mysql.Connection, { mobile, smsId, verifyCode, USER_ID }: {
+    resetMobile(dc: AuthDataContext, userId: string, { mobile, smsId, verifyCode }: {
         mobile: any;
         smsId: any;
         verifyCode: any;
-        USER_ID: any;
-    }): Promise<{}>;
-    loginByUserName(conn: mysql.Connection, { username, password }: {
+    }): Promise<{
+        id: string;
+    }>;
+    loginByUserName(dc: AuthDataContext, { username, password }: {
         username: any;
         password: any;
     }): Promise<{
@@ -87,7 +89,7 @@ export default class UserController {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<User>>;
     /** 添加用户 */
-    add(conn: mysql.Connection, { item, roleIds }: Args.addUser): Promise<{
+    add(dc: AuthDataContext, conn: mysql.Connection, { item, roleIds }: Args.addUser): Promise<{
         id: string;
     }>;
     update(conn: mysql.Connection, USER_ID: any, { user }: {
@@ -99,6 +101,9 @@ export default class UserController {
     ownAppliactions(conn: any, USER_ID: any): Promise<db.SelectResult<Application>>;
     /** 显示用户所允许访问的应用 */
     canVisitApplicationIds(conn: mysql.Connection, USER_ID: any): Promise<string[]>;
+    UserLatestLogin(dc: AuthDataContext, { userIds }: {
+        userIds: string[];
+    }): Promise<UserLatestLogin[]>;
 }
 declare module Args {
     type addUser = {

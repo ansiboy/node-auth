@@ -10,7 +10,7 @@ export default class CurrentUserController {
     async resourceList(@authDataContext dc: AuthDataContext, @UserId userId: string) {
         if (!userId) throw errors.argumentNull("userId");
 
-        let user = await dc.user.findOne(userId, { relations: ["roles"] });
+        let user = await dc.users.findOne(userId, { relations: ["roles"] });
         let roleIds = user.roles.map(o => o.id);
         let roles = await dc.roles.find({
             relations: ['resources'],

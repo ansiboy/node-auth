@@ -117,14 +117,17 @@ export class User {
     @Column({ type: "varchar", length: 45, nullable: true })
     email?: string;
 
-    @Column({ type: "varchar", length: 45 })
-    password: string;
+    @Column({ type: "varchar", length: 45, nullable: true })
+    password?: string;
 
     @Column({ type: "datetime" })
     create_date_time: Date;
 
     @Column({ type: "json", nullable: true })
     data?: object;
+
+    @Column({ type: "varchar", length: 45, nullable: true })
+    openid?: string;
 
     // @ManyToMany(() => Resource, { cascade: true })
     // @JoinTable({
@@ -150,4 +153,22 @@ export class UserLatestLogin {
 
     @Column({ type: "datetime" })
     latest_login: Date;
+}
+
+@Entity("sms_record")
+export class SMSRecord {
+    @PrimaryColumn({ type: "char", length: 36 })
+    id: string;
+
+    @Column({ type: "varchar", length: 45 })
+    mobile: string;
+
+    @Column({ type: "varchar", length: 200 })
+    content: string;
+
+    @Column({ type: "varchar", length: 10 })
+    code?: string;
+
+    @Column({ type: "datetime" })
+    createDateTime: Date;
 }

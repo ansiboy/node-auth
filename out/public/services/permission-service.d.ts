@@ -22,8 +22,8 @@ export declare class PermissionService extends Service {
         }>;
     };
     menu: {
-        list: (args: DataSourceSelectArguments) => Promise<MenuItem[]>;
-        item: (id: string) => Promise<MenuItem>;
+        list: (args: DataSourceSelectArguments) => Promise<any[]>;
+        item: (id: string) => Promise<any>;
     };
     /** 系统类别，例如：平台，经销商 */
     category: {

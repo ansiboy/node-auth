@@ -63,23 +63,6 @@ export default class SMSController {
 
 }
 
-// export async function checkVerifyCode(@connection conn: mysql.Connection, { smsId, verifyCode }): Promise<boolean> {
-//     if (!smsId) throw errors.argumentNull('smsId')
-//     if (!verifyCode) throw errors.argumentNull('verifyCode')
-
-//     // let r = await connect(async conn => {
-//     let sql = `select code from sms_record where id = ?`;
-//     let [rows] = await execute(conn, sql, [smsId])
-//     if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-//         return false
-//     }
-
-//     return true
-//     // })
-
-//     // return r
-// }
-
 /**
  * Returns a random integer between min (inclusive) and max (inclusive)
  * Using Math.round() will give you a non-uniform distribution!

@@ -16,7 +16,7 @@ export default class ResourceController {
     remove(conn: mysql.Connection, { id }: {
         id: any;
     }): Promise<void>;
-    list(conn: mysql.Connection, { args }: {
+    list(dc: AuthDataContext, { args }: {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<Resource>>;
     item(dc: AuthDataContext, { id }: {

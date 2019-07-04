@@ -4,14 +4,14 @@ import { AuthDataContext } from "../dataContext";
 export default class RoleController {
     add(dc: AuthDataContext, appId: string, { item }: {
         item: Role;
-    }): {
+    }): Promise<{
         id: string;
-    };
-    update({ id, name, remark }: {
-        id: any;
-        name: any;
-        remark: any;
-    }): Promise<Role>;
+    }>;
+    update(dc: AuthDataContext, { item }: {
+        item: Role;
+    }): Promise<{
+        id: string;
+    }>;
     remove(dc: AuthDataContext, appId: string, { id }: {
         id: any;
     }): Promise<{

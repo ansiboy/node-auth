@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord } from "./entities";
 import path = require("path");
 import { guid } from "./database";
 
@@ -12,8 +12,9 @@ export class AuthDataContext {
     roles: Repository<Role>;
     resources: Repository<Resource>;
     tokens: Repository<Token>;
-    user: Repository<User>;
+    users: Repository<User>;
     userLatestLogins: Repository<UserLatestLogin>;
+    smsRecords: Repository<SMSRecord>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -21,12 +22,13 @@ export class AuthDataContext {
         this.categories = this.entityManager.getRepository(Category);
         this.resources = this.entityManager.getRepository(Resource);
         this.tokens = this.entityManager.getRepository(Token);
-        this.user = this.entityManager.getRepository(User);
+        this.users = this.entityManager.getRepository(User);
         this.userLatestLogins = this.entityManager.getRepository(UserLatestLogin);
+        this.smsRecords = this.entityManager.getRepository(SMSRecord);
     }
 
     async dispose() {
-        await this.entityManager.connection.close();
+        // await this.entityManager.connection.close();
     }
 }
 
@@ -40,24 +42,27 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
     }
 )
 
-
+let connection: Connection;
 export async function createDataContext(name?: string): Promise<AuthDataContext> {
-    let c = await createConnection({
-        type: "mysql",
-        host: conn.auth.host,
-        port: conn.auth.port,
-        username: conn.auth.user,
-        password: conn.auth.password,
-        database: conn.auth.database,
-        synchronize: true,
-        logging: true,
-        entities: [
-            path.join(__dirname, "entities.js")
-        ],
-        name: name
-    })
+    if (connection == null) {
+        connection = await createConnection({
+            type: "mysql",
+            host: conn.auth.host,
+            port: conn.auth.port,
+            username: conn.auth.user,
+            password: conn.auth.password,
+            database: conn.auth.database,
+            synchronize: true,
+            logging: true,
+            connectTimeout: 1000,
+            entities: [
+                path.join(__dirname, "entities.js")
+            ],
+            name: name
+        })
+    }
 
-    let dc = new AuthDataContext(c.manager)
+    let dc = new AuthDataContext(connection.manager)
     return dc
 }
 
@@ -94,7 +99,7 @@ async function initRoleTable(dc: AuthDataContext) {
 }
 
 async function initUserTable(dc: AuthDataContext) {
-    let count = await dc.user.count();
+    let count = await dc.users.count();
     if (count > 0)
         return;
 
@@ -108,7 +113,7 @@ async function initUserTable(dc: AuthDataContext) {
         roles: [adminRole]
     }
 
-    return dc.user.save(admin)
+    return dc.users.save(admin)
 }
 
 async function initResource(dc: AuthDataContext) {
@@ -117,10 +122,20 @@ async function initResource(dc: AuthDataContext) {
     if (count > 0)
         return;
 
+    let userResourceId = "419379E4-9699-471E-9E45-CF7093656906";
     let permissionResourceId = "5d626d85-45fd-9128-1f54-a27ba55e573c";
     let roleResourceId = "212484f1-e500-7e5a-b409-cb9221a36a65";
     let menuResourceId = "8CA2AF51-BF5B-42A5-8E9E-2B9E48E4BFC0";
+    let tokenResourceId = "3B758D8E-68CA-4196-89AF-9CF20DEB01DA";
 
+    let userResource: Resource = {
+        id: userResourceId,
+        name: "用户管理",
+        sort_number: 80,
+        type: "menu",
+        create_date_time: new Date(Date.now()),
+        path: "user/list",
+    }
     let permissionResource: Resource = {
         id: permissionResourceId,
         name: "权限管理",
@@ -149,6 +164,11 @@ async function initResource(dc: AuthDataContext) {
         path: "menu/list"
     }
 
+
+
+    await dc.resources.save(userResource);
+    await createAddButtonResource(dc, userResourceId, "user/item");
+
     await dc.resources.save(permissionResource);
 
     await dc.resources.save(roleResource);
@@ -162,6 +182,19 @@ async function initResource(dc: AuthDataContext) {
     await createModifyButtonResource(dc, menuResource.id, "menu/item");
     await createRemoveButtonResource(dc, menuResource.id, "javascript:remove");
     await createViewButtonResource(dc, menuResource.id, "menu/item");
+
+    let tokenResource: Resource = {
+        id: tokenResourceId,
+        name: "令牌管理",
+        sort_number: 400,
+        type: "menu",
+        create_date_time: new Date(Date.now()),
+        parent_id: permissionResourceId,
+        path: "token/list"
+    }
+    await dc.resources.save(tokenResource);
+    await createAddButtonResource(dc, tokenResourceId, "token/item");
+
 }
 
 

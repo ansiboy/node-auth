@@ -32,41 +32,34 @@ const dataContext_1 = require("../dataContext");
 let UserController = class UserController {
     //====================================================
     /** 手机是否已注册 */
-    isMobileRegister(conn, { mobile }) {
+    isMobileRegister(dc, { mobile }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!mobile)
                 throw errors_1.errors.argumentNull('mobile');
-            if (!conn)
-                throw errors_1.errors.argumentNull('conn');
-            // return connect(async conn => {
-            let sql = `select id from user where mobile = ? limit 1`;
-            let [rows] = yield database_1.execute(conn, sql, [mobile]);
-            return (rows || []).length > 0;
-            // })
+            if (!dc)
+                throw errors_1.errors.argumentNull('dc');
+            let user = yield dc.users.findOne({ mobile });
+            return user != null;
         });
     }
-    isUserNameRegister(conn, { user_name }) {
+    isUserNameRegister(dc, { user_name }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user_name)
                 throw errors_1.errors.argumentNull('user_name');
-            if (!conn)
-                throw errors_1.errors.argumentNull('conn');
-            // return connect(async conn => {
-            let sql = `select id from user where user_name = ? limit 1`;
-            let [rows] = yield database_1.execute(conn, sql, [user_name]);
-            return (rows || []).length > 0;
-            // })
+            if (!dc)
+                throw errors_1.errors.argumentNull('dc');
+            let user = yield dc.users.findOne({ user_name });
+            return user != null;
         });
     }
-    isEmailRegister(conn, { email }) {
+    isEmailRegister(dc, { email }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!email)
                 throw errors_1.errors.argumentNull('user_name');
-            // return connect(async conn => {
-            let sql = `select id from user where user_name = ? limit 1`;
-            let [rows] = yield database_1.execute(conn, sql, [email]);
-            return (rows || []).length > 0;
-            // })
+            if (!dc)
+                throw errors_1.errors.argumentNull('dc');
+            let user = yield dc.users.findOne({ email });
+            return user != null;
         });
     }
     register(conn, { mobile, password, smsId, verifyCode, data }) {
@@ -87,7 +80,7 @@ let UserController = class UserController {
                 throw errors_1.errors.verifyCodeIncorrect(verifyCode);
             }
             let user = {
-                id: database_1.guid(), mobile, password, data: JSON.stringify(data),
+                id: database_1.guid(), mobile, password, data,
                 create_date_time: new Date(Date.now()),
             };
             sql = 'insert into user set ?';
@@ -120,7 +113,7 @@ let UserController = class UserController {
             return { token: token.id, userId: user.id };
         });
     }
-    resetMobile(conn, { mobile, smsId, verifyCode, USER_ID }) {
+    resetMobile(dc, userId, { mobile, smsId, verifyCode }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (mobile == null)
                 throw errors_1.errors.argumentNull('mobile');
@@ -128,20 +121,18 @@ let UserController = class UserController {
                 throw errors_1.errors.argumentNull('smsId');
             if (verifyCode == null)
                 throw errors_1.errors.argumentNull('verifyCode');
-            let isMobileRegister = yield this.isMobileRegister(conn, { mobile });
+            let isMobileRegister = yield this.isMobileRegister(dc, { mobile });
             if (isMobileRegister)
                 throw errors_1.errors.mobileExists(mobile);
-            let sql = `select code from sms_record where id = ?`;
-            let [rows] = yield database_1.execute(conn, sql, [smsId]);
-            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            let smsRecord = yield dc.smsRecords.findOne({ id: smsId });
+            if (smsRecord == null || smsRecord.code != verifyCode) {
                 throw errors_1.errors.verifyCodeIncorrect(verifyCode);
             }
-            sql = `update user set mobile = ? where id = ?`;
-            yield database_1.execute(conn, sql, [mobile, USER_ID]);
-            return {};
+            yield dc.users.update({ id: userId }, { mobile });
+            return { id: userId };
         });
     }
-    loginByUserName(conn, { username, password }) {
+    loginByUserName(dc, { username, password }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!username)
                 throw errors_1.errors.argumentNull("username");
@@ -153,20 +144,24 @@ let UserController = class UserController {
             let type = usernameRegex.test(username) ? 'username' :
                 emailRegex.test(username) ? 'email' : 'mobile'; //'mobile'
             let sql;
+            let user;
             switch (type) {
                 default:
                 case 'mobile':
-                    sql = `select id from user where mobile = ? and password = ?`;
+                    // sql = `select id from user where mobile = ? and password = ?`
+                    user = yield dc.users.findOne({ mobile: username, password });
                     break;
                 case 'username':
-                    sql = `select id from user where user_name = ? and password = ?`;
+                    // sql = `select id from user where user_name = ? and password = ?`
+                    user = yield dc.users.findOne({ user_name: username, password });
                     break;
                 case 'email':
-                    sql = `select id from user where email = ? and password = ?`;
+                    // sql = `select id from user where email = ? and password = ?`
+                    user = yield dc.users.findOne({ email: username, password });
                     break;
             }
-            let [rows] = yield database_1.execute(conn, sql, [username, password]);
-            let user = rows == null ? null : rows[0];
+            // let [rows] = await execute(conn, sql, [username, password])
+            // let user: User = rows == null ? null : rows[0]
             if (user == null) {
                 throw errors_1.errors.usernameOrPasswordIncorrect(username);
             }
@@ -174,24 +169,23 @@ let UserController = class UserController {
             return { token: token.id, userId: user.id };
         });
     }
-    loginByOpenId(conn, args) {
+    loginByOpenId(dc, args) {
         return __awaiter(this, void 0, void 0, function* () {
             let { openid } = args;
             if (!openid)
                 throw errors_1.errors.argumentNull('openid');
-            let sql = `select id from user where openid = ?`;
-            let [rows] = yield database_1.execute(conn, sql, [openid]);
-            let user;
-            if (rows.length > 0) {
-                user = rows[0];
-            }
-            else {
+            // let sql = `select id from user where openid = ?`
+            // let [rows] = await execute(conn, sql, [openid])
+            let user = yield dc.users.findOne({ openid: openid });
+            // let user: User
+            if (user == null) {
                 user = {
                     id: database_1.guid(), openid, create_date_time: new Date(Date.now()),
-                    data: JSON.stringify(args)
+                    data: args
                 };
-                sql = `insert into user set ?`;
-                yield database_1.execute(conn, sql, user);
+                // sql = `insert into user set ?`
+                // await execute(conn, sql, user)
+                yield dc.users.save(user);
             }
             let token = yield token_1.Token.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
@@ -223,13 +217,13 @@ let UserController = class UserController {
             args = args || {};
             let p;
             if (args.openid) {
-                p = yield this.loginByOpenId(conn, args);
+                p = yield this.loginByOpenId(dc, args);
             }
             else if (args.smsId) {
                 p = yield this.loginByVerifyCode(conn, args);
             }
             else {
-                p = yield this.loginByUserName(conn, args);
+                p = yield this.loginByUserName(dc, args);
             }
             // let o = await p;
             let r = yield dc.userLatestLogins.findOne(p.userId); //.then(r => {
@@ -361,32 +355,33 @@ let UserController = class UserController {
         });
     }
     /** 添加用户 */
-    add(conn, { item, roleIds }) {
+    add(dc, conn, { item, roleIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
             if (item.mobile) {
-                let isMobileRegister = yield this.isMobileRegister(conn, { mobile: item.mobile });
+                let isMobileRegister = yield this.isMobileRegister(dc, { mobile: item.mobile });
                 if (isMobileRegister)
                     return Promise.reject(errors_1.errors.mobileExists(item.mobile));
             }
             if (item.email) {
-                let isEmailRegister = yield this.isEmailRegister(conn, { email: item.email });
+                let isEmailRegister = yield this.isEmailRegister(dc, { email: item.email });
                 if (isEmailRegister)
                     return Promise.reject(errors_1.errors.emailExists(item.email));
             }
             if (item.user_name) {
-                let isUserNameRegister = yield this.isUserNameRegister(conn, { user_name: item.user_name });
+                let isUserNameRegister = yield this.isUserNameRegister(dc, { user_name: item.user_name });
                 if (isUserNameRegister)
                     return Promise.reject(errors_1.errors.usernameExists(item.user_name));
             }
             item.id = database_1.guid();
             item.create_date_time = new Date(Date.now());
-            yield database_1.insert(conn, 'user', item);
-            roleIds = roleIds || [];
-            for (let i = 0; i < roleIds.length; i++) {
-                let userRole = { user_id: item.id, role_id: roleIds[i] };
-                yield conn.query("insert into user_role set ?", userRole);
-            }
+            item.roles = roleIds.map(o => ({ id: o }));
+            yield dc.users.save(item);
+            // roleIds = roleIds || []
+            // for (let i = 0; i < roleIds.length; i++) {
+            //     let userRole: UserRole = { user_id: item.id, role_id: roleIds[i] }
+            //     await conn.query("insert into user_role set ?", userRole)
+            // }
             return { id: item.id };
         });
     }
@@ -415,26 +410,35 @@ let UserController = class UserController {
             return items.map(o => o.application_id);
         });
     }
+    UserLatestLogin(dc, { userIds }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let items = yield dc.userLatestLogins.createQueryBuilder()
+                .where(" id in (...:userIds)")
+                .setParameter("userIds", userIds)
+                .getMany();
+            return items;
+        });
+    }
 };
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isMobileRegister", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isUserNameRegister", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isEmailRegister", null);
 __decorate([
@@ -454,9 +458,9 @@ __decorate([
 ], UserController.prototype, "resetPassword", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetMobile", null);
 __decorate([
@@ -523,9 +527,9 @@ __decorate([
 ], UserController.prototype, "list", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "add", null);
 __decorate([
@@ -549,6 +553,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "canVisitApplicationIds", null);
+__decorate([
+    maishu_node_mvc_1.action(),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "UserLatestLogin", null);
 UserController = __decorate([
     maishu_node_mvc_1.controller('/user')
 ], UserController);

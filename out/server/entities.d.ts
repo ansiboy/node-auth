@@ -33,12 +33,20 @@ export declare class User {
     user_name?: string;
     mobile?: string;
     email?: string;
-    password: string;
+    password?: string;
     create_date_time: Date;
     data?: object;
+    openid?: string;
     roles?: Role[];
 }
 export declare class UserLatestLogin {
     id: string;
     latest_login: Date;
+}
+export declare class SMSRecord {
+    id: string;
+    mobile: string;
+    content: string;
+    code?: string;
+    createDateTime: Date;
 }

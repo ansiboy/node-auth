@@ -5,6 +5,7 @@ import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
 import { Resource } from "../entities";
 import { authDataContext, AuthDataContext } from "../dataContext";
+import { BaseController } from "./base-controller";
 
 
 
@@ -62,13 +63,15 @@ export default class ResourceController {
     }
 
     @action()
-    async list(@connection conn: mysql.Connection, @formData { args }: { args: db.SelectArguments }) {
+    async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
         args = args || {}
         if (!args.sortExpression) {
             args.sortExpression = 'sort_number asc'
         }
-        let result = await list<Resource>(conn, 'resource', args)
-        return result
+        // let result = await list<Resource>(conn, 'resource', args)
+        // return result
+        let r = await BaseController.list(dc.resources, args);
+        return r;
     }
 
     @action()

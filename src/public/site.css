@@ -7,7 +7,7 @@
     margin-bottom: 15px;
 }
 
-.well .item>span {
+.well .item > span {
     width: 300px;
     display: table-cell;
 }

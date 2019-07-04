@@ -19,7 +19,7 @@ type RoleResource = {
 export default class RoleController {
 
     @action()
-    add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { item }: { item: Role }) {
+    async add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.fieldNull("name", "item");
 
@@ -28,20 +28,27 @@ export default class RoleController {
             create_date_time: new Date(Date.now()),
         }
 
-        dc.roles.save(role);
+        await dc.roles.save(role);
 
         return { id: role.id };
     }
 
     @action()
-    update(@formData { id, name, remark }) {
-        return connect(async conn => {
-            let sql = `update role set ? where id = ?`
-            let role = { name, remark } as Role
-            await execute(conn, sql, [role, id])
+    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Role }) {//id, name, remark
 
-            return role
-        })
+        if (!item) throw errors.fieldNull("item", "formData");
+        if (!item.id) throw errors.fieldNull("id", "item");
+
+        let role = await dc.roles.findOne({ id: item.id });
+        if (!role)
+            throw errors.objectNotExistWithId(item.id, "role");
+
+        role.name = item.name || role.name;
+        role.remark = item.remark || role.remark;
+
+        await dc.roles.save(role);
+
+        return { id: role.id };
     }
 
     @action()

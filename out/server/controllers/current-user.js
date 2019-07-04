@@ -29,7 +29,7 @@ let CurrentUserController = class CurrentUserController {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
                 throw errors_1.errors.argumentNull("userId");
-            let user = yield dc.user.findOne(userId, { relations: ["roles"] });
+            let user = yield dc.users.findOne(userId, { relations: ["roles"] });
             let roleIds = user.roles.map(o => o.id);
             let roles = yield dc.roles.find({
                 relations: ['resources'],
