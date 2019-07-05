@@ -2,9 +2,21 @@ import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole } from "./entities";
 import path = require("path");
 import { guid } from "./database";
+import { constants } from "./common";
+
+const buttonCodes = {
+    add: 'add',
+    edit: 'edit',
+    delete: 'delete',
+    view: 'view'
+}
+
+type ButtonResourceData = {
+    code: string,
+}
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -15,6 +27,7 @@ export class AuthDataContext {
     users: Repository<User>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
+    userRoles:Repository<UserRole>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -25,6 +38,7 @@ export class AuthDataContext {
         this.users = this.entityManager.getRepository(User);
         this.userLatestLogins = this.entityManager.getRepository(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
+        this.userRoles = this.entityManager.getRepository(UserRole);
     }
 
     async dispose() {
@@ -80,7 +94,7 @@ export async function initDatabase() {
     }
 }
 
-let adminRoleId = "535e89a2-5b17-4e65-fecb-0259015b1a9b";
+let adminRoleId = constants.adminRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
 
 async function initRoleTable(dc: AuthDataContext) {
@@ -92,7 +106,8 @@ async function initRoleTable(dc: AuthDataContext) {
         id: adminRoleId,
         name: "超级管理员",
         remark: "系统预设的超级管理员",
-        create_date_time: new Date(Date.now())
+        create_date_time: new Date(Date.now()),
+        is_system:true
     }
 
     await dc.roles.save(adminRole);
@@ -167,21 +182,21 @@ async function initResource(dc: AuthDataContext) {
 
 
     await dc.resources.save(userResource);
-    await createAddButtonResource(dc, userResourceId, "user/item");
+    await createAddButtonResource(dc, userResourceId, "modules/user/item");
 
     await dc.resources.save(permissionResource);
 
     await dc.resources.save(roleResource);
-    await createAddButtonResource(dc, roleResourceId, "role/item");
-    await createModifyButtonResource(dc, roleResourceId, "role/item");
-    await createRemoveButtonResource(dc, roleResourceId, "javascript:remove");
-    await createViewButtonResource(dc, roleResourceId, "role/item");
+    await createAddButtonResource(dc, roleResourceId, "modules/role/item");
+    await createEditButtonResource(dc, roleResourceId, "modules/role/item");
+    await createRemoveButtonResource(dc, roleResourceId, "modules/role/item");
+    await createViewButtonResource(dc, roleResourceId, "modules/role/item");
 
     await dc.resources.save(menuResource);
-    await createAddButtonResource(dc, menuResource.id, "menu/item");
-    await createModifyButtonResource(dc, menuResource.id, "menu/item");
-    await createRemoveButtonResource(dc, menuResource.id, "javascript:remove");
-    await createViewButtonResource(dc, menuResource.id, "menu/item");
+    await createAddButtonResource(dc, menuResource.id, "modules/menu/item");
+    await createEditButtonResource(dc, menuResource.id, "modules/menu/item");
+    await createRemoveButtonResource(dc, menuResource.id, "modules/menu/item");
+    await createViewButtonResource(dc, menuResource.id, "modules/menu/item");
 
     let tokenResource: Resource = {
         id: tokenResourceId,
@@ -215,12 +230,16 @@ function createAddButtonResource(dc: AuthDataContext, parentId: string, path: st
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data: { code: buttonCodes.add }
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createModifyButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+function createEditButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+    let data: ButtonResourceData = {
+        code: buttonCodes.edit,
+    }
     let menuResource: Resource = {
         id: guid(),
         name: "修改",
@@ -229,12 +248,16 @@ function createModifyButtonResource(dc: AuthDataContext, parentId: string, path:
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     }
 
     return dc.resources.save(menuResource);
 }
 
 function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+    let data: ButtonResourceData = {
+        code: buttonCodes.delete,
+    }
     let menuResource: Resource = {
         id: guid(),
         name: "删除",
@@ -243,12 +266,16 @@ function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path:
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     }
 
     return dc.resources.save(menuResource);
 }
 
 function createViewButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+    let data: ButtonResourceData = {
+        code: buttonCodes.view,
+    }
     let menuResource: Resource = {
         id: guid(),
         name: "查看",
@@ -257,6 +284,7 @@ function createViewButtonResource(dc: AuthDataContext, parentId: string, path: s
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     }
 
     return dc.resources.save(menuResource);

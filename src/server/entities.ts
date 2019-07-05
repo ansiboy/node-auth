@@ -25,25 +25,13 @@ export class Role {
         inverseJoinColumns: [{ name: "resource_id", referencedColumnName: "id" }]
     })
     resources?: Resource[];
+
+    /**
+     * 是否系统内置的角色
+     */
+    @Column({ type: "bit", nullable: true })
+    is_system?: boolean;
 }
-
-// @Entity("application")
-// export class Application {
-//     @PrimaryColumn()
-//     id: string;
-
-//     @Column({ type: "json" })
-//     data: any;
-
-//     @Column()
-//     name: string;
-
-//     @Column({ name: "user_id" })
-//     user_id: string;
-
-//     @Column({ name: "create_date_time" })
-//     create_date_time: Date;
-// }
 
 @Entity("category")
 export class Category {
@@ -84,7 +72,7 @@ export class Resource {
     create_date_time: Date;
 
     @Column({ type: "json", nullable: true })
-    data?: object;
+    data?: any;
 
 }
 
@@ -144,6 +132,15 @@ export class User {
         inverseJoinColumn: { name: "role_id", referencedColumnName: "id" }
     })
     roles?: Role[];
+}
+
+@Entity("user_role", { synchronize: false })
+export class UserRole {
+    @PrimaryColumn({ type: "char", length: 36 })
+    user_Id: string;
+
+    @PrimaryColumn({ type: "char", length: 36 })
+    role_id: string;
 }
 
 @Entity("user-latest-login")
