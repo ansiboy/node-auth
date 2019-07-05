@@ -9,6 +9,8 @@ import * as mysql from 'mysql'
 import { UserId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
 import { UserLatestLogin, User, Role } from '../entities';
+import LatestLoginController from './latest-login';
+import { BaseController } from './base-controller';
 
 @controller('/user')
 export default class UserController {
@@ -361,8 +363,16 @@ export default class UserController {
     }
 
     @action()
-    async list(@connection conn: mysql.Connection, @formData { args }: { args: db.SelectArguments }) {
-        let result = await list<User>(conn, 'user', args)
+    async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
+        dc.users.createQueryBuilder().where
+        let result = await BaseController.list<User>(dc.users, args, ["roles"])
+        let userIds = result.dataItems.map(o => o.id);
+        let ctrl = new LatestLoginController();
+        let latestLogins = await ctrl.list(dc, { userIds });
+        result.dataItems.forEach(user => {
+            user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
+                .map(o => o.latest_login)[0];
+        })
         return result
     }
 
@@ -393,12 +403,6 @@ export default class UserController {
         item.create_date_time = new Date(Date.now())
         item.roles = roleIds.map(o => ({ id: o }) as Role)
         await dc.users.save(item)
-
-        // roleIds = roleIds || []
-        // for (let i = 0; i < roleIds.length; i++) {
-        //     let userRole: UserRole = { user_id: item.id, role_id: roleIds[i] }
-        //     await conn.query("insert into user_role set ?", userRole)
-        // }
 
         return { id: item.id }
     }

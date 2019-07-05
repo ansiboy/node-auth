@@ -85,7 +85,7 @@ export default class UserController {
         userId: any;
         roleIds: any;
     }): Promise<Error>;
-    list(conn: mysql.Connection, { args }: {
+    list(dc: AuthDataContext, { args }: {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<User>>;
     /** 添加用户 */

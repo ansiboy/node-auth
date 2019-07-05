@@ -41,23 +41,14 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Role.prototype, "resources", void 0);
+__decorate([
+    typeorm_1.Column({ type: "bit", nullable: true }),
+    __metadata("design:type", Boolean)
+], Role.prototype, "is_system", void 0);
 Role = __decorate([
     typeorm_1.Entity("role")
 ], Role);
 exports.Role = Role;
-// @Entity("application")
-// export class Application {
-//     @PrimaryColumn()
-//     id: string;
-//     @Column({ type: "json" })
-//     data: any;
-//     @Column()
-//     name: string;
-//     @Column({ name: "user_id" })
-//     user_id: string;
-//     @Column({ name: "create_date_time" })
-//     create_date_time: Date;
-// }
 let Category = class Category {
 };
 __decorate([
@@ -187,6 +178,20 @@ User = __decorate([
     typeorm_1.Entity("user")
 ], User);
 exports.User = User;
+let UserRole = class UserRole {
+};
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], UserRole.prototype, "user_Id", void 0);
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], UserRole.prototype, "role_id", void 0);
+UserRole = __decorate([
+    typeorm_1.Entity("user_role", { synchronize: false })
+], UserRole);
+exports.UserRole = UserRole;
 let UserLatestLogin = class UserLatestLogin {
 };
 __decorate([

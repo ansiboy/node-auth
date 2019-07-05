@@ -5,6 +5,10 @@ export declare class Role {
     data?: any;
     create_date_time: Date;
     resources?: Resource[];
+    /**
+     * 是否系统内置的角色
+     */
+    is_system?: boolean;
 }
 export declare class Category {
     id: string;
@@ -20,7 +24,7 @@ export declare class Resource {
     sort_number: number;
     type: string;
     create_date_time: Date;
-    data?: object;
+    data?: any;
 }
 export declare class Token {
     id: string;
@@ -38,6 +42,10 @@ export declare class User {
     data?: object;
     openid?: string;
     roles?: Role[];
+}
+export declare class UserRole {
+    user_Id: string;
+    role_id: string;
 }
 export declare class UserLatestLogin {
     id: string;

@@ -39,7 +39,7 @@ let RoleController = class RoleController {
                 create_date_time: new Date(Date.now()),
             };
             yield dc.roles.save(role);
-            return { id: role.id };
+            return { id: role.id, create_date_time: role.create_date_time };
         });
     }
     update(dc, { item }) {
@@ -66,10 +66,15 @@ let RoleController = class RoleController {
         });
     }
     /** 获取角色列表 */
-    list(conn) {
+    list(dc) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = yield database_1.list(conn, 'role', { sortExpression: 'create_date_time asc' });
-            return result.dataItems;
+            if (!dc)
+                throw errors_1.errors.argumentNull("dc");
+            let roles = yield dc.roles.createQueryBuilder()
+                .where("is_system <> true")
+                .orderBy("create_date_time", "ASC")
+                .getMany();
+            return roles;
         });
     }
     /** 获取单个角色 */
@@ -79,8 +84,6 @@ let RoleController = class RoleController {
                 throw errors_1.errors.argumentNull('id');
             if (!dc)
                 throw errors_1.errors.argumentNull('dc');
-            // let r = await get(conn, 'role', { id })
-            // return r
             let r = yield dc.roles.findOne(id);
             return r;
         });
@@ -198,9 +201,9 @@ __decorate([
 ], RoleController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, database_1.connection),
+    __param(0, dataContext_1.authDataContext),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "list", null);
 __decorate([

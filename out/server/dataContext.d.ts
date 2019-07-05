@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { EntityManager, Repository } from "typeorm";
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole } from "./entities";
 export declare class AuthDataContext {
     private entityManager;
     categories: Repository<Category>;
@@ -10,6 +10,7 @@ export declare class AuthDataContext {
     users: Repository<User>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
+    userRoles: Repository<UserRole>;
     constructor(entityManager: EntityManager);
     dispose(): Promise<void>;
 }

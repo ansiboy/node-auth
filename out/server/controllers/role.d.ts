@@ -6,6 +6,7 @@ export default class RoleController {
         item: Role;
     }): Promise<{
         id: string;
+        create_date_time: Date;
     }>;
     update(dc: AuthDataContext, { item }: {
         item: Role;
@@ -18,7 +19,7 @@ export default class RoleController {
         id: any;
     }>;
     /** 获取角色列表 */
-    list(conn: any): Promise<Role[]>;
+    list(dc: AuthDataContext): Promise<Role[]>;
     /** 获取单个角色 */
     get(dc: AuthDataContext, { id }: {
         id: any;

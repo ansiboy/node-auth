@@ -15,6 +15,13 @@ const settings_1 = require("./settings");
 const entities_1 = require("./entities");
 const path = require("path");
 const database_1 = require("./database");
+const common_1 = require("./common");
+const buttonCodes = {
+    add: 'add',
+    edit: 'edit',
+    delete: 'delete',
+    view: 'view'
+};
 class AuthDataContext {
     constructor(entityManager) {
         this.entityManager = entityManager;
@@ -25,6 +32,7 @@ class AuthDataContext {
         this.users = this.entityManager.getRepository(entities_1.User);
         this.userLatestLogins = this.entityManager.getRepository(entities_1.UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository(entities_1.SMSRecord);
+        this.userRoles = this.entityManager.getRepository(entities_1.UserRole);
     }
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -79,7 +87,7 @@ function initDatabase() {
     });
 }
 exports.initDatabase = initDatabase;
-let adminRoleId = "535e89a2-5b17-4e65-fecb-0259015b1a9b";
+let adminRoleId = common_1.constants.adminRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
 function initRoleTable(dc) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -90,7 +98,8 @@ function initRoleTable(dc) {
             id: adminRoleId,
             name: "超级管理员",
             remark: "系统预设的超级管理员",
-            create_date_time: new Date(Date.now())
+            create_date_time: new Date(Date.now()),
+            is_system: true
         };
         yield dc.roles.save(adminRole);
     });
@@ -155,18 +164,18 @@ function initResource(dc) {
             path: "menu/list"
         };
         yield dc.resources.save(userResource);
-        yield createAddButtonResource(dc, userResourceId, "user/item");
+        yield createAddButtonResource(dc, userResourceId, "modules/user/item");
         yield dc.resources.save(permissionResource);
         yield dc.resources.save(roleResource);
-        yield createAddButtonResource(dc, roleResourceId, "role/item");
-        yield createModifyButtonResource(dc, roleResourceId, "role/item");
-        yield createRemoveButtonResource(dc, roleResourceId, "javascript:remove");
-        yield createViewButtonResource(dc, roleResourceId, "role/item");
+        yield createAddButtonResource(dc, roleResourceId, "modules/role/item");
+        yield createEditButtonResource(dc, roleResourceId, "modules/role/item");
+        yield createRemoveButtonResource(dc, roleResourceId, "modules/role/item");
+        yield createViewButtonResource(dc, roleResourceId, "modules/role/item");
         yield dc.resources.save(menuResource);
-        yield createAddButtonResource(dc, menuResource.id, "menu/item");
-        yield createModifyButtonResource(dc, menuResource.id, "menu/item");
-        yield createRemoveButtonResource(dc, menuResource.id, "javascript:remove");
-        yield createViewButtonResource(dc, menuResource.id, "menu/item");
+        yield createAddButtonResource(dc, menuResource.id, "modules/menu/item");
+        yield createEditButtonResource(dc, menuResource.id, "modules/menu/item");
+        yield createRemoveButtonResource(dc, menuResource.id, "modules/menu/item");
+        yield createViewButtonResource(dc, menuResource.id, "modules/menu/item");
         let tokenResource = {
             id: tokenResourceId,
             name: "令牌管理",
@@ -197,10 +206,14 @@ function createAddButtonResource(dc, parentId, path) {
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data: { code: buttonCodes.add }
     };
     return dc.resources.save(menuResource);
 }
-function createModifyButtonResource(dc, parentId, path) {
+function createEditButtonResource(dc, parentId, path) {
+    let data = {
+        code: buttonCodes.edit,
+    };
     let menuResource = {
         id: database_1.guid(),
         name: "修改",
@@ -209,10 +222,14 @@ function createModifyButtonResource(dc, parentId, path) {
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     };
     return dc.resources.save(menuResource);
 }
 function createRemoveButtonResource(dc, parentId, path) {
+    let data = {
+        code: buttonCodes.delete,
+    };
     let menuResource = {
         id: database_1.guid(),
         name: "删除",
@@ -221,10 +238,14 @@ function createRemoveButtonResource(dc, parentId, path) {
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     };
     return dc.resources.save(menuResource);
 }
 function createViewButtonResource(dc, parentId, path) {
+    let data = {
+        code: buttonCodes.view,
+    };
     let menuResource = {
         id: database_1.guid(),
         name: "查看",
@@ -233,6 +254,7 @@ function createViewButtonResource(dc, parentId, path) {
         parent_id: parentId,
         path,
         create_date_time: new Date(Date.now()),
+        data
     };
     return dc.resources.save(menuResource);
 }

@@ -6,6 +6,7 @@ import * as mysql from 'mysql'
 import { UserId, ApplicationId } from "../decorators";
 import { Role } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
+import { BaseController, SelectArguments } from "./base-controller";
 
 type RoleResource = {
     id: string,
@@ -30,7 +31,7 @@ export default class RoleController {
 
         await dc.roles.save(role);
 
-        return { id: role.id };
+        return { id: role.id, create_date_time: role.create_date_time };
     }
 
     @action()
@@ -60,9 +61,16 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action()
-    async list(@connection conn) {
-        let result = await list<Role>(conn, 'role', { sortExpression: 'create_date_time asc' })
-        return result.dataItems
+    async list(@authDataContext dc: AuthDataContext) {
+        if (!dc) throw errors.argumentNull("dc");
+
+        let roles = await dc.roles.createQueryBuilder()
+            .where("is_system <> true")
+            .orderBy("create_date_time", "ASC")
+            .getMany();
+
+
+        return roles;
     }
 
     /** 获取单个角色 */
@@ -71,8 +79,6 @@ export default class RoleController {
         if (!id) throw errors.argumentNull('id')
         if (!dc) throw errors.argumentNull('dc')
 
-        // let r = await get(conn, 'role', { id })
-        // return r
         let r = await dc.roles.findOne(id);
         return r;
     }
