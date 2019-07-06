@@ -6,7 +6,6 @@ import * as mysql from 'mysql'
 import { UserId, ApplicationId } from "../decorators";
 import { Role } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
-import { BaseController, SelectArguments } from "./base-controller";
 
 type RoleResource = {
     id: string,
@@ -44,8 +43,8 @@ export default class RoleController {
         if (!role)
             throw errors.objectNotExistWithId(item.id, "role");
 
-        role.name = item.name || role.name;
-        role.remark = item.remark || role.remark;
+        role.name = item.name;
+        role.remark = item.remark;
 
         await dc.roles.save(role);
 
@@ -65,10 +64,9 @@ export default class RoleController {
         if (!dc) throw errors.argumentNull("dc");
 
         let roles = await dc.roles.createQueryBuilder()
-            .where("is_system <> true")
-            .orderBy("create_date_time", "ASC")
+            .where("is_system = false")
+            .orderBy("create_date_time", "DESC")
             .getMany();
-
 
         return roles;
     }

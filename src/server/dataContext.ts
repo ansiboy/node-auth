@@ -27,7 +27,7 @@ export class AuthDataContext {
     users: Repository<User>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
-    userRoles:Repository<UserRole>;
+    userRoles: Repository<UserRole>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -107,7 +107,7 @@ async function initRoleTable(dc: AuthDataContext) {
         name: "超级管理员",
         remark: "系统预设的超级管理员",
         create_date_time: new Date(Date.now()),
-        is_system:true
+        is_system: true
     }
 
     await dc.roles.save(adminRole);
@@ -128,7 +128,8 @@ async function initUserTable(dc: AuthDataContext) {
         roles: [adminRole]
     }
 
-    return dc.users.save(admin)
+    await dc.users.save(admin);
+
 }
 
 async function initResource(dc: AuthDataContext) {
@@ -187,16 +188,16 @@ async function initResource(dc: AuthDataContext) {
     await dc.resources.save(permissionResource);
 
     await dc.resources.save(roleResource);
-    await createAddButtonResource(dc, roleResourceId, "modules/role/item");
-    await createEditButtonResource(dc, roleResourceId, "modules/role/item");
-    await createRemoveButtonResource(dc, roleResourceId, "modules/role/item");
-    await createViewButtonResource(dc, roleResourceId, "modules/role/item");
+    await createAddButtonResource(dc, roleResourceId, "modules/role/item.js");
+    await createEditButtonResource(dc, roleResourceId, "modules/role/item.js");
+    await createRemoveButtonResource(dc, roleResourceId, "modules/role/remove.js");
+    await createViewButtonResource(dc, roleResourceId, "modules/role/item.js");
 
     await dc.resources.save(menuResource);
-    await createAddButtonResource(dc, menuResource.id, "modules/menu/item");
-    await createEditButtonResource(dc, menuResource.id, "modules/menu/item");
-    await createRemoveButtonResource(dc, menuResource.id, "modules/menu/item");
-    await createViewButtonResource(dc, menuResource.id, "modules/menu/item");
+    await createAddButtonResource(dc, menuResource.id, "#menu/item");
+    await createEditButtonResource(dc, menuResource.id, "#menu/item");
+    await createRemoveButtonResource(dc, menuResource.id, "#menu/item");
+    await createViewButtonResource(dc, menuResource.id, "#menu/item");
 
     let tokenResource: Resource = {
         id: tokenResourceId,
@@ -210,6 +211,16 @@ async function initResource(dc: AuthDataContext) {
     await dc.resources.save(tokenResource);
     await createAddButtonResource(dc, tokenResourceId, "token/item");
 
+    let rolePermissionResource: Resource = {
+        id: guid(),
+        name: "权限设置",
+        sort_number: 40,
+        type: "button",
+        create_date_time: new Date(Date.now()),
+        parent_id: roleResourceId,
+        path: "role/permission"
+    }
+    await dc.resources.save(rolePermissionResource);
 }
 
 

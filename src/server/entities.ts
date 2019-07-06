@@ -29,8 +29,16 @@ export class Role {
     /**
      * 是否系统内置的角色
      */
-    @Column({ type: "bit", nullable: true })
+    @Column({ type: "bit", default: false })
     is_system?: boolean;
+
+    @ManyToMany(() => User)
+    @JoinTable({
+        name: "user_role",
+        joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+        inverseJoinColumns: [{ name: "user_id", referencedColumnName: "id" }]
+    })
+    users?: User[];
 }
 
 @Entity("category")
@@ -125,7 +133,7 @@ export class User {
     // })
     // resources?: Resource[];
 
-    @ManyToMany(() => Role, { cascade: true })
+    @ManyToMany(() => Role, r => r.users, { cascade: true })
     @JoinTable({
         name: "user_role",
         joinColumn: { name: "user_id", referencedColumnName: "id" },
@@ -137,7 +145,7 @@ export class User {
 @Entity("user_role", { synchronize: false })
 export class UserRole {
     @PrimaryColumn({ type: "char", length: 36 })
-    user_Id: string;
+    user_id: string;
 
     @PrimaryColumn({ type: "char", length: 36 })
     role_id: string;
