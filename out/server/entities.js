@@ -42,9 +42,18 @@ __decorate([
     __metadata("design:type", Array)
 ], Role.prototype, "resources", void 0);
 __decorate([
-    typeorm_1.Column({ type: "bit", nullable: true }),
+    typeorm_1.Column({ type: "bit", default: false }),
     __metadata("design:type", Boolean)
 ], Role.prototype, "is_system", void 0);
+__decorate([
+    typeorm_1.ManyToMany(() => User),
+    typeorm_1.JoinTable({
+        name: "user_role",
+        joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+        inverseJoinColumns: [{ name: "user_id", referencedColumnName: "id" }]
+    }),
+    __metadata("design:type", Array)
+], Role.prototype, "users", void 0);
 Role = __decorate([
     typeorm_1.Entity("role")
 ], Role);
@@ -166,7 +175,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "openid", void 0);
 __decorate([
-    typeorm_1.ManyToMany(() => Role, { cascade: true }),
+    typeorm_1.ManyToMany(() => Role, r => r.users, { cascade: true }),
     typeorm_1.JoinTable({
         name: "user_role",
         joinColumn: { name: "user_id", referencedColumnName: "id" },
@@ -183,7 +192,7 @@ let UserRole = class UserRole {
 __decorate([
     typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
     __metadata("design:type", String)
-], UserRole.prototype, "user_Id", void 0);
+], UserRole.prototype, "user_id", void 0);
 __decorate([
     typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
     __metadata("design:type", String)

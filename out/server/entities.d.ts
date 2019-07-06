@@ -9,6 +9,7 @@ export declare class Role {
      * 是否系统内置的角色
      */
     is_system?: boolean;
+    users?: User[];
 }
 export declare class Category {
     id: string;
@@ -44,7 +45,7 @@ export declare class User {
     roles?: Role[];
 }
 export declare class UserRole {
-    user_Id: string;
+    user_id: string;
     role_id: string;
 }
 export declare class UserLatestLogin {

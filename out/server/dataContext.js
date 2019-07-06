@@ -117,7 +117,7 @@ function initUserTable(dc) {
             create_date_time: new Date(Date.now()),
             roles: [adminRole]
         };
-        return dc.users.save(admin);
+        yield dc.users.save(admin);
     });
 }
 function initResource(dc) {
@@ -167,15 +167,15 @@ function initResource(dc) {
         yield createAddButtonResource(dc, userResourceId, "modules/user/item");
         yield dc.resources.save(permissionResource);
         yield dc.resources.save(roleResource);
-        yield createAddButtonResource(dc, roleResourceId, "modules/role/item");
-        yield createEditButtonResource(dc, roleResourceId, "modules/role/item");
-        yield createRemoveButtonResource(dc, roleResourceId, "modules/role/item");
-        yield createViewButtonResource(dc, roleResourceId, "modules/role/item");
+        yield createAddButtonResource(dc, roleResourceId, "modules/role/item.js");
+        yield createEditButtonResource(dc, roleResourceId, "modules/role/item.js");
+        yield createRemoveButtonResource(dc, roleResourceId, "modules/role/remove.js");
+        yield createViewButtonResource(dc, roleResourceId, "modules/role/item.js");
         yield dc.resources.save(menuResource);
-        yield createAddButtonResource(dc, menuResource.id, "modules/menu/item");
-        yield createEditButtonResource(dc, menuResource.id, "modules/menu/item");
-        yield createRemoveButtonResource(dc, menuResource.id, "modules/menu/item");
-        yield createViewButtonResource(dc, menuResource.id, "modules/menu/item");
+        yield createAddButtonResource(dc, menuResource.id, "#menu/item");
+        yield createEditButtonResource(dc, menuResource.id, "#menu/item");
+        yield createRemoveButtonResource(dc, menuResource.id, "#menu/item");
+        yield createViewButtonResource(dc, menuResource.id, "#menu/item");
         let tokenResource = {
             id: tokenResourceId,
             name: "令牌管理",
@@ -187,6 +187,16 @@ function initResource(dc) {
         };
         yield dc.resources.save(tokenResource);
         yield createAddButtonResource(dc, tokenResourceId, "token/item");
+        let rolePermissionResource = {
+            id: database_1.guid(),
+            name: "权限设置",
+            sort_number: 40,
+            type: "button",
+            create_date_time: new Date(Date.now()),
+            parent_id: roleResourceId,
+            path: "role/permission"
+        };
+        yield dc.resources.save(rolePermissionResource);
     });
 }
 function initRoleResourceTable(dc) {

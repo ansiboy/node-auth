@@ -51,8 +51,8 @@ let RoleController = class RoleController {
             let role = yield dc.roles.findOne({ id: item.id });
             if (!role)
                 throw errors_1.errors.objectNotExistWithId(item.id, "role");
-            role.name = item.name || role.name;
-            role.remark = item.remark || role.remark;
+            role.name = item.name;
+            role.remark = item.remark;
             yield dc.roles.save(role);
             return { id: role.id };
         });
@@ -71,8 +71,8 @@ let RoleController = class RoleController {
             if (!dc)
                 throw errors_1.errors.argumentNull("dc");
             let roles = yield dc.roles.createQueryBuilder()
-                .where("is_system <> true")
-                .orderBy("create_date_time", "ASC")
+                .where("is_system = false")
+                .orderBy("create_date_time", "DESC")
                 .getMany();
             return roles;
         });
