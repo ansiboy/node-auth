@@ -1,6 +1,6 @@
 import { connect, execute, guid, connection, list, insert, update, select, executeSQL } from '../database';
 import { errors } from '../errors';
-import { Token } from '../token';
+import { TokenManager } from '../token';
 import * as db from 'maishu-mysql-helper';
 import { Application } from './application';
 import RoleController from './role';
@@ -79,7 +79,7 @@ export default class UserController {
         // return user
         // })
 
-        let token = await Token.create({ user_id: user.id } as UserToken);
+        let token = await TokenManager.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
 
@@ -108,7 +108,7 @@ export default class UserController {
         sql = `update user set password = ? where mobile = ?`
         await execute(conn, sql, [password, mobile])
 
-        let token = await Token.create({ user_id: user.id } as UserToken);
+        let token = await TokenManager.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
 
@@ -174,7 +174,7 @@ export default class UserController {
             throw errors.usernameOrPasswordIncorrect(username)
         }
 
-        let token = await Token.create({ user_id: user.id } as UserToken)
+        let token = await TokenManager.create({ user_id: user.id } as UserToken)
         return { token: token.id, userId: user.id }
     }
 
@@ -195,7 +195,7 @@ export default class UserController {
             await dc.users.save(user);
         }
 
-        let token = await Token.create({ user_id: user.id });
+        let token = await TokenManager.create({ user_id: user.id });
         return { token: token.id, userId: user.id };
     }
 
@@ -215,7 +215,7 @@ export default class UserController {
         }
 
         let user = rows[0]
-        let token = await Token.create({ user_id: user.id } as UserToken)
+        let token = await TokenManager.create({ user_id: user.id } as UserToken)
         return { token: token.id, userId: user.id }
         // })
         // return r
@@ -236,10 +236,9 @@ export default class UserController {
             p = await this.loginByUserName(dc, args)
         }
 
-        // let o = await p;
         let r = await dc.userLatestLogins.findOne(p.userId);//.then(r => {
         if (r == null) {
-            r = { id: p.userId, latest_login: new Date(Date.now()) }
+            r = { id: p.userId, latest_login: new Date(Date.now()), create_date_time: new Date(Date.now()) };
         }
         else {
             r.latest_login = new Date(Date.now());
@@ -323,62 +322,74 @@ export default class UserController {
      * 获取用户角色编号
      */
     @action("/role/userRoleIds", "role/ids")
-    async userRoleIds(@connection conn: mysql.Connection, @formData { userIds }: { userIds: string[] }): Promise<UserRole[]> {
-        if (userIds == null) throw errors.argumentNull('userIds')
-        if (conn == null) throw errors.argumentNull('conn')
+    async userRoleIds(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }): Promise<{ user_id: string, role_id: string }[]> {
+        if (userIds == null) throw errors.argumentNull('userIds');
+        if (dc == null) throw errors.argumentNull('conn');
 
-        let str = userIds.map(o => `"${o}"`).join(',');
-        // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
-        let sql = `select * from user_role where user_id in (${str})`
-        let r = await executeSQL(conn, sql, null) as UserRole[]
-        return r
+        if (!userIds) throw errors.argumentNull("userIds");
+        let users = await dc.users.findByIds(userIds);
+        let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
+
+        return result;
     }
 
 
-    @action("addRoles", "role/add")
-    async addRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
-        if (!userId) throw errors.argumentNull("userId")
-        if (!roleIds) throw errors.argumentNull("roleIds")
-        if (!conn) throw errors.argumentNull("conn")
+    // @action("addRoles", "role/add")
+    // async addRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
+    //     if (!userId) throw errors.argumentNull("userId")
+    //     if (!roleIds) throw errors.argumentNull("roleIds")
+    //     if (!conn) throw errors.argumentNull("conn")
 
-        if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
-        if (roleIds.length == 0)
-            return errors.argumentEmptyArray("roleIds")
+    //     if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
+    //     if (roleIds.length == 0)
+    //         return errors.argumentEmptyArray("roleIds")
 
-        let roleController = new RoleController()
-        let userRoles = await this.userRoleIds(conn, { userIds: [userId] })
-        let userRoleIds = userRoles.map(o => o.role_id)
-        let values = []
-        let sql = `insert into user_role (user_id, role_id) values `
-        for (let i = 0; i < roleIds.length; i++) {
-            if (userRoleIds.indexOf(roleIds[i]) >= 0)
-                continue
+    //     let roleController = new RoleController()
+    //     let userRoles = await this.userRoleIds(conn, { userIds: [userId] })
+    //     let userRoleIds = userRoles.map(o => o.role_id)
+    //     let values = []
+    //     let sql = `insert into user_role (user_id, role_id) values `
+    //     for (let i = 0; i < roleIds.length; i++) {
+    //         if (userRoleIds.indexOf(roleIds[i]) >= 0)
+    //             continue
 
-            sql = sql + "(?,?)"
-            values.push(userId, roleIds[i])
-        }
+    //         sql = sql + "(?,?)"
+    //         values.push(userId, roleIds[i])
+    //     }
 
-        if (values.length > 0)
-            await execute(conn, sql, values)
-    }
+    //     if (values.length > 0)
+    //         await execute(conn, sql, values)
+    // }
 
     @action()
     async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
-        dc.users.createQueryBuilder().where
-        let result = await BaseController.list<User>(dc.users, args, ["roles"])
-        let userIds = result.dataItems.map(o => o.id);
-        let ctrl = new LatestLoginController();
-        let latestLogins = await ctrl.list(dc, { userIds });
-        result.dataItems.forEach(user => {
-            user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
-                .map(o => o.latest_login)[0];
-        })
+        args = args || {};
+        if (args.filter) {
+            args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
+        }
+        else {
+            args.filter = "(User.is_system is null or User.is_system = false)";
+        }
+        let result = await BaseController.list<User>(dc.users, args, ["role"])
+
+        if (result.dataItems.length > 0) {
+            let userIds = result.dataItems.map(o => o.id);
+            let ctrl = new LatestLoginController();
+            let latestLogins = await ctrl.list(dc, { userIds });
+            result.dataItems.forEach(user => {
+                user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
+                    .map(o => o.latest_login)[0];
+            })
+        }
+
         return result
     }
 
     /** 添加用户 */
     @action()
-    async add(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData { item, roleIds }: Args.addUser) {
+    async add(@authDataContext dc: AuthDataContext, @formData { item }: Args.addUser): Promise<Partial<User>> {
+        // if (roleIds && !Array.isArray(roleIds))
+        //     throw errors.argumentTypeIncorrect("roleId", "Array");
 
         let p: Promise<boolean>[] = []
         if (item.mobile) {
@@ -399,12 +410,16 @@ export default class UserController {
                 return Promise.reject(errors.usernameExists(item.user_name))
         }
 
-        item.id = guid()
-        item.create_date_time = new Date(Date.now())
-        item.roles = roleIds.map(o => ({ id: o }) as Role)
-        await dc.users.save(item)
+        item.id = guid();
+        item.create_date_time = new Date(Date.now());
 
-        return { id: item.id }
+        await dc.users.save(item);
+
+        if (item.role_id) {
+            item.role = await dc.roles.findOne(item.role_id); //roleIds.map(o => ({ id: o }) as Role)
+        }
+
+        return { id: item.id, role: item.role, create_date_time: item.create_date_time };
     }
 
     @action()

@@ -19,12 +19,14 @@ export class BaseController extends Controller {
         args = args || {};
 
         let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
-        if (args.sortExpression) {
-            let arr = args.sortExpression.split(/\s+/).filter(o => o);
-            console.assert(arr.length > 0)
-            order = {};
-            order[arr[0]] = arr[1].toUpperCase() as any;
+        if (!args.sortExpression) {
+            args.sortExpression = "create_date_time desc"
         }
+
+        let arr = args.sortExpression.split(/\s+/).filter(o => o);
+        console.assert(arr.length > 0)
+        order = {};
+        order[arr[0]] = arr[1].toUpperCase() as any;
 
         let [items, count] = await r.findAndCount({
             where: args.filter, relations,

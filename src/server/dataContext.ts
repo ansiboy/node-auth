@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole, Path } from "./entities";
 import path = require("path");
 import { guid } from "./database";
 import { constants } from "./common";
@@ -28,6 +28,7 @@ export class AuthDataContext {
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
     userRoles: Repository<UserRole>;
+    paths: Repository<Path>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -39,6 +40,7 @@ export class AuthDataContext {
         this.userLatestLogins = this.entityManager.getRepository(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
         this.userRoles = this.entityManager.getRepository(UserRole);
+        this.paths = this.entityManager.getRepository(Path);
     }
 
     async dispose() {
@@ -124,8 +126,11 @@ async function initUserTable(dc: AuthDataContext) {
         id: adminUserId,
         mobile: "18502146746",
         password: "22",
+        user_name: "admin",
         create_date_time: new Date(Date.now()),
-        roles: [adminRole]
+        is_system: true,
+        // roles: [adminRole]
+        role_id: adminRole.id
     }
 
     await dc.users.save(admin);
@@ -143,6 +148,8 @@ async function initResource(dc: AuthDataContext) {
     let roleResourceId = "212484f1-e500-7e5a-b409-cb9221a36a65";
     let menuResourceId = "8CA2AF51-BF5B-42A5-8E9E-2B9E48E4BFC0";
     let tokenResourceId = "3B758D8E-68CA-4196-89AF-9CF20DEB01DA";
+    let rolePermissionResourceId = "688F60BA-102D-4EEC-AB77-9DFA029D0EA7";
+    let pathResourceId = "9CE5F1AA-E78F-4D9C-93AF-1D2E59D2A9EF";
 
     let userResource: Resource = {
         id: userResourceId,
@@ -150,7 +157,7 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 80,
         type: "menu",
         create_date_time: new Date(Date.now()),
-        path: "user/list",
+        path: "#user/list",
     }
     let permissionResource: Resource = {
         id: permissionResourceId,
@@ -167,7 +174,7 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "role/list",
+        path: "#role/list",
     }
 
     let menuResource: Resource = {
@@ -177,13 +184,13 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "menu/list"
+        path: "#menu/list"
     }
 
 
 
     await dc.resources.save(userResource);
-    await createAddButtonResource(dc, userResourceId, "modules/user/item");
+    await createAddButtonResource(dc, userResourceId, "modules/user/item.js");
 
     await dc.resources.save(permissionResource);
 
@@ -206,21 +213,37 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "token/list"
+        path: "#token/list"
     }
     await dc.resources.save(tokenResource);
     await createAddButtonResource(dc, tokenResourceId, "token/item");
 
     let rolePermissionResource: Resource = {
-        id: guid(),
+        id: rolePermissionResourceId,
         name: "权限设置",
         sort_number: 40,
         type: "button",
         create_date_time: new Date(Date.now()),
         parent_id: roleResourceId,
-        path: "role/permission"
+        path: "#role/permission"
     }
     await dc.resources.save(rolePermissionResource);
+
+    let pathResource: Resource = {
+        id: pathResourceId,
+        name: "路径管理",
+        sort_number: 500,
+        type: "menu",
+        create_date_time: new Date(Date.now()),
+        parent_id: permissionResourceId,
+        path: "#path/list"
+    }
+
+    await dc.resources.save(pathResource);
+    createAddButtonResource(dc, pathResource.id, "modules/path/item.js");
+    createEditButtonResource(dc, pathResource.id, "modules/path/item.js");
+    createRemoveButtonResource(dc, pathResource.id, "modules/path/remove.js");
+    createViewButtonResource(dc, pathResource.id, "modules/path/view.js");
 }
 
 

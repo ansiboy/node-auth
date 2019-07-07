@@ -3,8 +3,8 @@ import { errors } from "../errors";
 // import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 import { controller, action, formData } from "maishu-node-mvc";
 import * as mysql from 'mysql'
-import { UserId, ApplicationId } from "../decorators";
-import { Role } from "../entities";
+import { UserId, ApplicationId, user } from "../decorators";
+import { Role, User } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
 
 type RoleResource = {
@@ -19,13 +19,19 @@ type RoleResource = {
 export default class RoleController {
 
     @action()
-    async add(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { item }: { item: Role }) {
+    async add(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.fieldNull("name", "item");
+        if (!userId) throw errors.argumentNull("userId");
+
+        let user = await dc.users.findOne(userId);
+        if (!user)
+            throw errors.objectNotExistWithId(userId, "User");
 
         let role: Role = {
             id: guid(), name: item.name, remark: item.remark,
             create_date_time: new Date(Date.now()),
+            parent_id: user.role_id,
         }
 
         await dc.roles.save(role);
@@ -52,21 +58,26 @@ export default class RoleController {
     }
 
     @action()
-    async remove(@authDataContext dc: AuthDataContext, @ApplicationId appId: string, @formData { id }) {
-        if (!id) throw errors.argumentNull('id')
-        await dc.roles.delete({ id })
+    async remove(@authDataContext dc: AuthDataContext, @user user: User, @formData { id }): Promise<Partial<Role>> {
+        if (!id) throw errors.argumentNull('id');
+
+        await dc.roles.delete({ id: id, parent_id: user.role_id })
         return { id };
     }
 
     /** 获取角色列表 */
     @action()
-    async list(@authDataContext dc: AuthDataContext) {
+    async list(@authDataContext dc: AuthDataContext, @UserId userId: string) {
         if (!dc) throw errors.argumentNull("dc");
 
-        let roles = await dc.roles.createQueryBuilder()
-            .where("is_system = false")
-            .orderBy("create_date_time", "DESC")
-            .getMany();
+        let user = await dc.users.findOne(userId);
+        if (!user)
+            throw errors.objectNotExistWithId(userId, "User");
+
+        let roles = await dc.roles.find({
+            where: { parent_id: user.role_id },
+            order: { create_date_time: "DESC" }
+        });
 
         return roles;
     }

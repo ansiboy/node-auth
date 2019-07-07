@@ -1,7 +1,12 @@
-import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+
+interface Model {
+    id: string;
+    create_date_time: Date;
+}
 
 @Entity("role")
-export class Role {
+export class Role implements Model {
 
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
@@ -32,17 +37,22 @@ export class Role {
     @Column({ type: "bit", default: false })
     is_system?: boolean;
 
-    @ManyToMany(() => User)
-    @JoinTable({
-        name: "user_role",
-        joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "user_id", referencedColumnName: "id" }]
-    })
-    users?: User[];
+    // @ManyToMany(() => User)
+    // @JoinTable({
+    //     name: "user_role",
+    //     joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+    //     inverseJoinColumns: [{ name: "user_id", referencedColumnName: "id" }]
+    // })
+    // users?: User[];
+    @Column({ type: "char", length: 36, nullable: true })
+    role_id?: string;
+
+    @Column({ type: "char", length: 36, nullable: true })
+    parent_id?: string;
 }
 
 @Entity("category")
-export class Category {
+export class Category implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
@@ -57,7 +67,7 @@ export class Category {
 }
 
 @Entity("resource")
-export class Resource {
+export class Resource implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
@@ -82,6 +92,13 @@ export class Resource {
     @Column({ type: "json", nullable: true })
     data?: any;
 
+    @ManyToMany(() => Path, { cascade: true })
+    @JoinTable({
+        name: "resource_path",
+        joinColumn: { name: "resource_id", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "path_id", referencedColumnName: "id" }
+    })
+    paths?: Path[];
 }
 
 @Entity("token")
@@ -93,14 +110,14 @@ export class Token {
     content: string;
 
     @Column({ type: "varchar", length: 50 })
-    contentType: string;
+    content_type: string;
 
-    @Column({ type: "datetime" })
-    createDateTime: Date;
+    @Column({ name: "create_date_time", type: "datetime" })
+    create_date_time: Date;
 }
 
 @Entity("user")
-export class User {
+export class User implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
@@ -125,6 +142,9 @@ export class User {
     @Column({ type: "varchar", length: 45, nullable: true })
     openid?: string;
 
+    @Column({ type: "bit", nullable: true })
+    is_system?: boolean;
+
     // @ManyToMany(() => Resource, { cascade: true })
     // @JoinTable({
     //     name: "user_resource",
@@ -133,13 +153,19 @@ export class User {
     // })
     // resources?: Resource[];
 
-    @ManyToMany(() => Role, r => r.users, { cascade: true })
-    @JoinTable({
-        name: "user_role",
-        joinColumn: { name: "user_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "role_id", referencedColumnName: "id" }
-    })
-    roles?: Role[];
+    // @ManyToMany(() => Role, r => r.users, { cascade: true })
+    // @JoinTable({
+    //     name: "user_role",
+    //     joinColumn: { name: "user_id", referencedColumnName: "id" },
+    //     inverseJoinColumn: { name: "role_id", referencedColumnName: "id" }
+    // })
+    // roles?: Role[];
+    @Column({ type: "char", length: 36, nullable: true })
+    role_id?: string;
+
+    @ManyToOne(type => Role)
+    @JoinColumn({ name: "role_id", referencedColumnName: "id" })
+    role?: Role;
 }
 
 @Entity("user_role", { synchronize: false })
@@ -152,16 +178,19 @@ export class UserRole {
 }
 
 @Entity("user-latest-login")
-export class UserLatestLogin {
+export class UserLatestLogin implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
     @Column({ type: "datetime" })
     latest_login: Date;
+
+    @Column({ type: "datetime" })
+    create_date_time: Date;
 }
 
 @Entity("sms_record")
-export class SMSRecord {
+export class SMSRecord implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
@@ -175,5 +204,20 @@ export class SMSRecord {
     code?: string;
 
     @Column({ type: "datetime" })
-    createDateTime: Date;
+    create_date_time: Date;
+}
+
+@Entity("path")
+export class Path implements Model {
+    @PrimaryColumn({ type: "char", length: 36 })
+    id: string;
+
+    @Column({ type: "datetime" })
+    create_date_time: Date;
+
+    @Column({ type: "varchar" })
+    value: string;
+
+    @Column({ type: "varchar", length: 200, nullable: true })
+    remark: string;
 }

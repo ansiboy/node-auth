@@ -2,8 +2,9 @@ import * as http from 'http';
 import { errors } from './errors';
 import * as url from 'url';
 import * as settings from './settings';
-import { Token } from './token';
+import { TokenManager } from './token';
 import querystring = require('querystring');
+import { Token } from './entities';
 
 const isClass = require('is-class')
 
@@ -44,7 +45,7 @@ async function serverCallback(req: http.IncomingMessage, res: http.ServerRespons
     }
 
     if (tokenText) {
-        token = await Token.parse(tokenText);
+        token = await TokenManager.parse(tokenText);
     }
 
     // 检查权限
@@ -107,7 +108,7 @@ async function executeAction(controllerName: string, actionName: string, token: 
         Object.assign(data, { appId, APP_ID: appId })
     }
 
-    if (token != null && (token.contentType || '').indexOf('json') > 0) {
+    if (token != null && (token.content_type || '').indexOf('json') > 0) {
         var obj = JSON.parse(token.content);
         let userId = obj.UserId || (obj as UserToken).user_id
         if (userId) {
@@ -221,7 +222,7 @@ function getPostObject(request: http.IncomingMessage): Promise<any> {
 function createTargetResquest(host: string, path: string, port: number, token: Token, req: http.IncomingMessage, res: http.ServerResponse) {
 
     let headers: any = req.headers;
-    if (token != null && (token.contentType || '').indexOf('json') > 0) {
+    if (token != null && (token.content_type || '').indexOf('json') > 0) {
         var obj = JSON.parse(token.content);
         for (let key in obj) {
             headers[key] = obj[key];
@@ -247,7 +248,7 @@ function createTargetResquest(host: string, path: string, port: number, token: T
                     responseContent = data.toString();
                 })
                 response.on('end', () => {
-                    Token.create(responseContent, contentType)
+                    TokenManager.create(responseContent, contentType)
                         .then((o: Token) => {
                             res.setHeader("content-type", "application/json");
                             var obj = JSON.stringify({ token: o.id });
