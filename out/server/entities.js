@@ -46,14 +46,13 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Role.prototype, "is_system", void 0);
 __decorate([
-    typeorm_1.ManyToMany(() => User),
-    typeorm_1.JoinTable({
-        name: "user_role",
-        joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "user_id", referencedColumnName: "id" }]
-    }),
-    __metadata("design:type", Array)
-], Role.prototype, "users", void 0);
+    typeorm_1.Column({ type: "char", length: 36, nullable: true }),
+    __metadata("design:type", String)
+], Role.prototype, "role_id", void 0);
+__decorate([
+    typeorm_1.Column({ type: "char", length: 36, nullable: true }),
+    __metadata("design:type", String)
+], Role.prototype, "parent_id", void 0);
 Role = __decorate([
     typeorm_1.Entity("role")
 ], Role);
@@ -91,9 +90,9 @@ __decorate([
     __metadata("design:type", String)
 ], Resource.prototype, "name", void 0);
 __decorate([
-    typeorm_1.Column({ type: "varchar", length: 200, nullable: true }),
+    typeorm_1.Column({ name: "path", type: "varchar", length: 200, nullable: true }),
     __metadata("design:type", String)
-], Resource.prototype, "path", void 0);
+], Resource.prototype, "page_path", void 0);
 __decorate([
     typeorm_1.Column({ type: "char", length: 36, nullable: true }),
     __metadata("design:type", String)
@@ -114,6 +113,10 @@ __decorate([
     typeorm_1.Column({ type: "json", nullable: true }),
     __metadata("design:type", Object)
 ], Resource.prototype, "data", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Path, path => path.resource, { cascade: true }),
+    __metadata("design:type", Array)
+], Resource.prototype, "api_paths", void 0);
 Resource = __decorate([
     typeorm_1.Entity("resource")
 ], Resource);
@@ -131,11 +134,11 @@ __decorate([
 __decorate([
     typeorm_1.Column({ type: "varchar", length: 50 }),
     __metadata("design:type", String)
-], Token.prototype, "contentType", void 0);
+], Token.prototype, "content_type", void 0);
 __decorate([
-    typeorm_1.Column({ type: "datetime" }),
+    typeorm_1.Column({ name: "create_date_time", type: "datetime" }),
     __metadata("design:type", Date)
-], Token.prototype, "createDateTime", void 0);
+], Token.prototype, "create_date_time", void 0);
 Token = __decorate([
     typeorm_1.Entity("token")
 ], Token);
@@ -175,14 +178,18 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "openid", void 0);
 __decorate([
-    typeorm_1.ManyToMany(() => Role, r => r.users, { cascade: true }),
-    typeorm_1.JoinTable({
-        name: "user_role",
-        joinColumn: { name: "user_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "role_id", referencedColumnName: "id" }
-    }),
-    __metadata("design:type", Array)
-], User.prototype, "roles", void 0);
+    typeorm_1.Column({ type: "bit", nullable: true }),
+    __metadata("design:type", Boolean)
+], User.prototype, "is_system", void 0);
+__decorate([
+    typeorm_1.Column({ type: "char", length: 36, nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "role_id", void 0);
+__decorate([
+    typeorm_1.ManyToOne(type => Role),
+    typeorm_1.JoinColumn({ name: "role_id", referencedColumnName: "id" }),
+    __metadata("design:type", Role)
+], User.prototype, "role", void 0);
 User = __decorate([
     typeorm_1.Entity("user")
 ], User);
@@ -211,6 +218,10 @@ __decorate([
     typeorm_1.Column({ type: "datetime" }),
     __metadata("design:type", Date)
 ], UserLatestLogin.prototype, "latest_login", void 0);
+__decorate([
+    typeorm_1.Column({ type: "datetime" }),
+    __metadata("design:type", Date)
+], UserLatestLogin.prototype, "create_date_time", void 0);
 UserLatestLogin = __decorate([
     typeorm_1.Entity("user-latest-login")
 ], UserLatestLogin);
@@ -236,9 +247,40 @@ __decorate([
 __decorate([
     typeorm_1.Column({ type: "datetime" }),
     __metadata("design:type", Date)
-], SMSRecord.prototype, "createDateTime", void 0);
+], SMSRecord.prototype, "create_date_time", void 0);
 SMSRecord = __decorate([
     typeorm_1.Entity("sms_record")
 ], SMSRecord);
 exports.SMSRecord = SMSRecord;
+let Path = class Path {
+};
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], Path.prototype, "id", void 0);
+__decorate([
+    typeorm_1.Column({ type: "datetime" }),
+    __metadata("design:type", Date)
+], Path.prototype, "create_date_time", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar" }),
+    __metadata("design:type", String)
+], Path.prototype, "value", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 200, nullable: true }),
+    __metadata("design:type", String)
+], Path.prototype, "remark", void 0);
+__decorate([
+    typeorm_1.Column({ type: "char", length: 36, nullable: true }),
+    __metadata("design:type", String)
+], Path.prototype, "resource_id", void 0);
+__decorate([
+    typeorm_1.ManyToOne(() => Resource, resource => resource.api_paths),
+    typeorm_1.JoinColumn({ name: "resource_id", referencedColumnName: "id" }),
+    __metadata("design:type", Resource)
+], Path.prototype, "resource", void 0);
+Path = __decorate([
+    typeorm_1.Entity("path")
+], Path);
+exports.Path = Path;
 //# sourceMappingURL=entities.js.map

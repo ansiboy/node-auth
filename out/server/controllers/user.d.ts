@@ -2,7 +2,7 @@ import * as db from 'maishu-mysql-helper';
 import { Application } from './application';
 import * as mysql from 'mysql';
 import { AuthDataContext } from '../dataContext';
-import { UserLatestLogin, User } from '../entities';
+import { User, Resource } from '../entities';
 export default class UserController {
     /** 手机是否已注册 */
     isMobileRegister(dc: AuthDataContext, { mobile }: {
@@ -78,20 +78,17 @@ export default class UserController {
     /**
      * 获取用户角色编号
      */
-    userRoleIds(conn: mysql.Connection, { userIds }: {
+    userRoleIds(dc: AuthDataContext, { userIds }: {
         userIds: string[];
-    }): Promise<UserRole[]>;
-    addRoles(conn: mysql.Connection, { userId, roleIds }: {
-        userId: any;
-        roleIds: any;
-    }): Promise<Error>;
+    }): Promise<{
+        user_id: string;
+        role_id: string;
+    }[]>;
     list(dc: AuthDataContext, { args }: {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<User>>;
     /** 添加用户 */
-    add(dc: AuthDataContext, conn: mysql.Connection, { item, roleIds }: Args.addUser): Promise<{
-        id: string;
-    }>;
+    add(dc: AuthDataContext, { item }: Args.addUser): Promise<Partial<User>>;
     update(conn: mysql.Connection, USER_ID: any, { user }: {
         user: any;
     }): Promise<void | {
@@ -103,7 +100,11 @@ export default class UserController {
     canVisitApplicationIds(conn: mysql.Connection, USER_ID: any): Promise<string[]>;
     UserLatestLogin(dc: AuthDataContext, { userIds }: {
         userIds: string[];
-    }): Promise<UserLatestLogin[]>;
+    }): Promise<import("../entities").UserLatestLogin[]>;
+    /**
+     * 获取当前用户所允许访问的资源列表
+     */
+    resourceList(dc: AuthDataContext, user: User): Promise<Resource[]>;
 }
 declare module Args {
     type addUser = {

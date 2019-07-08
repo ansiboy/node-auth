@@ -74,8 +74,8 @@ export class Resource implements Model {
     @Column({ type: "varchar", length: 45 })
     name: string;
 
-    @Column({ type: "varchar", length: 200, nullable: true })
-    path?: string;
+    @Column({ name: "path", type: "varchar", length: 200, nullable: true })
+    page_path?: string;
 
     @Column({ type: "char", length: 36, nullable: true })
     parent_id?: string;
@@ -92,13 +92,8 @@ export class Resource implements Model {
     @Column({ type: "json", nullable: true })
     data?: any;
 
-    @ManyToMany(() => Path, { cascade: true })
-    @JoinTable({
-        name: "resource_path",
-        joinColumn: { name: "resource_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "path_id", referencedColumnName: "id" }
-    })
-    paths?: Path[];
+    @OneToMany(() => Path, path => path.resource, { cascade: true })
+    api_paths?: Path[];
 }
 
 @Entity("token")
@@ -145,21 +140,6 @@ export class User implements Model {
     @Column({ type: "bit", nullable: true })
     is_system?: boolean;
 
-    // @ManyToMany(() => Resource, { cascade: true })
-    // @JoinTable({
-    //     name: "user_resource",
-    //     joinColumn: { name: "user_id", referencedColumnName: "id" },
-    //     inverseJoinColumn: { name: "resource_id", referencedColumnName: "id" }
-    // })
-    // resources?: Resource[];
-
-    // @ManyToMany(() => Role, r => r.users, { cascade: true })
-    // @JoinTable({
-    //     name: "user_role",
-    //     joinColumn: { name: "user_id", referencedColumnName: "id" },
-    //     inverseJoinColumn: { name: "role_id", referencedColumnName: "id" }
-    // })
-    // roles?: Role[];
     @Column({ type: "char", length: 36, nullable: true })
     role_id?: string;
 
@@ -219,5 +199,12 @@ export class Path implements Model {
     value: string;
 
     @Column({ type: "varchar", length: 200, nullable: true })
-    remark: string;
+    remark?: string;
+
+    @Column({ type: "char", length: 36, nullable: true })
+    resource_id?: string;
+
+    @ManyToOne(() => Resource, resource => resource.api_paths)
+    @JoinColumn({ name: "resource_id", referencedColumnName: "id" })
+    resource?: Resource;
 }

@@ -5,7 +5,7 @@ import { conn } from './settings';
 import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole, Path } from "./entities";
 import path = require("path");
 import { guid } from "./database";
-import { constants } from "./common";
+import { constants, actionPaths } from "./common";
 
 const buttonCodes = {
     add: 'add',
@@ -157,7 +157,10 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 80,
         type: "menu",
         create_date_time: new Date(Date.now()),
-        path: "#user/list",
+        page_path: "#user/list",
+        api_paths: [
+            { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
+        ]
     }
     let permissionResource: Resource = {
         id: permissionResourceId,
@@ -174,7 +177,10 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "#role/list",
+        page_path: "#role/list",
+        api_paths: [
+            { id: guid(), value: actionPaths.role.list, create_date_time: new Date(Date.now()) }
+        ]
     }
 
     let menuResource: Resource = {
@@ -184,27 +190,48 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "#menu/list"
+        page_path: "#menu/list",
+        api_paths: [
+            { id: guid(), value: actionPaths.menu.list, create_date_time: new Date(Date.now()) }
+        ]
     }
 
-
-
     await dc.resources.save(userResource);
-    await createAddButtonResource(dc, userResourceId, "modules/user/item.js");
+    await createAddButtonResource(dc, userResourceId, "modules/user/item.js", [
+        { id: guid(), value: actionPaths.user.add, create_date_time: new Date(Date.now()) }
+    ]);
 
     await dc.resources.save(permissionResource);
 
     await dc.resources.save(roleResource);
-    await createAddButtonResource(dc, roleResourceId, "modules/role/item.js");
-    await createEditButtonResource(dc, roleResourceId, "modules/role/item.js");
-    await createRemoveButtonResource(dc, roleResourceId, "modules/role/remove.js");
-    await createViewButtonResource(dc, roleResourceId, "modules/role/item.js");
+    await createAddButtonResource(dc, roleResourceId, "modules/role/item.js", [
+        { id: guid(), value: actionPaths.role.add, create_date_time: new Date(Date.now()) },
+    ]);
+    await createEditButtonResource(dc, roleResourceId, "modules/role/item.js", [
+        { id: guid(), value: actionPaths.role.item, create_date_time: new Date(Date.now()) },
+        { id: guid(), value: actionPaths.role.update, create_date_time: new Date(Date.now()) },
+    ]);
+    await createRemoveButtonResource(dc, roleResourceId, "modules/role/remove.js", [
+        { id: guid(), value: actionPaths.role.remove, create_date_time: new Date(Date.now()) },
+    ]);
+    await createViewButtonResource(dc, roleResourceId, "modules/role/item.js", [
+        { id: guid(), value: actionPaths.role.item, create_date_time: new Date(Date.now()) },
+    ]);
 
     await dc.resources.save(menuResource);
-    await createAddButtonResource(dc, menuResource.id, "#menu/item");
-    await createEditButtonResource(dc, menuResource.id, "#menu/item");
-    await createRemoveButtonResource(dc, menuResource.id, "#menu/item");
-    await createViewButtonResource(dc, menuResource.id, "#menu/item");
+    await createAddButtonResource(dc, menuResource.id, "#menu/item", [
+        { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) }
+    ]);
+    await createEditButtonResource(dc, menuResource.id, "#menu/item", [
+        { id: guid(), value: actionPaths.menu.item, create_date_time: new Date(Date.now()) },
+        { id: guid(), value: actionPaths.menu.update, create_date_time: new Date(Date.now()) }
+    ]);
+    await createRemoveButtonResource(dc, menuResource.id, "#menu/item", [
+        { id: guid(), value: actionPaths.menu.remove, create_date_time: new Date(Date.now()) },
+    ]);
+    await createViewButtonResource(dc, menuResource.id, "#menu/item", [
+        { id: guid(), value: actionPaths.menu.item, create_date_time: new Date(Date.now()) },
+    ]);
 
     let tokenResource: Resource = {
         id: tokenResourceId,
@@ -213,10 +240,15 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "#token/list"
+        page_path: "#token/list",
+        api_paths: [
+            { id: guid(), value: actionPaths.token.list, create_date_time: new Date(Date.now()) }
+        ]
     }
     await dc.resources.save(tokenResource);
-    await createAddButtonResource(dc, tokenResourceId, "token/item");
+    await createAddButtonResource(dc, tokenResourceId, "token/item", [
+        { id: guid(), value: actionPaths.token.add, create_date_time: new Date(Date.now()) },
+    ]);
 
     let rolePermissionResource: Resource = {
         id: rolePermissionResourceId,
@@ -225,7 +257,7 @@ async function initResource(dc: AuthDataContext) {
         type: "button",
         create_date_time: new Date(Date.now()),
         parent_id: roleResourceId,
-        path: "#role/permission"
+        page_path: "#role/permission"
     }
     await dc.resources.save(rolePermissionResource);
 
@@ -236,14 +268,16 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
-        path: "#path/list"
+        page_path: "#path/list"
     }
 
     await dc.resources.save(pathResource);
-    createAddButtonResource(dc, pathResource.id, "modules/path/item.js");
-    createEditButtonResource(dc, pathResource.id, "modules/path/item.js");
+    createAddButtonResource(dc, pathResource.id, "modules/path/item.js", []);
+    createEditButtonResource(dc, pathResource.id, "modules/path/item.js", []);
     createRemoveButtonResource(dc, pathResource.id, "modules/path/remove.js");
     createViewButtonResource(dc, pathResource.id, "modules/path/view.js");
+
+
 }
 
 
@@ -255,22 +289,23 @@ async function initRoleResourceTable(dc: AuthDataContext) {
     await dc.roles.save(adminRole);
 }
 
-function createAddButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+function createAddButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
     let menuResource: Resource = {
         id: guid(),
         name: "添加",
         sort_number: 100,
         type: "button",
         parent_id: parentId,
-        path,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data: { code: buttonCodes.add }
+        data: { code: buttonCodes.add },
+        api_paths: apiPaths
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createEditButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+function createEditButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths?: Path[]) {
     let data: ButtonResourceData = {
         code: buttonCodes.edit,
     }
@@ -280,15 +315,16 @@ function createEditButtonResource(dc: AuthDataContext, parentId: string, path: s
         sort_number: 100,
         type: "button",
         parent_id: parentId,
-        path,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data
+        data,
+        api_paths: apiPaths
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths?: Path[]) {
     let data: ButtonResourceData = {
         code: buttonCodes.delete,
     }
@@ -298,15 +334,16 @@ function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path:
         sort_number: 200,
         type: "button",
         parent_id: parentId,
-        path,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data
+        data,
+        api_paths: apiPaths
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createViewButtonResource(dc: AuthDataContext, parentId: string, path: string) {
+function createViewButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths?: Path[]) {
     let data: ButtonResourceData = {
         code: buttonCodes.view,
     }
@@ -316,9 +353,10 @@ function createViewButtonResource(dc: AuthDataContext, parentId: string, path: s
         sort_number: 200,
         type: "button",
         parent_id: parentId,
-        path,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data
+        data,
+        api_paths: apiPaths
     }
 
     return dc.resources.save(menuResource);

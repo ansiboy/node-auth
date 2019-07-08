@@ -24,13 +24,14 @@ const database_1 = require("../database");
 const errors_1 = require("../errors");
 const token_1 = require("../token");
 const db = require("maishu-mysql-helper");
-const role_1 = require("./role");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
 const decorators_1 = require("../decorators");
 const dataContext_1 = require("../dataContext");
+const entities_1 = require("../entities");
 const latest_login_1 = require("./latest-login");
 const base_controller_1 = require("./base-controller");
+const common_1 = require("../common");
 let UserController = class UserController {
     //====================================================
     /** 手机是否已注册 */
@@ -89,7 +90,7 @@ let UserController = class UserController {
             yield database_1.execute(conn, sql, user);
             // return user
             // })
-            let token = yield token_1.Token.create({ user_id: user.id });
+            let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
         });
     }
@@ -111,7 +112,7 @@ let UserController = class UserController {
             }
             sql = `update user set password = ? where mobile = ?`;
             yield database_1.execute(conn, sql, [password, mobile]);
-            let token = yield token_1.Token.create({ user_id: user.id });
+            let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
         });
     }
@@ -167,7 +168,7 @@ let UserController = class UserController {
             if (user == null) {
                 throw errors_1.errors.usernameOrPasswordIncorrect(username);
             }
-            let token = yield token_1.Token.create({ user_id: user.id });
+            let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
         });
     }
@@ -189,7 +190,7 @@ let UserController = class UserController {
                 // await execute(conn, sql, user)
                 yield dc.users.save(user);
             }
-            let token = yield token_1.Token.create({ user_id: user.id });
+            let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
         });
     }
@@ -208,7 +209,7 @@ let UserController = class UserController {
                 throw errors_1.errors.verifyCodeIncorrect(verifyCode);
             }
             let user = rows[0];
-            let token = yield token_1.Token.create({ user_id: user.id });
+            let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
             // })
             // return r
@@ -227,10 +228,9 @@ let UserController = class UserController {
             else {
                 p = yield this.loginByUserName(dc, args);
             }
-            // let o = await p;
             let r = yield dc.userLatestLogins.findOne(p.userId); //.then(r => {
             if (r == null) {
-                r = { id: p.userId, latest_login: new Date(Date.now()) };
+                r = { id: p.userId, latest_login: new Date(Date.now()), create_date_time: new Date(Date.now()) };
             }
             else {
                 r.latest_login = new Date(Date.now());
@@ -310,63 +310,68 @@ let UserController = class UserController {
     /**
      * 获取用户角色编号
      */
-    userRoleIds(conn, { userIds }) {
+    userRoleIds(dc, { userIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (userIds == null)
                 throw errors_1.errors.argumentNull('userIds');
-            if (conn == null)
+            if (dc == null)
                 throw errors_1.errors.argumentNull('conn');
-            let str = userIds.map(o => `"${o}"`).join(',');
-            // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
-            let sql = `select * from user_role where user_id in (${str})`;
-            let r = yield database_1.executeSQL(conn, sql, null);
-            return r;
+            if (!userIds)
+                throw errors_1.errors.argumentNull("userIds");
+            let users = yield dc.users.findByIds(userIds);
+            let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
+            return result;
         });
     }
-    addRoles(conn, { userId, roleIds }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!userId)
-                throw errors_1.errors.argumentNull("userId");
-            if (!roleIds)
-                throw errors_1.errors.argumentNull("roleIds");
-            if (!conn)
-                throw errors_1.errors.argumentNull("conn");
-            if (!Array.isArray(roleIds))
-                throw errors_1.errors.argumentTypeIncorrect('roleIds', 'array');
-            if (roleIds.length == 0)
-                return errors_1.errors.argumentEmptyArray("roleIds");
-            let roleController = new role_1.default();
-            let userRoles = yield this.userRoleIds(conn, { userIds: [userId] });
-            let userRoleIds = userRoles.map(o => o.role_id);
-            let values = [];
-            let sql = `insert into user_role (user_id, role_id) values `;
-            for (let i = 0; i < roleIds.length; i++) {
-                if (userRoleIds.indexOf(roleIds[i]) >= 0)
-                    continue;
-                sql = sql + "(?,?)";
-                values.push(userId, roleIds[i]);
-            }
-            if (values.length > 0)
-                yield database_1.execute(conn, sql, values);
-        });
-    }
+    // @action("addRoles", "role/add")
+    // async addRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
+    //     if (!userId) throw errors.argumentNull("userId")
+    //     if (!roleIds) throw errors.argumentNull("roleIds")
+    //     if (!conn) throw errors.argumentNull("conn")
+    //     if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
+    //     if (roleIds.length == 0)
+    //         return errors.argumentEmptyArray("roleIds")
+    //     let roleController = new RoleController()
+    //     let userRoles = await this.userRoleIds(conn, { userIds: [userId] })
+    //     let userRoleIds = userRoles.map(o => o.role_id)
+    //     let values = []
+    //     let sql = `insert into user_role (user_id, role_id) values `
+    //     for (let i = 0; i < roleIds.length; i++) {
+    //         if (userRoleIds.indexOf(roleIds[i]) >= 0)
+    //             continue
+    //         sql = sql + "(?,?)"
+    //         values.push(userId, roleIds[i])
+    //     }
+    //     if (values.length > 0)
+    //         await execute(conn, sql, values)
+    // }
     list(dc, { args }) {
         return __awaiter(this, void 0, void 0, function* () {
-            dc.users.createQueryBuilder().where;
-            let result = yield base_controller_1.BaseController.list(dc.users, args, ["roles"]);
-            let userIds = result.dataItems.map(o => o.id);
-            let ctrl = new latest_login_1.default();
-            let latestLogins = yield ctrl.list(dc, { userIds });
-            result.dataItems.forEach(user => {
-                user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
-                    .map(o => o.latest_login)[0];
-            });
+            args = args || {};
+            if (args.filter) {
+                args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
+            }
+            else {
+                args.filter = "(User.is_system is null or User.is_system = false)";
+            }
+            let result = yield base_controller_1.BaseController.list(dc.users, args, ["role"]);
+            if (result.dataItems.length > 0) {
+                let userIds = result.dataItems.map(o => o.id);
+                let ctrl = new latest_login_1.default();
+                let latestLogins = yield ctrl.list(dc, { userIds });
+                result.dataItems.forEach(user => {
+                    user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
+                        .map(o => o.latest_login)[0];
+                });
+            }
             return result;
         });
     }
     /** 添加用户 */
-    add(dc, conn, { item, roleIds }) {
+    add(dc, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
+            // if (roleIds && !Array.isArray(roleIds))
+            //     throw errors.argumentTypeIncorrect("roleId", "Array");
             let p = [];
             if (item.mobile) {
                 let isMobileRegister = yield this.isMobileRegister(dc, { mobile: item.mobile });
@@ -385,9 +390,11 @@ let UserController = class UserController {
             }
             item.id = database_1.guid();
             item.create_date_time = new Date(Date.now());
-            item.roles = roleIds.map(o => ({ id: o }));
             yield dc.users.save(item);
-            return { id: item.id };
+            if (item.role_id) {
+                item.role = yield dc.roles.findOne(item.role_id); //roleIds.map(o => ({ id: o }) as Role)
+            }
+            return { id: item.id, role: item.role, create_date_time: item.create_date_time };
         });
     }
     update(conn, USER_ID, { user }) {
@@ -422,6 +429,22 @@ let UserController = class UserController {
                 .setParameter("userIds", userIds)
                 .getMany();
             return items;
+        });
+    }
+    /**
+     * 获取当前用户所允许访问的资源列表
+     */
+    resourceList(dc, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!user.role_id)
+                return [];
+            let roles = yield dc.roles.find({
+                relations: ['resources'],
+                where: dc.roles.createQueryBuilder().where("id = :roleId)").setParameter("roleId", user.role_id),
+            });
+            let r = [];
+            roles.forEach(role => r.push(...role.resources));
+            return r;
         });
     }
 };
@@ -511,34 +534,27 @@ __decorate([
 ], UserController.prototype, "setRoles", null);
 __decorate([
     maishu_node_mvc_1.action("/role/userRoleIds", "role/ids"),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "userRoleIds", null);
 __decorate([
-    maishu_node_mvc_1.action("addRoles", "role/add"),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "addRoles", null);
-__decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.list),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "list", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.add),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "add", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.update),
     __param(0, database_1.connection), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object, Object]),
@@ -565,6 +581,13 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "UserLatestLogin", null);
+__decorate([
+    maishu_node_mvc_1.action("/current-user/resource/list", "resource/list"),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.user),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "resourceList", null);
 UserController = __decorate([
     maishu_node_mvc_1.controller('/user')
 ], UserController);

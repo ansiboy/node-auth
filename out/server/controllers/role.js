@@ -26,17 +26,25 @@ const errors_1 = require("../errors");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
 const decorators_1 = require("../decorators");
+const entities_1 = require("../entities");
 const dataContext_1 = require("../dataContext");
+const common_1 = require("../common");
 let RoleController = class RoleController {
-    add(dc, appId, { item }) {
+    add(dc, userId, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!item)
                 throw errors_1.errors.argumentNull('item');
             if (!item.name)
                 throw errors_1.errors.fieldNull("name", "item");
+            if (!userId)
+                throw errors_1.errors.argumentNull("userId");
+            let user = yield dc.users.findOne(userId);
+            if (!user)
+                throw errors_1.errors.objectNotExistWithId(userId, "User");
             let role = {
                 id: database_1.guid(), name: item.name, remark: item.remark,
                 create_date_time: new Date(Date.now()),
+                parent_id: user.role_id,
             };
             yield dc.roles.save(role);
             return { id: role.id, create_date_time: role.create_date_time };
@@ -57,23 +65,26 @@ let RoleController = class RoleController {
             return { id: role.id };
         });
     }
-    remove(dc, appId, { id }) {
+    remove(dc, user, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!id)
                 throw errors_1.errors.argumentNull('id');
-            yield dc.roles.delete({ id });
+            yield dc.roles.delete({ id: id, parent_id: user.role_id });
             return { id };
         });
     }
     /** 获取角色列表 */
-    list(dc) {
+    list(dc, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!dc)
                 throw errors_1.errors.argumentNull("dc");
-            let roles = yield dc.roles.createQueryBuilder()
-                .where("is_system = false")
-                .orderBy("create_date_time", "DESC")
-                .getMany();
+            let user = yield dc.users.findOne(userId);
+            if (!user)
+                throw errors_1.errors.objectNotExistWithId(userId, "User");
+            let roles = yield dc.roles.find({
+                where: { parent_id: user.role_id },
+                order: { create_date_time: "DESC" }
+            });
             return roles;
         });
     }
@@ -179,35 +190,35 @@ let RoleController = class RoleController {
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.ApplicationId), __param(2, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.add),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "add", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.update),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "update", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.ApplicationId), __param(2, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.remove),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.user), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "remove", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.list),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.UserId),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "list", null);
 __decorate([
-    maishu_node_mvc_1.action("get", "item"),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.item),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),

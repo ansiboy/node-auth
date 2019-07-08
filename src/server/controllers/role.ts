@@ -6,6 +6,7 @@ import * as mysql from 'mysql'
 import { UserId, ApplicationId, user } from "../decorators";
 import { Role, User } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
+import { actionPaths } from "../common";
 
 type RoleResource = {
     id: string,
@@ -18,7 +19,7 @@ type RoleResource = {
 @controller("role")
 export default class RoleController {
 
-    @action()
+    @action(actionPaths.role.add)
     async add(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.fieldNull("name", "item");
@@ -39,7 +40,7 @@ export default class RoleController {
         return { id: role.id, create_date_time: role.create_date_time };
     }
 
-    @action()
+    @action(actionPaths.role.update)
     async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Role }) {//id, name, remark
 
         if (!item) throw errors.fieldNull("item", "formData");
@@ -57,7 +58,7 @@ export default class RoleController {
         return { id: role.id };
     }
 
-    @action()
+    @action(actionPaths.role.remove)
     async remove(@authDataContext dc: AuthDataContext, @user user: User, @formData { id }): Promise<Partial<Role>> {
         if (!id) throw errors.argumentNull('id');
 
@@ -66,7 +67,7 @@ export default class RoleController {
     }
 
     /** 获取角色列表 */
-    @action()
+    @action(actionPaths.role.list)
     async list(@authDataContext dc: AuthDataContext, @UserId userId: string) {
         if (!dc) throw errors.argumentNull("dc");
 
@@ -83,7 +84,7 @@ export default class RoleController {
     }
 
     /** 获取单个角色 */
-    @action("get", "item")
+    @action(actionPaths.role.item)
     async get(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Role> {
         if (!id) throw errors.argumentNull('id')
         if (!dc) throw errors.argumentNull('dc')

@@ -14,6 +14,7 @@ const mysql = require("mysql");
 const cache = require("memory-cache");
 const database_1 = require("./database");
 const dataContext_1 = require("./dataContext");
+const entities_1 = require("./entities");
 const tableName = 'token';
 function mongoObjectId() {
     var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
@@ -50,18 +51,18 @@ function query(conn, sql, value) {
 /**
  * 用于解释和生成 token 。
  */
-class Token {
+class TokenManager {
     static create(content, contentType) {
         return __awaiter(this, void 0, void 0, function* () {
-            let token = new Token();
+            let token = new entities_1.Token();
             if (typeof content == 'object') {
                 content = JSON.stringify(content);
                 contentType = 'application/json';
             }
             token.id = database_1.guid();
             token.content = content;
-            token.contentType = contentType;
-            token.createDateTime = new Date(Date.now());
+            token.content_type = contentType;
+            token.create_date_time = new Date(Date.now());
             // return execute(conn => {
             //     return query(conn, `insert into ${tableName} set ?`, token) as any;
             // }).then(o => {
@@ -102,7 +103,7 @@ class Token {
         });
     }
 }
-exports.Token = Token;
+exports.TokenManager = TokenManager;
 setInterval(() => {
     let keys = cache.keys() || [];
     for (let i = 0; i < keys.length; i++) {

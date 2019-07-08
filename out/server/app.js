@@ -47,7 +47,7 @@ function serverCallback(req, res) {
             tokenText = tokenText[0];
         }
         if (tokenText) {
-            token = yield token_1.Token.parse(tokenText);
+            token = yield token_1.TokenManager.parse(tokenText);
         }
         // 检查权限
         let isPass = yield checkPermission(token, req);
@@ -100,7 +100,7 @@ function executeAction(controllerName, actionName, token, req, res) {
         if (appId) {
             Object.assign(data, { appId, APP_ID: appId });
         }
-        if (token != null && (token.contentType || '').indexOf('json') > 0) {
+        if (token != null && (token.content_type || '').indexOf('json') > 0) {
             var obj = JSON.parse(token.content);
             let userId = obj.UserId || obj.user_id;
             if (userId) {
@@ -198,7 +198,7 @@ function getPostObject(request) {
 }
 function createTargetResquest(host, path, port, token, req, res) {
     let headers = req.headers;
-    if (token != null && (token.contentType || '').indexOf('json') > 0) {
+    if (token != null && (token.content_type || '').indexOf('json') > 0) {
         var obj = JSON.parse(token.content);
         for (let key in obj) {
             headers[key] = obj[key];
@@ -220,7 +220,7 @@ function createTargetResquest(host, path, port, token, req, res) {
                 responseContent = data.toString();
             });
             response.on('end', () => {
-                token_1.Token.create(responseContent, contentType)
+                token_1.TokenManager.create(responseContent, contentType)
                     .then((o) => {
                     res.setHeader("content-type", "application/json");
                     var obj = JSON.stringify({ token: o.id });

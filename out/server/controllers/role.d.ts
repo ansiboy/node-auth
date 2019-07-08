@@ -1,8 +1,8 @@
 import * as mysql from 'mysql';
-import { Role } from "../entities";
+import { Role, User } from "../entities";
 import { AuthDataContext } from "../dataContext";
 export default class RoleController {
-    add(dc: AuthDataContext, appId: string, { item }: {
+    add(dc: AuthDataContext, userId: string, { item }: {
         item: Role;
     }): Promise<{
         id: string;
@@ -13,13 +13,11 @@ export default class RoleController {
     }): Promise<{
         id: string;
     }>;
-    remove(dc: AuthDataContext, appId: string, { id }: {
+    remove(dc: AuthDataContext, user: User, { id }: {
         id: any;
-    }): Promise<{
-        id: any;
-    }>;
+    }): Promise<Partial<Role>>;
     /** 获取角色列表 */
-    list(dc: AuthDataContext): Promise<Role[]>;
+    list(dc: AuthDataContext, userId: string): Promise<Role[]>;
     /** 获取单个角色 */
     get(dc: AuthDataContext, { id }: {
         id: any;

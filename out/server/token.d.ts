@@ -1,12 +1,8 @@
+import { Token } from './entities';
 /**
  * 用于解释和生成 token 。
  */
-export declare class Token {
-    id?: string;
-    content: string;
-    contentType: string;
-    createDateTime: Date;
-    cacheDateTime: number;
+export declare class TokenManager {
     static create(content: object): Promise<Token>;
     static create(content: string, contentType: string): Promise<Token>;
     /**

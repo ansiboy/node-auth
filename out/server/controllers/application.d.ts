@@ -1,4 +1,5 @@
 import * as mysql from 'mysql';
+import { User } from "../entities";
 export interface Application {
     id: string;
     name: string;

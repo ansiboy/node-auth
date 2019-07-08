@@ -22,6 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
+const common_1 = require("../common");
 let CategoryController = class CategoryController {
     list(dc) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,7 +39,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CategoryController.prototype, "list", null);
 CategoryController = __decorate([
-    maishu_node_mvc_1.controller("category")
+    maishu_node_mvc_1.controller(`${common_1.constants.controllerBasePath}/category`)
 ], CategoryController);
 exports.CategoryController = CategoryController;
 //# sourceMappingURL=category.js.map

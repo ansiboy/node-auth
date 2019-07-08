@@ -14,12 +14,13 @@ class BaseController extends maishu_node_mvc_1.Controller {
         return __awaiter(this, void 0, void 0, function* () {
             args = args || {};
             let order;
-            if (args.sortExpression) {
-                let arr = args.sortExpression.split(/\s+/).filter(o => o);
-                console.assert(arr.length > 0);
-                order = {};
-                order[arr[0]] = arr[1].toUpperCase();
+            if (!args.sortExpression) {
+                args.sortExpression = "create_date_time desc";
             }
+            let arr = args.sortExpression.split(/\s+/).filter(o => o);
+            console.assert(arr.length > 0);
+            order = {};
+            order[arr[0]] = arr[1].toUpperCase();
             let [items, count] = yield r.findAndCount({
                 where: args.filter, relations,
                 skip: args.startRowIndex,

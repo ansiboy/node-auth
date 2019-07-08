@@ -4,6 +4,8 @@ import { connect, execute, guid, connection, list, select } from "../database";
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql';
 import { UserId, ApplicationId } from "../decorators";
+import { constants } from "../common";
+import { User, UserRole } from "../entities";
 
 export interface Application {
     id: string,
@@ -13,7 +15,7 @@ export interface Application {
     create_date_time
 }
 
-@controller("/application")
+@controller(`${constants.controllerBasePath}/application`)
 export default class ApplicationController {
 
     /** 添加应用 */

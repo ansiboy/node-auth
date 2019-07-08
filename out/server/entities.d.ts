@@ -1,4 +1,8 @@
-export declare class Role {
+interface Model {
+    id: string;
+    create_date_time: Date;
+}
+export declare class Role implements Model {
     id: string;
     name: string;
     remark: string;
@@ -9,31 +13,33 @@ export declare class Role {
      * 是否系统内置的角色
      */
     is_system?: boolean;
-    users?: User[];
+    role_id?: string;
+    parent_id?: string;
 }
-export declare class Category {
+export declare class Category implements Model {
     id: string;
     code: string;
     name: string;
     create_date_time: Date;
 }
-export declare class Resource {
+export declare class Resource implements Model {
     id: string;
     name: string;
-    path?: string;
+    page_path?: string;
     parent_id?: string;
     sort_number: number;
     type: string;
     create_date_time: Date;
     data?: any;
+    api_paths?: Path[];
 }
 export declare class Token {
     id: string;
     content: string;
-    contentType: string;
-    createDateTime: Date;
+    content_type: string;
+    create_date_time: Date;
 }
-export declare class User {
+export declare class User implements Model {
     id: string;
     user_name?: string;
     mobile?: string;
@@ -42,20 +48,32 @@ export declare class User {
     create_date_time: Date;
     data?: object;
     openid?: string;
-    roles?: Role[];
+    is_system?: boolean;
+    role_id?: string;
+    role?: Role;
 }
 export declare class UserRole {
     user_id: string;
     role_id: string;
 }
-export declare class UserLatestLogin {
+export declare class UserLatestLogin implements Model {
     id: string;
     latest_login: Date;
+    create_date_time: Date;
 }
-export declare class SMSRecord {
+export declare class SMSRecord implements Model {
     id: string;
     mobile: string;
     content: string;
     code?: string;
-    createDateTime: Date;
+    create_date_time: Date;
 }
+export declare class Path implements Model {
+    id: string;
+    create_date_time: Date;
+    value: string;
+    remark?: string;
+    resource_id?: string;
+    resource?: Resource;
+}
+export {};

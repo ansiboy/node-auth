@@ -6,11 +6,12 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
-import { UserId } from '../decorators';
+import { UserId, user } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
-import { UserLatestLogin, User, Role } from '../entities';
+import { User, Resource } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController } from './base-controller';
+import { actionPaths } from '../common';
 
 @controller('/user')
 export default class UserController {
@@ -361,7 +362,7 @@ export default class UserController {
     //         await execute(conn, sql, values)
     // }
 
-    @action()
+    @action(actionPaths.user.list)
     async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
         args = args || {};
         if (args.filter) {
@@ -386,7 +387,7 @@ export default class UserController {
     }
 
     /** 添加用户 */
-    @action()
+    @action(actionPaths.user.add)
     async add(@authDataContext dc: AuthDataContext, @formData { item }: Args.addUser): Promise<Partial<User>> {
         // if (roleIds && !Array.isArray(roleIds))
         //     throw errors.argumentTypeIncorrect("roleId", "Array");
@@ -422,7 +423,7 @@ export default class UserController {
         return { id: item.id, role: item.role, create_date_time: item.create_date_time };
     }
 
-    @action()
+    @action(actionPaths.user.update)
     async update(@connection conn: mysql.Connection, @UserId USER_ID, @formData { user }) {
         if (!user) throw errors.argumentNull('user')
         let u = user as User
@@ -457,6 +458,25 @@ export default class UserController {
             .getMany();
 
         return items;
+    }
+
+    /**
+     * 获取当前用户所允许访问的资源列表
+     */
+    @action("/current-user/resource/list", "resource/list")
+    async resourceList(@authDataContext dc: AuthDataContext, @user user: User): Promise<Resource[]> {
+        if (!user.role_id)
+            return [];
+
+        let roles = await dc.roles.find({
+            relations: ['resources'],
+            where: dc.roles.createQueryBuilder().where("id = :roleId)").setParameter("roleId", user.role_id),
+        })
+
+        let r: Resource[] = [];
+        roles.forEach(role => r.push(...role.resources));
+
+        return r;
     }
 }
 

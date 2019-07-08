@@ -48,8 +48,7 @@ async function proxyHeader(req) {
             let token = await Token.parse(tokenText);
             var obj = JSON.parse(token.content);
             header = obj
-        }
-        catch (err) {
+        } catch (err) {
             console.error(err)
         }
     }
@@ -62,12 +61,12 @@ async function proxyHeader(req) {
     return header
 }
 
-startWeb({
-    port: config.port + 1,
-    roleId: config.roleId,
-    gateway: `127.0.0.1:${config.port}`,
-    controllerPath: path.join(__dirname, 'out/server/controllers'),
-    staticRootDirectory: path.join(__dirname, "out/public"),
-})
+// startWeb({
+//     port: config.port + 1,
+//     roleId: config.roleId,
+//     gateway: `127.0.0.1:${config.port}`,
+//     controllerPath: path.join(__dirname, 'out/server/controllers'),
+//     // staticRootDirectory: path.join(__dirname, "out/public"),
+// })
 
-console.log(`web: http://127.0.0.1:${config.port + 1}`)
+// console.log(`web: http://127.0.0.1:${config.port + 1}`)

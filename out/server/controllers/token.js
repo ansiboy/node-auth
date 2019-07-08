@@ -15,13 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
 const base_controller_1 = require("./base-controller");
+const common_1 = require("../common");
 let TokenController = class TokenController extends base_controller_1.BaseController {
     list(dc, args) {
         return base_controller_1.BaseController.list(dc.tokens, args);
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.token.list),
     __param(0, dataContext_1.authDataContext),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),

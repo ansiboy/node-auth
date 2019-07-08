@@ -26,6 +26,7 @@ const database_1 = require("../database");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
 const decorators_1 = require("../decorators");
+const common_1 = require("../common");
 let ApplicationController = class ApplicationController {
     /** 添加应用 */
     add(conn, { name, userId, data }) {
@@ -261,7 +262,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ApplicationController.prototype, "get", null);
 ApplicationController = __decorate([
-    maishu_node_mvc_1.controller("/application")
+    maishu_node_mvc_1.controller(`${common_1.constants.controllerBasePath}/application`)
 ], ApplicationController);
 exports.default = ApplicationController;
 //# sourceMappingURL=application.js.map

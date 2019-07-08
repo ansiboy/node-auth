@@ -29,11 +29,14 @@ let CurrentUserController = class CurrentUserController {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
                 throw errors_1.errors.argumentNull("userId");
-            let user = yield dc.users.findOne(userId, { relations: ["roles"] });
-            let roleIds = user.roles.map(o => o.id);
+            let user = yield dc.users.findOne(userId);
+            if (!user)
+                throw errors_1.errors.objectNotExistWithId(userId, "User");
+            if (!user.role_id)
+                return [];
             let roles = yield dc.roles.find({
                 relations: ['resources'],
-                where: dc.roles.createQueryBuilder().where("id in (...:roleIds)").setParameter("roleIds", roleIds),
+                where: dc.roles.createQueryBuilder().where("id = :roleId)").setParameter("roleId", user.role_id),
             });
             let r = [];
             roles.forEach(role => r.push(...role.resources));
