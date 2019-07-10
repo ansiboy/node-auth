@@ -1,60 +1,53 @@
-import { connect, execute, guid, connection, update, list } from "../database";
+import { execute, guid, connection } from "../database";
 import { errors } from "../errors";
-import * as db from 'maishu-mysql-helper'
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
-import { Resource } from "../entities";
+import { Resource, User } from "../entities";
 import { authDataContext, AuthDataContext } from "../dataContext";
-import { BaseController } from "./base-controller";
+import { actionPaths } from "../common";
+import { currentUser } from "../decorators";
 
 
 
 @controller("resource")
 export default class ResourceController {
 
-    @action()
-    async add(@connection conn: mysql.Connection, @formData { item }: { item: Resource }) {
+    @action(actionPaths.resource.add)
+    async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { item }: { item: Resource }): Promise<Partial<Resource>> {
         if (!item.name) throw errors.fieldNull('name', 'item')
 
         item.id = guid()
         item.create_date_time = new Date(Date.now())
 
         if (item.sort_number == null) {
-            let s = `select max(sort_number) as value from resource`
+            let r = await dc.resources.createQueryBuilder()
+                .select("max(sort_number) as max_sort_number").getRawOne();
 
-            let rows: any[]
-            if (item.type == null) {
-                s = s + ` where type is null`;
-                [rows] = await execute(conn, s)
-            }
-            else {
-                s = s + ` where type = ?`;
-                [rows] = await execute(conn, s, item.type)
-            }
-
-            console.log(rows)
-            let max_sort_number = rows.length == 0 ? 0 : rows[0].value
-            item.sort_number = max_sort_number + 10
+            item.sort_number = (r["max_sort_number"] || 0) + 100;
         }
 
-        if (item.data && typeof item.data == 'object')
-            item.data = JSON.stringify(item.data) as any
 
-        let sql = `insert into resource set ?`
-        await execute(conn, sql, item)
-        return { id: item.id }
+        await dc.resources.save(item);
+        await dc.roleResources.save({ role_id: user.role_id, resource_id: item.id });
+
+        return { id: item.id, create_date_time: item.create_date_time, sort_number: item.sort_number };
     }
 
-    @action()
-    async update(@connection conn: mysql.Connection, @formData { item }: { item: Resource }) {
+    @action(actionPaths.resource.update)
+    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.fieldNull('id', 'item')
 
-        await update(conn, 'resource', item)
+        // create_date_time type 不能更新
+        delete item.create_date_time;
+        delete item.type;
+
+        await dc.resources.save(item)
+
         return { id: item.id }
     }
 
-    @action()
+    @action(actionPaths.resource.remove)
     async remove(@connection conn: mysql.Connection, @formData { id }) {
         if (!id) throw errors.argumentNull('id')
 
@@ -62,24 +55,37 @@ export default class ResourceController {
         await execute(conn, sql, id)
     }
 
-    @action()
-    async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
-        args = args || {}
-        if (!args.sortExpression) {
-            args.sortExpression = 'sort_number asc'
+
+    @action(actionPaths.resource.list)
+    async list(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { parentId }: { parentId: string }): Promise<Resource[]> {
+        if (!user)
+            throw errors.argumentNull("user");
+
+        if (!user.role_id)
+            return [];
+
+        let roleResources = await dc.roleResources.find({ role_id: user.role_id });
+        if (roleResources.length == 0) {
+            return [];
         }
-        // let result = await list<Resource>(conn, 'resource', args)
-        // return result
-        let r = await BaseController.list(dc.resources, args);
-        return r;
+
+        let resourceIds = roleResources.map(o => o.resource_id);
+        let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
+        if (parentId) {
+            return resources.filter(o => o.parent_id == parentId);
+        }
+
+        return resources;
     }
 
-    @action()
+    @action(actionPaths.resource.item)
     async item(@authDataContext dc: AuthDataContext, @formData { id }) {
         if (!id) throw errors.fieldNull("id", "formData");
 
         let item = await dc.resources.findOne(id);
         return item;
     }
+
+
 
 }

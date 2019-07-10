@@ -66,6 +66,11 @@ export class Category implements Model {
     create_date_time: Date;
 }
 
+export type ButtonResourceData = {
+    position: "top" | "in-list",
+    code: string,
+}
+
 @Entity("resource")
 export class Resource implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
@@ -84,15 +89,18 @@ export class Resource implements Model {
     sort_number: number;
 
     @Column({ type: "varchar", length: 45 })
-    type: string;
+    type: "menu" | "control" | "module";
 
     @Column({ type: "datetime" })
     create_date_time: Date;
 
     @Column({ type: "json", nullable: true })
-    data?: any;
+    data?: ButtonResourceData;
 
-    @OneToMany(() => Path, path => path.resource, { cascade: true })
+    @Column({ type: "varchar", length: 200, nullable: true })
+    remark?: string;
+
+    @OneToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" })
     api_paths?: Path[];
 }
 
@@ -207,4 +215,13 @@ export class Path implements Model {
     @ManyToOne(() => Resource, resource => resource.api_paths)
     @JoinColumn({ name: "resource_id", referencedColumnName: "id" })
     resource?: Resource;
+}
+
+@Entity("role_resource", { synchronize: false })
+export class RoleResource {
+    @PrimaryColumn({ type: "char", length: 36 })
+    role_id: string;
+
+    @PrimaryColumn({ type: "char", length: 36 })
+    resource_id: string;
 }

@@ -4,12 +4,19 @@ import { Path } from "../entities";
 import { errors } from "../errors";
 import { guid } from "../database";
 import { remove } from "maishu-mysql-helper";
+import { actionPaths } from "../common";
 
 @controller("path")
 export class PathController {
-    @action()
-    async list(@authDataContext dc: AuthDataContext): Promise<Path[]> {
-        let items = await dc.paths.find();
+    @action(actionPaths.path.list)
+    async list(@authDataContext dc: AuthDataContext, @formData { resourceId }: { resourceId: string }): Promise<Path[]> {
+        let items: Path[];
+        if (resourceId) {
+            items = await dc.paths.find({ resource_id: resourceId });
+        }
+        else {
+            items = await dc.paths.find();
+        }
         return items;
     }
 
@@ -48,4 +55,5 @@ export class PathController {
         await dc.paths.delete({ id });
         return { id }
     }
+
 }

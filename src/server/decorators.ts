@@ -27,7 +27,7 @@ export let UserId = createParameterDecorator(async (req) => {
     }
 })
 
-export let user = createParameterDecorator(async (req) => {
+export let currentUser = createParameterDecorator(async (req) => {
     let formData = await getQueryObject(req);
     let tokenText = (req.headers['token'] as string) || formData["token"];
     if (!tokenText)

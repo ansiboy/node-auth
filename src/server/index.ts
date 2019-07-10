@@ -1,8 +1,9 @@
-import { startServer, Config } from 'maishu-node-mvc'
-import path = require('path')
+import { startServer, Config } from 'maishu-node-mvc';
+import path = require('path');
 import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
 import { initDatabase } from './dataContext';
+import { checkPath } from './filters/checkPath';
 
 interface Options {
     port: number,
@@ -26,6 +27,9 @@ export async function start(options: Options) {
             'Access-Control-Allow-Methods': '*',
             'Access-Control-Allow-Headers': '*'
         },
+        actionFilters: [
+            checkPath
+        ]
     })
-
 }
+

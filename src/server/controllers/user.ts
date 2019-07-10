@@ -6,7 +6,7 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
-import { UserId, user } from '../decorators';
+import { UserId, currentUser } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
 import { User, Resource } from '../entities';
 import LatestLoginController from './latest-login';
@@ -62,7 +62,6 @@ export default class UserController {
             throw errors.argumentNull('verifyCode');
 
         data = data || {}
-        // let user = await connect(async conn => {
 
         let sql = `select code from sms_record where id = ?`
         let [rows] = await execute(conn, sql, [smsId])
@@ -222,7 +221,7 @@ export default class UserController {
         // return r
     }
 
-    @action()
+    @action(actionPaths.user.login)
     async login(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData args: any): Promise<{ token: string, userId: string }> {
         args = args || {}
 
@@ -463,21 +462,7 @@ export default class UserController {
     /**
      * 获取当前用户所允许访问的资源列表
      */
-    @action("/current-user/resource/list", "resource/list")
-    async resourceList(@authDataContext dc: AuthDataContext, @user user: User): Promise<Resource[]> {
-        if (!user.role_id)
-            return [];
 
-        let roles = await dc.roles.find({
-            relations: ['resources'],
-            where: dc.roles.createQueryBuilder().where("id = :roleId)").setParameter("roleId", user.role_id),
-        })
-
-        let r: Resource[] = [];
-        roles.forEach(role => r.push(...role.resources));
-
-        return r;
-    }
 }
 
 

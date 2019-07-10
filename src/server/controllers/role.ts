@@ -3,7 +3,7 @@ import { errors } from "../errors";
 // import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 import { controller, action, formData } from "maishu-node-mvc";
 import * as mysql from 'mysql'
-import { UserId, ApplicationId, user } from "../decorators";
+import { UserId, ApplicationId, currentUser } from "../decorators";
 import { Role, User } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
 import { actionPaths } from "../common";
@@ -59,7 +59,7 @@ export default class RoleController {
     }
 
     @action(actionPaths.role.remove)
-    async remove(@authDataContext dc: AuthDataContext, @user user: User, @formData { id }): Promise<Partial<Role>> {
+    async remove(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { id }): Promise<Partial<Role>> {
         if (!id) throw errors.argumentNull('id');
 
         await dc.roles.delete({ id: id, parent_id: user.role_id })
