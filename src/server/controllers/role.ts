@@ -4,17 +4,17 @@ import { errors } from "../errors";
 import { controller, action, formData } from "maishu-node-mvc";
 import * as mysql from 'mysql'
 import { UserId, ApplicationId, currentUser } from "../decorators";
-import { Role, User } from "../entities";
+import { Role, User, RoleResource } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
 import { actionPaths } from "../common";
 
-type RoleResource = {
-    id: string,
-    resource_id: string,
-    role_id: string,
-    create_date_time: Date,
-    appliation_id: string,
-}
+// type RoleResource = {
+//     id: string,
+//     resource_id: string,
+//     role_id: string,
+//     create_date_time: Date,
+//     appliation_id: string,
+// }
 
 @controller("role")
 export default class RoleController {
@@ -100,57 +100,18 @@ export default class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    @action("setResources", "resource/set")
-    async setResources(@connection conn: mysql.Connection, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
-        // return connect(async conn => {
-        let sql = `select * from role_resource where role_id = ?`
-        let [rows] = await execute(conn, sql, roleId)
-        let roleResources: RoleResource[] = rows
-        let existsResourceIds = roleResources.map(o => o.resource_id)
+    @action(actionPaths.role.resource.set)
+    async setResources(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
 
-        let removeResourceIds = new Array<string>()
-        let addResourceIds = new Array<string>()
+        if (!roleId) throw errors.fieldNull("roleId", "formData");
+        if (!resourceIds) throw errors.fieldNull("resourceIds", "formData");
 
-        existsResourceIds.forEach(resource_id => {
-            if (resourceIds.indexOf(resource_id) < 0) {
-                removeResourceIds.push(resource_id)
-            }
-        })
-        resourceIds.forEach(resourceId => {
-            if (existsResourceIds.indexOf(resourceId) < 0)
-                addResourceIds.push(resourceId)
-        })
+        await dc.roleResources.delete({ role_id: roleId })
 
-        if (removeResourceIds.length > 0) {
-            sql = `delete from role_resource where role_id = ? and (`
-            for (let i = 0; i < removeResourceIds.length; i++) {
-                if (i == 0)
-                    sql = sql + `resource_id = ?`
-                else
-                    sql = sql + ` or resource_id = ?`
-            }
-
-            sql = sql + ')'
-            await execute(conn, sql, [roleId, ...removeResourceIds])
-        }
-
-        if (addResourceIds.length > 0) {
-            sql = `insert into role_resource (resource_id, role_id, create_date_time) values `
-            let values = new Array<any>()
-            for (let i = 0; i < addResourceIds.length; i++) {
-                if (i == 0) {
-                    sql = sql + '(?, ?, ?)'
-                }
-                else {
-                    sql = sql + ',(?, ?, ?)'
-                }
-                values.push(...[addResourceIds[i], roleId, new Date(Date.now())])
-            }
-            await execute(conn, sql, values)
-        }
+        let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o } as RoleResource))
+        await dc.roleResources.save(roleResources);
 
         return {}
-        // })
     }
 
     /**
@@ -158,7 +119,7 @@ export default class RoleController {
      * @param param0 
      * roleId: 角色编号 
      */
-    @action("resourceIds", "resource/ids")
+    @action(actionPaths.role.resource.ids)
     resourceIds(@formData { roleId }): Promise<string[]> {
         if (!roleId) throw errors.argumentNull('roleId')
         return connect(async conn => {

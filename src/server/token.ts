@@ -71,12 +71,6 @@ export class TokenManager {
         token.content_type = contentType;
         token.create_date_time = new Date(Date.now());
 
-
-        // return execute(conn => {
-        //     return query(conn, `insert into ${tableName} set ?`, token) as any;
-        // }).then(o => {
-        //     return token;
-        // });
         let dc = await createDataContext("token");
         try {
             await dc.tokens.save(token);
@@ -113,6 +107,16 @@ export class TokenManager {
         }
 
         return token;
+    }
+
+    static async remove(id: string) {
+        let dc = await createDataContext("token");
+        try {
+            await dc.tokens.delete({ id });
+        }
+        finally {
+            dc.dispose();
+        }
     }
 }
 

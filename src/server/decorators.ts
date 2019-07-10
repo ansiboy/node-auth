@@ -53,6 +53,12 @@ export let currentUser = createParameterDecorator(async (req) => {
     }
 })
 
+export let currentTokenId = createParameterDecorator(async (req) => {
+    let formData = await getQueryObject(req);
+    let tokenText = (req.headers['token'] as string) || formData["token"];
+    return tokenText;
+})
+
 export let ApplicationId = createParameterDecorator(async (req) => {
     let appId = req.headers['application-id']
     if (appId)

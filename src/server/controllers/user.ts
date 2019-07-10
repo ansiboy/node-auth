@@ -6,9 +6,9 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
-import { UserId, currentUser } from '../decorators';
+import { UserId, currentUser, currentTokenId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
-import { User, Resource } from '../entities';
+import { User, Resource, Token } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController } from './base-controller';
 import { actionPaths } from '../common';
@@ -199,22 +199,27 @@ export default class UserController {
         return { token: token.id, userId: user.id };
     }
 
-    private async loginByVerifyCode(@connection conn: mysql.Connection, @formData args: { mobile: string, smsId: string, verifyCode: string }) {
+    private async loginByVerifyCode(@authDataContext dc: AuthDataContext, @formData args: { mobile: string, smsId: string, verifyCode: string }) {
         let { mobile, smsId, verifyCode } = args
-        // let r = await connect(async conn => {
-        let sql = `select id form user where mobile = ?`
-        let [rows] = await execute(conn, sql, [args.mobile])
-        if (rows.length == 0) {
-            throw errors.mobileNotExists(mobile)
-        }
+        // let sql = `select id form user where mobile = ?`
+        // let [rows] = await execute(conn, sql, [args.mobile])
+        // if (rows.length == 0) {
+        //     throw errors.mobileNotExists(mobile)
+        // }
+        let user = await dc.users.findOne({ mobile });
+        if (user == null)
+            throw errors.mobileExists(mobile);
 
-        sql = `select code from sms_record where id = ?`;
-        [rows] = await execute(conn, sql, [smsId])
-        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-            throw errors.verifyCodeIncorrect(verifyCode)
-        }
+        // sql = `select code from sms_record where id = ?`;
+        // [rows] = await execute(conn, sql, [smsId])
+        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+        //     throw errors.verifyCodeIncorrect(verifyCode)
+        // }
+        let smsRecord = await dc.smsRecords.findOne(smsId);
+        if (smsRecord == null || smsRecord.code != verifyCode)
+            throw errors.verifyCodeIncorrect(verifyCode);
 
-        let user = rows[0]
+        // let user = rows[0]
         let token = await TokenManager.create({ user_id: user.id } as UserToken)
         return { token: token.id, userId: user.id }
         // })
@@ -222,7 +227,7 @@ export default class UserController {
     }
 
     @action(actionPaths.user.login)
-    async login(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData args: any): Promise<{ token: string, userId: string }> {
+    async login(@authDataContext dc: AuthDataContext, @formData args: any): Promise<{ token: string, userId: string }> {
         args = args || {}
 
         let p: { token: string, userId: string };
@@ -230,7 +235,7 @@ export default class UserController {
             p = await this.loginByOpenId(dc, args)
         }
         else if (args.smsId) {
-            p = await this.loginByVerifyCode(conn, args)
+            p = await this.loginByVerifyCode(dc, args)
         }
         else {
             p = await this.loginByUserName(dc, args)
@@ -249,12 +254,16 @@ export default class UserController {
         return p
     }
 
-    /** 获取登录用户的信息 */
-    @action()
-    async me(@UserId userId) {
-        if (!userId) throw errors.argumentNull('USER_ID')
+    @action(actionPaths.user.logout)
+    async logout(@authDataContext dc: AuthDataContext, @currentTokenId tokenId: string) {
+        await TokenManager.remove(tokenId);
+        return {};
+    }
 
-        return this.item({ userId: userId })
+    /** 获取登录用户的信息 */
+    @action(actionPaths.user.me)
+    async me(@currentUser user: User) {
+        return user;
     }
 
     /** 获取用户信息 */

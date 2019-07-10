@@ -57,7 +57,7 @@ export default class ResourceController {
 
 
     @action(actionPaths.resource.list)
-    async list(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { parentId }: { parentId: string }): Promise<Resource[]> {
+    async list(@authDataContext dc: AuthDataContext, @currentUser user: User): Promise<Resource[]> {
         if (!user)
             throw errors.argumentNull("user");
 
@@ -71,9 +71,6 @@ export default class ResourceController {
 
         let resourceIds = roleResources.map(o => o.resource_id);
         let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
-        if (parentId) {
-            return resources.filter(o => o.parent_id == parentId);
-        }
 
         return resources;
     }
