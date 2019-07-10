@@ -114,7 +114,11 @@ __decorate([
     __metadata("design:type", Object)
 ], Resource.prototype, "data", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Path, path => path.resource, { cascade: true }),
+    typeorm_1.Column({ type: "varchar", length: 200, nullable: true }),
+    __metadata("design:type", String)
+], Resource.prototype, "remark", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" }),
     __metadata("design:type", Array)
 ], Resource.prototype, "api_paths", void 0);
 Resource = __decorate([
@@ -283,4 +287,18 @@ Path = __decorate([
     typeorm_1.Entity("path")
 ], Path);
 exports.Path = Path;
+let RoleResource = class RoleResource {
+};
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], RoleResource.prototype, "role_id", void 0);
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], RoleResource.prototype, "resource_id", void 0);
+RoleResource = __decorate([
+    typeorm_1.Entity("role_resource", { synchronize: false })
+], RoleResource);
+exports.RoleResource = RoleResource;
 //# sourceMappingURL=entities.js.map

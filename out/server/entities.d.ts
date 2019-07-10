@@ -22,15 +22,20 @@ export declare class Category implements Model {
     name: string;
     create_date_time: Date;
 }
+export declare type ButtonResourceData = {
+    position: "top" | "in-list";
+    code: string;
+};
 export declare class Resource implements Model {
     id: string;
     name: string;
     page_path?: string;
     parent_id?: string;
     sort_number: number;
-    type: string;
+    type: "menu" | "control" | "module";
     create_date_time: Date;
-    data?: any;
+    data?: ButtonResourceData;
+    remark?: string;
     api_paths?: Path[];
 }
 export declare class Token {
@@ -75,5 +80,9 @@ export declare class Path implements Model {
     remark?: string;
     resource_id?: string;
     resource?: Resource;
+}
+export declare class RoleResource {
+    role_id: string;
+    resource_id: string;
 }
 export {};

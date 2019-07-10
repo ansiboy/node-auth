@@ -2,7 +2,7 @@ import * as db from 'maishu-mysql-helper';
 import { Application } from './application';
 import * as mysql from 'mysql';
 import { AuthDataContext } from '../dataContext';
-import { User, Resource } from '../entities';
+import { User } from '../entities';
 export default class UserController {
     /** 手机是否已注册 */
     isMobileRegister(dc: AuthDataContext, { mobile }: {
@@ -49,12 +49,13 @@ export default class UserController {
     }>;
     private loginByOpenId;
     private loginByVerifyCode;
-    login(dc: AuthDataContext, conn: mysql.Connection, args: any): Promise<{
+    login(dc: AuthDataContext, args: any): Promise<{
         token: string;
         userId: string;
     }>;
+    logout(dc: AuthDataContext, tokenId: string): Promise<{}>;
     /** 获取登录用户的信息 */
-    me(userId: any): Promise<User>;
+    me(user: User): Promise<User>;
     /** 获取用户信息 */
     item({ userId }: {
         userId: string;
@@ -101,10 +102,6 @@ export default class UserController {
     UserLatestLogin(dc: AuthDataContext, { userIds }: {
         userIds: string[];
     }): Promise<import("../entities").UserLatestLogin[]>;
-    /**
-     * 获取当前用户所允许访问的资源列表
-     */
-    resourceList(dc: AuthDataContext, user: User): Promise<Resource[]>;
 }
 declare module Args {
     type addUser = {

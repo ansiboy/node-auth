@@ -7,6 +7,9 @@ export declare let actionPaths: {
         add: string;
         update: string;
         list: string;
+        login: string;
+        me: string;
+        logout: string;
     };
     role: {
         add: string;
@@ -14,6 +17,10 @@ export declare let actionPaths: {
         remove: string;
         list: string;
         item: string;
+        resource: {
+            ids: string;
+            set: string;
+        };
     };
     menu: {
         add: string;
@@ -26,5 +33,15 @@ export declare let actionPaths: {
         add: string;
         list: string;
     };
-    path: {};
+    path: {
+        list: string;
+    };
+    resource: {
+        add: string;
+        list: string;
+        listByRoleId: string;
+        item: string;
+        remove: string;
+        update: string;
+    };
 };

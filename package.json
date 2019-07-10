@@ -28,7 +28,7 @@
         "is-class": "0.0.5",
         "maishu-chitu-admin": "^2.14.0",
         "maishu-mysql-helper": "^1.1.0",
-        "maishu-node-mvc": "^1.6.8",
+        "maishu-node-mvc": "^1.6.13",
         "memory-cache": "^0.2.0",
         "mysql": "^2.15.0",
         "qcloudsms_js": "^0.1.1",

@@ -1,14 +1,11 @@
-import * as db from 'maishu-mysql-helper';
 import * as mysql from 'mysql';
-import { Resource } from "../entities";
+import { Resource, User } from "../entities";
 import { AuthDataContext } from "../dataContext";
 export default class ResourceController {
-    add(conn: mysql.Connection, { item }: {
+    add(dc: AuthDataContext, user: User, { item }: {
         item: Resource;
-    }): Promise<{
-        id: string;
-    }>;
-    update(conn: mysql.Connection, { item }: {
+    }): Promise<Partial<Resource>>;
+    update(dc: AuthDataContext, { item }: {
         item: Resource;
     }): Promise<{
         id: string;
@@ -16,9 +13,7 @@ export default class ResourceController {
     remove(conn: mysql.Connection, { id }: {
         id: any;
     }): Promise<void>;
-    list(dc: AuthDataContext, { args }: {
-        args: db.SelectArguments;
-    }): Promise<db.SelectResult<Resource>>;
+    list(dc: AuthDataContext, user: User): Promise<Resource[]>;
     item(dc: AuthDataContext, { id }: {
         id: any;
     }): Promise<Resource>;

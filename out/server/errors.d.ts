@@ -1,4 +1,7 @@
-export declare let names: {
+export declare let errorStatusCodes: {
+    noPermission: number;
+};
+export declare let errorNames: {
     ActionNotExists: string;
     AdminNotExists: string;
     ApplicationExists: string;
@@ -26,6 +29,7 @@ export declare let names: {
     CanntGetRedirectUrl: string;
     userTokenNotExists: string;
     appTokenNotExists: string;
+    noPermission: string;
     forbidden: string;
 };
 interface MyError extends Error {

@@ -9,14 +9,23 @@ exports.actionPaths = {
     user: {
         add: `${basePath}/user/add`,
         update: `${basePath}/user/update`,
-        list: `${basePath}/user/list`
+        list: `${basePath}/user/list`,
+        login: `${basePath}/user/login`,
+        me: `${basePath}/user/me`,
+        logout: `${basePath}/user/logout`,
     },
     role: {
         add: `${basePath}/role/add`,
         update: `${basePath}/role/update`,
         remove: `${basePath}/role/remove`,
         list: `${basePath}/role/list`,
-        item: `${basePath}/role/item`
+        item: `${basePath}/role/item`,
+        // resourceIds: `${basePath}/role/resource/ids`,
+        // setResource: `${basePath}/role/resource/set`,
+        resource: {
+            ids: `${basePath}/role/resource/ids`,
+            set: `${basePath}/role/resource/set`,
+        }
     },
     menu: {
         add: `${basePath}/menu/add`,
@@ -29,6 +38,16 @@ exports.actionPaths = {
         add: `${basePath}/token/add`,
         list: `${basePath}/token/list`,
     },
-    path: {}
+    path: {
+        list: `${basePath}/path/list`
+    },
+    resource: {
+        add: `${basePath}/resource/add`,
+        list: `${basePath}/resource/list`,
+        listByRoleId: `${basePath}/resource/listByRoleId`,
+        item: `${basePath}/resource/item`,
+        remove: `${basePath}/resource/remove`,
+        update: `${basePath}/resource/update`,
+    },
 };
 //# sourceMappingURL=common.js.map

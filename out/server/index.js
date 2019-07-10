@@ -12,6 +12,7 @@ const maishu_node_mvc_1 = require("maishu-node-mvc");
 const path = require("path");
 const settings_1 = require("./settings");
 const dataContext_1 = require("./dataContext");
+const checkPath_1 = require("./filters/checkPath");
 function start(options) {
     return __awaiter(this, void 0, void 0, function* () {
         settings_1.setConnection(options.db);
@@ -26,6 +27,9 @@ function start(options) {
                 'Access-Control-Allow-Methods': '*',
                 'Access-Control-Allow-Headers': '*'
             },
+            actionFilters: [
+                checkPath_1.checkPath
+            ]
         });
     });
 }

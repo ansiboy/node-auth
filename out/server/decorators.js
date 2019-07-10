@@ -32,7 +32,7 @@ exports.UserId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(t
         return null;
     }
 }));
-exports.user = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
+exports.currentUser = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
     let formData = yield getQueryObject(req);
     let tokenText = req.headers['token'] || formData["token"];
     if (!tokenText)
@@ -53,6 +53,11 @@ exports.user = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(thi
         console.error(err);
         return null;
     }
+}));
+exports.currentTokenId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
+    let formData = yield getQueryObject(req);
+    let tokenText = req.headers['token'] || formData["token"];
+    return tokenText;
 }));
 exports.ApplicationId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
     let appId = req.headers['application-id'];

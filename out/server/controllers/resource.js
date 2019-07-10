@@ -24,44 +24,37 @@ const database_1 = require("../database");
 const errors_1 = require("../errors");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
+const entities_1 = require("../entities");
 const dataContext_1 = require("../dataContext");
-const base_controller_1 = require("./base-controller");
+const common_1 = require("../common");
+const decorators_1 = require("../decorators");
 let ResourceController = class ResourceController {
-    add(conn, { item }) {
+    add(dc, user, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!item.name)
                 throw errors_1.errors.fieldNull('name', 'item');
             item.id = database_1.guid();
             item.create_date_time = new Date(Date.now());
             if (item.sort_number == null) {
-                let s = `select max(sort_number) as value from resource`;
-                let rows;
-                if (item.type == null) {
-                    s = s + ` where type is null`;
-                    [rows] = yield database_1.execute(conn, s);
-                }
-                else {
-                    s = s + ` where type = ?`;
-                    [rows] = yield database_1.execute(conn, s, item.type);
-                }
-                console.log(rows);
-                let max_sort_number = rows.length == 0 ? 0 : rows[0].value;
-                item.sort_number = max_sort_number + 10;
+                let r = yield dc.resources.createQueryBuilder()
+                    .select("max(sort_number) as max_sort_number").getRawOne();
+                item.sort_number = (r["max_sort_number"] || 0) + 100;
             }
-            if (item.data && typeof item.data == 'object')
-                item.data = JSON.stringify(item.data);
-            let sql = `insert into resource set ?`;
-            yield database_1.execute(conn, sql, item);
-            return { id: item.id };
+            yield dc.resources.save(item);
+            yield dc.roleResources.save({ role_id: user.role_id, resource_id: item.id });
+            return { id: item.id, create_date_time: item.create_date_time, sort_number: item.sort_number };
         });
     }
-    update(conn, { item }) {
+    update(dc, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!item)
                 throw errors_1.errors.argumentNull('item');
             if (!item.id)
                 throw errors_1.errors.fieldNull('id', 'item');
-            yield database_1.update(conn, 'resource', item);
+            // create_date_time type 不能更新
+            delete item.create_date_time;
+            delete item.type;
+            yield dc.resources.save(item);
             return { id: item.id };
         });
     }
@@ -73,16 +66,19 @@ let ResourceController = class ResourceController {
             yield database_1.execute(conn, sql, id);
         });
     }
-    list(dc, { args }) {
+    list(dc, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            args = args || {};
-            if (!args.sortExpression) {
-                args.sortExpression = 'sort_number asc';
+            if (!user)
+                throw errors_1.errors.argumentNull("user");
+            if (!user.role_id)
+                return [];
+            let roleResources = yield dc.roleResources.find({ role_id: user.role_id });
+            if (roleResources.length == 0) {
+                return [];
             }
-            // let result = await list<Resource>(conn, 'resource', args)
-            // return result
-            let r = yield base_controller_1.BaseController.list(dc.resources, args);
-            return r;
+            let resourceIds = roleResources.map(o => o.resource_id);
+            let resources = yield dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
+            return resources;
         });
     }
     item(dc, { id }) {
@@ -95,35 +91,35 @@ let ResourceController = class ResourceController {
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.add),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "add", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.update),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "update", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.remove),
     __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "remove", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.list),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "list", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.item),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),

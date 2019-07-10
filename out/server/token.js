@@ -63,11 +63,6 @@ class TokenManager {
             token.content = content;
             token.content_type = contentType;
             token.create_date_time = new Date(Date.now());
-            // return execute(conn => {
-            //     return query(conn, `insert into ${tableName} set ?`, token) as any;
-            // }).then(o => {
-            //     return token;
-            // });
             let dc = yield dataContext_1.createDataContext("token");
             try {
                 yield dc.tokens.save(token);
@@ -100,6 +95,17 @@ class TokenManager {
                 }
             }
             return token;
+        });
+    }
+    static remove(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dc = yield dataContext_1.createDataContext("token");
+            try {
+                yield dc.tokens.delete({ id });
+            }
+            finally {
+                dc.dispose();
+            }
         });
     }
 }

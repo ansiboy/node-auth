@@ -24,10 +24,17 @@ const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
 const errors_1 = require("../errors");
 const database_1 = require("../database");
+const common_1 = require("../common");
 let PathController = class PathController {
-    list(dc) {
+    list(dc, { resourceId }) {
         return __awaiter(this, void 0, void 0, function* () {
-            let items = yield dc.paths.find();
+            let items;
+            if (resourceId) {
+                items = yield dc.paths.find({ resource_id: resourceId });
+            }
+            else {
+                items = yield dc.paths.find();
+            }
             return items;
         });
     }
@@ -67,10 +74,10 @@ let PathController = class PathController {
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext),
+    maishu_node_mvc_1.action(common_1.actionPaths.path.list),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], PathController.prototype, "list", null);
 __decorate([

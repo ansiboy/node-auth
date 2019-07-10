@@ -1,7 +1,9 @@
 import { AuthDataContext } from "../dataContext";
 import { Path } from "../entities";
 export declare class PathController {
-    list(dc: AuthDataContext): Promise<Path[]>;
+    list(dc: AuthDataContext, { resourceId }: {
+        resourceId: string;
+    }): Promise<Path[]>;
     add(dc: AuthDataContext, { item }: {
         item: Path;
     }): Promise<Partial<Path>>;

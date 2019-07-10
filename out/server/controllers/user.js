@@ -76,7 +76,6 @@ let UserController = class UserController {
             if (verifyCode == null)
                 throw errors_1.errors.argumentNull('verifyCode');
             data = data || {};
-            // let user = await connect(async conn => {
             let sql = `select code from sms_record where id = ?`;
             let [rows] = yield database_1.execute(conn, sql, [smsId]);
             if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
@@ -194,28 +193,33 @@ let UserController = class UserController {
             return { token: token.id, userId: user.id };
         });
     }
-    loginByVerifyCode(conn, args) {
+    loginByVerifyCode(dc, args) {
         return __awaiter(this, void 0, void 0, function* () {
             let { mobile, smsId, verifyCode } = args;
-            // let r = await connect(async conn => {
-            let sql = `select id form user where mobile = ?`;
-            let [rows] = yield database_1.execute(conn, sql, [args.mobile]);
-            if (rows.length == 0) {
-                throw errors_1.errors.mobileNotExists(mobile);
-            }
-            sql = `select code from sms_record where id = ?`;
-            [rows] = yield database_1.execute(conn, sql, [smsId]);
-            if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            // let sql = `select id form user where mobile = ?`
+            // let [rows] = await execute(conn, sql, [args.mobile])
+            // if (rows.length == 0) {
+            //     throw errors.mobileNotExists(mobile)
+            // }
+            let user = yield dc.users.findOne({ mobile });
+            if (user == null)
+                throw errors_1.errors.mobileExists(mobile);
+            // sql = `select code from sms_record where id = ?`;
+            // [rows] = await execute(conn, sql, [smsId])
+            // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+            //     throw errors.verifyCodeIncorrect(verifyCode)
+            // }
+            let smsRecord = yield dc.smsRecords.findOne(smsId);
+            if (smsRecord == null || smsRecord.code != verifyCode)
                 throw errors_1.errors.verifyCodeIncorrect(verifyCode);
-            }
-            let user = rows[0];
+            // let user = rows[0]
             let token = yield token_1.TokenManager.create({ user_id: user.id });
             return { token: token.id, userId: user.id };
             // })
             // return r
         });
     }
-    login(dc, conn, args) {
+    login(dc, args) {
         return __awaiter(this, void 0, void 0, function* () {
             args = args || {};
             let p;
@@ -223,7 +227,7 @@ let UserController = class UserController {
                 p = yield this.loginByOpenId(dc, args);
             }
             else if (args.smsId) {
-                p = yield this.loginByVerifyCode(conn, args);
+                p = yield this.loginByVerifyCode(dc, args);
             }
             else {
                 p = yield this.loginByUserName(dc, args);
@@ -239,12 +243,16 @@ let UserController = class UserController {
             return p;
         });
     }
-    /** 获取登录用户的信息 */
-    me(userId) {
+    logout(dc, tokenId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!userId)
-                throw errors_1.errors.argumentNull('USER_ID');
-            return this.item({ userId: userId });
+            yield token_1.TokenManager.remove(tokenId);
+            return {};
+        });
+    }
+    /** 获取登录用户的信息 */
+    me(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return user;
         });
     }
     /** 获取用户信息 */
@@ -431,22 +439,6 @@ let UserController = class UserController {
             return items;
         });
     }
-    /**
-     * 获取当前用户所允许访问的资源列表
-     */
-    resourceList(dc, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!user.role_id)
-                return [];
-            let roles = yield dc.roles.find({
-                relations: ['resources'],
-                where: dc.roles.createQueryBuilder().where("id = :roleId)").setParameter("roleId", user.role_id),
-            });
-            let r = [];
-            roles.forEach(role => r.push(...role.resources));
-            return r;
-        });
-    }
 };
 __decorate([
     maishu_node_mvc_1.action(),
@@ -492,23 +484,30 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetMobile", null);
 __decorate([
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "loginByVerifyCode", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.login),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "login", null);
 __decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, decorators_1.UserId),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.logout),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentTokenId),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "logout", null);
+__decorate([
+    maishu_node_mvc_1.action(common_1.actionPaths.user.me),
+    __param(0, decorators_1.currentUser),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [entities_1.User]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "me", null);
 __decorate([
@@ -581,13 +580,6 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "UserLatestLogin", null);
-__decorate([
-    maishu_node_mvc_1.action("/current-user/resource/list", "resource/list"),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.user),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "resourceList", null);
 UserController = __decorate([
     maishu_node_mvc_1.controller('/user')
 ], UserController);

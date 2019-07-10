@@ -11,4 +11,5 @@ export declare class TokenManager {
      * @tokenValue 令牌字符串
      */
     static parse(tokenValue: string): Promise<Token>;
+    static remove(id: string): Promise<void>;
 }

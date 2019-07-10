@@ -29,6 +29,13 @@ const decorators_1 = require("../decorators");
 const entities_1 = require("../entities");
 const dataContext_1 = require("../dataContext");
 const common_1 = require("../common");
+// type RoleResource = {
+//     id: string,
+//     resource_id: string,
+//     role_id: string,
+//     create_date_time: Date,
+//     appliation_id: string,
+// }
 let RoleController = class RoleController {
     add(dc, userId, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -106,51 +113,16 @@ let RoleController = class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    setResources(conn, { roleId, resourceIds }) {
+    setResources(dc, conn, { roleId, resourceIds }) {
         return __awaiter(this, void 0, void 0, function* () {
-            // return connect(async conn => {
-            let sql = `select * from role_resource where role_id = ?`;
-            let [rows] = yield database_1.execute(conn, sql, roleId);
-            let roleResources = rows;
-            let existsResourceIds = roleResources.map(o => o.resource_id);
-            let removeResourceIds = new Array();
-            let addResourceIds = new Array();
-            existsResourceIds.forEach(resource_id => {
-                if (resourceIds.indexOf(resource_id) < 0) {
-                    removeResourceIds.push(resource_id);
-                }
-            });
-            resourceIds.forEach(resourceId => {
-                if (existsResourceIds.indexOf(resourceId) < 0)
-                    addResourceIds.push(resourceId);
-            });
-            if (removeResourceIds.length > 0) {
-                sql = `delete from role_resource where role_id = ? and (`;
-                for (let i = 0; i < removeResourceIds.length; i++) {
-                    if (i == 0)
-                        sql = sql + `resource_id = ?`;
-                    else
-                        sql = sql + ` or resource_id = ?`;
-                }
-                sql = sql + ')';
-                yield database_1.execute(conn, sql, [roleId, ...removeResourceIds]);
-            }
-            if (addResourceIds.length > 0) {
-                sql = `insert into role_resource (resource_id, role_id, create_date_time) values `;
-                let values = new Array();
-                for (let i = 0; i < addResourceIds.length; i++) {
-                    if (i == 0) {
-                        sql = sql + '(?, ?, ?)';
-                    }
-                    else {
-                        sql = sql + ',(?, ?, ?)';
-                    }
-                    values.push(...[addResourceIds[i], roleId, new Date(Date.now())]);
-                }
-                yield database_1.execute(conn, sql, values);
-            }
+            if (!roleId)
+                throw errors_1.errors.fieldNull("roleId", "formData");
+            if (!resourceIds)
+                throw errors_1.errors.fieldNull("resourceIds", "formData");
+            yield dc.roleResources.delete({ role_id: roleId });
+            let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o }));
+            yield dc.roleResources.save(roleResources);
             return {};
-            // })
         });
     }
     /**
@@ -205,7 +177,7 @@ __decorate([
 ], RoleController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.remove),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.user), __param(2, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User, Object]),
     __metadata("design:returntype", Promise)
@@ -225,14 +197,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "get", null);
 __decorate([
-    maishu_node_mvc_1.action("setResources", "resource/set"),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.resource.set),
+    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "setResources", null);
 __decorate([
-    maishu_node_mvc_1.action("resourceIds", "resource/ids"),
+    maishu_node_mvc_1.action(common_1.actionPaths.role.resource.ids),
     __param(0, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
