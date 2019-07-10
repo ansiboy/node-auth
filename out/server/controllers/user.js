@@ -462,7 +462,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isEmailRegister", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.register),
     __param(0, database_1.connection),
     __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
@@ -470,7 +470,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "register", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.resetPassword),
     __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

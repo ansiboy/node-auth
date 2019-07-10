@@ -29,7 +29,7 @@ export default class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    setResources(dc: AuthDataContext, conn: mysql.Connection, { roleId, resourceIds }: {
+    setResources(dc: AuthDataContext, { roleId, resourceIds }: {
         roleId: string;
         resourceIds: string[];
     }): Promise<{}>;

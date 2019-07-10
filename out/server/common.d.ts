@@ -10,6 +10,8 @@ export declare let actionPaths: {
         login: string;
         me: string;
         logout: string;
+        register: string;
+        resetPassword: string;
     };
     role: {
         add: string;

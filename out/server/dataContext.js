@@ -119,7 +119,6 @@ function initUserTable(dc) {
             user_name: "admin",
             create_date_time: new Date(Date.now()),
             is_system: true,
-            // roles: [adminRole]
             role_id: adminRole.id
         };
         yield dc.users.save(admin);
@@ -173,7 +172,9 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             type: "module",
             parent_id: baseModuleResource.id,
-            api_paths: []
+            api_paths: [
+                { id: database_1.guid(), value: common_1.actionPaths.user.register, create_date_time: new Date(Date.now()) }
+            ]
         };
         yield dc.resources.save(registerResource);
         let forgetResource = {
@@ -183,7 +184,9 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             type: "module",
             parent_id: baseModuleResource.id,
-            api_paths: []
+            api_paths: [
+                { id: database_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
+            ]
         };
         yield dc.resources.save(forgetResource);
         // 基本功能 结束

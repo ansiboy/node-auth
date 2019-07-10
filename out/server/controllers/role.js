@@ -113,7 +113,7 @@ let RoleController = class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    setResources(dc, conn, { roleId, resourceIds }) {
+    setResources(dc, { roleId, resourceIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!roleId)
                 throw errors_1.errors.fieldNull("roleId", "formData");
@@ -198,9 +198,9 @@ __decorate([
 ], RoleController.prototype, "get", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.resource.set),
-    __param(0, dataContext_1.authDataContext), __param(1, database_1.connection), __param(2, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "setResources", null);
 __decorate([
