@@ -101,7 +101,7 @@ export default class RoleController {
      * appId 应用 ID
      */
     @action(actionPaths.role.resource.set)
-    async setResources(@authDataContext dc: AuthDataContext, @connection conn: mysql.Connection, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
+    async setResources(@authDataContext dc: AuthDataContext, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
 
         if (!roleId) throw errors.fieldNull("roleId", "formData");
         if (!resourceIds) throw errors.fieldNull("resourceIds", "formData");
