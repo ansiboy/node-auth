@@ -129,7 +129,6 @@ async function initUserTable(dc: AuthDataContext) {
         user_name: "admin",
         create_date_time: new Date(Date.now()),
         is_system: true,
-        // roles: [adminRole]
         role_id: adminRole.id
     }
 
@@ -193,6 +192,7 @@ async function initResource(dc: AuthDataContext) {
         type: "module",
         parent_id: baseModuleResource.id,
         api_paths: [
+            { id: guid(), value: actionPaths.user.register, create_date_time: new Date(Date.now()) }
         ]
     }
 
@@ -206,6 +206,7 @@ async function initResource(dc: AuthDataContext) {
         type: "module",
         parent_id: baseModuleResource.id,
         api_paths: [
+            { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
         ]
     }
 

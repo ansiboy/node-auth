@@ -13,6 +13,8 @@ export let actionPaths = {
         login: `${basePath}/user/login`,
         me: `${basePath}/user/me`,
         logout: `${basePath}/user/logout`,
+        register: `${basePath}/user/register`,
+        resetPassword: `${basePath}/user/resetPassword`
     },
     role: {
         add: `${basePath}/role/add`,

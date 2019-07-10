@@ -46,7 +46,7 @@ export default class UserController {
         return user != null;
     }
 
-    @action()
+    @action(actionPaths.user.register)
     async register(@connection conn: mysql.Connection,
         @formData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
@@ -83,7 +83,7 @@ export default class UserController {
         return { token: token.id, userId: user.id };
     }
 
-    @action()
+    @action(actionPaths.user.resetPassword)
     async resetPassword(@connection conn: mysql.Connection, @formData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
