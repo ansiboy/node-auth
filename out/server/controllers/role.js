@@ -24,7 +24,6 @@ const database_1 = require("../database");
 const errors_1 = require("../errors");
 // import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 const maishu_node_mvc_1 = require("maishu-node-mvc");
-const mysql = require("mysql");
 const decorators_1 = require("../decorators");
 const entities_1 = require("../entities");
 const dataContext_1 = require("../dataContext");
@@ -139,27 +138,6 @@ let RoleController = class RoleController {
             return rows.map(o => o.resource_id);
         }));
     }
-    /**
-     * 获取用户角色编号
-     */
-    userRoles(conn, { userIds }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (userIds == null)
-                throw errors_1.errors.argumentNull('userIds');
-            if (conn == null)
-                throw errors_1.errors.argumentNull('conn');
-            let items = {};
-            if (userIds.length > 0) {
-                let str = userIds.map(o => `"${o}"`).join(',');
-                let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (${str})`;
-                let rows = yield database_1.executeSQL(conn, sql, null);
-                for (let i = 0; i < userIds.length; i++) {
-                    items[userIds[i]] = rows.filter(o => o.user_id == userIds[i]);
-                }
-            }
-            return items;
-        });
-    }
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.add),
@@ -210,13 +188,6 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "resourceIds", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], RoleController.prototype, "userRoles", null);
 RoleController = __decorate([
     maishu_node_mvc_1.controller("role")
 ], RoleController);

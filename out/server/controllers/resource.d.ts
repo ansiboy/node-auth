@@ -1,4 +1,3 @@
-import * as mysql from 'mysql';
 import { Resource, User } from "../entities";
 import { AuthDataContext } from "../dataContext";
 export default class ResourceController {
@@ -10,9 +9,11 @@ export default class ResourceController {
     }): Promise<{
         id: string;
     }>;
-    remove(conn: mysql.Connection, { id }: {
+    remove(dc: AuthDataContext, { id }: {
         id: any;
-    }): Promise<void>;
+    }): Promise<{
+        id: any;
+    }>;
     list(dc: AuthDataContext, user: User): Promise<Resource[]>;
     item(dc: AuthDataContext, { id }: {
         id: any;

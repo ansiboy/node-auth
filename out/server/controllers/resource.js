@@ -23,7 +23,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("../database");
 const errors_1 = require("../errors");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
-const mysql = require("mysql");
 const entities_1 = require("../entities");
 const dataContext_1 = require("../dataContext");
 const common_1 = require("../common");
@@ -58,12 +57,12 @@ let ResourceController = class ResourceController {
             return { id: item.id };
         });
     }
-    remove(conn, { id }) {
+    remove(dc, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!id)
-                throw errors_1.errors.argumentNull('id');
-            let sql = `delete from resource where id = ?`;
-            yield database_1.execute(conn, sql, id);
+                throw errors_1.errors.argumentFieldNull('id', "formData");
+            yield dc.resources.delete(id);
+            return { id };
         });
     }
     list(dc, user) {
@@ -106,9 +105,9 @@ __decorate([
 ], ResourceController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.remove),
-    __param(0, database_1.connection), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "remove", null);
 __decorate([

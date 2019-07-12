@@ -1,4 +1,3 @@
-import * as mysql from 'mysql';
 import { Role, User } from "../entities";
 import { AuthDataContext } from "../dataContext";
 export default class RoleController {
@@ -41,12 +40,4 @@ export default class RoleController {
     resourceIds({ roleId }: {
         roleId: any;
     }): Promise<string[]>;
-    /**
-     * 获取用户角色编号
-     */
-    userRoles(conn: mysql.Connection, { userIds }: {
-        userIds: string[];
-    }): Promise<{
-        [key: string]: Role[];
-    }>;
 }

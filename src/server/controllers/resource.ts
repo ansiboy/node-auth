@@ -48,11 +48,11 @@ export default class ResourceController {
     }
 
     @action(actionPaths.resource.remove)
-    async remove(@connection conn: mysql.Connection, @formData { id }) {
-        if (!id) throw errors.argumentNull('id')
+    async remove(@authDataContext dc: AuthDataContext, @formData { id }) {
+        if (!id) throw errors.argumentFieldNull('id', "formData");
 
-        let sql = `delete from resource where id = ?`;
-        await execute(conn, sql, id)
+        await dc.resources.delete(id);
+        return { id };
     }
 
 
@@ -82,7 +82,4 @@ export default class ResourceController {
         let item = await dc.resources.findOne(id);
         return item;
     }
-
-
-
 }

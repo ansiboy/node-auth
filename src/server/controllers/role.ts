@@ -128,29 +128,4 @@ export default class RoleController {
             return rows.map(o => o.resource_id)
         })
     }
-
-
-    /**
-     * 获取用户角色编号
-     */
-    @action()
-    async userRoles(@connection conn: mysql.Connection, @formData { userIds }: { userIds: string[] }) {
-        if (userIds == null)
-            throw errors.argumentNull('userIds');
-        if (conn == null)
-            throw errors.argumentNull('conn');
-
-        let items: { [key: string]: Role[] } = {}
-
-        if (userIds.length > 0) {
-            let str = userIds.map(o => `"${o}"`).join(',');
-            let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (${str})`;
-            let rows = await executeSQL(conn, sql, null) as any[];
-            for (let i = 0; i < userIds.length; i++) {
-                items[userIds[i]] = rows.filter(o => o.user_id == userIds[i])
-            }
-        }
-
-        return items;
-    }
 }
