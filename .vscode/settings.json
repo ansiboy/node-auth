@@ -5,7 +5,9 @@
         "*.doc": true,
         "**/*.intellisense.js": true,
         ".tscache": true,
-        "**/.baseDir.*": true
+        "**/.baseDir.*": true,
+        "src/**/*.map": true,
+        "src/**/*.d.ts": true
         //"src/**/typings":true
     }
 }

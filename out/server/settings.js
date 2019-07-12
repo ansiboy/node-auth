@@ -25,8 +25,14 @@ const USER_TOKEN = 'token';
 const STORE_KEY = 'store-key';
 exports.allowHeaders = `${APP_KEY}, ${USER_TOKEN}, ${STORE_KEY}, content-type`;
 exports.conn = {
-    auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 },
+    // auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 } as ConnectionConfig,
+    auth: null,
 };
+function setConnection(value) {
+    exports.conn.auth = value;
+    exports.conn.auth['user'] = exports.conn.auth.user;
+}
+exports.setConnection = setConnection;
 exports.port = 2856;
 exports.redirectInfos = {
     pathInfos: [

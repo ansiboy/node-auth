@@ -2,8 +2,13 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
+import { guid } from './database';
+import { createDataContext } from './dataContext';
+import { Token } from './entities';
 
 const tableName = 'token';
+
+type MyToken = Token & { cacheDateTime?: number };
 
 function mongoObjectId(): string {
     var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
@@ -43,12 +48,12 @@ function query(conn: mysql.Connection, sql: string, value?: any): Promise<[any[]
 /**
  * 用于解释和生成 token 。
  */
-export class Token {
-    id?: string;
-    content: string;
-    contentType: string;
-    createDateTime: Date;
-    cacheDateTime: number;
+export class TokenManager {
+    // id?: string;
+    // content: string;
+    // contentType: string;
+    // createDateTime: Date;
+    // cacheDateTime: number;
 
     //application/json")
     static async create(content: object): Promise<Token>
@@ -61,17 +66,19 @@ export class Token {
             contentType = 'application/json'
         }
 
-        token.id = mongoObjectId();
+        token.id = guid();
         token.content = content;
-        token.contentType = contentType;
-        token.createDateTime = new Date(Date.now());
+        token.content_type = contentType;
+        token.create_date_time = new Date(Date.now());
 
-
-        return execute(conn => {
-            return query(conn, `insert into ${tableName} set ?`, token) as any;
-        }).then(o => {
+        let dc = await createDataContext("token");
+        try {
+            await dc.tokens.save(token);
             return token;
-        });
+        }
+        finally {
+            dc.dispose();
+        }
     }
 
     /**
@@ -84,10 +91,7 @@ export class Token {
         if (!tokenValue)
             return Promise.reject(errors.argumentNull('tokenValue'));
 
-        if (tokenValue.length != 24)
-            return Promise.reject(errors.invalidObjectId(tokenValue));
-
-        let token: Token = cache.get(tokenValue);
+        let token: MyToken = cache.get(tokenValue);
 
         if (token == null) {
             token = await execute(async (conn) => {
@@ -104,13 +108,23 @@ export class Token {
 
         return token;
     }
+
+    static async remove(id: string) {
+        let dc = await createDataContext("token");
+        try {
+            await dc.tokens.delete({ id });
+        }
+        finally {
+            dc.dispose();
+        }
+    }
 }
 
 setInterval(() => {
 
     let keys = cache.keys() || [];
     for (let i = 0; i < keys.length; i++) {
-        let token: Token = cache.get(keys[i]);
+        let token: MyToken = cache.get(keys[i]);
         if (token == null) {
             cache.del(keys[i]);
             continue;

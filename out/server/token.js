@@ -12,6 +12,9 @@ const errors_1 = require("./errors");
 const settings = require("./settings");
 const mysql = require("mysql");
 const cache = require("memory-cache");
+const database_1 = require("./database");
+const dataContext_1 = require("./dataContext");
+const entities_1 = require("./entities");
 const tableName = 'token';
 function mongoObjectId() {
     var timestamp = (new Date().getTime() / 1000 | 0).toString(16);
@@ -48,23 +51,26 @@ function query(conn, sql, value) {
 /**
  * 用于解释和生成 token 。
  */
-class Token {
+class TokenManager {
     static create(content, contentType) {
         return __awaiter(this, void 0, void 0, function* () {
-            let token = new Token();
+            let token = new entities_1.Token();
             if (typeof content == 'object') {
                 content = JSON.stringify(content);
                 contentType = 'application/json';
             }
-            token.id = mongoObjectId();
+            token.id = database_1.guid();
             token.content = content;
-            token.contentType = contentType;
-            token.createDateTime = new Date(Date.now());
-            return execute(conn => {
-                return query(conn, `insert into ${tableName} set ?`, token);
-            }).then(o => {
+            token.content_type = contentType;
+            token.create_date_time = new Date(Date.now());
+            let dc = yield dataContext_1.createDataContext("token");
+            try {
+                yield dc.tokens.save(token);
                 return token;
-            });
+            }
+            finally {
+                dc.dispose();
+            }
         });
     }
     /**
@@ -76,8 +82,6 @@ class Token {
         return __awaiter(this, void 0, void 0, function* () {
             if (!tokenValue)
                 return Promise.reject(errors_1.errors.argumentNull('tokenValue'));
-            if (tokenValue.length != 24)
-                return Promise.reject(errors_1.errors.invalidObjectId(tokenValue));
             let token = cache.get(tokenValue);
             if (token == null) {
                 token = yield execute((conn) => __awaiter(this, void 0, void 0, function* () {
@@ -93,8 +97,19 @@ class Token {
             return token;
         });
     }
+    static remove(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dc = yield dataContext_1.createDataContext("token");
+            try {
+                yield dc.tokens.delete({ id });
+            }
+            finally {
+                dc.dispose();
+            }
+        });
+    }
 }
-exports.Token = Token;
+exports.TokenManager = TokenManager;
 setInterval(() => {
     let keys = cache.keys() || [];
     for (let i = 0; i < keys.length; i++) {

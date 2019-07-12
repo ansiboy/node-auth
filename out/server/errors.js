@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.names = {
+exports.errorStatusCodes = {
+    noPermission: 726
+};
+exports.errorNames = {
     ActionNotExists: '700 ActionNotExists',
     AdminNotExists: '701 AdminNotExists',
     ApplicationExists: '702 ApplicationExists',
@@ -27,15 +30,16 @@ exports.names = {
     VerifyCodeNotMatchMobile: '722 VerifyCodeNotMatchMobile',
     CanntGetRedirectUrl: '723 CanntGetRedirectUrl',
     // tokenNotExists: '724 tokenNotExists',
-    userTokenNotExists: '724 userTokenNotExists',
-    appTokenNotExists: '725 appTokenNotExists',
+    userTokenNotExists: '724 UserTokenNotExists',
+    appTokenNotExists: '725 AppTokenNotExists',
+    noPermission: `${exports.errorStatusCodes.noPermission} NoPermission`,
     forbidden: '403 forbidden'
 };
 exports.errors = {
     argumentNull(argumentName) {
         let msg = `Argument '${argumentName}' cannt be null`;
         let error = new Error(msg);
-        error.name = exports.names.ArgumentNull;
+        error.name = exports.errorNames.ArgumentNull;
         error.arguments = { argumentName };
         return error;
     },
@@ -49,7 +53,7 @@ exports.errors = {
     canntGetRedirectUrl(rootDir) {
         let msg = `Can not find redirect url for '${rootDir}'`;
         let err = new Error(msg);
-        err.name = exports.names.CanntGetRedirectUrl;
+        err.name = exports.errorNames.CanntGetRedirectUrl;
         return err;
     },
     emailExists(email) {
@@ -69,7 +73,7 @@ exports.errors = {
     forbidden(path) {
         let msg = `Path ${path} can not access`;
         let error = new Error(msg);
-        error.name = exports.names.forbidden;
+        error.name = exports.errorNames.forbidden;
         return error;
     },
     invalidObjectId(objectId) {
@@ -99,29 +103,29 @@ exports.errors = {
         error.arguments = { controller, action };
         return error;
     },
-    fieldNull(fieldName, objectName) {
+    argumentFieldNull(fieldName, objectName) {
         let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
         let error = new Error(msg);
-        error.name = exports.names.FieldNull;
+        error.name = exports.errorNames.FieldNull;
         return error;
     },
     userIdRequired() {
         let msg = `User id is required.`;
         let err = new Error(msg);
-        err.name = exports.names.UserIdRequired;
+        err.name = exports.errorNames.UserIdRequired;
         return err;
     },
     applicationExists(name) {
         let msg = `Application with name '${name}' is exists.`;
         let error = new Error(msg);
-        error.name = exports.names.ApplicationExists;
+        error.name = exports.errorNames.ApplicationExists;
         error.arguments = { name };
         return error;
     },
     usernameOrPasswordIncorrect(username) {
         let msg = `用户名或密码不正确.`;
         let error = new Error(msg);
-        error.name = exports.names.PasswordIncorect;
+        error.name = exports.errorNames.PasswordIncorect;
         return error;
     },
     postDataNotJSON(data) {
@@ -139,7 +143,7 @@ exports.errors = {
     verifyCodeIncorrect(verifyCode) {
         let msg = `验证码不正确`;
         let err = new Error(msg);
-        err.name = exports.names.VerifyCodeIncorrect;
+        err.name = exports.errorNames.VerifyCodeIncorrect;
         err.arguments = { verifyCode };
         return err;
     },

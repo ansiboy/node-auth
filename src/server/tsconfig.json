@@ -4,12 +4,8 @@
         "module": "commonjs",
         "outDir": "../../out/server",
         "sourceMap": true,
-        "baseUrl": "../../",
-        "paths": {
-            "maishu-mysql-helper": [
-                "node_modules/maishu-mysql-helper/index.d.ts"
-            ]
-        },
-        "experimentalDecorators": true
+        "declaration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     }
 }

@@ -61,7 +61,7 @@ module.exports = function (grunt) {
         copy: {
             dist: {
                 files: [
-                    { expand: true, cwd: 'out/client', src: ['**/*.d.ts'], dest: 'dist/client', filter: 'isFile' },
+                    { expand: true, cwd: 'src/public', src: ['**/*.less', '**/*.css'], dest: 'out/public' },
                 ]
             }
         },
@@ -105,5 +105,5 @@ module.exports = function (grunt) {
         }
     })
 
-    grunt.registerTask('default', ['shell', 'requirejs', 'browserify', 'concat'])
+    grunt.registerTask('default', ['shell'])
 };

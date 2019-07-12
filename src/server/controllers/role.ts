@@ -1,78 +1,96 @@
-import { connect, execute, guid } from "../database";
+import { connect, execute, guid, connection, list, get, executeSQL } from "../database";
 import { errors } from "../errors";
-import { action } from "../controller";
-import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
+// import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
+import { controller, action, formData } from "maishu-node-mvc";
+import * as mysql from 'mysql'
+import { UserId, ApplicationId, currentUser } from "../decorators";
+import { Role, User, RoleResource } from "../entities";
+import { AuthDataContext, authDataContext } from "../dataContext";
+import { actionPaths } from "../common";
 
-interface Role {
-    id: string
-    name: string
-    remark: string
-    create_date_time: Date,
-    application_id: string
-}
+// type RoleResource = {
+//     id: string,
+//     resource_id: string,
+//     role_id: string,
+//     create_date_time: Date,
+//     appliation_id: string,
+// }
 
-type RoleResource = {
-    id: string,
-    resource_id: string,
-    role_id: string,
-    create_date_time: Date,
-    appliation_id: string,
-}
-
+@controller("role")
 export default class RoleController {
-    add({ APP_ID, name, remark }) {
-        if (!APP_ID) throw errors.argumentNull('APP_ID')
-        if (!name) throw errors.argumentNull('name')
 
-        return connect(async conn => {
-            let sql = `insert into role set ?`
-            let role: Role = {
-                id: guid(), name, remark,
-                create_date_time: new Date(Date.now()),
-                application_id: APP_ID
-            }
-            await execute(conn, sql, role)
+    @action(actionPaths.role.add)
+    async add(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { item }: { item: Role }) {
+        if (!item) throw errors.argumentNull('item')
+        if (!item.name) throw errors.argumentFieldNull("name", "item");
+        if (!userId) throw errors.argumentNull("userId");
 
-            return role
-        })
+        let user = await dc.users.findOne(userId);
+        if (!user)
+            throw errors.objectNotExistWithId(userId, "User");
+
+        let role: Role = {
+            id: guid(), name: item.name, remark: item.remark,
+            create_date_time: new Date(Date.now()),
+            parent_id: user.role_id,
+        }
+
+        await dc.roles.save(role);
+
+        return { id: role.id, create_date_time: role.create_date_time };
     }
 
-    update({ id, name, remark }) {
-        return connect(async conn => {
-            let sql = `update role set ? where id = ?`
-            let role = { name, remark } as Role
-            await execute(conn, sql, [role, id])
+    @action(actionPaths.role.update)
+    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Role }) {//id, name, remark
 
-            return role
-        })
+        if (!item) throw errors.argumentFieldNull("item", "formData");
+        if (!item.id) throw errors.argumentFieldNull("id", "item");
+
+        let role = await dc.roles.findOne({ id: item.id });
+        if (!role)
+            throw errors.objectNotExistWithId(item.id, "role");
+
+        role.name = item.name;
+        role.remark = item.remark;
+
+        await dc.roles.save(role);
+
+        return { id: role.id };
     }
 
-    remove({ id, APP_ID }) {
-        if (!id) throw errors.argumentNull('id')
-        if (!APP_ID) throw errors.argumentNull('APP_ID')
+    @action(actionPaths.role.remove)
+    async remove(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { id }): Promise<Partial<Role>> {
+        if (!id) throw errors.argumentNull('id');
 
-        return connect(async conn => {
-            let sql = `delete from role where id = ? and application_id = ?`
-            await execute(conn, sql, [id, APP_ID])
-            return { id }
-        })
+        await dc.roles.delete({ id: id, parent_id: user.role_id })
+        return { id };
     }
 
     /** 获取角色列表 */
-    @action()
-    async list({ conn }: { conn: Connection }) {
-        let result = await list<Role>(conn, 'role', { sortExpression: 'create_date_time asc' })
-        return result.dataItems
+    @action(actionPaths.role.list)
+    async list(@authDataContext dc: AuthDataContext, @UserId userId: string) {
+        if (!dc) throw errors.argumentNull("dc");
+
+        let user = await dc.users.findOne(userId);
+        if (!user)
+            throw errors.objectNotExistWithId(userId, "User");
+
+        let roles = await dc.roles.find({
+            where: { parent_id: user.role_id },
+            order: { create_date_time: "DESC" }
+        });
+
+        return roles;
     }
 
     /** 获取单个角色 */
-    @action()
-    async get({ id, conn }) {
+    @action(actionPaths.role.item)
+    async get(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Role> {
         if (!id) throw errors.argumentNull('id')
-        if (!conn) throw errors.argumentNull('conn')
+        if (!dc) throw errors.argumentNull('dc')
 
-        let r = await get(conn, 'role', { id })
-        return r
+        let r = await dc.roles.findOne(id);
+        return r;
     }
 
     /**
@@ -82,56 +100,18 @@ export default class RoleController {
      * resourceIds 角色所允许访问的资源 ID 数组
      * appId 应用 ID
      */
-    setResources({ roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
-        return connect(async conn => {
-            let sql = `select * from role_resource where role_id = ?`
-            let [rows] = await execute(conn, sql, roleId)
-            let roleResources: RoleResource[] = rows
-            let existsResourceIds = roleResources.map(o => o.resource_id)
+    @action(actionPaths.role.resource.set)
+    async setResources(@authDataContext dc: AuthDataContext, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
 
-            let removeResourceIds = new Array<string>()
-            let addResourceIds = new Array<string>()
+        if (!roleId) throw errors.argumentFieldNull("roleId", "formData");
+        if (!resourceIds) throw errors.argumentFieldNull("resourceIds", "formData");
 
-            existsResourceIds.forEach(resource_id => {
-                if (resourceIds.indexOf(resource_id) < 0) {
-                    removeResourceIds.push(resource_id)
-                }
-            })
-            resourceIds.forEach(resourceId => {
-                if (existsResourceIds.indexOf(resourceId) < 0)
-                    addResourceIds.push(resourceId)
-            })
+        await dc.roleResources.delete({ role_id: roleId })
 
-            if (removeResourceIds.length > 0) {
-                sql = `delete from role_resource where role_id = ? and (`
-                for (let i = 0; i < removeResourceIds.length; i++) {
-                    if (i == 0)
-                        sql = sql + `resource_id = ?`
-                    else
-                        sql = sql + ` or resource_id = ?`
-                }
+        let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o } as RoleResource))
+        await dc.roleResources.save(roleResources);
 
-                sql = sql + ')'
-                await execute(conn, sql, [roleId, ...removeResourceIds])
-            }
-
-            if (addResourceIds.length > 0) {
-                sql = `insert into role_resource (resource_id, role_id, create_date_time) values `
-                let values = new Array<any>()
-                for (let i = 0; i < addResourceIds.length; i++) {
-                    if (i == 0) {
-                        sql = sql + '(?, ?, ?)'
-                    }
-                    else {
-                        sql = sql + ',(?, ?, ?)'
-                    }
-                    values.push(...[addResourceIds[i], roleId, new Date(Date.now())])
-                }
-                await execute(conn, sql, values)
-            }
-
-            return {}
-        })
+        return {}
     }
 
     /**
@@ -139,51 +119,13 @@ export default class RoleController {
      * @param param0 
      * roleId: 角色编号 
      */
-    resourceIds({ roleId }): Promise<string[]> {
+    @action(actionPaths.role.resource.ids)
+    resourceIds(@formData { roleId }): Promise<string[]> {
         if (!roleId) throw errors.argumentNull('roleId')
         return connect(async conn => {
             let sql = `select resource_id from role_resource where role_id = ?`
             let [rows] = await execute(conn, sql, [roleId])
             return rows.map(o => o.resource_id)
         })
-    }
-
-    /**
-     * 获取用户角色编号
-     */
-    @action()
-    async userRoleIds({ userIds, conn }: { userIds: string[], conn: Connection }): Promise<UserRole[]> {
-        if (userIds == null) throw errors.argumentNull('userIds')
-        if (conn == null) throw errors.argumentNull('conn')
-
-        let str = userIds.map(o => `"${o}"`).join(',');
-        // let r = await list<UserRole[]>(conn, `user_role`, `user_id in (${str})`)
-        let sql = `select * from user_role where user_id in (${str})`
-        let r = await executeSQL(conn, sql, null)
-        return r
-    }
-
-    /**
-     * 获取用户角色编号
-     */
-    @action()
-    async userRoles({ userIds, conn }: { userIds: string[], conn: Connection }) {
-        if (userIds == null)
-            throw errors.argumentNull('userIds');
-        if (conn == null)
-            throw errors.argumentNull('conn');
-
-        let items: { [key: string]: Role[] } = {}
-
-        if (userIds.length > 0) {
-            let str = userIds.map(o => `"${o}"`).join(',');
-            let sql = `select * from user_role left join role on user_role.role_id = role.id where user_role.user_id in (${str})`;
-            let rows: any[] = await executeSQL(conn, sql, null);
-            for (let i = 0; i < userIds.length; i++) {
-                items[userIds[i]] = rows.filter(o => o.user_id == userIds[i])
-            }
-        }
-
-        return items;
     }
 }

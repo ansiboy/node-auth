@@ -5,3 +5,4 @@ node_modules
 /.tscache
 .baseDir.*
 config.json5
+package-lock.json
