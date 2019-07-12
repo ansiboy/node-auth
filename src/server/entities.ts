@@ -31,12 +31,6 @@ export class Role implements Model {
     })
     resources?: Resource[];
 
-    /**
-     * 是否系统内置的角色
-     */
-    @Column({ type: "bit", default: false })
-    is_system?: boolean;
-
     // @ManyToMany(() => User)
     // @JoinTable({
     //     name: "user_role",
@@ -66,9 +60,17 @@ export class Category implements Model {
     create_date_time: Date;
 }
 
-export type ButtonResourceData = {
+export type ResourceData = {
     position: "top" | "in-list",
     code: string,
+    button?: {
+        // text?: string,
+        className: string,
+        execute_path?: string,
+        toast?: string,
+        showButtonText: boolean,
+        title?: string,
+    }
 }
 
 @Entity("resource")
@@ -95,10 +97,13 @@ export class Resource implements Model {
     create_date_time: Date;
 
     @Column({ type: "json", nullable: true })
-    data?: ButtonResourceData;
+    data?: ResourceData;
 
     @Column({ type: "varchar", length: 200, nullable: true })
     remark?: string;
+
+    @Column({ type: "varchar", length: 30, nullable: true })
+    icon?: string;
 
     @OneToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" })
     api_paths?: Path[];

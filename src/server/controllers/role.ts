@@ -22,7 +22,7 @@ export default class RoleController {
     @action(actionPaths.role.add)
     async add(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
-        if (!item.name) throw errors.fieldNull("name", "item");
+        if (!item.name) throw errors.argumentFieldNull("name", "item");
         if (!userId) throw errors.argumentNull("userId");
 
         let user = await dc.users.findOne(userId);
@@ -43,8 +43,8 @@ export default class RoleController {
     @action(actionPaths.role.update)
     async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Role }) {//id, name, remark
 
-        if (!item) throw errors.fieldNull("item", "formData");
-        if (!item.id) throw errors.fieldNull("id", "item");
+        if (!item) throw errors.argumentFieldNull("item", "formData");
+        if (!item.id) throw errors.argumentFieldNull("id", "item");
 
         let role = await dc.roles.findOne({ id: item.id });
         if (!role)
@@ -103,8 +103,8 @@ export default class RoleController {
     @action(actionPaths.role.resource.set)
     async setResources(@authDataContext dc: AuthDataContext, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
 
-        if (!roleId) throw errors.fieldNull("roleId", "formData");
-        if (!resourceIds) throw errors.fieldNull("resourceIds", "formData");
+        if (!roleId) throw errors.argumentFieldNull("roleId", "formData");
+        if (!resourceIds) throw errors.argumentFieldNull("resourceIds", "formData");
 
         await dc.roleResources.delete({ role_id: roleId })
 

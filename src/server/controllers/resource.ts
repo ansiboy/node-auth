@@ -14,7 +14,7 @@ export default class ResourceController {
 
     @action(actionPaths.resource.add)
     async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { item }: { item: Resource }): Promise<Partial<Resource>> {
-        if (!item.name) throw errors.fieldNull('name', 'item')
+        if (!item.name) throw errors.argumentFieldNull('name', 'item')
 
         item.id = guid()
         item.create_date_time = new Date(Date.now())
@@ -36,7 +36,7 @@ export default class ResourceController {
     @action(actionPaths.resource.update)
     async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
-        if (!item.id) throw errors.fieldNull('id', 'item')
+        if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
         // create_date_time type 不能更新
         delete item.create_date_time;
@@ -77,7 +77,7 @@ export default class ResourceController {
 
     @action(actionPaths.resource.item)
     async item(@authDataContext dc: AuthDataContext, @formData { id }) {
-        if (!id) throw errors.fieldNull("id", "formData");
+        if (!id) throw errors.argumentFieldNull("id", "formData");
 
         let item = await dc.resources.findOne(id);
         return item;

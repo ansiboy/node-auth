@@ -35,8 +35,8 @@ export class PathController {
     @action()
     async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
         if (!item) throw errors.argumentNull("item");
-        if (!item.id) throw errors.fieldNull("id", "item");
-        if (!item.value) throw errors.fieldNull("value", "item");
+        if (!item.id) throw errors.argumentFieldNull("id", "item");
+        if (!item.value) throw errors.argumentFieldNull("value", "item");
 
         let entity = await dc.paths.findOne({ id: item.id });
         if (!entity)
@@ -50,7 +50,7 @@ export class PathController {
 
     @action()
     async remove(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Partial<Path>> {
-        if (!id) throw errors.fieldNull("id", "formData");
+        if (!id) throw errors.argumentFieldNull("id", "formData");
 
         await dc.paths.delete({ id });
         return { id }

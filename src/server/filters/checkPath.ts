@@ -23,7 +23,6 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
         return null
     }
 
-    return null;
     let error = new Error(`Has none permission to visit path '${u.pathname}'`);
     error.name = errorNames.noPermission;
     let result = new ContentResult("{}", "application/json; charset=utf-8", errorStatusCodes.noPermission);

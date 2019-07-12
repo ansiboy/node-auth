@@ -12,13 +12,14 @@ import { User, Resource, Token } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController } from './base-controller';
 import { actionPaths } from '../common';
+import { remove } from 'maishu-mysql-helper';
 
 @controller('/user')
 export default class UserController {
 
     //====================================================
     /** 手机是否已注册 */
-    @action()
+    @action(actionPaths.user.isMobileRegister)
     async isMobileRegister(@authDataContext dc: AuthDataContext, @formData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
         if (!dc) throw errors.argumentNull('dc')
@@ -27,7 +28,7 @@ export default class UserController {
         return user != null;
     }
 
-    @action()
+    @action(actionPaths.user.isUserNameRegister)
     async isUserNameRegister(@authDataContext dc: AuthDataContext, @formData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
@@ -37,7 +38,7 @@ export default class UserController {
 
     }
 
-    @action()
+    @action(actionPaths.user.isEmailRegister)
     async isEmailRegister(@authDataContext dc: AuthDataContext, @formData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
@@ -112,7 +113,7 @@ export default class UserController {
         return { token: token.id, userId: user.id };
     }
 
-    @action()
+    @action(actionPaths.user.resetMobile)
     async resetMobile(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { mobile, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -267,7 +268,7 @@ export default class UserController {
     }
 
     /** 获取用户信息 */
-    @action()
+    @action(actionPaths.user.item)
     async item(@formData { userId }: { userId: string }) {
         if (!userId) throw errors.argumentNull("userId")
 
@@ -327,20 +328,20 @@ export default class UserController {
         }
     }
 
-    /**
-     * 获取用户角色编号
-     */
-    @action("/role/userRoleIds", "role/ids")
-    async userRoleIds(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }): Promise<{ user_id: string, role_id: string }[]> {
-        if (userIds == null) throw errors.argumentNull('userIds');
-        if (dc == null) throw errors.argumentNull('conn');
+    // /**
+    //  * 获取用户角色编号
+    //  */
+    // @action("/role/userRoleIds", "role/ids")
+    // async userRoleIds(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }): Promise<{ user_id: string, role_id: string }[]> {
+    //     if (userIds == null) throw errors.argumentNull('userIds');
+    //     if (dc == null) throw errors.argumentNull('conn');
 
-        if (!userIds) throw errors.argumentNull("userIds");
-        let users = await dc.users.findByIds(userIds);
-        let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
+    //     if (!userIds) throw errors.argumentNull("userIds");
+    //     let users = await dc.users.findByIds(userIds);
+    //     let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
 
-        return result;
-    }
+    //     return result;
+    // }
 
 
     // @action("addRoles", "role/add")
@@ -429,6 +430,13 @@ export default class UserController {
         }
 
         return { id: item.id, role: item.role, create_date_time: item.create_date_time };
+    }
+
+    @action(actionPaths.user.remove)
+    async remove(@authDataContext dc: AuthDataContext, @formData { id }) {
+        if (!id) throw errors.argumentFieldNull("id", "formData");
+        await dc.users.delete(id);
+        return { id };
     }
 
     @action(actionPaths.user.update)

@@ -2,9 +2,9 @@ import * as QcloudSms from 'qcloudsms_js'
 import * as settings from '../settings'
 import { errors } from '../errors';
 import { connect, execute, guid, connection } from '../database';
-import { Connection } from 'maishu-mysql-helper';
 import { controller, action, formData } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
+import { actionPaths } from '../common';
 
 interface SMSRecord {
     id: string,
@@ -16,7 +16,7 @@ interface SMSRecord {
 
 @controller('sms')
 export default class SMSController {
-    @action()
+    @action(actionPaths.sms.sendVerifyCode)
     async sendVerifyCode(@formData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
@@ -49,7 +49,7 @@ export default class SMSController {
         return { smsId: obj.id }
     }
 
-    @action()
+    @action(actionPaths.sms.checkVerifyCode)
     async checkVerifyCode(@connection conn: mysql.Connection, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
         if (!conn) throw errors.argumentNull('conn')
         let sql = `select code from sms_record where id = ?`
