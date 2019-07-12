@@ -42,10 +42,6 @@ __decorate([
     __metadata("design:type", Array)
 ], Role.prototype, "resources", void 0);
 __decorate([
-    typeorm_1.Column({ type: "bit", default: false }),
-    __metadata("design:type", Boolean)
-], Role.prototype, "is_system", void 0);
-__decorate([
     typeorm_1.Column({ type: "char", length: 36, nullable: true }),
     __metadata("design:type", String)
 ], Role.prototype, "role_id", void 0);
@@ -117,6 +113,10 @@ __decorate([
     typeorm_1.Column({ type: "varchar", length: 200, nullable: true }),
     __metadata("design:type", String)
 ], Resource.prototype, "remark", void 0);
+__decorate([
+    typeorm_1.Column({ type: "varchar", length: 30, nullable: true }),
+    __metadata("design:type", String)
+], Resource.prototype, "icon", void 0);
 __decorate([
     typeorm_1.OneToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" }),
     __metadata("design:type", Array)

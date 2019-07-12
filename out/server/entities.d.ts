@@ -9,10 +9,6 @@ export declare class Role implements Model {
     data?: any;
     create_date_time: Date;
     resources?: Resource[];
-    /**
-     * 是否系统内置的角色
-     */
-    is_system?: boolean;
     role_id?: string;
     parent_id?: string;
 }
@@ -22,9 +18,16 @@ export declare class Category implements Model {
     name: string;
     create_date_time: Date;
 }
-export declare type ButtonResourceData = {
+export declare type ResourceData = {
     position: "top" | "in-list";
     code: string;
+    button?: {
+        className: string;
+        execute_path?: string;
+        toast?: string;
+        showButtonText: boolean;
+        title?: string;
+    };
 };
 export declare class Resource implements Model {
     id: string;
@@ -34,8 +37,9 @@ export declare class Resource implements Model {
     sort_number: number;
     type: "menu" | "control" | "module";
     create_date_time: Date;
-    data?: ButtonResourceData;
+    data?: ResourceData;
     remark?: string;
+    icon?: string;
     api_paths?: Path[];
 }
 export declare class Token {

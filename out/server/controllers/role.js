@@ -42,7 +42,7 @@ let RoleController = class RoleController {
             if (!item)
                 throw errors_1.errors.argumentNull('item');
             if (!item.name)
-                throw errors_1.errors.fieldNull("name", "item");
+                throw errors_1.errors.argumentFieldNull("name", "item");
             if (!userId)
                 throw errors_1.errors.argumentNull("userId");
             let user = yield dc.users.findOne(userId);
@@ -60,9 +60,9 @@ let RoleController = class RoleController {
     update(dc, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!item)
-                throw errors_1.errors.fieldNull("item", "formData");
+                throw errors_1.errors.argumentFieldNull("item", "formData");
             if (!item.id)
-                throw errors_1.errors.fieldNull("id", "item");
+                throw errors_1.errors.argumentFieldNull("id", "item");
             let role = yield dc.roles.findOne({ id: item.id });
             if (!role)
                 throw errors_1.errors.objectNotExistWithId(item.id, "role");
@@ -116,9 +116,9 @@ let RoleController = class RoleController {
     setResources(dc, { roleId, resourceIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!roleId)
-                throw errors_1.errors.fieldNull("roleId", "formData");
+                throw errors_1.errors.argumentFieldNull("roleId", "formData");
             if (!resourceIds)
-                throw errors_1.errors.fieldNull("resourceIds", "formData");
+                throw errors_1.errors.argumentFieldNull("resourceIds", "formData");
             yield dc.roleResources.delete({ role_id: roleId });
             let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o }));
             yield dc.roleResources.save(roleResources);

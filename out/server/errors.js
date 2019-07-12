@@ -103,7 +103,7 @@ exports.errors = {
         error.arguments = { controller, action };
         return error;
     },
-    fieldNull(fieldName, objectName) {
+    argumentFieldNull(fieldName, objectName) {
         let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
         let error = new Error(msg);
         error.name = exports.errorNames.FieldNull;

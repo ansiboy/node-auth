@@ -16,12 +16,6 @@ const entities_1 = require("./entities");
 const path = require("path");
 const database_1 = require("./database");
 const common_1 = require("./common");
-const buttonCodes = {
-    add: 'add',
-    edit: 'edit',
-    delete: 'delete',
-    view: 'view'
-};
 class AuthDataContext {
     constructor(entityManager) {
         this.entityManager = entityManager;
@@ -90,7 +84,11 @@ function initDatabase() {
 }
 exports.initDatabase = initDatabase;
 let adminRoleId = common_1.constants.adminRoleId;
+let anonymousRoleId = common_1.constants.anonymousRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
+let buttonControlsPath = "controls/button";
+let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
+const buttonInvokePrefix = "func";
 function initRoleTable(dc) {
     return __awaiter(this, void 0, void 0, function* () {
         let count = yield dc.roles.count();
@@ -101,9 +99,15 @@ function initRoleTable(dc) {
             name: "超级管理员",
             remark: "系统预设的超级管理员",
             create_date_time: new Date(Date.now()),
-            is_system: true
         };
         yield dc.roles.save(adminRole);
+        let anonymousRole = {
+            id: common_1.constants.anonymousRoleId,
+            name: "匿名用户组",
+            remark: "系统预设的匿名用户组",
+            create_date_time: new Date(Date.now()),
+        };
+        yield dc.roles.save(anonymousRole);
     });
 }
 function initUserTable(dc) {
@@ -138,7 +142,7 @@ function initResource(dc) {
         let tokenResourceId = "3B758D8E-68CA-4196-89AF-9CF20DEB01DA";
         let rolePermissionResourceId = "688F60BA-102D-4EEC-AB77-9DFA029D0EA7";
         let pathResourceId = "9CE5F1AA-E78F-4D9C-93AF-1D2E59D2A9EF";
-        let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
+        let personalResourceId = "084DD384-A4A0-4CE6-94C8-C8C8997EA559";
         //===============================================================================================
         // 基本功能 开始
         let baseModuleResource = {
@@ -148,7 +152,6 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             type: "module",
             api_paths: [
-                { id: database_1.guid(), value: common_1.actionPaths.user.login, create_date_time: new Date(Date.now()) },
                 { id: database_1.guid(), value: common_1.actionPaths.resource.list, create_date_time: new Date(Date.now()) },
             ]
         };
@@ -198,13 +201,21 @@ function initResource(dc) {
             type: "menu",
             create_date_time: new Date(Date.now()),
             page_path: `#${pageBasePath}/user/list`,
+            icon: "icon-group",
             api_paths: [
                 { id: database_1.guid(), value: common_1.actionPaths.user.list, create_date_time: new Date(Date.now()) },
             ]
         };
         yield dc.resources.save(userResource);
-        yield createAddButtonResource(dc, userResourceId, `${jsBasePath}/user/controls.js`, [
+        yield createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
             { id: database_1.guid(), value: common_1.actionPaths.user.add, create_date_time: new Date(Date.now()) }
+        ]);
+        yield createSmallEditButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
+            { id: database_1.guid(), value: common_1.actionPaths.user.item, create_date_time: new Date(Date.now()) },
+            { id: database_1.guid(), value: common_1.actionPaths.user.update, create_date_time: new Date(Date.now()) }
+        ]);
+        yield createRemoveButtonResource(dc, userResourceId, `${buttonInvokePrefix}:deleteItem`, [
+            { id: database_1.guid(), value: common_1.actionPaths.user.remove, create_date_time: new Date(Date.now()) }
         ]);
         let searchResource = {
             id: database_1.guid(),
@@ -227,6 +238,7 @@ function initResource(dc) {
             sort_number: 100,
             type: "menu",
             create_date_time: new Date(Date.now()),
+            icon: "icon-lock",
         };
         yield dc.resources.save(permissionResource);
         //===============================================================================================
@@ -239,15 +251,16 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/role/list`,
+            icon: "icon-sitemap",
             api_paths: [
                 { id: database_1.guid(), value: common_1.actionPaths.role.list, create_date_time: new Date(Date.now()) }
             ]
         };
         yield dc.resources.save(roleResource);
-        yield createAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
+        yield createNormalAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
             { id: database_1.guid(), value: common_1.actionPaths.role.add, create_date_time: new Date(Date.now()) },
         ]);
-        yield createEditButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
+        yield createSmallEditButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
             { id: database_1.guid(), value: common_1.actionPaths.role.item, create_date_time: new Date(Date.now()) },
             { id: database_1.guid(), value: common_1.actionPaths.role.update, create_date_time: new Date(Date.now()) },
         ]);
@@ -264,15 +277,22 @@ function initResource(dc) {
             type: "control",
             create_date_time: new Date(Date.now()),
             parent_id: roleResourceId,
-            page_path: `${jsBasePath}/role/controls.js`,
+            page_path: buttonControlsPath,
             data: {
                 position: "in-list",
                 code: "role_permission",
+                button: {
+                    className: "btn btn-minier btn-default",
+                    execute_path: "#auth/permission/list",
+                    title: "点击设置权限",
+                    showButtonText: true,
+                }
             }
         };
         yield dc.resources.save(rolePermissionResource);
-        yield createSaveButtonResource(dc, rolePermissionResource.id, `${jsBasePath}/permission/controls.js`, [
-            { id: database_1.guid(), value: common_1.actionPaths.role.resource.set, create_date_time: new Date(Date.now()) }
+        yield createNormalSaveButtonResource(dc, rolePermissionResource.id, `${jsBasePath}/permission/controls.js`, [
+            { id: database_1.guid(), value: common_1.actionPaths.role.resource.set, create_date_time: new Date(Date.now()) },
+            { id: database_1.guid(), value: common_1.actionPaths.role.resource.ids, create_date_time: new Date(Date.now()) }
         ]);
         // 角色管理 结束
         //===============================================================================================
@@ -284,12 +304,13 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/menu/list`,
+            icon: "icon-tasks",
             api_paths: [
                 { id: database_1.guid(), value: common_1.actionPaths.menu.list, create_date_time: new Date(Date.now()) }
             ]
         };
         yield dc.resources.save(menuResource);
-        yield createAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
+        yield createNormalAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
             { id: database_1.guid(), value: common_1.actionPaths.menu.add, create_date_time: new Date(Date.now()) },
             { id: database_1.guid(), value: common_1.actionPaths.resource.add, create_date_time: new Date(Date.now()) },
         ]);
@@ -307,7 +328,7 @@ function initResource(dc) {
             data: { position: "top", code: "add_control" }
         };
         yield dc.resources.save(menuAddButtonResource);
-        yield createEditButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
+        yield createSmallEditButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
             { id: database_1.guid(), value: common_1.actionPaths.menu.item, create_date_time: new Date(Date.now()) },
             { id: database_1.guid(), value: common_1.actionPaths.menu.update, create_date_time: new Date(Date.now()) },
             { id: database_1.guid(), value: common_1.actionPaths.resource.item, create_date_time: new Date(Date.now()) },
@@ -329,12 +350,13 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/token/list`,
+            icon: "icon-magic",
             api_paths: [
                 { id: database_1.guid(), value: common_1.actionPaths.token.list, create_date_time: new Date(Date.now()) }
             ]
         };
         yield dc.resources.save(tokenResource);
-        yield createAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`, [
+        yield createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`, [
             { id: database_1.guid(), value: common_1.actionPaths.token.add, create_date_time: new Date(Date.now()) },
         ]);
         let pathResource = {
@@ -345,14 +367,59 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/path/list`,
+            icon: "icon-rss",
             api_paths: [
                 { id: database_1.guid(), value: common_1.actionPaths.path.list, create_date_time: new Date(Date.now()) }
             ]
         };
         yield dc.resources.save(pathResource);
-        yield createAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
-        yield createEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+        yield createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+        yield createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         yield createViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+        let personalResource = {
+            id: personalResourceId,
+            name: "个人中心",
+            sort_number: 600,
+            type: "menu",
+            create_date_time: new Date(Date.now()),
+            icon: "icon-user",
+            api_paths: [
+                { id: database_1.guid(), value: common_1.actionPaths.user.me, create_date_time: new Date(Date.now()) }
+            ]
+        };
+        yield dc.resources.save(personalResource);
+        let changeMobileResource = {
+            id: database_1.guid(),
+            name: "修改手机号",
+            sort_number: 800,
+            type: "menu",
+            create_date_time: new Date(Date.now()),
+            icon: "icon-tablet",
+            parent_id: personalResource.id,
+            page_path: `#${pageBasePath}/personal/change-mobile`,
+            api_paths: [
+                { id: database_1.guid(), value: common_1.actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
+                { id: database_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
+            ]
+        };
+        yield dc.resources.save(changeMobileResource);
+        yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonControlsPath}:save`, []);
+        let changePasswordResource = {
+            id: database_1.guid(),
+            name: "修改密码",
+            sort_number: 700,
+            type: "menu",
+            create_date_time: new Date(Date.now()),
+            icon: "icon-key",
+            parent_id: personalResource.id,
+            page_path: `#${pageBasePath}/personal/change-password`,
+            api_paths: [
+                { id: database_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
+                { id: database_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
+            ]
+        };
+        yield dc.resources.save(changePasswordResource);
+        yield createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, []);
     });
 }
 function initRoleResourceTable(dc) {
@@ -361,20 +428,16 @@ function initRoleResourceTable(dc) {
         let allResources = yield dc.resources.find();
         adminRole.resources = allResources;
         yield dc.roles.save(adminRole);
+        let roleResource = { role_id: anonymousRoleId, resource_id: baseModuleResourceId };
+        yield dc.roleResources.save(roleResource);
     });
 }
-// async function initPathTable(dc: AuthDataContext) {
-//     await dc.paths.save({
-//         id: guid(),
-//         value: actionPaths.user.resource.list,
-//         create_date_time: new Date(Date.now())
-//     })
-// }
-function createAddButtonResource(dc, parentId, path, apiPaths) {
-    let data = {
-        position: "top",
-        code: "add",
-    };
+function createNormalAddButtonResource(dc, parentId, path, apiPaths) {
+    let execute_path;
+    if (path.startsWith("func")) {
+        execute_path = path;
+        path = buttonControlsPath;
+    }
     let menuResource = {
         id: database_1.guid(),
         name: "添加",
@@ -383,15 +446,31 @@ function createAddButtonResource(dc, parentId, path, apiPaths) {
         parent_id: parentId,
         page_path: path,
         create_date_time: new Date(Date.now()),
-        data: data,
-        api_paths: apiPaths
+        data: {
+            position: "top",
+            code: "add",
+            button: {
+                className: "btn btn-primary",
+                showButtonText: true,
+                title: "点击添加",
+                execute_path
+            }
+        },
+        api_paths: apiPaths,
+        icon: "icon-plus"
     };
     return dc.resources.save(menuResource);
 }
-function createSaveButtonResource(dc, parentId, path, apiPaths) {
+function createNormalSaveButtonResource(dc, parentId, path, apiPaths) {
     let data = {
         position: "top",
         code: "save",
+        button: {
+            execute_path: path,
+            className: "btn btn-primary",
+            showButtonText: true,
+            toast: "保存成功!",
+        }
     };
     let menuResource = {
         id: database_1.guid(),
@@ -399,18 +478,20 @@ function createSaveButtonResource(dc, parentId, path, apiPaths) {
         sort_number: 100,
         type: "control",
         parent_id: parentId,
-        page_path: path,
+        page_path: buttonControlsPath,
         create_date_time: new Date(Date.now()),
         data: data,
-        api_paths: apiPaths
+        api_paths: apiPaths,
+        icon: "icon-save",
     };
     return dc.resources.save(menuResource);
 }
-function createEditButtonResource(dc, parentId, path, apiPaths) {
-    let data = {
-        position: "in-list",
-        code: "edit",
-    };
+function createSmallEditButtonResource(dc, parentId, path, apiPaths) {
+    let execute_path;
+    if (path.startsWith("func")) {
+        execute_path = path;
+        path = buttonControlsPath;
+    }
     let menuResource = {
         id: database_1.guid(),
         name: "编辑",
@@ -419,16 +500,27 @@ function createEditButtonResource(dc, parentId, path, apiPaths) {
         parent_id: parentId,
         page_path: path,
         create_date_time: new Date(Date.now()),
-        data,
-        api_paths: apiPaths
+        data: {
+            position: "in-list",
+            code: "edit",
+            button: {
+                className: "btn btn-minier btn-info",
+                showButtonText: false,
+                title: "点击编辑",
+                execute_path
+            }
+        },
+        api_paths: apiPaths,
+        icon: "icon-pencil"
     };
     return dc.resources.save(menuResource);
 }
 function createRemoveButtonResource(dc, parentId, path, apiPaths) {
-    let data = {
-        position: "in-list",
-        code: "remove"
-    };
+    let execute_path;
+    if (path.startsWith("func")) {
+        execute_path = path;
+        path = buttonControlsPath;
+    }
     let menuResource = {
         id: database_1.guid(),
         name: "删除",
@@ -437,16 +529,22 @@ function createRemoveButtonResource(dc, parentId, path, apiPaths) {
         parent_id: parentId,
         page_path: path,
         create_date_time: new Date(Date.now()),
-        data,
-        api_paths: apiPaths
+        data: {
+            position: "in-list",
+            code: "remove",
+            button: {
+                className: "btn btn-minier btn-danger",
+                showButtonText: false,
+                title: "点击删除",
+                execute_path,
+            }
+        },
+        api_paths: apiPaths,
+        icon: "icon-trash"
     };
     return dc.resources.save(menuResource);
 }
 function createViewButtonResource(dc, parentId, path, apiPaths) {
-    let data = {
-        position: "in-list",
-        code: "view"
-    };
     let menuResource = {
         id: database_1.guid(),
         name: "查看",
@@ -455,8 +553,16 @@ function createViewButtonResource(dc, parentId, path, apiPaths) {
         parent_id: parentId,
         page_path: path,
         create_date_time: new Date(Date.now()),
-        data,
-        api_paths: apiPaths
+        data: {
+            position: "in-list",
+            code: "view",
+            button: {
+                className: "btn btn-minier btn-success",
+                showButtonText: false,
+            }
+        },
+        api_paths: apiPaths,
+        icon: "icon-eye-open"
     };
     return dc.resources.save(menuResource);
 }

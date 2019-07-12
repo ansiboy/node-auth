@@ -46,7 +46,7 @@ export declare let errors: {
     mobileExists(mobile: string): Error;
     mobileNotExists(mobile: string): Error;
     actionNotExists(controller: string, action: string): Error;
-    fieldNull(fieldName: string, objectName: string): Error;
+    argumentFieldNull(fieldName: string, objectName: string): Error;
     userIdRequired(): Error;
     applicationExists(name: string): Error;
     usernameOrPasswordIncorrect(username: string): Error;

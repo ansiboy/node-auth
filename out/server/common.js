@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.constants = {
     adminRoleId: "535e89a2-5b17-4e65-fecb-0259015b1a9b",
+    anonymousRoleId: "738FB92C-60CF-4280-B5AE-61C376D0AADF",
     controllerBasePath: "/auth",
 };
 let basePath = exports.constants.controllerBasePath;
@@ -10,11 +11,17 @@ exports.actionPaths = {
         add: `${basePath}/user/add`,
         update: `${basePath}/user/update`,
         list: `${basePath}/user/list`,
+        item: `${basePath}/user/item`,
+        remove: `${basePath}/user/remove`,
         login: `${basePath}/user/login`,
-        me: `${basePath}/user/me`,
         logout: `${basePath}/user/logout`,
+        me: `${basePath}/user/me`,
         register: `${basePath}/user/register`,
-        resetPassword: `${basePath}/user/resetPassword`
+        resetPassword: `${basePath}/user/resetPassword`,
+        resetMobile: `${basePath}/user/resetMobile`,
+        isMobileRegister: `${basePath}/user/isMobileRegister`,
+        isUserNameRegister: `${basePath}/user/isUserNameRegister`,
+        isEmailRegister: `${basePath}/user/isEmailRegister`,
     },
     role: {
         add: `${basePath}/role/add`,
@@ -51,5 +58,9 @@ exports.actionPaths = {
         remove: `${basePath}/resource/remove`,
         update: `${basePath}/resource/update`,
     },
+    sms: {
+        sendVerifyCode: `${basePath}/sms/sendVerifyCode`,
+        checkVerifyCode: `${basePath}/sms/checkVerifyCode`
+    }
 };
 //# sourceMappingURL=common.js.map

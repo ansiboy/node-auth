@@ -53,9 +53,9 @@ let PathController = class PathController {
             if (!item)
                 throw errors_1.errors.argumentNull("item");
             if (!item.id)
-                throw errors_1.errors.fieldNull("id", "item");
+                throw errors_1.errors.argumentFieldNull("id", "item");
             if (!item.value)
-                throw errors_1.errors.fieldNull("value", "item");
+                throw errors_1.errors.argumentFieldNull("value", "item");
             let entity = yield dc.paths.findOne({ id: item.id });
             if (!entity)
                 throw errors_1.errors.objectNotExistWithId(item.id, "path");
@@ -67,7 +67,7 @@ let PathController = class PathController {
     remove(dc, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!id)
-                throw errors_1.errors.fieldNull("id", "formData");
+                throw errors_1.errors.argumentFieldNull("id", "formData");
             yield dc.paths.delete({ id });
             return { id };
         });

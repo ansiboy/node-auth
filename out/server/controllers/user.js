@@ -315,22 +315,18 @@ let UserController = class UserController {
             }
         });
     }
-    /**
-     * 获取用户角色编号
-     */
-    userRoleIds(dc, { userIds }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (userIds == null)
-                throw errors_1.errors.argumentNull('userIds');
-            if (dc == null)
-                throw errors_1.errors.argumentNull('conn');
-            if (!userIds)
-                throw errors_1.errors.argumentNull("userIds");
-            let users = yield dc.users.findByIds(userIds);
-            let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
-            return result;
-        });
-    }
+    // /**
+    //  * 获取用户角色编号
+    //  */
+    // @action("/role/userRoleIds", "role/ids")
+    // async userRoleIds(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }): Promise<{ user_id: string, role_id: string }[]> {
+    //     if (userIds == null) throw errors.argumentNull('userIds');
+    //     if (dc == null) throw errors.argumentNull('conn');
+    //     if (!userIds) throw errors.argumentNull("userIds");
+    //     let users = await dc.users.findByIds(userIds);
+    //     let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
+    //     return result;
+    // }
     // @action("addRoles", "role/add")
     // async addRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
     //     if (!userId) throw errors.argumentNull("userId")
@@ -405,6 +401,14 @@ let UserController = class UserController {
             return { id: item.id, role: item.role, create_date_time: item.create_date_time };
         });
     }
+    remove(dc, { id }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!id)
+                throw errors_1.errors.argumentFieldNull("id", "formData");
+            yield dc.users.delete(id);
+            return { id };
+        });
+    }
     update(conn, USER_ID, { user }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user)
@@ -441,21 +445,21 @@ let UserController = class UserController {
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.isMobileRegister),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isMobileRegister", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.isUserNameRegister),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isUserNameRegister", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.isEmailRegister),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
@@ -477,7 +481,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetPassword", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.resetMobile),
     __param(0, dataContext_1.authDataContext), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
@@ -511,7 +515,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "me", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.item),
     __param(0, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -532,13 +536,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "setRoles", null);
 __decorate([
-    maishu_node_mvc_1.action("/role/userRoleIds", "role/ids"),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "userRoleIds", null);
-__decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.list),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
@@ -552,6 +549,13 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "add", null);
+__decorate([
+    maishu_node_mvc_1.action(common_1.actionPaths.user.remove),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.update),
     __param(0, database_1.connection), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),

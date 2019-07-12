@@ -27,7 +27,6 @@ function checkPath(req, res) {
         if (r.length > 0) {
             return null;
         }
-        return null;
         let error = new Error(`Has none permission to visit path '${u.pathname}'`);
         error.name = errors_1.errorNames.noPermission;
         let result = new maishu_node_mvc_1.ContentResult("{}", "application/json; charset=utf-8", errors_1.errorStatusCodes.noPermission);

@@ -76,20 +76,16 @@ export default class UserController {
         userId: any;
         roleIds: any;
     }): Promise<void>;
-    /**
-     * 获取用户角色编号
-     */
-    userRoleIds(dc: AuthDataContext, { userIds }: {
-        userIds: string[];
-    }): Promise<{
-        user_id: string;
-        role_id: string;
-    }[]>;
     list(dc: AuthDataContext, { args }: {
         args: db.SelectArguments;
     }): Promise<db.SelectResult<User>>;
     /** 添加用户 */
     add(dc: AuthDataContext, { item }: Args.addUser): Promise<Partial<User>>;
+    remove(dc: AuthDataContext, { id }: {
+        id: any;
+    }): Promise<{
+        id: any;
+    }>;
     update(conn: mysql.Connection, USER_ID: any, { user }: {
         user: any;
     }): Promise<void | {

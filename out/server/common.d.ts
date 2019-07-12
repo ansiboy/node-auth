@@ -1,5 +1,6 @@
 export declare let constants: {
     adminRoleId: string;
+    anonymousRoleId: string;
     controllerBasePath: string;
 };
 export declare let actionPaths: {
@@ -7,11 +8,17 @@ export declare let actionPaths: {
         add: string;
         update: string;
         list: string;
+        item: string;
+        remove: string;
         login: string;
-        me: string;
         logout: string;
+        me: string;
         register: string;
         resetPassword: string;
+        resetMobile: string;
+        isMobileRegister: string;
+        isUserNameRegister: string;
+        isEmailRegister: string;
     };
     role: {
         add: string;
@@ -45,5 +52,9 @@ export declare let actionPaths: {
         item: string;
         remove: string;
         update: string;
+    };
+    sms: {
+        sendVerifyCode: string;
+        checkVerifyCode: string;
     };
 };

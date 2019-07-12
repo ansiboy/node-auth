@@ -32,7 +32,7 @@ let ResourceController = class ResourceController {
     add(dc, user, { item }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!item.name)
-                throw errors_1.errors.fieldNull('name', 'item');
+                throw errors_1.errors.argumentFieldNull('name', 'item');
             item.id = database_1.guid();
             item.create_date_time = new Date(Date.now());
             if (item.sort_number == null) {
@@ -50,7 +50,7 @@ let ResourceController = class ResourceController {
             if (!item)
                 throw errors_1.errors.argumentNull('item');
             if (!item.id)
-                throw errors_1.errors.fieldNull('id', 'item');
+                throw errors_1.errors.argumentFieldNull('id', 'item');
             // create_date_time type 不能更新
             delete item.create_date_time;
             delete item.type;
@@ -84,7 +84,7 @@ let ResourceController = class ResourceController {
     item(dc, { id }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!id)
-                throw errors_1.errors.fieldNull("id", "formData");
+                throw errors_1.errors.argumentFieldNull("id", "formData");
             let item = yield dc.resources.findOne(id);
             return item;
         });

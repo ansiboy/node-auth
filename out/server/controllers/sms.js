@@ -26,6 +26,7 @@ const errors_1 = require("../errors");
 const database_1 = require("../database");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
+const common_1 = require("../common");
 let SMSController = class SMSController {
     sendVerifyCode({ mobile, type }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -71,14 +72,14 @@ let SMSController = class SMSController {
     }
 };
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.sms.sendVerifyCode),
     __param(0, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SMSController.prototype, "sendVerifyCode", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.sms.checkVerifyCode),
     __param(0, database_1.connection),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
