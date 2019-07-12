@@ -90,7 +90,7 @@ export async function initDatabase() {
 let adminRoleId = constants.adminRoleId;
 let anonymousRoleId = constants.anonymousRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
-let buttonControlsPath = "controls/button";
+let buttonControlsPath = "assert/controls/button.js";
 let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
 const buttonInvokePrefix = "func";
 
@@ -248,7 +248,7 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 80,
         type: "control",
         create_date_time: new Date(Date.now()),
-        page_path: `${jsBasePath}/user/controls.js`,
+        page_path: `${jsBasePath}/user/search-control.js`,
         data: { position: "top", code: "search" },
         parent_id: userResource.id,
         api_paths: [
@@ -325,7 +325,7 @@ async function initResource(dc: AuthDataContext) {
     }
     await dc.resources.save(rolePermissionResource);
 
-    await createNormalSaveButtonResource(dc, rolePermissionResource.id, `${jsBasePath}/permission/controls.js`, [
+    await createNormalSaveButtonResource(dc, rolePermissionResource.id, `${buttonInvokePrefix}:save`, [
         { id: guid(), value: actionPaths.role.resource.set, create_date_time: new Date(Date.now()) },
         { id: guid(), value: actionPaths.role.resource.ids, create_date_time: new Date(Date.now()) }
     ])
@@ -453,7 +453,7 @@ async function initResource(dc: AuthDataContext) {
     }
 
     await dc.resources.save(changeMobileResource);
-    await createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonControlsPath}:save`, []);
+    await createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, []);
 
     let changePasswordResource: Resource = {
         id: guid(),
@@ -520,15 +520,10 @@ function createNormalAddButtonResource(dc: AuthDataContext, parentId: string, pa
 
 function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
 
-    let data: ResourceData = {
-        position: "top",
-        code: "save",
-        button: {
-            execute_path: path,
-            className: "btn btn-primary",
-            showButtonText: true,
-            toast: "保存成功!",
-        }
+    let execute_path: string;
+    if (path.startsWith("func")) {
+        execute_path = path;
+        path = buttonControlsPath;
     }
 
     let menuResource: Resource = {
@@ -537,9 +532,18 @@ function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, p
         sort_number: 100,
         type: "control",
         parent_id: parentId,
-        page_path: buttonControlsPath,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data: data,
+        data: {
+            position: "top",
+            code: "save",
+            button: {
+                execute_path: execute_path,
+                className: "btn btn-primary",
+                showButtonText: true,
+                toast: "保存成功!",
+            }
+        },
         api_paths: apiPaths,
         icon: "icon-save",
     }

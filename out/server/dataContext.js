@@ -86,7 +86,7 @@ exports.initDatabase = initDatabase;
 let adminRoleId = common_1.constants.adminRoleId;
 let anonymousRoleId = common_1.constants.anonymousRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
-let buttonControlsPath = "controls/button";
+let buttonControlsPath = "assert/controls/button.js";
 let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
 const buttonInvokePrefix = "func";
 function initRoleTable(dc) {
@@ -223,7 +223,7 @@ function initResource(dc) {
             sort_number: 80,
             type: "control",
             create_date_time: new Date(Date.now()),
-            page_path: `${jsBasePath}/user/controls.js`,
+            page_path: `${jsBasePath}/user/search-control.js`,
             data: { position: "top", code: "search" },
             parent_id: userResource.id,
             api_paths: [
@@ -290,7 +290,7 @@ function initResource(dc) {
             }
         };
         yield dc.resources.save(rolePermissionResource);
-        yield createNormalSaveButtonResource(dc, rolePermissionResource.id, `${jsBasePath}/permission/controls.js`, [
+        yield createNormalSaveButtonResource(dc, rolePermissionResource.id, `${buttonInvokePrefix}:save`, [
             { id: database_1.guid(), value: common_1.actionPaths.role.resource.set, create_date_time: new Date(Date.now()) },
             { id: database_1.guid(), value: common_1.actionPaths.role.resource.ids, create_date_time: new Date(Date.now()) }
         ]);
@@ -403,7 +403,7 @@ function initResource(dc) {
             ]
         };
         yield dc.resources.save(changeMobileResource);
-        yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonControlsPath}:save`, []);
+        yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, []);
         let changePasswordResource = {
             id: database_1.guid(),
             name: "修改密码",
@@ -462,25 +462,29 @@ function createNormalAddButtonResource(dc, parentId, path, apiPaths) {
     return dc.resources.save(menuResource);
 }
 function createNormalSaveButtonResource(dc, parentId, path, apiPaths) {
-    let data = {
-        position: "top",
-        code: "save",
-        button: {
-            execute_path: path,
-            className: "btn btn-primary",
-            showButtonText: true,
-            toast: "保存成功!",
-        }
-    };
+    let execute_path;
+    if (path.startsWith("func")) {
+        execute_path = path;
+        path = buttonControlsPath;
+    }
     let menuResource = {
         id: database_1.guid(),
         name: "保存",
         sort_number: 100,
         type: "control",
         parent_id: parentId,
-        page_path: buttonControlsPath,
+        page_path: path,
         create_date_time: new Date(Date.now()),
-        data: data,
+        data: {
+            position: "top",
+            code: "save",
+            button: {
+                execute_path: execute_path,
+                className: "btn btn-primary",
+                showButtonText: true,
+                toast: "保存成功!",
+            }
+        },
         api_paths: apiPaths,
         icon: "icon-save",
     };

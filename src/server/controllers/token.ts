@@ -7,7 +7,7 @@ import { actionPaths } from "../common";
 export default class TokenController extends BaseController {
     @action(actionPaths.token.list)
     list(@authDataContext dc: AuthDataContext, @formData { args }: { args: SelectArguments }) {
-        return BaseController.list(dc.tokens, args)
+        return BaseController.list(dc.tokens, { selectArguments: args })
     }
 
 

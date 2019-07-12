@@ -10,22 +10,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 class BaseController extends maishu_node_mvc_1.Controller {
-    static list(r, args, relations) {
+    static list(repository, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            args = args || {};
+            let { selectArguments, relations, fields } = options;
+            selectArguments = selectArguments || {};
             let order;
-            if (!args.sortExpression) {
-                args.sortExpression = "create_date_time desc";
+            if (!selectArguments.sortExpression) {
+                selectArguments.sortExpression = "create_date_time desc";
             }
-            let arr = args.sortExpression.split(/\s+/).filter(o => o);
+            let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
             console.assert(arr.length > 0);
             order = {};
             order[arr[0]] = arr[1].toUpperCase();
-            let [items, count] = yield r.findAndCount({
-                where: args.filter, relations,
-                skip: args.startRowIndex,
-                take: args.maximumRows,
-                order: order
+            let [items, count] = yield repository.findAndCount({
+                where: selectArguments.filter, relations,
+                skip: selectArguments.startRowIndex,
+                take: selectArguments.maximumRows,
+                order: order,
+                select: fields,
             });
             return { dataItems: items, totalRowCount: count };
         });

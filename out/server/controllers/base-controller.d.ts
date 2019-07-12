@@ -12,5 +12,9 @@ export interface SelectResult<T> {
     totalRowCount: number;
 }
 export declare class BaseController extends Controller {
-    static list<T>(r: Repository<T>, args?: SelectArguments, relations?: string[]): Promise<SelectResult<T>>;
+    static list<T>(repository: Repository<T>, options: {
+        selectArguments?: SelectArguments;
+        relations?: string[];
+        fields?: Extract<keyof T, string>[];
+    }): Promise<SelectResult<T>>;
 }

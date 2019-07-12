@@ -23,7 +23,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("../database");
 const errors_1 = require("../errors");
 const token_1 = require("../token");
-const db = require("maishu-mysql-helper");
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const mysql = require("mysql");
 const decorators_1 = require("../decorators");
@@ -358,7 +357,10 @@ let UserController = class UserController {
             else {
                 args.filter = "(User.is_system is null or User.is_system = false)";
             }
-            let result = yield base_controller_1.BaseController.list(dc.users, args, ["role"]);
+            let result = yield base_controller_1.BaseController.list(dc.users, {
+                selectArguments: args, relations: ["role"],
+                fields: ["id", "mobile", "user_name", "email", "create_date_time"]
+            });
             if (result.dataItems.length > 0) {
                 let userIds = result.dataItems.map(o => o.id);
                 let ctrl = new latest_login_1.default();
@@ -409,29 +411,22 @@ let UserController = class UserController {
             return { id };
         });
     }
-    update(conn, USER_ID, { user }) {
+    update(dc, { user }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!user)
                 throw errors_1.errors.argumentNull('user');
-            let u = user;
-            u.id = USER_ID;
-            let result = yield database_1.update(conn, 'user', user);
-            return result;
-        });
-    }
-    /** 显示用户所拥有的应用 */
-    ownAppliactions(conn, USER_ID) {
-        if (!USER_ID)
-            throw errors_1.errors.argumentNull('USER_ID');
-        if (!conn)
-            throw errors_1.errors.argumentNull('conn');
-        return db.list(conn, 'application', { filter: `user_id = '${USER_ID}'` });
-    }
-    /** 显示用户所允许访问的应用 */
-    canVisitApplicationIds(conn, USER_ID) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let items = yield database_1.select(conn, 'application_user', { filter: `user_id = '${USER_ID}'` });
-            return items.map(o => o.application_id);
+            if (!user.id)
+                throw errors_1.errors.argumentFieldNull("id", "user");
+            let entity = {
+                id: user.id, email: user.email, role_id: user.role_id,
+            };
+            if (user.password)
+                entity.password = user.password;
+            yield dc.users.save(entity);
+            if (user.role_id) {
+                entity.role = yield dc.roles.findOne(user.role_id);
+            }
+            return { id: entity.id, role: entity.role };
         });
     }
     UserLatestLogin(dc, { userIds }) {
@@ -558,25 +553,11 @@ __decorate([
 ], UserController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.update),
-    __param(0, database_1.connection), __param(1, decorators_1.UserId), __param(2, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
-__decorate([
-    maishu_node_mvc_1.action("ownAppliactions", "applicaion/list"),
-    __param(0, database_1.connection), __param(1, decorators_1.UserId),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", void 0)
-], UserController.prototype, "ownAppliactions", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, database_1.connection), __param(1, decorators_1.UserId),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], UserController.prototype, "canVisitApplicationIds", null);
 __decorate([
     maishu_node_mvc_1.action(),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),

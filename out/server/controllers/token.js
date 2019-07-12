@@ -18,7 +18,7 @@ const base_controller_1 = require("./base-controller");
 const common_1 = require("../common");
 let TokenController = class TokenController extends base_controller_1.BaseController {
     list(dc, { args }) {
-        return base_controller_1.BaseController.list(dc.tokens, args);
+        return base_controller_1.BaseController.list(dc.tokens, { selectArguments: args });
     }
 };
 __decorate([

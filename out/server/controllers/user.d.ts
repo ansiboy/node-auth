@@ -1,5 +1,4 @@
 import * as db from 'maishu-mysql-helper';
-import { Application } from './application';
 import * as mysql from 'mysql';
 import { AuthDataContext } from '../dataContext';
 import { User } from '../entities';
@@ -86,15 +85,9 @@ export default class UserController {
     }): Promise<{
         id: any;
     }>;
-    update(conn: mysql.Connection, USER_ID: any, { user }: {
-        user: any;
-    }): Promise<void | {
-        id: string;
-    }>;
-    /** 显示用户所拥有的应用 */
-    ownAppliactions(conn: any, USER_ID: any): Promise<db.SelectResult<Application>>;
-    /** 显示用户所允许访问的应用 */
-    canVisitApplicationIds(conn: mysql.Connection, USER_ID: any): Promise<string[]>;
+    update(dc: AuthDataContext, { user }: {
+        user: User;
+    }): Promise<Partial<User>>;
     UserLatestLogin(dc: AuthDataContext, { userIds }: {
         userIds: string[];
     }): Promise<import("../entities").UserLatestLogin[]>;

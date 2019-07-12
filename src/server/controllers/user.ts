@@ -8,7 +8,7 @@ import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
 import { UserId, currentUser, currentTokenId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
-import { User, Resource, Token } from '../entities';
+import { User } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController } from './base-controller';
 import { actionPaths } from '../common';
@@ -380,7 +380,11 @@ export default class UserController {
         else {
             args.filter = "(User.is_system is null or User.is_system = false)";
         }
-        let result = await BaseController.list<User>(dc.users, args, ["role"])
+
+        let result = await BaseController.list<User>(dc.users, {
+            selectArguments: args, relations: ["role"],
+            fields: ["id", "mobile", "user_name", "email", "create_date_time"]
+        })
 
         if (result.dataItems.length > 0) {
             let userIds = result.dataItems.map(o => o.id);
@@ -440,30 +444,24 @@ export default class UserController {
     }
 
     @action(actionPaths.user.update)
-    async update(@connection conn: mysql.Connection, @UserId USER_ID, @formData { user }) {
-        if (!user) throw errors.argumentNull('user')
-        let u = user as User
-        u.id = USER_ID
+    async update(@authDataContext dc: AuthDataContext, @formData { user }: { user: User }) {
+        if (!user) throw errors.argumentNull('user');
+        if (!user.id) throw errors.argumentFieldNull("id", "user");
 
-        let result = await update(conn, 'user', user)
-        return result
-    }
+        let entity: Partial<User> = {
+            id: user.id, email: user.email, role_id: user.role_id,
+        };
 
-    /** 显示用户所拥有的应用 */
-    @action("ownAppliactions", "applicaion/list")
-    ownAppliactions(@connection conn, @UserId USER_ID) {
-        if (!USER_ID) throw errors.argumentNull('USER_ID')
-        if (!conn) throw errors.argumentNull('conn')
+        if (user.password)
+            entity.password = user.password;
 
-        return db.list<Application>(conn, 'application', { filter: `user_id = '${USER_ID}'` })
-    }
+        await dc.users.save(entity);
 
-    /** 显示用户所允许访问的应用 */
-    @action()
-    async canVisitApplicationIds(@connection conn: mysql.Connection, @UserId USER_ID, ) {
-        type ApplicationUser = { user_id: string, application_id: string }
-        let items = await select<ApplicationUser>(conn, 'application_user', { filter: `user_id = '${USER_ID}'` })
-        return items.map(o => o.application_id)
+        if (user.role_id) {
+            entity.role = await dc.roles.findOne(user.role_id);
+        }
+
+        return { id: entity.id, role: entity.role } as Partial<User>
     }
 
     @action()

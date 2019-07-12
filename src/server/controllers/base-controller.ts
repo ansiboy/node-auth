@@ -15,24 +15,31 @@ export interface SelectResult<T> {
 }
 
 export class BaseController extends Controller {
-    static async list<T>(r: Repository<T>, args?: SelectArguments, relations?: string[]): Promise<SelectResult<T>> {
-        args = args || {};
+    static async list<T>(repository: Repository<T>, options: {
+        selectArguments?: SelectArguments, relations?: string[],
+        fields?: Extract<keyof T, string>[]
+    }): Promise<SelectResult<T>> {
+
+        let { selectArguments, relations, fields } = options;
+        selectArguments = selectArguments || {};
 
         let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
-        if (!args.sortExpression) {
-            args.sortExpression = "create_date_time desc"
+        if (!selectArguments.sortExpression) {
+            selectArguments.sortExpression = "create_date_time desc"
         }
 
-        let arr = args.sortExpression.split(/\s+/).filter(o => o);
+        let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
         console.assert(arr.length > 0)
         order = {};
         order[arr[0]] = arr[1].toUpperCase() as any;
 
-        let [items, count] = await r.findAndCount({
-            where: args.filter, relations,
-            skip: args.startRowIndex,
-            take: args.maximumRows,
-            order: order
+        let [items, count] = await repository.findAndCount({
+            where: selectArguments.filter, relations,
+            skip: selectArguments.startRowIndex,
+            take: selectArguments.maximumRows,
+            order: order,
+            select: fields,
+
         });
 
         return { dataItems: items, totalRowCount: count } as SelectResult<T>
