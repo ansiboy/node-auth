@@ -1,4 +1,3 @@
-import { connect, execute, guid, connection, list, insert, update, select, executeSQL } from '../database';
 import { errors } from '../errors';
 import { TokenManager } from '../token';
 import * as db from 'maishu-mysql-helper';
@@ -6,13 +5,15 @@ import { Application } from './application';
 import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
 import * as mysql from 'mysql'
-import { UserId, currentUser, currentTokenId } from '../decorators';
+import { currentUserId, currentUser, currentTokenId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
 import { User } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController } from './base-controller';
 import { actionPaths } from '../common';
 import { remove } from 'maishu-mysql-helper';
+import SMSController from './sms';
+import { guid } from '../utility';
 
 @controller('/user')
 export default class UserController {
@@ -48,7 +49,7 @@ export default class UserController {
     }
 
     @action(actionPaths.user.register)
-    async register(@connection conn: mysql.Connection,
+    async register(@authDataContext dc: AuthDataContext,
         @formData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -64,28 +65,30 @@ export default class UserController {
 
         data = data || {}
 
-        let sql = `select code from sms_record where id = ?`
-        let [rows] = await execute(conn, sql, [smsId])
-        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-            throw errors.verifyCodeIncorrect(verifyCode)
-        }
+        // let sql = `select code from sms_record where id = ?`
+        // let [rows] = await execute(conn, sql, [smsId])
+        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+        //     throw errors.verifyCodeIncorrect(verifyCode)
+        // }
+        let ctrl = new SMSController();
+        if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
+            throw errors.verifyCodeIncorrect(verifyCode);
 
         let user = {
             id: guid(), mobile, password, data,
             create_date_time: new Date(Date.now()),
-        } as User
+        }
 
-        sql = 'insert into user set ?'
-        await execute(conn, sql, user)
-        // return user
-        // })
+        // sql = 'insert into user set ?'
+        // await execute(conn, sql, user)
+        await dc.users.insert(user)
 
         let token = await TokenManager.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
 
     @action(actionPaths.user.resetPassword)
-    async resetPassword(@connection conn: mysql.Connection, @formData { mobile, password, smsId, verifyCode }) {
+    async resetPassword(@authDataContext dc: AuthDataContext, @formData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -98,23 +101,30 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        let sql = `select * from user where mobile = ?`
-        let [rows] = await execute(conn, sql, [mobile, password])
+        // let sql = `select * from user where mobile = ?`
+        // let [rows] = await execute(conn, sql, [mobile, password])
 
-        let user: User = rows == null ? null : rows[0]
+        // let user: User = rows == null ? null : rows[0]
+        // if (user == null) {
+        //     throw errors.mobileNotExists(mobile)
+        // }
+
+        let user = await dc.users.findOne({ mobile });
         if (user == null) {
             throw errors.mobileNotExists(mobile)
         }
 
-        sql = `update user set password = ? where mobile = ?`
-        await execute(conn, sql, [password, mobile])
+        // sql = `update user set password = ? where mobile = ?`
+        // await execute(conn, sql, [password, mobile])
+        user.password = password;
+        await dc.users.save(user);
 
         let token = await TokenManager.create({ user_id: user.id } as UserToken);
         return { token: token.id, userId: user.id };
     }
 
     @action(actionPaths.user.resetMobile)
-    async resetMobile(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { mobile, smsId, verifyCode }) {
+    async resetMobile(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @formData { mobile, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -269,15 +279,16 @@ export default class UserController {
 
     /** 获取用户信息 */
     @action(actionPaths.user.item)
-    async item(@formData { userId }: { userId: string }) {
-        if (!userId) throw errors.argumentNull("userId")
+    async item(@authDataContext dc: AuthDataContext, @formData { userId }: { userId: string }) {
+        if (!userId) throw errors.userIdNull();
 
-        let user = await connect(async conn => {
-            let sql = `select id, user_name, mobile, openid, data from user where id = ?`
-            let [rows] = await execute(conn, sql, [userId])
-            return rows[0] as User
-        })
+        // let user = await connect(async conn => {
+        //     let sql = `select id, user_name, mobile, openid, data from user where id = ?`
+        //     let [rows] = await execute(conn, sql, [userId])
+        //     return rows[0] as User
+        // })
 
+        let user = await dc.users.findOne(userId);
         return user
     }
 
@@ -287,46 +298,52 @@ export default class UserController {
      * 1. userId string 
      */
     @action()
-    async getRoles(@UserId USER_ID) {
-        if (!USER_ID) throw errors.argumentNull('USER_ID')
+    async getRoles(@authDataContext dc: AuthDataContext, @currentUserId userId) {
+        if (!userId) throw errors.userIdNull();
 
-        let roles = await connect(async conn => {
-            let sql = `select r.*
-                       from user_role as ur left join role as r on ur.role_id = r.id
-                       where ur.user_id = ?`
-            let [rows] = await execute(conn, sql, [USER_ID])
-            return rows
-        })
+        // let roles = await connect(async conn => {
+        //     let sql = `select r.*
+        //                from user_role as ur left join role as r on ur.role_id = r.id
+        //                where ur.user_id = ?`
+        //     let [rows] = await execute(conn, sql, [USER_ID])
+        //     return rows
+        // })
 
-        return roles
+        // return roles
+        let item = await dc.users.findOne({
+            where: { id: userId },
+            select: ["role_id"]
+        });
+
+        return item.role_id;
     }
 
-    /**
-     * 设置用户权限
-     * @param param0 
-     * 1. userId string, 用设置权限的用户 ID
-     * 1. roleIds string[], 角色 ID 数组
-     */
-    @action()
-    async setRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
-        if (!userId) throw errors.argumentNull('userId')
-        if (!roleIds) throw errors.argumentNull('roleIds')
-        if (!conn) throw errors.argumentNull('conn')
-        if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
+    // /**
+    //  * 设置用户权限
+    //  * @param param0 
+    //  * 1. userId string, 用设置权限的用户 ID
+    //  * 1. roleIds string[], 角色 ID 数组
+    //  */
+    // @action()
+    // async setRoles(@connection conn: mysql.Connection, @formData { userId, roleIds }) {
+    //     if (!userId) throw errors.userIdNull();
+    //     if (!roleIds) throw errors.argumentNull('roleIds')
+    //     if (!conn) throw errors.argumentNull('conn')
+    //     if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
 
-        await execute(conn, `delete from user_role where user_id = ?`, userId)
+    //     await execute(conn, `delete from user_role where user_id = ?`, userId)
 
-        if (roleIds.length > 0) {
-            let values = []
-            let sql = `insert into user_role (user_id, role_id) values `
-            for (let i = 0; i < roleIds.length; i++) {
-                sql = sql + "(?,?)"
-                values.push(userId, roleIds[i])
-            }
+    //     if (roleIds.length > 0) {
+    //         let values = []
+    //         let sql = `insert into user_role (user_id, role_id) values `
+    //         for (let i = 0; i < roleIds.length; i++) {
+    //             sql = sql + "(?,?)"
+    //             values.push(userId, roleIds[i])
+    //         }
 
-            await execute(conn, sql, values)
-        }
-    }
+    //         await execute(conn, sql, values)
+    //     }
+    // }
 
     // /**
     //  * 获取用户角色编号
@@ -401,7 +418,7 @@ export default class UserController {
 
     /** 添加用户 */
     @action(actionPaths.user.add)
-    async add(@authDataContext dc: AuthDataContext, @formData { item }: Args.addUser): Promise<Partial<User>> {
+    async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: User }): Promise<Partial<User>> {
         // if (roleIds && !Array.isArray(roleIds))
         //     throw errors.argumentTypeIncorrect("roleId", "Array");
 
@@ -477,13 +494,6 @@ export default class UserController {
     /**
      * 获取当前用户所允许访问的资源列表
      */
-
-}
-
-
-
-module Args {
-    export type addUser = { item: User, roleIds: string[], conn: db.Connection }
 
 }
 

@@ -161,14 +161,14 @@ export class User implements Model {
     role?: Role;
 }
 
-@Entity("user_role", { synchronize: false })
-export class UserRole {
-    @PrimaryColumn({ type: "char", length: 36 })
-    user_id: string;
+// @Entity("user_role", { synchronize: false })
+// export class UserRole {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     user_id: string;
 
-    @PrimaryColumn({ type: "char", length: 36 })
-    role_id: string;
-}
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     role_id: string;
+// }
 
 @Entity("user-latest-login")
 export class UserLatestLogin implements Model {

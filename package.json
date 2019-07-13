@@ -26,7 +26,6 @@
     },
     "dependencies": {
         "is-class": "0.0.5",
-        "maishu-chitu-admin": "^2.14.0",
         "maishu-mysql-helper": "^1.1.0",
         "maishu-node-mvc": "^1.6.13",
         "memory-cache": "^0.2.0",

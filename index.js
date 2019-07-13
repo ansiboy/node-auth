@@ -1,5 +1,4 @@
 const { startServer } = require('maishu-node-mvc')
-const { start: startWeb } = require("maishu-chitu-admin")
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')

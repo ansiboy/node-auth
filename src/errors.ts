@@ -1,5 +1,6 @@
 export let errorStatusCodes = {
-    noPermission: 726
+    noPermission: 726,
+    userIdNull: 727
 }
 
 export let errorNames = {
@@ -32,6 +33,7 @@ export let errorNames = {
     userTokenNotExists: '724 UserTokenNotExists',
     appTokenNotExists: '725 AppTokenNotExists',
     noPermission: `${errorStatusCodes.noPermission} NoPermission`,
+    userIdNull: `${errorStatusCodes} UserIdNull`,
     forbidden: '403 forbidden'
 }
 
@@ -164,9 +166,15 @@ export let errors = {
     },
     userNameFormatError(username: string) {
         let msg = `用户名 '${username}' 格式错误`
-        let err = new Error(msg) as MyError;
+        let err = new Error(msg);
         err.name = errors.userNameFormatError.name
         return err
+    },
+    userIdNull() {
+        let msg = `用户 ID 号为空`;
+        let err  = new Error(msg);
+        err.name = errors.userIdNull.name;
+        return err;
     }
 }
 

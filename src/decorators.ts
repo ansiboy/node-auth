@@ -6,7 +6,7 @@ import url = require('url');
 import { createDataContext } from './dataContext';
 import { errors } from './errors';
 
-export let UserId = createParameterDecorator(async (req) => {
+export let currentUserId = createParameterDecorator(async (req) => {
     let formData = await getQueryObject(req);
     let tokenText = (req.headers['token'] as string) || formData["token"];
     if (!tokenText)

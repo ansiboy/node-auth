@@ -1,12 +1,10 @@
-import { connect, execute, guid, connection, list, get, executeSQL } from "../database";
 import { errors } from "../errors";
-// import { Connection, list, get, execute as executeSQL } from "maishu-mysql-helper";
 import { controller, action, formData } from "maishu-node-mvc";
-import * as mysql from 'mysql'
-import { UserId, ApplicationId, currentUser } from "../decorators";
+import { currentUserId, currentUser } from "../decorators";
 import { Role, User, RoleResource } from "../entities";
 import { AuthDataContext, authDataContext } from "../dataContext";
 import { actionPaths } from "../common";
+import { guid } from "../utility";
 
 // type RoleResource = {
 //     id: string,
@@ -20,7 +18,7 @@ import { actionPaths } from "../common";
 export default class RoleController {
 
     @action(actionPaths.role.add)
-    async add(@authDataContext dc: AuthDataContext, @UserId userId: string, @formData { item }: { item: Role }) {
+    async add(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.argumentFieldNull("name", "item");
         if (!userId) throw errors.argumentNull("userId");
@@ -68,7 +66,7 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action(actionPaths.role.list)
-    async list(@authDataContext dc: AuthDataContext, @UserId userId: string) {
+    async list(@authDataContext dc: AuthDataContext, @currentUserId userId: string) {
         if (!dc) throw errors.argumentNull("dc");
 
         let user = await dc.users.findOne(userId);
@@ -120,12 +118,15 @@ export default class RoleController {
      * roleId: 角色编号 
      */
     @action(actionPaths.role.resource.ids)
-    resourceIds(@formData { roleId }): Promise<string[]> {
-        if (!roleId) throw errors.argumentNull('roleId')
-        return connect(async conn => {
-            let sql = `select resource_id from role_resource where role_id = ?`
-            let [rows] = await execute(conn, sql, [roleId])
-            return rows.map(o => o.resource_id)
+    async resourceIds(@authDataContext dc: AuthDataContext, @formData { roleId }): Promise<string[]> {
+        if (!roleId) throw errors.argumentFieldNull('roleId', "formData");
+
+        let items = await dc.roleResources.find({
+            where: { role_id: roleId },
+            select: ["resource_id"]
         })
+
+        let r = items.map(o => o.resource_id);
+        return r;
     }
 }

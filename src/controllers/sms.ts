@@ -1,10 +1,10 @@
 import * as QcloudSms from 'qcloudsms_js'
 import * as settings from '../settings'
 import { errors } from '../errors';
-import { connect, execute, guid, connection } from '../database';
 import { controller, action, formData } from 'maishu-node-mvc';
-import * as mysql from 'mysql'
 import { actionPaths } from '../common';
+import { authDataContext, AuthDataContext } from '../dataContext';
+import { guid } from '../utility';
 
 interface SMSRecord {
     id: string,
@@ -17,7 +17,7 @@ interface SMSRecord {
 @controller('sms')
 export default class SMSController {
     @action(actionPaths.sms.sendVerifyCode)
-    async sendVerifyCode(@formData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    async sendVerifyCode(@authDataContext dc: AuthDataContext, @formData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
@@ -26,39 +26,51 @@ export default class SMSController {
         let verifyCodeText: string = settings.verifyCodeText.default;
 
         let msg = verifyCodeText.replace('{0}', verifyCode);
-        let obj = await connect(async conn => {
+        // let obj = await connect(async conn => {
 
-            if (type == 'register') {
-                // 检查手机号码未被注册
-                let sql = 'select mobile from user where mobile = ?'
-                let [rows] = await execute(conn, sql, [mobile])
-                if (rows.length != 0)
-                    throw errors.mobileExists(mobile)
-            }
+        if (type == 'register') {
+            // 检查手机号码未被注册
+            // let sql = 'select mobile from user where mobile = ?'
+            // let [rows] = await execute(conn, sql, [mobile])
+            // if (rows.length != 0)
+            //     throw errors.mobileExists(mobile)
+            let smsRecords = await dc.smsRecords.find({ where: { mobile }, select: ["id"] });
+            if (smsRecords.length != 0)
+                throw errors.mobileExists(mobile);
+        }
 
-            let sql = 'insert into sms_record set ?'
-            let obj: SMSRecord = {
-                id: guid(), mobile, content: msg,
-                code: verifyCode, create_date_time: new Date(Date.now())
-            }
-            await execute(conn, sql, obj)
-            sendMobileMessage(mobile, msg)
-            return obj
-        })
+        // let sql = 'insert into sms_record set ?'
+        // let obj: SMSRecord = {
+        //     id: guid(), mobile, content: msg,
+        //     code: verifyCode, create_date_time: new Date(Date.now())
+        // }
+        // await execute(conn, sql, obj)
+        let obj: SMSRecord = {
+            id: guid(), mobile, content: msg,
+            code: verifyCode, create_date_time: new Date(Date.now())
+        }
+        await dc.smsRecords.insert(obj);
+        sendMobileMessage(mobile, msg)
+        return { smsId: obj.id };
+        // })
 
-        return { smsId: obj.id }
+        // return { smsId: obj.id }
     }
 
     @action(actionPaths.sms.checkVerifyCode)
-    async checkVerifyCode(@connection conn: mysql.Connection, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
-        if (!conn) throw errors.argumentNull('conn')
-        let sql = `select code from sms_record where id = ?`
-        let [rows] = await execute(conn, sql, [smsId])
-        if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-            // throw errors.verifyCodeIncorrect(verifyCode)
-            return false
-        }
-        return true
+    async checkVerifyCode(@authDataContext dc: AuthDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
+        // if (!conn) throw errors.argumentNull('conn')
+        // let sql = `select code from sms_record where id = ?`
+        // let [rows] = await execute(conn, sql, [smsId])
+        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
+        //     return false
+        // }
+        // return true
+        let smsRecord = await dc.smsRecords.findOne(smsId);
+        if (smsRecord == null || smsRecord.code != verifyCode)
+            return false;
+
+        return true;
     }
 
 }
