@@ -1,5 +1,7 @@
 import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 
+export type LoginResult = { token: string, userId: string, roleId: string }
+
 interface Model {
     id: string;
     create_date_time: Date;
@@ -160,15 +162,6 @@ export class User implements Model {
     @JoinColumn({ name: "role_id", referencedColumnName: "id" })
     role?: Role;
 }
-
-// @Entity("user_role", { synchronize: false })
-// export class UserRole {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     user_id: string;
-
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     role_id: string;
-// }
 
 @Entity("user-latest-login")
 export class UserLatestLogin implements Model {

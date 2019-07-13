@@ -3,12 +3,13 @@ import { TokenManager } from '../token';
 import { controller, formData, action } from 'maishu-node-mvc';
 import { currentUserId, currentUser, currentTokenId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
-import { User } from '../entities';
+import { User, LoginResult } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
 import { actionPaths } from '../common';
 import SMSController from './sms';
 import { guid } from '../utility';
+
 
 @controller('/user')
 export default class UserController {
@@ -96,21 +97,11 @@ export default class UserController {
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
-        // let sql = `select * from user where mobile = ?`
-        // let [rows] = await execute(conn, sql, [mobile, password])
-
-        // let user: User = rows == null ? null : rows[0]
-        // if (user == null) {
-        //     throw errors.mobileNotExists(mobile)
-        // }
-
         let user = await dc.users.findOne({ mobile });
         if (user == null) {
             throw errors.mobileNotExists(mobile)
         }
 
-        // sql = `update user set password = ? where mobile = ?`
-        // await execute(conn, sql, [password, mobile])
         user.password = password;
         await dc.users.save(user);
 
@@ -143,7 +134,7 @@ export default class UserController {
         return { id: userId };
     }
 
-    async loginByUserName(dc: AuthDataContext, { username, password }) {
+    async loginByUserName(dc: AuthDataContext, { username, password }): Promise<LoginResult> {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -180,62 +171,48 @@ export default class UserController {
         }
 
         let token = await TokenManager.create({ user_id: user.id } as UserToken)
-        return { token: token.id, userId: user.id }
+        return { token: token.id, userId: user.id, roleId: user.role_id }
     }
 
-    private async loginByOpenId<T extends { openid }>(dc: AuthDataContext, args: T) {
+    private async loginByOpenId<T extends { openid }>(dc: AuthDataContext, args: T): Promise<LoginResult> {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
-        // let sql = `select id from user where openid = ?`
-        // let [rows] = await execute(conn, sql, [openid])
+ 
         let user = await dc.users.findOne({ openid: openid });
-        // let user: User
         if (user == null) {
             user = {
                 id: guid(), openid, create_date_time: new Date(Date.now()),
                 data: args
             } as User
-            // sql = `insert into user set ?`
-            // await execute(conn, sql, user)
             await dc.users.save(user);
         }
 
         let token = await TokenManager.create({ user_id: user.id });
-        return { token: token.id, userId: user.id };
+        return { token: token.id, userId: user.id, roleId: user.role_id };
     }
 
-    private async loginByVerifyCode(@authDataContext dc: AuthDataContext, @formData args: { mobile: string, smsId: string, verifyCode: string }) {
+    private async loginByVerifyCode(@authDataContext dc: AuthDataContext,
+        @formData args: { mobile: string, smsId: string, verifyCode: string }): Promise<LoginResult> {
+
         let { mobile, smsId, verifyCode } = args
-        // let sql = `select id form user where mobile = ?`
-        // let [rows] = await execute(conn, sql, [args.mobile])
-        // if (rows.length == 0) {
-        //     throw errors.mobileNotExists(mobile)
-        // }
+
         let user = await dc.users.findOne({ mobile });
         if (user == null)
             throw errors.mobileExists(mobile);
 
-        // sql = `select code from sms_record where id = ?`;
-        // [rows] = await execute(conn, sql, [smsId])
-        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-        //     throw errors.verifyCodeIncorrect(verifyCode)
-        // }
         let smsRecord = await dc.smsRecords.findOne(smsId);
         if (smsRecord == null || smsRecord.code != verifyCode)
             throw errors.verifyCodeIncorrect(verifyCode);
 
-        // let user = rows[0]
         let token = await TokenManager.create({ user_id: user.id } as UserToken)
-        return { token: token.id, userId: user.id }
-        // })
-        // return r
+        return { token: token.id, userId: user.id, roleId: user.role_id }
     }
 
     @action(actionPaths.user.login)
-    async login(@authDataContext dc: AuthDataContext, @formData args: any): Promise<{ token: string, userId: string }> {
+    async login(@authDataContext dc: AuthDataContext, @formData args: any): Promise<LoginResult> {
         args = args || {}
 
-        let p: { token: string, userId: string };
+        let p: LoginResult;
         if (args.openid) {
             p = await this.loginByOpenId(dc, args)
         }
@@ -276,12 +253,6 @@ export default class UserController {
     async item(@authDataContext dc: AuthDataContext, @formData { userId }: { userId: string }) {
         if (!userId) throw errors.userIdNull();
 
-        // let user = await connect(async conn => {
-        //     let sql = `select id, user_name, mobile, openid, data from user where id = ?`
-        //     let [rows] = await execute(conn, sql, [userId])
-        //     return rows[0] as User
-        // })
-
         let user = await dc.users.findOne(userId);
         return user
     }
@@ -295,15 +266,6 @@ export default class UserController {
     async getRoles(@authDataContext dc: AuthDataContext, @currentUserId userId) {
         if (!userId) throw errors.userIdNull();
 
-        // let roles = await connect(async conn => {
-        //     let sql = `select r.*
-        //                from user_role as ur left join role as r on ur.role_id = r.id
-        //                where ur.user_id = ?`
-        //     let [rows] = await execute(conn, sql, [USER_ID])
-        //     return rows
-        // })
-
-        // return roles
         let item = await dc.users.findOne({
             where: { id: userId },
             select: ["role_id"]
@@ -471,8 +433,8 @@ export default class UserController {
         return { id: entity.id, role: entity.role } as Partial<User>
     }
 
-    @action()
-    async UserLatestLogin(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }) {
+    @action(actionPaths.user.latestLogin)
+    async userLatestLogin(@authDataContext dc: AuthDataContext, @formData { userIds }: { userIds: string[] }) {
         let items = await dc.userLatestLogins.createQueryBuilder()
             .where(" id in (...:userIds)")
             .setParameter("userIds", userIds)
@@ -480,10 +442,6 @@ export default class UserController {
 
         return items;
     }
-
-    /**
-     * 获取当前用户所允许访问的资源列表
-     */
 
 }
 

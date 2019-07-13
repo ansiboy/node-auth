@@ -22,6 +22,7 @@ export let actionPaths = {
         isMobileRegister: `${basePath}/user/isMobileRegister`,
         isUserNameRegister: `${basePath}/user/isUserNameRegister`,
         isEmailRegister: `${basePath}/user/isEmailRegister`,
+        latestLogin: `${basePath}/user/latestLogin`
     },
     role: {
         add: `${basePath}/role/add`,
@@ -57,6 +58,9 @@ export let actionPaths = {
         item: `${basePath}/resource/item`,
         remove: `${basePath}/resource/remove`,
         update: `${basePath}/resource/update`,
+        path: {
+            set: `${basePath}/resource/path/set`
+        }
     },
     sms: {
         sendVerifyCode: `${basePath}/sms/sendVerifyCode`,
