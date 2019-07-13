@@ -2,9 +2,8 @@ import { controller, action, formData } from "maishu-node-mvc";
 import { authDataContext, AuthDataContext } from "../dataContext";
 import { Path } from "../entities";
 import { errors } from "../errors";
-import { guid } from "../database";
-import { remove } from "maishu-mysql-helper";
 import { actionPaths } from "../common";
+import { guid } from "../utility";
 
 @controller("path")
 export class PathController {

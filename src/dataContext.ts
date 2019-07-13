@@ -2,10 +2,10 @@ import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, UserRole, Path, RoleResource, ResourceData } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourceData } from "./entities";
 import path = require("path");
-import { guid } from "./database";
 import { constants, actionPaths } from "./common";
+import { guid } from "./utility";
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -16,7 +16,6 @@ export class AuthDataContext {
     users: Repository<User>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
-    userRoles: Repository<UserRole>;
     paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
 
@@ -29,7 +28,6 @@ export class AuthDataContext {
         this.users = this.entityManager.getRepository(User);
         this.userLatestLogins = this.entityManager.getRepository(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
-        this.userRoles = this.entityManager.getRepository(UserRole);
         this.paths = this.entityManager.getRepository(Path);
         this.roleResources = this.entityManager.getRepository(RoleResource);
     }

@@ -1,17 +1,12 @@
 import { errors } from '../errors';
 import { TokenManager } from '../token';
-import * as db from 'maishu-mysql-helper';
-import { Application } from './application';
-import RoleController from './role';
 import { controller, formData, action } from 'maishu-node-mvc';
-import * as mysql from 'mysql'
 import { currentUserId, currentUser, currentTokenId } from '../decorators';
 import { authDataContext, AuthDataContext } from '../dataContext';
 import { User } from '../entities';
 import LatestLoginController from './latest-login';
-import { BaseController } from './base-controller';
+import { BaseController, SelectArguments } from './base-controller';
 import { actionPaths } from '../common';
-import { remove } from 'maishu-mysql-helper';
 import SMSController from './sms';
 import { guid } from '../utility';
 
@@ -160,7 +155,6 @@ export default class UserController {
             usernameRegex.test(username) ? 'username' :
                 emailRegex.test(username) ? 'email' : 'mobile' //'mobile'
 
-        let sql: string
         let user: User;
         switch (type) {
             default:
@@ -266,7 +260,7 @@ export default class UserController {
     }
 
     @action(actionPaths.user.logout)
-    async logout(@authDataContext dc: AuthDataContext, @currentTokenId tokenId: string) {
+    async logout(@currentTokenId tokenId: string) {
         await TokenManager.remove(tokenId);
         return {};
     }
@@ -389,7 +383,7 @@ export default class UserController {
     // }
 
     @action(actionPaths.user.list)
-    async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: db.SelectArguments }) {
+    async list(@authDataContext dc: AuthDataContext, @formData { args }: { args: SelectArguments }) {
         args = args || {};
         if (args.filter) {
             args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
@@ -419,10 +413,6 @@ export default class UserController {
     /** 添加用户 */
     @action(actionPaths.user.add)
     async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: User }): Promise<Partial<User>> {
-        // if (roleIds && !Array.isArray(roleIds))
-        //     throw errors.argumentTypeIncorrect("roleId", "Array");
-
-        let p: Promise<boolean>[] = []
         if (item.mobile) {
             let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
             if (isMobileRegister)

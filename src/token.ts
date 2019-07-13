@@ -2,9 +2,9 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
-import { guid } from './database';
 import { createDataContext } from './dataContext';
 import { Token } from './entities';
+import { guid } from './utility';
 
 const tableName = 'token';
 

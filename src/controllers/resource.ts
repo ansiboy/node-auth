@@ -1,4 +1,3 @@
-import { execute, guid, connection } from "../database";
 import { errors } from "../errors";
 import { controller, formData, action } from "maishu-node-mvc";
 import * as mysql from 'mysql'
@@ -6,6 +5,7 @@ import { Resource, User } from "../entities";
 import { authDataContext, AuthDataContext } from "../dataContext";
 import { actionPaths } from "../common";
 import { currentUser } from "../decorators";
+import { guid } from "../utility";
 
 
 
