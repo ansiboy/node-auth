@@ -19,40 +19,43 @@ export class PathController {
         return items;
     }
 
-    @action()
-    async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
-        if (!item) throw errors.argumentNull("item");
 
-        item.id = guid();
-        item.create_date_time = new Date(Date.now());
+    // @action()
+    // async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
+    //     if (!item) throw errors.argumentNull("item");
 
-        await dc.paths.save(item);
+    //     item.id = guid();
+    //     item.create_date_time = new Date(Date.now());
 
-        return { id: item.id, create_date_time: item.create_date_time }
-    }
+    //     await dc.paths.save(item);
 
-    @action()
-    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
-        if (!item) throw errors.argumentNull("item");
-        if (!item.id) throw errors.argumentFieldNull("id", "item");
-        if (!item.value) throw errors.argumentFieldNull("value", "item");
+    //     return { id: item.id, create_date_time: item.create_date_time }
+    // }
 
-        let entity = await dc.paths.findOne({ id: item.id });
-        if (!entity)
-            throw errors.objectNotExistWithId(item.id, "path");
+    // @action()
+    // async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
+    //     if (!item) throw errors.argumentNull("item");
+    //     if (!item.id) throw errors.argumentFieldNull("id", "item");
+    //     if (!item.value) throw errors.argumentFieldNull("value", "item");
 
-        entity.value = item.value;
-        await dc.paths.save(item);
+    //     let entity = await dc.paths.findOne({ id: item.id });
+    //     if (!entity)
+    //         throw errors.objectNotExistWithId(item.id, "path");
 
-        return { id: item.id, create_date_time: item.create_date_time }
-    }
+    //     entity.value = item.value;
+    //     await dc.paths.save(item);
 
-    @action()
-    async remove(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Partial<Path>> {
-        if (!id) throw errors.argumentFieldNull("id", "formData");
+    //     return { id: item.id, create_date_time: item.create_date_time }
+    // }
 
-        await dc.paths.delete({ id });
-        return { id }
-    }
+    // @action()
+    // async remove(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Partial<Path>> {
+    //     if (!id) throw errors.argumentFieldNull("id", "formData");
+
+    //     await dc.paths.delete({ id });
+    //     return { id }
+    // }
+
+
 
 }
