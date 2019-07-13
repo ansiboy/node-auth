@@ -1,5 +1,4 @@
 import { Controller } from "maishu-node-mvc";
-import { SelectArguments, SelectResult } from "maishu-mysql-helper";
 import { Repository } from "typeorm";
 
 export interface SelectArguments {
