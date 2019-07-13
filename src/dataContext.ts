@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection } from "typeorm";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourceData } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource } from "./entities";
 import path = require("path");
 import { constants, actionPaths } from "./common";
 import { guid } from "./utility";
@@ -412,7 +412,8 @@ async function initResource(dc: AuthDataContext) {
         page_path: `#${pageBasePath}/path/list`,
         icon: "icon-rss",
         api_paths: [
-            { id: guid(), value: actionPaths.path.list, create_date_time: new Date(Date.now()) }
+            { id: guid(), value: actionPaths.path.list, create_date_time: new Date(Date.now()) },
+            { id: guid(), value: actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
         ]
     }
 
@@ -445,13 +446,14 @@ async function initResource(dc: AuthDataContext) {
         parent_id: personalResource.id,
         page_path: `#${pageBasePath}/personal/change-mobile`,
         api_paths: [
-            { id: guid(), value: actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
             { id: guid(), value: actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
         ]
     }
 
     await dc.resources.save(changeMobileResource);
-    await createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, []);
+    await createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, [
+        { id: guid(), value: actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
+    ]);
 
     let changePasswordResource: Resource = {
         id: guid(),
@@ -463,13 +465,14 @@ async function initResource(dc: AuthDataContext) {
         parent_id: personalResource.id,
         page_path: `#${pageBasePath}/personal/change-password`,
         api_paths: [
-            { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
             { id: guid(), value: actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
         ]
     }
 
     await dc.resources.save(changePasswordResource);
-    await createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, []);
+    await createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, [
+        { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
+    ]);
 }
 
 
