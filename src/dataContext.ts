@@ -298,7 +298,7 @@ async function initResource(dc: AuthDataContext) {
     await createRemoveButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
         { id: guid(), value: actionPaths.role.remove, create_date_time: new Date(Date.now()) },
     ]);
-    await createViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
+    await createSmallViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
         { id: guid(), value: actionPaths.role.item, create_date_time: new Date(Date.now()) },
     ]);
 
@@ -377,7 +377,7 @@ async function initResource(dc: AuthDataContext) {
         { id: guid(), value: actionPaths.menu.remove, create_date_time: new Date(Date.now()) },
         { id: guid(), value: actionPaths.resource.remove, create_date_time: new Date(Date.now()) },
     ]);
-    await createViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
+    await createSmallViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
         { id: guid(), value: actionPaths.menu.item, create_date_time: new Date(Date.now()) },
         { id: guid(), value: actionPaths.resource.item, create_date_time: new Date(Date.now()) },
     ]);
@@ -418,9 +418,9 @@ async function initResource(dc: AuthDataContext) {
     }
 
     await dc.resources.save(pathResource);
-    await createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+    // await createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
     await createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
-    await createViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+    await createSmallViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
 
     let personalResource: Resource = {
         id: personalResourceId,
@@ -618,7 +618,7 @@ function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path:
     return dc.resources.save(menuResource);
 }
 
-function createViewButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
+function createSmallViewButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
     let menuResource: Resource = {
         id: guid(),
         name: "查看",
