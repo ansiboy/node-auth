@@ -104,18 +104,10 @@ let UserController = class UserController {
                 throw errors_1.errors.argumentNull('smsId');
             if (verifyCode == null)
                 throw errors_1.errors.argumentNull('verifyCode');
-            // let sql = `select * from user where mobile = ?`
-            // let [rows] = await execute(conn, sql, [mobile, password])
-            // let user: User = rows == null ? null : rows[0]
-            // if (user == null) {
-            //     throw errors.mobileNotExists(mobile)
-            // }
             let user = yield dc.users.findOne({ mobile });
             if (user == null) {
                 throw errors_1.errors.mobileNotExists(mobile);
             }
-            // sql = `update user set password = ? where mobile = ?`
-            // await execute(conn, sql, [password, mobile])
             user.password = password;
             yield dc.users.save(user);
             let token = yield token_1.TokenManager.create({ user_id: user.id });
@@ -174,7 +166,7 @@ let UserController = class UserController {
                 throw errors_1.errors.usernameOrPasswordIncorrect(username);
             }
             let token = yield token_1.TokenManager.create({ user_id: user.id });
-            return { token: token.id, userId: user.id };
+            return { token: token.id, userId: user.id, roleId: user.role_id };
         });
     }
     loginByOpenId(dc, args) {
@@ -182,47 +174,29 @@ let UserController = class UserController {
             let { openid } = args;
             if (!openid)
                 throw errors_1.errors.argumentNull('openid');
-            // let sql = `select id from user where openid = ?`
-            // let [rows] = await execute(conn, sql, [openid])
             let user = yield dc.users.findOne({ openid: openid });
-            // let user: User
             if (user == null) {
                 user = {
                     id: utility_1.guid(), openid, create_date_time: new Date(Date.now()),
                     data: args
                 };
-                // sql = `insert into user set ?`
-                // await execute(conn, sql, user)
                 yield dc.users.save(user);
             }
             let token = yield token_1.TokenManager.create({ user_id: user.id });
-            return { token: token.id, userId: user.id };
+            return { token: token.id, userId: user.id, roleId: user.role_id };
         });
     }
     loginByVerifyCode(dc, args) {
         return __awaiter(this, void 0, void 0, function* () {
             let { mobile, smsId, verifyCode } = args;
-            // let sql = `select id form user where mobile = ?`
-            // let [rows] = await execute(conn, sql, [args.mobile])
-            // if (rows.length == 0) {
-            //     throw errors.mobileNotExists(mobile)
-            // }
             let user = yield dc.users.findOne({ mobile });
             if (user == null)
                 throw errors_1.errors.mobileExists(mobile);
-            // sql = `select code from sms_record where id = ?`;
-            // [rows] = await execute(conn, sql, [smsId])
-            // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-            //     throw errors.verifyCodeIncorrect(verifyCode)
-            // }
             let smsRecord = yield dc.smsRecords.findOne(smsId);
             if (smsRecord == null || smsRecord.code != verifyCode)
                 throw errors_1.errors.verifyCodeIncorrect(verifyCode);
-            // let user = rows[0]
             let token = yield token_1.TokenManager.create({ user_id: user.id });
-            return { token: token.id, userId: user.id };
-            // })
-            // return r
+            return { token: token.id, userId: user.id, roleId: user.role_id };
         });
     }
     login(dc, args) {
@@ -266,11 +240,6 @@ let UserController = class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
                 throw errors_1.errors.userIdNull();
-            // let user = await connect(async conn => {
-            //     let sql = `select id, user_name, mobile, openid, data from user where id = ?`
-            //     let [rows] = await execute(conn, sql, [userId])
-            //     return rows[0] as User
-            // })
             let user = yield dc.users.findOne(userId);
             return user;
         });
@@ -284,14 +253,6 @@ let UserController = class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             if (!userId)
                 throw errors_1.errors.userIdNull();
-            // let roles = await connect(async conn => {
-            //     let sql = `select r.*
-            //                from user_role as ur left join role as r on ur.role_id = r.id
-            //                where ur.user_id = ?`
-            //     let [rows] = await execute(conn, sql, [USER_ID])
-            //     return rows
-            // })
-            // return roles
             let item = yield dc.users.findOne({
                 where: { id: userId },
                 select: ["role_id"]
@@ -434,7 +395,7 @@ let UserController = class UserController {
             return { id: entity.id, role: entity.role };
         });
     }
-    UserLatestLogin(dc, { userIds }) {
+    userLatestLogin(dc, { userIds }) {
         return __awaiter(this, void 0, void 0, function* () {
             let items = yield dc.userLatestLogins.createQueryBuilder()
                 .where(" id in (...:userIds)")
@@ -488,7 +449,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetMobile", null);
 __decorate([
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, dataContext_1.authDataContext),
+    __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
@@ -557,12 +519,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
 __decorate([
-    maishu_node_mvc_1.action(),
+    maishu_node_mvc_1.action(common_1.actionPaths.user.latestLogin),
     __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
-], UserController.prototype, "UserLatestLogin", null);
+], UserController.prototype, "userLatestLogin", null);
 UserController = __decorate([
     maishu_node_mvc_1.controller('/user')
 ], UserController);

@@ -266,7 +266,7 @@ function initResource(dc) {
         yield createRemoveButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
             { id: utility_1.guid(), value: common_1.actionPaths.role.remove, create_date_time: new Date(Date.now()) },
         ]);
-        yield createViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
+        yield createSmallViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
             { id: utility_1.guid(), value: common_1.actionPaths.role.item, create_date_time: new Date(Date.now()) },
         ]);
         let rolePermissionResource = {
@@ -337,7 +337,7 @@ function initResource(dc) {
             { id: utility_1.guid(), value: common_1.actionPaths.menu.remove, create_date_time: new Date(Date.now()) },
             { id: utility_1.guid(), value: common_1.actionPaths.resource.remove, create_date_time: new Date(Date.now()) },
         ]);
-        yield createViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
+        yield createSmallViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
             { id: utility_1.guid(), value: common_1.actionPaths.menu.item, create_date_time: new Date(Date.now()) },
             { id: utility_1.guid(), value: common_1.actionPaths.resource.item, create_date_time: new Date(Date.now()) },
         ]);
@@ -368,13 +368,14 @@ function initResource(dc) {
             page_path: `#${pageBasePath}/path/list`,
             icon: "icon-rss",
             api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.path.list, create_date_time: new Date(Date.now()) }
+                { id: utility_1.guid(), value: common_1.actionPaths.path.list, create_date_time: new Date(Date.now()) },
+                { id: utility_1.guid(), value: common_1.actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
             ]
         };
         yield dc.resources.save(pathResource);
-        yield createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+        // await createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         yield createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
-        yield createViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
+        yield createSmallViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         let personalResource = {
             id: personalResourceId,
             name: "个人中心",
@@ -397,12 +398,13 @@ function initResource(dc) {
             parent_id: personalResource.id,
             page_path: `#${pageBasePath}/personal/change-mobile`,
             api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
                 { id: utility_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
             ]
         };
         yield dc.resources.save(changeMobileResource);
-        yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, []);
+        yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, [
+            { id: utility_1.guid(), value: common_1.actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
+        ]);
         let changePasswordResource = {
             id: utility_1.guid(),
             name: "修改密码",
@@ -413,12 +415,13 @@ function initResource(dc) {
             parent_id: personalResource.id,
             page_path: `#${pageBasePath}/personal/change-password`,
             api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
                 { id: utility_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
             ]
         };
         yield dc.resources.save(changePasswordResource);
-        yield createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, []);
+        yield createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, [
+            { id: utility_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
+        ]);
     });
 }
 function initRoleResourceTable(dc) {
@@ -547,7 +550,7 @@ function createRemoveButtonResource(dc, parentId, path, apiPaths) {
     };
     return dc.resources.save(menuResource);
 }
-function createViewButtonResource(dc, parentId, path, apiPaths) {
+function createSmallViewButtonResource(dc, parentId, path, apiPaths) {
     let menuResource = {
         id: utility_1.guid(),
         name: "查看",

@@ -1,5 +1,5 @@
 import { AuthDataContext } from '../dataContext';
-import { User } from '../entities';
+import { User, LoginResult } from '../entities';
 import { SelectArguments } from './base-controller';
 export default class UserController {
     /** 手机是否已注册 */
@@ -41,16 +41,10 @@ export default class UserController {
     loginByUserName(dc: AuthDataContext, { username, password }: {
         username: any;
         password: any;
-    }): Promise<{
-        token: string;
-        userId: string;
-    }>;
+    }): Promise<LoginResult>;
     private loginByOpenId;
     private loginByVerifyCode;
-    login(dc: AuthDataContext, args: any): Promise<{
-        token: string;
-        userId: string;
-    }>;
+    login(dc: AuthDataContext, args: any): Promise<LoginResult>;
     logout(tokenId: string): Promise<{}>;
     /** 获取登录用户的信息 */
     me(user: User): Promise<User>;
@@ -79,7 +73,7 @@ export default class UserController {
     update(dc: AuthDataContext, { user }: {
         user: User;
     }): Promise<Partial<User>>;
-    UserLatestLogin(dc: AuthDataContext, { userIds }: {
+    userLatestLogin(dc: AuthDataContext, { userIds }: {
         userIds: string[];
     }): Promise<import("../entities").UserLatestLogin[]>;
 }

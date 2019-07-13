@@ -18,4 +18,8 @@ export default class ResourceController {
     item(dc: AuthDataContext, { id }: {
         id: any;
     }): Promise<Resource>;
+    set(dc: AuthDataContext, { resourceId, paths }: {
+        resourceId: string;
+        paths: [];
+    }): Promise<void>;
 }

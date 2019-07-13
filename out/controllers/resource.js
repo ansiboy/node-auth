@@ -50,7 +50,6 @@ let ResourceController = class ResourceController {
                 throw errors_1.errors.argumentNull('item');
             if (!item.id)
                 throw errors_1.errors.argumentFieldNull('id', 'item');
-            // create_date_time type 不能更新
             delete item.create_date_time;
             delete item.type;
             yield dc.resources.save(item);
@@ -86,6 +85,20 @@ let ResourceController = class ResourceController {
                 throw errors_1.errors.argumentFieldNull("id", "formData");
             let item = yield dc.resources.findOne(id);
             return item;
+        });
+    }
+    set(dc, { resourceId, paths }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!resourceId)
+                throw errors_1.errors.argumentFieldNull("resourceId", "formData");
+            if (!paths)
+                throw errors_1.errors.argumentFieldNull("pathIds", "formData");
+            yield dc.paths.delete({ resource_id: resourceId });
+            let items = paths.map(o => ({
+                id: utility_1.guid(), create_date_time: new Date(Date.now()),
+                value: o, resource_id: resourceId,
+            }));
+            yield dc.paths.insert(items);
         });
     }
 };
@@ -124,6 +137,14 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "item", null);
+__decorate([
+    maishu_node_mvc_1.action(common_1.actionPaths.resource.path.set),
+    __param(0, dataContext_1.authDataContext),
+    __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
+], ResourceController.prototype, "set", null);
 ResourceController = __decorate([
     maishu_node_mvc_1.controller("resource")
 ], ResourceController);

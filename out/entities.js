@@ -198,13 +198,6 @@ User = __decorate([
     typeorm_1.Entity("user")
 ], User);
 exports.User = User;
-// @Entity("user_role", { synchronize: false })
-// export class UserRole {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     user_id: string;
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     role_id: string;
-// }
 let UserLatestLogin = class UserLatestLogin {
 };
 __decorate([

@@ -22,9 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
-const errors_1 = require("../errors");
 const common_1 = require("../common");
-const utility_1 = require("../utility");
 let PathController = class PathController {
     list(dc, { resourceId }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,40 +36,6 @@ let PathController = class PathController {
             return items;
         });
     }
-    add(dc, { item }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!item)
-                throw errors_1.errors.argumentNull("item");
-            item.id = utility_1.guid();
-            item.create_date_time = new Date(Date.now());
-            yield dc.paths.save(item);
-            return { id: item.id, create_date_time: item.create_date_time };
-        });
-    }
-    update(dc, { item }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!item)
-                throw errors_1.errors.argumentNull("item");
-            if (!item.id)
-                throw errors_1.errors.argumentFieldNull("id", "item");
-            if (!item.value)
-                throw errors_1.errors.argumentFieldNull("value", "item");
-            let entity = yield dc.paths.findOne({ id: item.id });
-            if (!entity)
-                throw errors_1.errors.objectNotExistWithId(item.id, "path");
-            entity.value = item.value;
-            yield dc.paths.save(item);
-            return { id: item.id, create_date_time: item.create_date_time };
-        });
-    }
-    remove(dc, { id }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!id)
-                throw errors_1.errors.argumentFieldNull("id", "formData");
-            yield dc.paths.delete({ id });
-            return { id };
-        });
-    }
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.path.list),
@@ -80,27 +44,6 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], PathController.prototype, "list", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
-    __metadata("design:returntype", Promise)
-], PathController.prototype, "add", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
-    __metadata("design:returntype", Promise)
-], PathController.prototype, "update", null);
-__decorate([
-    maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
-    __metadata("design:returntype", Promise)
-], PathController.prototype, "remove", null);
 PathController = __decorate([
     maishu_node_mvc_1.controller("path")
 ], PathController);

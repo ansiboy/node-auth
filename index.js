@@ -2,7 +2,7 @@ const { startServer } = require('maishu-node-mvc')
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')
-const { start } = require('./out/server/index')
+const { start } = require('./out/index')
 
 //===========================================
 // 目标主机，服务所在的主机

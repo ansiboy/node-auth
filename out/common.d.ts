@@ -19,6 +19,7 @@ export declare let actionPaths: {
         isMobileRegister: string;
         isUserNameRegister: string;
         isEmailRegister: string;
+        latestLogin: string;
     };
     role: {
         add: string;
@@ -52,6 +53,9 @@ export declare let actionPaths: {
         item: string;
         remove: string;
         update: string;
+        path: {
+            set: string;
+        };
     };
     sms: {
         sendVerifyCode: string;

@@ -1,3 +1,8 @@
+export declare type LoginResult = {
+    token: string;
+    userId: string;
+    roleId: string;
+};
 interface Model {
     id: string;
     create_date_time: Date;
