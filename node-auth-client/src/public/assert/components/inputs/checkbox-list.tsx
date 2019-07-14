@@ -5,7 +5,7 @@ import { DataSource } from "maishu-wuzhui";
 import { ValidateDataField } from "assert/index";
 
 interface CheckboxListFieldProps<T> {
-    dataField: keyof T, label: string,
+    dataField: Extract<keyof T,string>, label: string,
     dataType: 'string' | 'number',
     defaultValue?: string | number,
     dataSource: DataSource<T>,
