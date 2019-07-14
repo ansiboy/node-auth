@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        ".tscache": true,
+        "**/.baseDir.*": true,
+    }
+}

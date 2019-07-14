@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "startup"
+		},
+		{
+			"path": "node-auth-server"
+		},
+		{
+			"path": "node-auth-client"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.classpath": true,
+			"**/.project": true,
+			"**/.settings": true,
+			"**/.factorypath": true
+		}
+	}
+}

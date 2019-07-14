@@ -1,0 +1,10 @@
+{
+    "port": 2857,
+    "db": {
+        "user": "root",
+        "password": "81263",
+        "name": "shop_auth",
+        "host": "localhost",
+        "port": 3306
+    }
+}
