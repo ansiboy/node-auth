@@ -3,8 +3,9 @@ import * as settings from '../settings'
 import { errors } from '../errors';
 import { controller, action, formData } from 'maishu-node-mvc';
 import { actionPaths } from '../common';
-import { authDataContext, AuthDataContext } from '../dataContext';
+import { AuthDataContext } from '../dataContext';
 import { guid } from '../utility';
+import { authDataContext } from '../decorators';
 
 interface SMSRecord {
     id: string,

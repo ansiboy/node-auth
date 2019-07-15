@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection } from "typeorm";
-import { createParameterDecorator } from "maishu-node-mvc";
 import { conn } from './settings';
 import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource } from "./entities";
 import path = require("path");
@@ -37,15 +36,7 @@ export class AuthDataContext {
     }
 }
 
-export let authDataContext = createParameterDecorator<AuthDataContext>(
-    async () => {
-        let dc = await createDataContext()
-        return dc
-    },
-    async (dc) => {
-        await dc.dispose()
-    }
-)
+
 
 let connection: Connection;
 export async function createDataContext(name?: string): Promise<AuthDataContext> {

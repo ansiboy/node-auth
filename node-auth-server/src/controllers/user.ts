@@ -1,8 +1,8 @@
 import { errors } from '../errors';
 import { TokenManager } from '../token';
 import { controller, formData, action } from 'maishu-node-mvc';
-import { currentUserId, currentUser, currentTokenId } from '../decorators';
-import { authDataContext, AuthDataContext } from '../dataContext';
+import { currentUserId, currentUser, currentTokenId, authDataContext } from '../decorators';
+import { AuthDataContext } from '../dataContext';
 import { User, LoginResult } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
@@ -177,7 +177,7 @@ export default class UserController {
     private async loginByOpenId<T extends { openid }>(dc: AuthDataContext, args: T): Promise<LoginResult> {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
- 
+
         let user = await dc.users.findOne({ openid: openid });
         if (user == null) {
             user = {

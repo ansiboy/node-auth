@@ -1,7 +1,8 @@
 import { controller, action } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../dataContext";
 import { Category } from "../entities";
 import { constants } from "../common";
+import { authDataContext } from "../decorators";
 
 @controller(`${constants.controllerBasePath}/category`)
 export class CategoryController {

@@ -3,8 +3,18 @@ import { TokenManager } from './token';
 import http = require('http')
 import querystring = require('querystring');
 import url = require('url');
-import { createDataContext } from './dataContext';
+import { createDataContext, AuthDataContext } from './dataContext';
 import { errors } from './errors';
+
+export let authDataContext = createParameterDecorator<AuthDataContext>(
+    async () => {
+        let dc = await createDataContext()
+        return dc
+    },
+    async (dc) => {
+        await dc.dispose()
+    }
+)
 
 export let currentUserId = createParameterDecorator(async (req) => {
     let formData = await getQueryObject(req);
