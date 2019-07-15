@@ -12,8 +12,8 @@ interface Config {
     staticRootDirectory: string,
 }
 
-var appDir = path.dirname(require.main.filename);
-var node_modules_path = path.join(appDir, 'node_modules')
+// var appDir = path.dirname(require.main.filename);
+// var node_modules_path = path.join(appDir, 'node_modules')
 
 export function start(config: Config) {
 
@@ -34,7 +34,9 @@ export function start(config: Config) {
     let virtualPaths = createVirtulaPaths(innerStaticRootDirectory, config.staticRootDirectory);
     virtualPaths["assert"] = path.join(__dirname, "assert");
     virtualPaths["lib"] = path.join(__dirname, '../../lib');
-    virtualPaths["node_modules"] = node_modules_path;
+    virtualPaths["node_modules"] = path.join(__dirname, "../../node_modules");
+    console.assert(fs.existsSync( virtualPaths["lib"] ));
+    console.assert(fs.existsSync(virtualPaths["node_modules"]))
 
     settings.roleId = config.roleId;
     settings.gateway = config.gateway;
