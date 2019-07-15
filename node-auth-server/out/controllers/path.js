@@ -23,6 +23,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
 const common_1 = require("../common");
+const decorators_1 = require("../decorators");
 let PathController = class PathController {
     list(dc, { resourceId }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,7 +40,7 @@ let PathController = class PathController {
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.path.list),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)

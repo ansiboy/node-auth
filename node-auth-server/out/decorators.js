@@ -14,6 +14,12 @@ const querystring = require("querystring");
 const url = require("url");
 const dataContext_1 = require("./dataContext");
 const errors_1 = require("./errors");
+exports.authDataContext = maishu_node_mvc_1.createParameterDecorator(() => __awaiter(this, void 0, void 0, function* () {
+    let dc = yield dataContext_1.createDataContext();
+    return dc;
+}), (dc) => __awaiter(this, void 0, void 0, function* () {
+    yield dc.dispose();
+}));
 exports.currentUserId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
     let formData = yield getQueryObject(req);
     let tokenText = req.headers['token'] || formData["token"];

@@ -143,49 +143,49 @@ let RoleController = class RoleController {
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.add),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUserId), __param(2, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "add", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.update),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.remove),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.list),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUserId),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUserId),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "list", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.item),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "get", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.resource.set),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], RoleController.prototype, "setResources", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.role.resource.ids),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)

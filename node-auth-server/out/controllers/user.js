@@ -407,28 +407,28 @@ let UserController = class UserController {
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.isMobileRegister),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isMobileRegister", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.isUserNameRegister),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isUserNameRegister", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.isEmailRegister),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "isEmailRegister", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.register),
-    __param(0, dataContext_1.authDataContext),
+    __param(0, decorators_1.authDataContext),
     __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
@@ -436,20 +436,20 @@ __decorate([
 ], UserController.prototype, "register", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.resetPassword),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetPassword", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.resetMobile),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUserId), __param(2, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUserId), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "resetMobile", null);
 __decorate([
-    __param(0, dataContext_1.authDataContext),
+    __param(0, decorators_1.authDataContext),
     __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
@@ -457,7 +457,7 @@ __decorate([
 ], UserController.prototype, "loginByVerifyCode", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.login),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
@@ -478,49 +478,49 @@ __decorate([
 ], UserController.prototype, "me", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.item),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "item", null);
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUserId),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUserId),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getRoles", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.list),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "list", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.add),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "add", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.remove),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.update),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.user.latestLogin),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)

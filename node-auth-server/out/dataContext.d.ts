@@ -15,6 +15,5 @@ export declare class AuthDataContext {
     constructor(entityManager: EntityManager);
     dispose(): Promise<void>;
 }
-export declare let authDataContext: (target: Object, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare function createDataContext(name?: string): Promise<AuthDataContext>;
 export declare function initDatabase(): Promise<void>;

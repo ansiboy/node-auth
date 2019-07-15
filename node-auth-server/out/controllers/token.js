@@ -16,6 +16,7 @@ const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
 const base_controller_1 = require("./base-controller");
 const common_1 = require("../common");
+const decorators_1 = require("../decorators");
 let TokenController = class TokenController extends base_controller_1.BaseController {
     list(dc, { args }) {
         return base_controller_1.BaseController.list(dc.tokens, { selectArguments: args });
@@ -23,7 +24,7 @@ let TokenController = class TokenController extends base_controller_1.BaseContro
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.token.list),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", void 0)

@@ -23,6 +23,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
 const common_1 = require("../common");
+const decorators_1 = require("../decorators");
 let CategoryController = class CategoryController {
     list(dc) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -33,7 +34,7 @@ let CategoryController = class CategoryController {
 };
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext),
+    __param(0, decorators_1.authDataContext),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext]),
     __metadata("design:returntype", Promise)

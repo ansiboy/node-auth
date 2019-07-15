@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
-const maishu_node_mvc_1 = require("maishu-node-mvc");
 const settings_1 = require("./settings");
 const entities_1 = require("./entities");
 const path = require("path");
@@ -36,12 +35,6 @@ class AuthDataContext {
     }
 }
 exports.AuthDataContext = AuthDataContext;
-exports.authDataContext = maishu_node_mvc_1.createParameterDecorator(() => __awaiter(this, void 0, void 0, function* () {
-    let dc = yield createDataContext();
-    return dc;
-}), (dc) => __awaiter(this, void 0, void 0, function* () {
-    yield dc.dispose();
-}));
 let connection;
 function createDataContext(name) {
     return __awaiter(this, void 0, void 0, function* () {

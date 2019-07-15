@@ -104,42 +104,42 @@ let ResourceController = class ResourceController {
 };
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.add),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUser), __param(2, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "add", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.update),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "update", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.remove),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "remove", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.list),
-    __param(0, dataContext_1.authDataContext), __param(1, decorators_1.currentUser),
+    __param(0, decorators_1.authDataContext), __param(1, decorators_1.currentUser),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, entities_1.User]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "list", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.item),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], ResourceController.prototype, "item", null);
 __decorate([
     maishu_node_mvc_1.action(common_1.actionPaths.resource.path.set),
-    __param(0, dataContext_1.authDataContext),
+    __param(0, decorators_1.authDataContext),
     __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),

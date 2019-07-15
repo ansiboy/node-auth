@@ -22,6 +22,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const maishu_node_mvc_1 = require("maishu-node-mvc");
 const dataContext_1 = require("../dataContext");
+const decorators_1 = require("../decorators");
 let LatestLoginController = class LatestLoginController {
     list(dc, { userIds }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -33,7 +34,7 @@ let LatestLoginController = class LatestLoginController {
 };
 __decorate([
     maishu_node_mvc_1.action(),
-    __param(0, dataContext_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
