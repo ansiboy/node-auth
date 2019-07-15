@@ -1,12 +1,13 @@
 import React = require("react");
 import { boundField, customField } from 'maishu-wuzhui-helper'
-import { operationField, dateTimeField } from "assert/index";
+import { operationField, dateTimeField, customDataField } from "assert/index";
 import { GridViewDataCell, GridView } from "maishu-wuzhui";
 import { PermissionService } from "assert/services/index";
 import { dataSources, translateToMenuItems } from "assert/dataSources";
 import { Resource } from "entities";
 import { MenuItem } from "assert/masters/main-master-page";
 import { PageProps, ListPage } from "assert/index";
+import ReactDOM = require("react-dom");
 
 interface State {
 }
@@ -106,6 +107,15 @@ export default class ResourceListPage extends React.Component<PageProps, State> 
                     }
                 }),
                 boundField<MenuItem>({ dataField: "page_path", headerText: "路径" }),
+                customDataField<MenuItem>({
+                    headerText: "图标", itemStyle: { width: "180px" },
+                    render: (dataItem, element) => {
+                        ReactDOM.render(<>
+                            {dataItem.icon ? <i className={`${dataItem.icon}`} style={{ marginRight: 10 }}></i> : null}
+                            <span>{dataItem.icon}</span>
+                        </>, element)
+                    }
+                }),
                 boundField<MenuItem>({ dataField: "remark", headerText: "备注", itemStyle: { width: `${remarkWidth}px` } }),
                 boundField<MenuItem>({ dataField: "type", headerText: "类型", itemStyle: { width: `${typeFieldWidth}px` } }),
                 dateTimeField<MenuItem>({ dataField: 'create_date_time', headerText: '创建时间', }),

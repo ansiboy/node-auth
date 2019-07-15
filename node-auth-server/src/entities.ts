@@ -63,8 +63,8 @@ export class Category implements Model {
 }
 
 export type ResourceData = {
-    position: "top" | "in-list",
-    code: string,
+    position: "top-right" | "in-list",
+    code?: string,
     button?: {
         // text?: string,
         className: string,

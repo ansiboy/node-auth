@@ -13,6 +13,16 @@ export declare class AuthDataContext {
     paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
     constructor(entityManager: EntityManager);
+    createTopButtonResource(args: {
+        parentResourceId: string;
+        name: string;
+        className: string;
+        icon: string;
+        invokeMethodName: string;
+        apiPaths: string[];
+        showButtonText?: boolean;
+        sort_number?: number;
+    }): Promise<Resource>;
     dispose(): Promise<void>;
 }
 export declare function createDataContext(name?: string): Promise<AuthDataContext>;

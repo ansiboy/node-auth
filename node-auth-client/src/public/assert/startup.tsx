@@ -1,14 +1,16 @@
 import { Application, app } from "./application";
 import ReactDOM = require("react-dom");
 import { SimpleMasterPage } from "./masters/simple-master-page";
-import { MainMasterPage, MenuItem } from "./masters/main-master-page";
+import { MainMasterPage } from "./masters/main-master-page";
 import React = require("react");
 import { MasterPage } from "./masters/master-page";
 import { PermissionService } from "./services/index";
 import { config } from '../config';
-import { ValueStore } from "maishu-chitu";
+import { errors } from "./errors";
 
 PermissionService.baseUrl = config.permissionServiceUrl;
+if (!config.permissionServiceUrl)
+    throw errors.serviceUrlCanntNull("permissionService");
 
 export default function startup() {
     async function createMasterPages(app: Application): Promise<{ simple: HTMLElement, main: HTMLElement }> {

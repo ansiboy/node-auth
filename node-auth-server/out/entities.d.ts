@@ -24,8 +24,8 @@ export declare class Category implements Model {
     create_date_time: Date;
 }
 export declare type ResourceData = {
-    position: "top" | "in-list";
-    code: string;
+    position: "top-right" | "in-list";
+    code?: string;
     button?: {
         className: string;
         execute_path?: string;

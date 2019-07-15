@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "jsx": "react",
+        "baseUrl": "./",
+        "outDir": "../../out/public/modules",
+        "target": "es6",
+        "module": "amd",
+        "paths": {
+            "csstype": [
+                "../../node_modules/csstype/index.d.ts"
+            ]
+        }
+    }
+}

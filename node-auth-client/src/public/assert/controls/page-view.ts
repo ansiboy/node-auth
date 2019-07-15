@@ -92,7 +92,7 @@ export class PageView {
         let menuItem = resources.filter(o => o.id == resource_id)[0];
         console.assert(menuItem != null)
         let menuItemChildren = resources.filter(o => o.parent_id == menuItem.id);
-        let controlResources = menuItemChildren.filter(o => o.data != null && o.data.position == "top");
+        let controlResources = menuItemChildren.filter(o => o.data != null && o.data.position == "top-right");
         let controlFuns = await Promise.all(controlResources.map(o => loadControlModule(o.page_path)));
 
         let controls = controlFuns.map((func, i) => func({ resource: controlResources[i], dataItem: {}, context: args.context }));

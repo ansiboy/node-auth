@@ -28,6 +28,39 @@ class AuthDataContext {
         this.paths = this.entityManager.getRepository(entities_1.Path);
         this.roleResources = this.entityManager.getRepository(entities_1.RoleResource);
     }
+    createTopButtonResource(args) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (args.sort_number == null) {
+                let r = yield this.resources.createQueryBuilder()
+                    .select("max(sort_number) as max_sort_number").getRawOne();
+                args.sort_number = (r["max_sort_number"] || 0) + 100;
+            }
+            if (args.showButtonText == null)
+                args.showButtonText = true;
+            let apiPaths = null;
+            if (args.apiPaths) {
+                apiPaths = args.apiPaths.map(o => ({
+                    id: utility_1.guid(), value: o, create_date_time: new Date(Date.now())
+                }));
+            }
+            let resource = {
+                id: utility_1.guid(), name: args.name,
+                type: "control", create_date_time: new Date(Date.now()),
+                page_path: buttonControlsPath,
+                sort_number: args.sort_number,
+                data: {
+                    position: "top-right",
+                    button: {
+                        className: args.className,
+                        execute_path: `${buttonInvokePrefix}:${args.invokeMethodName}`,
+                        showButtonText: args.showButtonText,
+                    }
+                },
+                api_paths: apiPaths,
+            };
+            return this.resources.save(resource);
+        });
+    }
     dispose() {
         return __awaiter(this, void 0, void 0, function* () {
             // await this.entityManager.connection.close();
@@ -216,7 +249,7 @@ function initResource(dc) {
             type: "control",
             create_date_time: new Date(Date.now()),
             page_path: `${jsBasePath}/user/search-control.js`,
-            data: { position: "top", code: "search" },
+            data: { position: "top-right", code: "search" },
             parent_id: userResource.id,
             api_paths: [
                 { id: utility_1.guid(), value: common_1.actionPaths.user.list, create_date_time: new Date(Date.now()) },
@@ -317,7 +350,7 @@ function initResource(dc) {
             api_paths: [
                 { id: utility_1.guid(), value: common_1.actionPaths.menu.add, create_date_time: new Date(Date.now()) }
             ],
-            data: { position: "top", code: "add_control" }
+            data: { position: "top-right", code: "add_control" }
         };
         yield dc.resources.save(menuAddButtonResource);
         yield createSmallEditButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
@@ -366,7 +399,6 @@ function initResource(dc) {
             ]
         };
         yield dc.resources.save(pathResource);
-        // await createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         yield createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         yield createSmallViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
         let personalResource = {
@@ -442,7 +474,7 @@ function createNormalAddButtonResource(dc, parentId, path, apiPaths) {
         page_path: path,
         create_date_time: new Date(Date.now()),
         data: {
-            position: "top",
+            position: "top-right",
             code: "add",
             button: {
                 className: "btn btn-primary",
@@ -471,7 +503,7 @@ function createNormalSaveButtonResource(dc, parentId, path, apiPaths) {
         page_path: path,
         create_date_time: new Date(Date.now()),
         data: {
-            position: "top",
+            position: "top-right",
             code: "save",
             button: {
                 execute_path: execute_path,

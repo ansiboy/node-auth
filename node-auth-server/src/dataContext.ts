@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection, Db } from "typeorm";
 import { conn } from './settings';
 import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource } from "./entities";
 import path = require("path");
@@ -29,6 +29,48 @@ export class AuthDataContext {
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
         this.paths = this.entityManager.getRepository(Path);
         this.roleResources = this.entityManager.getRepository(RoleResource);
+    }
+
+    public async createTopButtonResource(args: {
+        parentResourceId: string, name: string, className: string,
+        icon: string, invokeMethodName: string, apiPaths: string[],
+        showButtonText?: boolean,
+        sort_number?: number,
+    }) {
+
+        if (args.sort_number == null) {
+            let r = await this.resources.createQueryBuilder()
+                .select("max(sort_number) as max_sort_number").getRawOne();
+
+            args.sort_number = (r["max_sort_number"] || 0) + 100;
+        }
+
+        if (args.showButtonText == null)
+            args.showButtonText = true;
+
+        let apiPaths: Path[] = null;
+        if (args.apiPaths) {
+            apiPaths = args.apiPaths.map(o => ({
+                id: guid(), value: o, create_date_time: new Date(Date.now())
+            }));
+        }
+        let resource: Resource = {
+            id: guid(), name: args.name,
+            type: "control", create_date_time: new Date(Date.now()),
+            page_path: buttonControlsPath,
+            sort_number: args.sort_number,
+            data: {
+                position: "top-right",
+                button: {
+                    className: args.className,
+                    execute_path: `${buttonInvokePrefix}:${args.invokeMethodName}`,
+                    showButtonText: args.showButtonText,
+                }
+            },
+            api_paths: apiPaths,
+        }
+
+        return this.resources.save(resource);
     }
 
     async dispose() {
@@ -238,7 +280,7 @@ async function initResource(dc: AuthDataContext) {
         type: "control",
         create_date_time: new Date(Date.now()),
         page_path: `${jsBasePath}/user/search-control.js`,
-        data: { position: "top", code: "search" },
+        data: { position: "top-right", code: "search" },
         parent_id: userResource.id,
         api_paths: [
             { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
@@ -352,7 +394,7 @@ async function initResource(dc: AuthDataContext) {
         api_paths: [
             { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) }
         ],
-        data: { position: "top", code: "add_control" }
+        data: { position: "top-right", code: "add_control" }
     }
 
     await dc.resources.save(menuAddButtonResource);
@@ -409,7 +451,6 @@ async function initResource(dc: AuthDataContext) {
     }
 
     await dc.resources.save(pathResource);
-    // await createNormalAddButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
     await createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
     await createSmallViewButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
 
@@ -494,7 +535,7 @@ function createNormalAddButtonResource(dc: AuthDataContext, parentId: string, pa
         page_path: path,
         create_date_time: new Date(Date.now()),
         data: {
-            position: "top",
+            position: "top-right",
             code: "add",
             button: {
                 className: "btn btn-primary",
@@ -527,7 +568,7 @@ function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, p
         page_path: path,
         create_date_time: new Date(Date.now()),
         data: {
-            position: "top",
+            position: "top-right",
             code: "save",
             button: {
                 execute_path: execute_path,
