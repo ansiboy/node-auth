@@ -13,7 +13,7 @@ let allPaths: Path[];
 /**
  * 检查路径是否允许访问
  */
-export async function checkPath(req: http.IncomingMessage, res: http.ServerResponse): Promise<{ errorResult: ActionResult }> {
+export async function checkPath(req: http.IncomingMessage, res: http.ServerResponse): Promise<ActionResult> {
     let dc = await getDataContext();
 
     if (!allPaths) {
@@ -36,7 +36,7 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
     roleId = roleId || constants.anonymousRoleId;
 
     if (roleId == constants.adminRoleId)
-        return { errorResult: null };
+        return null;
 
     if (path != null) {
 
@@ -45,7 +45,7 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
         let resourceIds = resourcePaths.filter(o => o.path_id == path.id).map(o => o.resource_id);
         let roleIds = myResources.filter(a => resourceIds.indexOf(a.id) >= 0).map(o => o.roleIds)[0];
         if (roleIds.indexOf(roleId) >= 0)
-            return { errorResult: null };
+            return null;
 
     }
 
@@ -53,7 +53,7 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
     error.name = errorNames.noPermission;
     let result = new ContentResult("{}", "application/json; charset=utf-8", errorStatusCodes.noPermission);
     console.warn(error);
-    return { errorResult: result };
+    return result;
 
 }
 

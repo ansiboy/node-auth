@@ -55,5 +55,5 @@ module.exports = function(grunt) {
 
     });
 
-    grunt.registerTask('default', ['shell:src', 'copy', 'babel']);
+    grunt.registerTask('default', ['shell', 'copy', 'babel']);
 }

@@ -9,6 +9,9 @@
         "paths": {
             "csstype": [
                 "../../node_modules/csstype/index.d.ts"
+            ],
+            "maishu-admin":[
+                "../../node_modules/maishu-admin/out/public/assert/index.d.ts"
             ]
         }
     }
