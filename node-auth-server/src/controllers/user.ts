@@ -111,6 +111,9 @@ export default class UserController {
 
     @action(actionPaths.user.resetMobile)
     async resetMobile(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @formData { mobile, smsId, verifyCode }) {
+        if (!userId)
+            throw errors.userIdNull();
+            
         if (mobile == null)
             throw errors.argumentNull('mobile');
 

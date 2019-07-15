@@ -21,7 +21,7 @@ export default class RoleController {
     async add(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @formData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.argumentFieldNull("name", "item");
-        if (!userId) throw errors.argumentNull("userId");
+        if (!userId) throw errors.userIdNull();
 
         let user = await dc.users.findOne(userId);
         if (!user)
@@ -68,7 +68,8 @@ export default class RoleController {
     @action(actionPaths.role.list)
     async list(@authDataContext dc: AuthDataContext, @currentUserId userId: string) {
         if (!dc) throw errors.argumentNull("dc");
-
+        if (!userId) throw errors.userIdNull();
+        
         let user = await dc.users.findOne(userId);
         if (!user)
             throw errors.objectNotExistWithId(userId, "User");

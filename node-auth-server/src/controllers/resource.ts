@@ -1,8 +1,8 @@
 import { errors } from "../errors";
 import { controller, formData, action } from "maishu-node-mvc";
-import { Resource, User, Path } from "../entities";
+import { Resource, User, Path, ResourcePath } from "../entities";
 import { AuthDataContext } from "../dataContext";
-import { actionPaths } from "../common";
+import { actionPaths, constants } from "../common";
 import { currentUser, authDataContext } from "../decorators";
 import { guid } from "../utility";
 
@@ -62,6 +62,10 @@ export default class ResourceController {
         if (!user.role_id)
             return [];
 
+        if (user.role_id == constants.adminRoleId) {
+            return dc.resources.find({ order: { sort_number: "ASC" } });
+        }
+
         let roleResources = await dc.roleResources.find({ role_id: user.role_id });
         if (roleResources.length == 0) {
             return [];
@@ -83,16 +87,23 @@ export default class ResourceController {
 
     @action(actionPaths.resource.path.set)
     async set(@authDataContext dc: AuthDataContext,
-        @formData { resourceId, paths }: { resourceId: string, paths: [] }) {
+        @formData { resourceId, paths }: { resourceId: string, paths: string[] }) {
         if (!resourceId) throw errors.argumentFieldNull("resourceId", "formData");
         if (!paths) throw errors.argumentFieldNull("pathIds", "formData");
 
-        await dc.paths.delete({ resource_id: resourceId });
-        let items: Path[] = paths.map(o => ({
-            id: guid(), create_date_time: new Date(Date.now()),
-            value: o, resource_id: resourceId,
-        }));
+        let allPaths = await dc.paths.find();
+        let allPathStrings = allPaths.map(o => o.value);
+        let notExistsPaths = paths.filter(o => allPathStrings.indexOf(o) < 0)
+            .map(o => ({ id: guid(), value: o, create_date_time: new Date(Date.now()) }) as Path);
 
-        await dc.paths.insert(items);
+        await dc.paths.save(notExistsPaths);
+
+        allPaths.push(...notExistsPaths);
+
+        let pathIds = allPaths.filter(o => paths.indexOf(o.value) >= 0).map(o => o.id);
+        let resourcePaths = pathIds.map(o => ({ resource_id: resourceId, path_id: o } as ResourcePath));
+
+        await dc.roleResources.delete({ resource_id: resourceId });
+        await dc.resourcePath.save(resourcePaths);
     }
 }
