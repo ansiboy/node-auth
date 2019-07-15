@@ -49,7 +49,8 @@ exports.actionPaths = {
         list: `${basePath}/token/list`,
     },
     path: {
-        list: `${basePath}/path/list`
+        list: `${basePath}/path/list`,
+        listByResourceIds: `${basePath}/path/listByResourceIds`,
     },
     resource: {
         add: `${basePath}/resource/add`,
@@ -61,6 +62,9 @@ exports.actionPaths = {
         path: {
             set: `${basePath}/resource/path/set`
         }
+    },
+    resource_path: {
+        list: `${basePath}/resource_path/list`
     },
     sms: {
         sendVerifyCode: `${basePath}/sms/sendVerifyCode`,

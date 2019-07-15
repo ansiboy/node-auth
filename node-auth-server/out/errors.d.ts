@@ -22,7 +22,7 @@ export declare let errorNames: {
     PostIsRequired: string;
     Success: string;
     UserExists: string;
-    UserIdRequired: string;
+    UserNotLogin: string;
     userNotExists: string;
     UpdateResultZero: string;
     VerifyCodeIncorrect: string;
@@ -49,7 +49,7 @@ export declare let errors: {
     mobileNotExists(mobile: string): Error;
     actionNotExists(controller: string, action: string): Error;
     argumentFieldNull(fieldName: string, objectName: string): Error;
-    userIdRequired(): Error;
+    userNotLogin(): Error;
     applicationExists(name: string): Error;
     usernameOrPasswordIncorrect(username: string): Error;
     postDataNotJSON(data: string): Error;

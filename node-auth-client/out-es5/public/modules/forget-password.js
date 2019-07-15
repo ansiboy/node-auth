@@ -18,7 +18,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-define(["require", "exports", "react", "../forms/forget-password"], function (require, exports, React, forget_password_1) {
+define(["require", "exports", "react", "assert/forms/forget-password"], function (require, exports, React, forget_password_1) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {

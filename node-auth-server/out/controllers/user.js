@@ -116,6 +116,8 @@ let UserController = class UserController {
     }
     resetMobile(dc, userId, { mobile, smsId, verifyCode }) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!userId)
+                throw errors_1.errors.userIdNull();
             if (mobile == null)
                 throw errors_1.errors.argumentNull('mobile');
             if (smsId == null)

@@ -70,6 +70,9 @@ let ResourceController = class ResourceController {
                 throw errors_1.errors.argumentNull("user");
             if (!user.role_id)
                 return [];
+            if (user.role_id == common_1.constants.adminRoleId) {
+                return dc.resources.find({ order: { sort_number: "ASC" } });
+            }
             let roleResources = yield dc.roleResources.find({ role_id: user.role_id });
             if (roleResources.length == 0) {
                 return [];
@@ -93,12 +96,16 @@ let ResourceController = class ResourceController {
                 throw errors_1.errors.argumentFieldNull("resourceId", "formData");
             if (!paths)
                 throw errors_1.errors.argumentFieldNull("pathIds", "formData");
-            yield dc.paths.delete({ resource_id: resourceId });
-            let items = paths.map(o => ({
-                id: utility_1.guid(), create_date_time: new Date(Date.now()),
-                value: o, resource_id: resourceId,
-            }));
-            yield dc.paths.insert(items);
+            let allPaths = yield dc.paths.find();
+            let allPathStrings = allPaths.map(o => o.value);
+            let notExistsPaths = paths.filter(o => allPathStrings.indexOf(o) < 0)
+                .map(o => ({ id: utility_1.guid(), value: o, create_date_time: new Date(Date.now()) }));
+            yield dc.paths.save(notExistsPaths);
+            allPaths.push(...notExistsPaths);
+            let pathIds = allPaths.filter(o => paths.indexOf(o.value) >= 0).map(o => o.id);
+            let resourcePaths = pathIds.map(o => ({ resource_id: resourceId, path_id: o }));
+            yield dc.roleResources.delete({ resource_id: resourceId });
+            yield dc.resourcePath.save(resourcePaths);
         });
     }
 };

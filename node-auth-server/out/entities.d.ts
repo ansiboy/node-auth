@@ -83,11 +83,14 @@ export declare class Path implements Model {
     create_date_time: Date;
     value: string;
     remark?: string;
-    resource_id?: string;
     resource?: Resource;
 }
 export declare class RoleResource {
     role_id: string;
     resource_id: string;
+}
+export declare class ResourcePath {
+    resource_id: string;
+    path_id: string;
 }
 export {};

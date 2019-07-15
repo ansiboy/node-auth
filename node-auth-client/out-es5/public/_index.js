@@ -3,7 +3,7 @@
 var node_modules = '../../node_modules';
 var lib = '../../lib';
 requirejs.config({
-  // baseUrl: 'out/public',
+  baseUrl: '/',
   paths: {
     css: "".concat(lib, "/css"),
     less: "".concat(lib, "/require-less-0.1.5/less"),
@@ -12,6 +12,7 @@ requirejs.config({
     jquery: "".concat(lib, "/jquery-2.1.3"),
     "jquery.event.drag": "".concat(lib, "/jquery.event.drag-2.2/jquery.event.drag-2.2"),
     "jquery.event.drag.live": "".concat(lib, "/jquery.event.drag-2.2/jquery.event.drag.live-2.2"),
+    "js-md5": "".concat(node_modules, "/js-md5/src/md5"),
     pin: "".concat(lib, "/jquery.pin/jquery.pin.min"),
     "react": "".concat(node_modules, "/react/umd/react.development"),
     "react-dom": "".concat(node_modules, "/react-dom/umd/react-dom.development"),
@@ -28,14 +29,15 @@ requirejs.config({
     "maishu-wuzhui-helper": "".concat(node_modules, "/maishu-wuzhui-helper/dist/index"),
     "swiper": "".concat(node_modules, "/swiper/dist/js/swiper"),
     "xml2js": "".concat(node_modules, "/xml2js/lib/xml2js"),
-    "polyfill": "".concat(node_modules, "/@babel/polyfill/dist/polyfill")
+    "polyfill": "".concat(node_modules, "/@babel/polyfill/dist/polyfill"),
+    "error-handle": "_error-handle"
   }
 });
-requirejs(['./_application', "clientjs_init.js"], function (appModule, initModule) {
+requirejs(['assert/application', "/clientjs_init.js", "assert/startup"], function (appModule, initModule, startupModule) {
   if (initModule && typeof initModule.default == 'function') {
     initModule.default(appModule.app);
   }
 
-  console.assert(appModule != null && appModule.app != null);
-  appModule.app.run();
+  console.assert(startupModule != null && typeof startupModule["default"] == "function");
+  startupModule["default"]();
 });

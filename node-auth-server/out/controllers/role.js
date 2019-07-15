@@ -42,7 +42,7 @@ let RoleController = class RoleController {
             if (!item.name)
                 throw errors_1.errors.argumentFieldNull("name", "item");
             if (!userId)
-                throw errors_1.errors.argumentNull("userId");
+                throw errors_1.errors.userIdNull();
             let user = yield dc.users.findOne(userId);
             if (!user)
                 throw errors_1.errors.objectNotExistWithId(userId, "User");
@@ -83,6 +83,8 @@ let RoleController = class RoleController {
         return __awaiter(this, void 0, void 0, function* () {
             if (!dc)
                 throw errors_1.errors.argumentNull("dc");
+            if (!userId)
+                throw errors_1.errors.userIdNull();
             let user = yield dc.users.findOne(userId);
             if (!user)
                 throw errors_1.errors.objectNotExistWithId(userId, "User");

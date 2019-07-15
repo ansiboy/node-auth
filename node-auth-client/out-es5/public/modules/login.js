@@ -18,7 +18,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-define(["require", "exports", "react", "../_config", "../forms/login"], function (require, exports, React, _config_1, login_1) {
+define(["require", "exports", "react", "../config", "assert/forms/login"], function (require, exports, React, config_1, login_1) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -46,7 +46,7 @@ define(["require", "exports", "react", "../_config", "../forms/login"], function
     _createClass(LoginPage, [{
       key: "componentDidMount",
       value: function componentDidMount() {
-        var redirectURL = this.props.data.redirect || _config_1.config.loginRedirectURL || '#index';
+        var redirectURL = this.props.data.redirect || config_1.config.loginRedirectURL || '#index';
         login_1.setForm(this.element, {
           redirectURL: redirectURL
         }, this.props.app);
@@ -65,7 +65,7 @@ define(["require", "exports", "react", "../_config", "../forms/login"], function
           style: {
             paddingBottom: 50
           }
-        }, _config_1.config.login.title), React.createElement("div", {
+        }, config_1.config.login.title), React.createElement("div", {
           key: 10,
           className: "form-horizontal container",
           style: {
@@ -120,7 +120,7 @@ define(["require", "exports", "react", "../_config", "../forms/login"], function
           className: "form-group"
         }, React.createElement("div", {
           className: "col-sm-offset-2 col-sm-10"
-        }, _config_1.config.login.showForgetPassword ? React.createElement("div", {
+        }, config_1.config.login.showForgetPassword ? React.createElement("div", {
           className: "pull-left"
         }, React.createElement("button", {
           name: "forget-password",
@@ -128,7 +128,7 @@ define(["require", "exports", "react", "../_config", "../forms/login"], function
           onClick: function onClick() {
             return _this2.props.app.redirect("forget-password");
           }
-        }, "\u5FD8\u8BB0\u5BC6\u7801")) : null, _config_1.config.login.showRegister ? React.createElement("div", {
+        }, "\u5FD8\u8BB0\u5BC6\u7801")) : null, config_1.config.login.showRegister ? React.createElement("div", {
           className: "pull-right"
         }, React.createElement("button", {
           name: "register",

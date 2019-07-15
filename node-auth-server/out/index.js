@@ -1,11 +1,9 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function(thisArg, _arguments, P, generator) {
-    return new(P || (P = Promise))(function(resolve, reject) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-
-        function step(result) { result.done ? resolve(result.value) : new P(function(resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -17,14 +15,12 @@ const dataContext_1 = require("./dataContext");
 const checkPath_1 = require("./filters/checkPath");
 var dataContext_2 = require("./dataContext");
 exports.AuthDataContext = dataContext_2.AuthDataContext;
-
 function start(options) {
-    return __awaiter(this, void 0, void 0, function*() {
+    return __awaiter(this, void 0, void 0, function* () {
         settings_1.setConnection(options.db);
-        // yield dataContext_1.initDatabase();
+        yield dataContext_1.initDatabase(yield dataContext_1.getDataContext());
         maishu_node_mvc_1.startServer({
-            port: options.port,
-            rootPath: __dirname,
+            port: options.port, rootPath: __dirname,
             controllerDirectory: path.join(__dirname, 'controllers'),
             staticRootDirectory: path.join(__dirname, '../../out/client'),
             headers: {
@@ -33,9 +29,7 @@ function start(options) {
                 'Access-Control-Allow-Methods': '*',
                 'Access-Control-Allow-Headers': '*'
             },
-            actionFilters: [
-                checkPath_1.checkPath
-            ]
+            authenticate: (req, res) => checkPath_1.checkPath(req, res)
         });
     });
 }

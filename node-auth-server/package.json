@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "is-class": "0.0.5",
-        "maishu-node-mvc": "^1.6.13",
+        "maishu-node-mvc": "^1.8.3",
         "memory-cache": "^0.2.0",
         "mysql": "^2.15.0",
         "qcloudsms_js": "^0.1.1",

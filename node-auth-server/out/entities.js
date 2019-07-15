@@ -118,7 +118,12 @@ __decorate([
     __metadata("design:type", String)
 ], Resource.prototype, "icon", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" }),
+    typeorm_1.ManyToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" }),
+    typeorm_1.JoinTable({
+        name: "resource_path",
+        joinColumns: [{ name: "resource_id", referencedColumnName: "id" }],
+        inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }]
+    }),
     __metadata("design:type", Array)
 ], Resource.prototype, "api_paths", void 0);
 Resource = __decorate([
@@ -253,7 +258,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Path.prototype, "create_date_time", void 0);
 __decorate([
-    typeorm_1.Column({ type: "varchar" }),
+    typeorm_1.Column({ type: "varchar", unique: true }),
     __metadata("design:type", String)
 ], Path.prototype, "value", void 0);
 __decorate([
@@ -261,12 +266,7 @@ __decorate([
     __metadata("design:type", String)
 ], Path.prototype, "remark", void 0);
 __decorate([
-    typeorm_1.Column({ type: "char", length: 36, nullable: true }),
-    __metadata("design:type", String)
-], Path.prototype, "resource_id", void 0);
-__decorate([
-    typeorm_1.ManyToOne(() => Resource, resource => resource.api_paths),
-    typeorm_1.JoinColumn({ name: "resource_id", referencedColumnName: "id" }),
+    typeorm_1.ManyToMany(() => Resource, resource => resource.api_paths),
     __metadata("design:type", Resource)
 ], Path.prototype, "resource", void 0);
 Path = __decorate([
@@ -287,4 +287,18 @@ RoleResource = __decorate([
     typeorm_1.Entity("role_resource", { synchronize: false })
 ], RoleResource);
 exports.RoleResource = RoleResource;
+let ResourcePath = class ResourcePath {
+};
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], ResourcePath.prototype, "resource_id", void 0);
+__decorate([
+    typeorm_1.PrimaryColumn({ type: "char", length: 36 }),
+    __metadata("design:type", String)
+], ResourcePath.prototype, "path_id", void 0);
+ResourcePath = __decorate([
+    typeorm_1.Entity("resource_path", { synchronize: false })
+], ResourcePath);
+exports.ResourcePath = ResourcePath;
 //# sourceMappingURL=entities.js.map

@@ -1,6 +1,6 @@
 import { Service, LoginInfo } from "./service";
 import { errors } from "../errors";
-import { User, Resource, Role, Token, Path, LoginResult } from "entities";
+import { User, Resource, Role, Token, Path, LoginResult, ResourcePath } from "entities";
 import { events } from "../events";
 import md5 = require("js-md5");
 
@@ -170,6 +170,13 @@ export class PermissionService extends Service {
             }
         }
     })();
+
+    resourcePaths = {
+        list: async () => {
+            let url = this.url("resource_path/list");
+            return this.get<ResourcePath[]>(url)
+        }
+    }
 
     user = {
         list: async (args?: DataSourceSelectArguments) => {

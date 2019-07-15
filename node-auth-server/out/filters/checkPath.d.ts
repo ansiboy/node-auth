@@ -4,4 +4,6 @@ import { ActionResult } from 'maishu-node-mvc';
 /**
  * 检查路径是否允许访问
  */
-export declare function checkPath(req: http.IncomingMessage, res: http.ServerResponse): Promise<ActionResult>;
+export declare function checkPath(req: http.IncomingMessage, res: http.ServerResponse): Promise<{
+    errorResult: ActionResult;
+}>;

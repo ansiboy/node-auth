@@ -24,7 +24,7 @@ exports.errorNames = {
     PostIsRequired: '716 PostIsRequired',
     Success: '200 Success',
     UserExists: '717 UserExists',
-    UserIdRequired: '718 UserIdRequired',
+    UserNotLogin: '718 UserNotLogin',
     userNotExists: '719 userNotExists',
     UpdateResultZero: '720 UpdateResultZero',
     VerifyCodeIncorrect: '721 VerifyCodeIncorrect',
@@ -111,10 +111,10 @@ exports.errors = {
         error.name = exports.errorNames.FieldNull;
         return error;
     },
-    userIdRequired() {
+    userNotLogin() {
         let msg = `User id is required.`;
         let err = new Error(msg);
-        err.name = exports.errorNames.UserIdRequired;
+        err.name = exports.errorNames.UserNotLogin;
         return err;
     },
     applicationExists(name) {

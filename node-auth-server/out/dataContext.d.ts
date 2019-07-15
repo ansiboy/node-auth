@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { EntityManager, Repository } from "typeorm";
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath } from "./entities";
 export declare class AuthDataContext {
     private entityManager;
     categories: Repository<Category>;
@@ -12,6 +12,7 @@ export declare class AuthDataContext {
     smsRecords: Repository<SMSRecord>;
     paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
+    resourcePath: Repository<ResourcePath>;
     constructor(entityManager: EntityManager);
     createTopButtonResource(args: {
         parentResourceId: string;
@@ -25,5 +26,5 @@ export declare class AuthDataContext {
     }): Promise<Resource>;
     dispose(): Promise<void>;
 }
-export declare function createDataContext(name?: string): Promise<AuthDataContext>;
-export declare function initDatabase(): Promise<void>;
+export declare let getDataContext: () => Promise<AuthDataContext>;
+export declare function initDatabase(dc: AuthDataContext): Promise<void>;

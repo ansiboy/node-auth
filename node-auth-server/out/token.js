@@ -63,7 +63,7 @@ class TokenManager {
             token.content = content;
             token.content_type = contentType;
             token.create_date_time = new Date(Date.now());
-            let dc = yield dataContext_1.createDataContext("token");
+            let dc = yield dataContext_1.getDataContext();
             try {
                 yield dc.tokens.save(token);
                 return token;
@@ -99,7 +99,7 @@ class TokenManager {
     }
     static remove(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let dc = yield dataContext_1.createDataContext("token");
+            let dc = yield dataContext_1.getDataContext();
             try {
                 yield dc.tokens.delete({ id });
             }
@@ -119,7 +119,7 @@ setInterval(() => {
             continue;
         }
         console.assert(token != null);
-        let interval = Date.now() - token.cacheDateTime;
+        let interval = Date.now() - (token.cacheDateTime || 0);
         let hour = 1000 * 60 * 60;
         if (interval > hour * 2) {
             cache.del(keys[i]);

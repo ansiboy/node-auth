@@ -29,12 +29,23 @@ let PathController = class PathController {
         return __awaiter(this, void 0, void 0, function* () {
             let items;
             if (resourceId) {
-                items = yield dc.paths.find({ resource_id: resourceId });
+                let resourcePaths = yield dc.resourcePath.find({ resource_id: resourceId });
+                items = yield dc.paths.findByIds(resourcePaths.map(o => o.path_id));
             }
             else {
                 items = yield dc.paths.find();
             }
             return items;
+        });
+    }
+    listByResourceIds(dc, { resourceIds }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let resourcePaths = yield dc.resourcePath.createQueryBuilder()
+                .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
+                .getMany();
+            let pathIds = resourcePaths.map(o => o.path_id);
+            let paths = yield dc.paths.findByIds(pathIds);
+            return paths;
         });
     }
 };
@@ -45,6 +56,13 @@ __decorate([
     __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
     __metadata("design:returntype", Promise)
 ], PathController.prototype, "list", null);
+__decorate([
+    maishu_node_mvc_1.action(common_1.actionPaths.path.listByResourceIds),
+    __param(0, decorators_1.authDataContext), __param(1, maishu_node_mvc_1.formData),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dataContext_1.AuthDataContext, Object]),
+    __metadata("design:returntype", Promise)
+], PathController.prototype, "listByResourceIds", null);
 PathController = __decorate([
     maishu_node_mvc_1.controller("path")
 ], PathController);

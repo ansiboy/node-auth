@@ -45,6 +45,7 @@ export declare let actionPaths: {
     };
     path: {
         list: string;
+        listByResourceIds: string;
     };
     resource: {
         add: string;
@@ -56,6 +57,9 @@ export declare let actionPaths: {
         path: {
             set: string;
         };
+    };
+    resource_path: {
+        list: string;
     };
     sms: {
         sendVerifyCode: string;

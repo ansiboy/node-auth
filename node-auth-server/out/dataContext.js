@@ -15,6 +15,7 @@ const entities_1 = require("./entities");
 const path = require("path");
 const common_1 = require("./common");
 const utility_1 = require("./utility");
+const errors_1 = require("./errors");
 class AuthDataContext {
     constructor(entityManager) {
         this.entityManager = entityManager;
@@ -27,6 +28,7 @@ class AuthDataContext {
         this.smsRecords = this.entityManager.getRepository(entities_1.SMSRecord);
         this.paths = this.entityManager.getRepository(entities_1.Path);
         this.roleResources = this.entityManager.getRepository(entities_1.RoleResource);
+        this.resourcePath = this.entityManager.getRepository(entities_1.ResourcePath);
     }
     createTopButtonResource(args) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -39,9 +41,7 @@ class AuthDataContext {
                 args.showButtonText = true;
             let apiPaths = null;
             if (args.apiPaths) {
-                apiPaths = args.apiPaths.map(o => ({
-                    id: utility_1.guid(), value: o, create_date_time: new Date(Date.now())
-                }));
+                apiPaths = yield Promise.all(args.apiPaths.map(o => getPath(this, o)));
             }
             let resource = {
                 id: utility_1.guid(), name: args.name,
@@ -68,34 +68,45 @@ class AuthDataContext {
     }
 }
 exports.AuthDataContext = AuthDataContext;
-let connection;
+// let connection: Connection;
 function createDataContext(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (connection == null) {
-            connection = yield typeorm_1.createConnection({
-                type: "mysql",
-                host: settings_1.conn.auth.host,
-                port: settings_1.conn.auth.port,
-                username: settings_1.conn.auth.user,
-                password: settings_1.conn.auth.password,
-                database: settings_1.conn.auth.database,
-                synchronize: true,
-                logging: true,
-                connectTimeout: 1000,
-                entities: [
-                    path.join(__dirname, "entities.js")
-                ],
-                name: name
-            });
-        }
+        // if (connection == null) {
+        let connection = yield typeorm_1.createConnection({
+            type: "mysql",
+            host: settings_1.conn.auth.host,
+            port: settings_1.conn.auth.port,
+            username: settings_1.conn.auth.user,
+            password: settings_1.conn.auth.password,
+            database: settings_1.conn.auth.database,
+            synchronize: true,
+            logging: true,
+            connectTimeout: 1000,
+            entities: [
+                path.join(__dirname, "entities.js")
+            ],
+            name: name
+        });
+        // }
         let dc = new AuthDataContext(connection.manager);
         return dc;
     });
 }
-exports.createDataContext = createDataContext;
-function initDatabase() {
+exports.getDataContext = (function () {
+    var dc = null;
+    return function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (dc == null) {
+                dc = yield createDataContext();
+            }
+            return dc;
+        });
+    };
+})();
+function initDatabase(dc) {
     return __awaiter(this, void 0, void 0, function* () {
-        let dc = yield createDataContext();
+        if (!dc)
+            throw errors_1.errors.argumentNull("dc");
         try {
             yield initRoleTable(dc);
             yield initResource(dc);
@@ -176,9 +187,7 @@ function initResource(dc) {
             sort_number: 40,
             create_date_time: new Date(Date.now()),
             type: "module",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.resource.list, create_date_time: new Date(Date.now()) },
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.resource.list].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(baseModuleResource);
         let loginResource = {
@@ -187,10 +196,8 @@ function initResource(dc) {
             sort_number: 100,
             create_date_time: new Date(Date.now()),
             type: "module",
-            parent_id: baseModuleResource.id,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.login, create_date_time: new Date(Date.now()) },
-            ]
+            parent_id: baseModuleResourceId,
+            api_paths: yield Promise.all([common_1.actionPaths.user.login].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(loginResource);
         let registerResource = {
@@ -200,9 +207,7 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             type: "module",
             parent_id: baseModuleResource.id,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.register, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.user.register].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(registerResource);
         let forgetResource = {
@@ -212,9 +217,10 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             type: "module",
             parent_id: baseModuleResource.id,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.user.resetPassword].map(p => getPath(dc, p)))
+            //  [
+            //     { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
+            // ]
         };
         yield dc.resources.save(forgetResource);
         // 基本功能 结束
@@ -227,20 +233,19 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             page_path: `#${pageBasePath}/user/list`,
             icon: "icon-group",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.list, create_date_time: new Date(Date.now()) },
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.user.list].map(p => getPath(dc, p)))
+            // [
+            //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
+            // ]
         };
         yield dc.resources.save(userResource);
-        yield createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.user.add, create_date_time: new Date(Date.now()) }
-        ]);
+        yield createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [common_1.actionPaths.user.add]);
         yield createSmallEditButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.user.item, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.user.update, create_date_time: new Date(Date.now()) }
+            common_1.actionPaths.user.item,
+            common_1.actionPaths.user.update
         ]);
         yield createRemoveButtonResource(dc, userResourceId, `${buttonInvokePrefix}:deleteItem`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.user.remove, create_date_time: new Date(Date.now()) }
+            common_1.actionPaths.user.remove
         ]);
         let searchResource = {
             id: utility_1.guid(),
@@ -251,9 +256,10 @@ function initResource(dc) {
             page_path: `${jsBasePath}/user/search-control.js`,
             data: { position: "top-right", code: "search" },
             parent_id: userResource.id,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.list, create_date_time: new Date(Date.now()) },
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.user.list].map(p => getPath(dc, p)))
+            //  [
+            //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
+            // ]
         };
         yield dc.resources.save(searchResource);
         //===============================================================================================
@@ -277,23 +283,22 @@ function initResource(dc) {
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/role/list`,
             icon: "icon-sitemap",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.role.list, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.role.list].map(p => getPath(dc, p)))
+            //  [
+            //     { id: guid(), value: actionPaths.role.list, create_date_time: new Date(Date.now()) }
+            // ]
         };
         yield dc.resources.save(roleResource);
-        yield createNormalAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.role.add, create_date_time: new Date(Date.now()) },
-        ]);
+        yield createNormalAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [common_1.actionPaths.role.add]);
         yield createSmallEditButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.role.item, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.role.update, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.role.item,
+            common_1.actionPaths.role.update,
         ]);
         yield createRemoveButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.role.remove, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.role.remove,
         ]);
         yield createSmallViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.role.item, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.role.item,
         ]);
         let rolePermissionResource = {
             id: rolePermissionResourceId,
@@ -316,8 +321,8 @@ function initResource(dc) {
         };
         yield dc.resources.save(rolePermissionResource);
         yield createNormalSaveButtonResource(dc, rolePermissionResource.id, `${buttonInvokePrefix}:save`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.role.resource.set, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.role.resource.ids, create_date_time: new Date(Date.now()) }
+            common_1.actionPaths.role.resource.set,
+            common_1.actionPaths.role.resource.ids
         ]);
         // 角色管理 结束
         //===============================================================================================
@@ -330,15 +335,13 @@ function initResource(dc) {
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/menu/list`,
             icon: "icon-tasks",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.menu.list, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.menu.list].map(p => getPath(dc, p)))
+            // [
+            //     { id: guid(), value: actionPaths.menu.list, create_date_time: new Date(Date.now()) }
+            // ]
         };
         yield dc.resources.save(menuResource);
-        yield createNormalAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.menu.add, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.resource.add, create_date_time: new Date(Date.now()) },
-        ]);
+        yield createNormalAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [common_1.actionPaths.menu.add, common_1.actionPaths.resource.add,]);
         let menuAddButtonResource = {
             id: utility_1.guid(),
             name: "添加控件",
@@ -347,25 +350,26 @@ function initResource(dc) {
             create_date_time: new Date(Date.now()),
             parent_id: menuResource.id,
             page_path: `${jsBasePath}/menu/controls.js`,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.menu.add, create_date_time: new Date(Date.now()) }
-            ],
+            api_paths: yield Promise.all([common_1.actionPaths.menu.add].map(p => getPath(dc, p))),
+            //  [
+            //     { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) }
+            // ],
             data: { position: "top-right", code: "add_control" }
         };
         yield dc.resources.save(menuAddButtonResource);
         yield createSmallEditButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.menu.item, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.menu.update, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.resource.item, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.resource.update, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.menu.item,
+            common_1.actionPaths.menu.update,
+            common_1.actionPaths.resource.item,
+            common_1.actionPaths.resource.update,
         ]);
         yield createRemoveButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.menu.remove, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.resource.remove, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.menu.remove,
+            common_1.actionPaths.resource.remove,
         ]);
         yield createSmallViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.menu.item, create_date_time: new Date(Date.now()) },
-            { id: utility_1.guid(), value: common_1.actionPaths.resource.item, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.menu.item,
+            common_1.actionPaths.resource.item,
         ]);
         let tokenResource = {
             id: tokenResourceId,
@@ -376,14 +380,13 @@ function initResource(dc) {
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/token/list`,
             icon: "icon-magic",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.token.list, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.token.list].map(p => getPath(dc, p)))
+            //  [
+            //     { id: guid(), value: actionPaths.token.list, create_date_time: new Date(Date.now()) }
+            // ]
         };
         yield dc.resources.save(tokenResource);
-        yield createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.token.add, create_date_time: new Date(Date.now()) },
-        ]);
+        yield createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`, [common_1.actionPaths.token.add]);
         let pathResource = {
             id: pathResourceId,
             name: "API 设置",
@@ -393,10 +396,14 @@ function initResource(dc) {
             parent_id: permissionResourceId,
             page_path: `#${pageBasePath}/path/list`,
             icon: "icon-rss",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.path.list, create_date_time: new Date(Date.now()) },
-                { id: utility_1.guid(), value: common_1.actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([
+                common_1.actionPaths.path.list, common_1.actionPaths.path.listByResourceIds,
+                common_1.actionPaths.resource.path.set, common_1.actionPaths.resource_path.list,
+            ].map(p => getPath(dc, p)))
+            // [
+            //     { id: guid(), value: actionPaths.path.list, create_date_time: new Date(Date.now()) },
+            //     { id: guid(), value: actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
+            // ]
         };
         yield dc.resources.save(pathResource);
         yield createSmallEditButtonResource(dc, pathResource.id, `${jsBasePath}/path/controls.js`, []);
@@ -408,9 +415,7 @@ function initResource(dc) {
             type: "menu",
             create_date_time: new Date(Date.now()),
             icon: "icon-user",
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.user.me, create_date_time: new Date(Date.now()) }
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.user.me].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(personalResource);
         let changeMobileResource = {
@@ -422,13 +427,11 @@ function initResource(dc) {
             icon: "icon-tablet",
             parent_id: personalResource.id,
             page_path: `#${pageBasePath}/personal/change-mobile`,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.sms.sendVerifyCode].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(changeMobileResource);
         yield createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.user.resetMobile
         ]);
         let changePasswordResource = {
             id: utility_1.guid(),
@@ -439,162 +442,182 @@ function initResource(dc) {
             icon: "icon-key",
             parent_id: personalResource.id,
             page_path: `#${pageBasePath}/personal/change-password`,
-            api_paths: [
-                { id: utility_1.guid(), value: common_1.actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
-            ]
+            api_paths: yield Promise.all([common_1.actionPaths.sms.sendVerifyCode].map(p => getPath(dc, p)))
         };
         yield dc.resources.save(changePasswordResource);
         yield createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, [
-            { id: utility_1.guid(), value: common_1.actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
+            common_1.actionPaths.user.resetPassword,
         ]);
     });
 }
 function initRoleResourceTable(dc) {
     return __awaiter(this, void 0, void 0, function* () {
-        let adminRole = yield dc.roles.findOne(adminRoleId);
-        let allResources = yield dc.resources.find();
-        adminRole.resources = allResources;
-        yield dc.roles.save(adminRole);
+        // let adminRole = await dc.roles.findOne(adminRoleId);
+        // let allResources = await dc.resources.find();
+        // adminRole.resources = allResources;
+        // await dc.roles.save(adminRole);
+        dc.roleResources.delete({});
         let roleResource = { role_id: anonymousRoleId, resource_id: baseModuleResourceId };
         yield dc.roleResources.save(roleResource);
     });
 }
 function createNormalAddButtonResource(dc, parentId, path, apiPaths) {
-    let execute_path;
-    if (path.startsWith("func")) {
-        execute_path = path;
-        path = buttonControlsPath;
-    }
-    let menuResource = {
-        id: utility_1.guid(),
-        name: "添加",
-        sort_number: 100,
-        type: "control",
-        parent_id: parentId,
-        page_path: path,
-        create_date_time: new Date(Date.now()),
-        data: {
-            position: "top-right",
-            code: "add",
-            button: {
-                className: "btn btn-primary",
-                showButtonText: true,
-                title: "点击添加",
-                execute_path
-            }
-        },
-        api_paths: apiPaths,
-        icon: "icon-plus"
-    };
-    return dc.resources.save(menuResource);
+    return __awaiter(this, void 0, void 0, function* () {
+        let execute_path;
+        if (path.startsWith("func")) {
+            execute_path = path;
+            path = buttonControlsPath;
+        }
+        let menuResource = {
+            id: utility_1.guid(),
+            name: "添加",
+            sort_number: 100,
+            type: "control",
+            parent_id: parentId,
+            page_path: path,
+            create_date_time: new Date(Date.now()),
+            data: {
+                position: "top-right",
+                code: "add",
+                button: {
+                    className: "btn btn-primary",
+                    showButtonText: true,
+                    title: "点击添加",
+                    execute_path
+                }
+            },
+            api_paths: yield Promise.all(apiPaths.map(p => getPath(dc, p))),
+            icon: "icon-plus"
+        };
+        return dc.resources.save(menuResource);
+    });
 }
 function createNormalSaveButtonResource(dc, parentId, path, apiPaths) {
-    let execute_path;
-    if (path.startsWith("func")) {
-        execute_path = path;
-        path = buttonControlsPath;
-    }
-    let menuResource = {
-        id: utility_1.guid(),
-        name: "保存",
-        sort_number: 100,
-        type: "control",
-        parent_id: parentId,
-        page_path: path,
-        create_date_time: new Date(Date.now()),
-        data: {
-            position: "top-right",
-            code: "save",
-            button: {
-                execute_path: execute_path,
-                className: "btn btn-primary",
-                showButtonText: true,
-                toast: "保存成功!",
-            }
-        },
-        api_paths: apiPaths,
-        icon: "icon-save",
-    };
-    return dc.resources.save(menuResource);
+    return __awaiter(this, void 0, void 0, function* () {
+        let execute_path;
+        if (path.startsWith("func")) {
+            execute_path = path;
+            path = buttonControlsPath;
+        }
+        let menuResource = {
+            id: utility_1.guid(),
+            name: "保存",
+            sort_number: 100,
+            type: "control",
+            parent_id: parentId,
+            page_path: path,
+            create_date_time: new Date(Date.now()),
+            data: {
+                position: "top-right",
+                code: "save",
+                button: {
+                    execute_path: execute_path,
+                    className: "btn btn-primary",
+                    showButtonText: true,
+                    toast: "保存成功!",
+                }
+            },
+            api_paths: yield Promise.all(apiPaths.map(p => getPath(dc, p))),
+            icon: "icon-save",
+        };
+        return dc.resources.save(menuResource);
+    });
 }
 function createSmallEditButtonResource(dc, parentId, path, apiPaths) {
-    let execute_path;
-    if (path.startsWith("func")) {
-        execute_path = path;
-        path = buttonControlsPath;
-    }
-    let menuResource = {
-        id: utility_1.guid(),
-        name: "编辑",
-        sort_number: 200,
-        type: "control",
-        parent_id: parentId,
-        page_path: path,
-        create_date_time: new Date(Date.now()),
-        data: {
-            position: "in-list",
-            code: "edit",
-            button: {
-                className: "btn btn-minier btn-info",
-                showButtonText: false,
-                title: "点击编辑",
-                execute_path
-            }
-        },
-        api_paths: apiPaths,
-        icon: "icon-pencil"
-    };
-    return dc.resources.save(menuResource);
+    return __awaiter(this, void 0, void 0, function* () {
+        let execute_path;
+        if (path.startsWith("func")) {
+            execute_path = path;
+            path = buttonControlsPath;
+        }
+        let menuResource = {
+            id: utility_1.guid(),
+            name: "编辑",
+            sort_number: 200,
+            type: "control",
+            parent_id: parentId,
+            page_path: path,
+            create_date_time: new Date(Date.now()),
+            data: {
+                position: "in-list",
+                code: "edit",
+                button: {
+                    className: "btn btn-minier btn-info",
+                    showButtonText: false,
+                    title: "点击编辑",
+                    execute_path
+                }
+            },
+            api_paths: yield Promise.all(apiPaths.map(p => getPath(dc, p))),
+            icon: "icon-pencil"
+        };
+        return dc.resources.save(menuResource);
+    });
 }
 function createRemoveButtonResource(dc, parentId, path, apiPaths) {
-    let execute_path;
-    if (path.startsWith("func")) {
-        execute_path = path;
-        path = buttonControlsPath;
-    }
-    let menuResource = {
-        id: utility_1.guid(),
-        name: "删除",
-        sort_number: 300,
-        type: "control",
-        parent_id: parentId,
-        page_path: path,
-        create_date_time: new Date(Date.now()),
-        data: {
-            position: "in-list",
-            code: "remove",
-            button: {
-                className: "btn btn-minier btn-danger",
-                showButtonText: false,
-                title: "点击删除",
-                execute_path,
-            }
-        },
-        api_paths: apiPaths,
-        icon: "icon-trash"
-    };
-    return dc.resources.save(menuResource);
+    return __awaiter(this, void 0, void 0, function* () {
+        let execute_path;
+        if (path.startsWith("func")) {
+            execute_path = path;
+            path = buttonControlsPath;
+        }
+        let menuResource = {
+            id: utility_1.guid(),
+            name: "删除",
+            sort_number: 300,
+            type: "control",
+            parent_id: parentId,
+            page_path: path,
+            create_date_time: new Date(Date.now()),
+            data: {
+                position: "in-list",
+                code: "remove",
+                button: {
+                    className: "btn btn-minier btn-danger",
+                    showButtonText: false,
+                    title: "点击删除",
+                    execute_path,
+                }
+            },
+            api_paths: yield Promise.all(apiPaths.map(p => getPath(dc, p))),
+            icon: "icon-trash"
+        };
+        return dc.resources.save(menuResource);
+    });
 }
 function createSmallViewButtonResource(dc, parentId, path, apiPaths) {
-    let menuResource = {
-        id: utility_1.guid(),
-        name: "查看",
-        sort_number: 400,
-        type: "control",
-        parent_id: parentId,
-        page_path: path,
-        create_date_time: new Date(Date.now()),
-        data: {
-            position: "in-list",
-            code: "view",
-            button: {
-                className: "btn btn-minier btn-success",
-                showButtonText: false,
-            }
-        },
-        api_paths: apiPaths,
-        icon: "icon-eye-open"
-    };
-    return dc.resources.save(menuResource);
+    return __awaiter(this, void 0, void 0, function* () {
+        let menuResource = {
+            id: utility_1.guid(),
+            name: "查看",
+            sort_number: 400,
+            type: "control",
+            parent_id: parentId,
+            page_path: path,
+            create_date_time: new Date(Date.now()),
+            data: {
+                position: "in-list",
+                code: "view",
+                button: {
+                    className: "btn btn-minier btn-success",
+                    showButtonText: false,
+                }
+            },
+            api_paths: yield Promise.all(apiPaths.map(p => getPath(dc, p))),
+            icon: "icon-eye-open"
+        };
+        return dc.resources.save(menuResource);
+    });
+}
+function getPath(dc, value) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!dc)
+            throw errors_1.errors.argumentNull("dc");
+        let path = yield dc.paths.findOne({ value: value });
+        if (path == null) {
+            path = { id: utility_1.guid(), value, create_date_time: new Date(Date.now()) };
+        }
+        return path;
+    });
 }
 //# sourceMappingURL=dataContext.js.map

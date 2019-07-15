@@ -15,29 +15,35 @@ const url = require("url");
 const dataContext_1 = require("./dataContext");
 const errors_1 = require("./errors");
 exports.authDataContext = maishu_node_mvc_1.createParameterDecorator(() => __awaiter(this, void 0, void 0, function* () {
-    let dc = yield dataContext_1.createDataContext();
+    let dc = yield dataContext_1.getDataContext();
     return dc;
 }), (dc) => __awaiter(this, void 0, void 0, function* () {
     yield dc.dispose();
 }));
 exports.currentUserId = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
-    let formData = yield getQueryObject(req);
-    let tokenText = req.headers['token'] || formData["token"];
-    if (!tokenText)
-        return null;
-    let token = yield token_1.TokenManager.parse(tokenText);
-    if (!token)
-        return null;
-    try {
-        var obj = JSON.parse(token.content);
-        let userId = obj.UserId || obj.user_id;
-        return userId;
-    }
-    catch (err) {
-        console.error(err);
-        return null;
-    }
+    return getUserIdFromRequest(req);
 }));
+function getUserIdFromRequest(req) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let formData = yield getQueryObject(req);
+        let tokenText = req.headers['token'] || formData["token"];
+        if (!tokenText)
+            return null;
+        let token = yield token_1.TokenManager.parse(tokenText);
+        if (!token)
+            return null;
+        try {
+            var obj = JSON.parse(token.content);
+            let userId = obj.UserId || obj.user_id;
+            return userId;
+        }
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    });
+}
+exports.getUserIdFromRequest = getUserIdFromRequest;
 exports.currentUser = maishu_node_mvc_1.createParameterDecorator((req) => __awaiter(this, void 0, void 0, function* () {
     let formData = yield getQueryObject(req);
     let tokenText = req.headers['token'] || formData["token"];
@@ -49,7 +55,7 @@ exports.currentUser = maishu_node_mvc_1.createParameterDecorator((req) => __awai
     try {
         var obj = JSON.parse(token.content);
         let userId = obj.UserId || obj.user_id;
-        let dc = yield dataContext_1.createDataContext();
+        let dc = yield dataContext_1.getDataContext();
         let user = yield dc.users.findOne(userId);
         if (!user)
             throw errors_1.errors.objectNotExistWithId(userId, "User");
@@ -72,23 +78,31 @@ exports.ApplicationId = maishu_node_mvc_1.createParameterDecorator((req) => __aw
     let formData = getQueryObject(req);
     return formData['application-id'];
 }));
+/**
+ *
+ * @param request 获取 QueryString 里的对象
+ */
 function getQueryObject(request) {
     let contentType = request.headers['content-type'];
     let obj = {};
-    if (contentType != null && contentType.indexOf('application/json') >= 0) {
+    let urlInfo = url.parse(request.url || '');
+    let { query } = urlInfo;
+    if (!query) {
+        return obj;
+    }
+    query = decodeURIComponent(query);
+    let queryIsJSON = (contentType != null && contentType.indexOf('application/json') >= 0) ||
+        (query != null && query[0] == '{' && query[query.length - 1] == '}');
+    if (queryIsJSON) {
         let arr = (request.url || '').split('?');
         let str = arr[1];
         if (str != null) {
-            str = decodeURI(str);
+            str = decodeURIComponent(str);
             obj = JSON.parse(str); //TODO：异常处理
         }
     }
     else {
-        let urlInfo = url.parse(request.url || '');
-        let { search } = urlInfo;
-        if (search) {
-            obj = querystring.parse(search.substr(1));
-        }
+        obj = querystring.parse(query);
     }
     return obj;
 }
