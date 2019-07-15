@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection, Db } from "typeorm";
 import { conn } from './settings';
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource } from "./entities";
+import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath } from "./entities";
 import path = require("path");
 import { constants, actionPaths } from "./common";
 import { guid } from "./utility";
+import { errors } from "./errors";
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -17,6 +18,7 @@ export class AuthDataContext {
     smsRecords: Repository<SMSRecord>;
     paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
+    resourcePath: Repository<ResourcePath>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -29,6 +31,8 @@ export class AuthDataContext {
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
         this.paths = this.entityManager.getRepository(Path);
         this.roleResources = this.entityManager.getRepository(RoleResource);
+        this.resourcePath = this.entityManager.getRepository(ResourcePath);
+
     }
 
     public async createTopButtonResource(args: {
@@ -50,9 +54,7 @@ export class AuthDataContext {
 
         let apiPaths: Path[] = null;
         if (args.apiPaths) {
-            apiPaths = args.apiPaths.map(o => ({
-                id: guid(), value: o, create_date_time: new Date(Date.now())
-            }));
+            apiPaths = await Promise.all(args.apiPaths.map(o => getPath(this, o)));
         }
         let resource: Resource = {
             id: guid(), name: args.name,
@@ -80,33 +82,44 @@ export class AuthDataContext {
 
 
 
-let connection: Connection;
-export async function createDataContext(name?: string): Promise<AuthDataContext> {
-    if (connection == null) {
-        connection = await createConnection({
-            type: "mysql",
-            host: conn.auth.host,
-            port: conn.auth.port,
-            username: conn.auth.user,
-            password: conn.auth.password,
-            database: conn.auth.database,
-            synchronize: true,
-            logging: true,
-            connectTimeout: 1000,
-            entities: [
-                path.join(__dirname, "entities.js")
-            ],
-            name: name
-        })
-    }
+// let connection: Connection;
+async function createDataContext(name?: string): Promise<AuthDataContext> {
+    // if (connection == null) {
+    let connection = await createConnection({
+        type: "mysql",
+        host: conn.auth.host,
+        port: conn.auth.port,
+        username: conn.auth.user,
+        password: conn.auth.password,
+        database: conn.auth.database,
+        synchronize: true,
+        logging: true,
+        connectTimeout: 1000,
+        entities: [
+            path.join(__dirname, "entities.js")
+        ],
+        name: name
+    })
+    // }
 
     let dc = new AuthDataContext(connection.manager)
     return dc
 }
 
-export async function initDatabase() {
-    let dc = await createDataContext();
 
+export let getDataContext = (function () {
+    var dc: AuthDataContext = null;
+    return async function () {
+        if (dc == null) {
+            dc = await createDataContext();
+        }
+
+        return dc;
+    }
+})()
+
+export async function initDatabase(dc: AuthDataContext) {
+    if (!dc) throw errors.argumentNull("dc");
     try {
         await initRoleTable(dc);
         await initResource(dc);
@@ -196,12 +209,11 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 40,
         create_date_time: new Date(Date.now()),
         type: "module",
-        api_paths: [
-            { id: guid(), value: actionPaths.resource.list, create_date_time: new Date(Date.now()) },
-        ]
+        api_paths: await Promise.all([actionPaths.resource.list].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(baseModuleResource);
+
 
     let loginResource: Resource = {
         id: guid(),
@@ -209,10 +221,8 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 100,
         create_date_time: new Date(Date.now()),
         type: "module",
-        parent_id: baseModuleResource.id,
-        api_paths: [
-            { id: guid(), value: actionPaths.user.login, create_date_time: new Date(Date.now()) },
-        ]
+        parent_id: baseModuleResourceId,
+        api_paths: await Promise.all([actionPaths.user.login].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(loginResource);
@@ -224,9 +234,7 @@ async function initResource(dc: AuthDataContext) {
         create_date_time: new Date(Date.now()),
         type: "module",
         parent_id: baseModuleResource.id,
-        api_paths: [
-            { id: guid(), value: actionPaths.user.register, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.user.register].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(registerResource);
@@ -238,9 +246,10 @@ async function initResource(dc: AuthDataContext) {
         create_date_time: new Date(Date.now()),
         type: "module",
         parent_id: baseModuleResource.id,
-        api_paths: [
-            { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.user.resetPassword].map(p => getPath(dc, p)))
+        //  [
+        //     { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) }
+        // ]
     }
 
     await dc.resources.save(forgetResource);
@@ -257,20 +266,21 @@ async function initResource(dc: AuthDataContext) {
         create_date_time: new Date(Date.now()),
         page_path: `#${pageBasePath}/user/list`,
         icon: "icon-group",
-        api_paths: [
-            { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
-        ]
+        api_paths: await Promise.all([actionPaths.user.list].map(p => getPath(dc, p)))
+        // [
+        //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
+        // ]
     }
     await dc.resources.save(userResource);
-    await createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
-        { id: guid(), value: actionPaths.user.add, create_date_time: new Date(Date.now()) }
-    ]);
+    await createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`,
+        [actionPaths.user.add]
+    );
     await createSmallEditButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`, [
-        { id: guid(), value: actionPaths.user.item, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.user.update, create_date_time: new Date(Date.now()) }
+        actionPaths.user.item,
+        actionPaths.user.update
     ]);
     await createRemoveButtonResource(dc, userResourceId, `${buttonInvokePrefix}:deleteItem`, [
-        { id: guid(), value: actionPaths.user.remove, create_date_time: new Date(Date.now()) }
+        actionPaths.user.remove
     ]);
 
     let searchResource: Resource = {
@@ -282,9 +292,10 @@ async function initResource(dc: AuthDataContext) {
         page_path: `${jsBasePath}/user/search-control.js`,
         data: { position: "top-right", code: "search" },
         parent_id: userResource.id,
-        api_paths: [
-            { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
-        ]
+        api_paths: await Promise.all([actionPaths.user.list].map(p => getPath(dc, p)))
+        //  [
+        //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
+        // ]
     }
 
     await dc.resources.save(searchResource);
@@ -316,23 +327,24 @@ async function initResource(dc: AuthDataContext) {
         parent_id: permissionResourceId,
         page_path: `#${pageBasePath}/role/list`,
         icon: "icon-sitemap",
-        api_paths: [
-            { id: guid(), value: actionPaths.role.list, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.role.list].map(p => getPath(dc, p)))
+        //  [
+        //     { id: guid(), value: actionPaths.role.list, create_date_time: new Date(Date.now()) }
+        // ]
     }
     await dc.resources.save(roleResource);
-    await createNormalAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-        { id: guid(), value: actionPaths.role.add, create_date_time: new Date(Date.now()) },
-    ]);
+    await createNormalAddButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`,
+        [actionPaths.role.add]
+    );
     await createSmallEditButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-        { id: guid(), value: actionPaths.role.item, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.role.update, create_date_time: new Date(Date.now()) },
+        actionPaths.role.item,
+        actionPaths.role.update,
     ]);
     await createRemoveButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-        { id: guid(), value: actionPaths.role.remove, create_date_time: new Date(Date.now()) },
+        actionPaths.role.remove,
     ]);
     await createSmallViewButtonResource(dc, roleResourceId, `${jsBasePath}/role/controls.js`, [
-        { id: guid(), value: actionPaths.role.item, create_date_time: new Date(Date.now()) },
+        actionPaths.role.item,
     ]);
 
     let rolePermissionResource: Resource = {
@@ -357,8 +369,8 @@ async function initResource(dc: AuthDataContext) {
     await dc.resources.save(rolePermissionResource);
 
     await createNormalSaveButtonResource(dc, rolePermissionResource.id, `${buttonInvokePrefix}:save`, [
-        { id: guid(), value: actionPaths.role.resource.set, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.role.resource.ids, create_date_time: new Date(Date.now()) }
+        actionPaths.role.resource.set,
+        actionPaths.role.resource.ids
     ])
 
     // 角色管理 结束
@@ -373,15 +385,15 @@ async function initResource(dc: AuthDataContext) {
         parent_id: permissionResourceId,
         page_path: `#${pageBasePath}/menu/list`,
         icon: "icon-tasks",
-        api_paths: [
-            { id: guid(), value: actionPaths.menu.list, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.menu.list].map(p => getPath(dc, p)))
+        // [
+        //     { id: guid(), value: actionPaths.menu.list, create_date_time: new Date(Date.now()) }
+        // ]
     }
     await dc.resources.save(menuResource);
-    await createNormalAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-        { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.resource.add, create_date_time: new Date(Date.now()) },
-    ]);
+    await createNormalAddButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`,
+        [actionPaths.menu.add, actionPaths.resource.add,]
+    );
 
     let menuAddButtonResource: Resource = {
         id: guid(),
@@ -391,9 +403,10 @@ async function initResource(dc: AuthDataContext) {
         create_date_time: new Date(Date.now()),
         parent_id: menuResource.id,
         page_path: `${jsBasePath}/menu/controls.js`,
-        api_paths: [
-            { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) }
-        ],
+        api_paths: await Promise.all([actionPaths.menu.add].map(p => getPath(dc, p))),
+        //  [
+        //     { id: guid(), value: actionPaths.menu.add, create_date_time: new Date(Date.now()) }
+        // ],
         data: { position: "top-right", code: "add_control" }
     }
 
@@ -401,18 +414,18 @@ async function initResource(dc: AuthDataContext) {
 
 
     await createSmallEditButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-        { id: guid(), value: actionPaths.menu.item, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.menu.update, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.resource.item, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.resource.update, create_date_time: new Date(Date.now()) },
+        actionPaths.menu.item,
+        actionPaths.menu.update,
+        actionPaths.resource.item,
+        actionPaths.resource.update,
     ]);
     await createRemoveButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-        { id: guid(), value: actionPaths.menu.remove, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.resource.remove, create_date_time: new Date(Date.now()) },
+        actionPaths.menu.remove,
+        actionPaths.resource.remove,
     ]);
     await createSmallViewButtonResource(dc, menuResource.id, `${jsBasePath}/menu/controls.js`, [
-        { id: guid(), value: actionPaths.menu.item, create_date_time: new Date(Date.now()) },
-        { id: guid(), value: actionPaths.resource.item, create_date_time: new Date(Date.now()) },
+        actionPaths.menu.item,
+        actionPaths.resource.item,
     ]);
 
     let tokenResource: Resource = {
@@ -424,14 +437,15 @@ async function initResource(dc: AuthDataContext) {
         parent_id: permissionResourceId,
         page_path: `#${pageBasePath}/token/list`,
         icon: "icon-magic",
-        api_paths: [
-            { id: guid(), value: actionPaths.token.list, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.token.list].map(p => getPath(dc, p)))
+        //  [
+        //     { id: guid(), value: actionPaths.token.list, create_date_time: new Date(Date.now()) }
+        // ]
     }
     await dc.resources.save(tokenResource);
-    await createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`, [
-        { id: guid(), value: actionPaths.token.add, create_date_time: new Date(Date.now()) },
-    ]);
+    await createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`,
+        [actionPaths.token.add]
+    );
 
 
 
@@ -444,10 +458,14 @@ async function initResource(dc: AuthDataContext) {
         parent_id: permissionResourceId,
         page_path: `#${pageBasePath}/path/list`,
         icon: "icon-rss",
-        api_paths: [
-            { id: guid(), value: actionPaths.path.list, create_date_time: new Date(Date.now()) },
-            { id: guid(), value: actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([
+            actionPaths.path.list, actionPaths.path.listByResourceIds,
+            actionPaths.resource.path.set, actionPaths.resource_path.list,
+        ].map(p => getPath(dc, p)))
+        // [
+        //     { id: guid(), value: actionPaths.path.list, create_date_time: new Date(Date.now()) },
+        //     { id: guid(), value: actionPaths.resource.path.set, create_date_time: new Date(Date.now()) }
+        // ]
     }
 
     await dc.resources.save(pathResource);
@@ -461,9 +479,7 @@ async function initResource(dc: AuthDataContext) {
         type: "menu",
         create_date_time: new Date(Date.now()),
         icon: "icon-user",
-        api_paths: [
-            { id: guid(), value: actionPaths.user.me, create_date_time: new Date(Date.now()) }
-        ]
+        api_paths: await Promise.all([actionPaths.user.me].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(personalResource);
@@ -477,14 +493,12 @@ async function initResource(dc: AuthDataContext) {
         icon: "icon-tablet",
         parent_id: personalResource.id,
         page_path: `#${pageBasePath}/personal/change-mobile`,
-        api_paths: [
-            { id: guid(), value: actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
-        ]
+        api_paths: await Promise.all([actionPaths.sms.sendVerifyCode].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(changeMobileResource);
     await createNormalSaveButtonResource(dc, changeMobileResource.id, `${buttonInvokePrefix}:save`, [
-        { id: guid(), value: actionPaths.user.resetMobile, create_date_time: new Date(Date.now()) },
+        actionPaths.user.resetMobile
     ]);
 
     let changePasswordResource: Resource = {
@@ -496,30 +510,29 @@ async function initResource(dc: AuthDataContext) {
         icon: "icon-key",
         parent_id: personalResource.id,
         page_path: `#${pageBasePath}/personal/change-password`,
-        api_paths: [
-            { id: guid(), value: actionPaths.sms.sendVerifyCode, create_date_time: new Date(Date.now()) },
-        ]
+        api_paths: await Promise.all([actionPaths.sms.sendVerifyCode].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(changePasswordResource);
     await createNormalSaveButtonResource(dc, changePasswordResource.id, `${buttonInvokePrefix}:save`, [
-        { id: guid(), value: actionPaths.user.resetPassword, create_date_time: new Date(Date.now()) },
+        actionPaths.user.resetPassword,
     ]);
 }
 
 
 async function initRoleResourceTable(dc: AuthDataContext) {
-    let adminRole = await dc.roles.findOne(adminRoleId);
-    let allResources = await dc.resources.find();
-    adminRole.resources = allResources;
+    // let adminRole = await dc.roles.findOne(adminRoleId);
+    // let allResources = await dc.resources.find();
+    // adminRole.resources = allResources;
 
-    await dc.roles.save(adminRole);
+    // await dc.roles.save(adminRole);
 
+    dc.roleResources.delete({});
     let roleResource: RoleResource = { role_id: anonymousRoleId, resource_id: baseModuleResourceId };
     await dc.roleResources.save(roleResource);
 }
 
-function createNormalAddButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
+async function createNormalAddButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: string[]) {
 
     let execute_path: string;
     if (path.startsWith("func")) {
@@ -544,14 +557,14 @@ function createNormalAddButtonResource(dc: AuthDataContext, parentId: string, pa
                 execute_path
             }
         },
-        api_paths: apiPaths,
+        api_paths: await Promise.all(apiPaths.map(p => getPath(dc, p))),
         icon: "icon-plus"
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
+async function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: string[]) {
 
     let execute_path: string;
     if (path.startsWith("func")) {
@@ -577,14 +590,14 @@ function createNormalSaveButtonResource(dc: AuthDataContext, parentId: string, p
                 toast: "保存成功!",
             }
         },
-        api_paths: apiPaths,
+        api_paths: await Promise.all(apiPaths.map(p => getPath(dc, p))),
         icon: "icon-save",
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createSmallEditButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths?: Path[]) {
+async function createSmallEditButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: string[]) {
 
     let execute_path: string;
     if (path.startsWith("func")) {
@@ -610,15 +623,14 @@ function createSmallEditButtonResource(dc: AuthDataContext, parentId: string, pa
                 execute_path
             }
         },
-        api_paths: apiPaths,
+        api_paths: await Promise.all(apiPaths.map(p => getPath(dc, p))),
         icon: "icon-pencil"
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths?: Path[]) {
-
+async function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: string[]) {
     let execute_path: string;
     if (path.startsWith("func")) {
         execute_path = path;
@@ -643,14 +655,14 @@ function createRemoveButtonResource(dc: AuthDataContext, parentId: string, path:
                 execute_path,
             }
         },
-        api_paths: apiPaths,
+        api_paths: await Promise.all(apiPaths.map(p => getPath(dc, p))),
         icon: "icon-trash"
     }
 
     return dc.resources.save(menuResource);
 }
 
-function createSmallViewButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: Path[]) {
+async function createSmallViewButtonResource(dc: AuthDataContext, parentId: string, path: string, apiPaths: string[]) {
     let menuResource: Resource = {
         id: guid(),
         name: "查看",
@@ -667,9 +679,22 @@ function createSmallViewButtonResource(dc: AuthDataContext, parentId: string, pa
                 showButtonText: false,
             }
         },
-        api_paths: apiPaths,
+        api_paths: await Promise.all(apiPaths.map(p => getPath(dc, p))),
         icon: "icon-eye-open"
     }
 
     return dc.resources.save(menuResource);
 }
+
+async function getPath(dc: AuthDataContext, value: string): Promise<Path> {
+    if (!dc) throw errors.argumentNull("dc");
+
+    let path = await dc.paths.findOne({ value: value });
+    if (path == null) {
+        path = { id: guid(), value, create_date_time: new Date(Date.now()) }
+    }
+
+    return path;
+}
+
+

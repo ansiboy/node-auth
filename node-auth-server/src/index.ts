@@ -2,7 +2,7 @@ import { startServer, Config } from 'maishu-node-mvc';
 import path = require('path');
 import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
-import { initDatabase } from './dataContext';
+import { initDatabase, getDataContext } from './dataContext';
 import { checkPath } from './filters/checkPath';
 export { AuthDataContext } from "./dataContext";
 
@@ -16,7 +16,7 @@ export async function start(options: Options) {
 
     setConnection(options.db);
 
-    await initDatabase();
+    await initDatabase(await getDataContext());
 
     startServer({
         port: options.port, rootPath: __dirname,
@@ -28,9 +28,7 @@ export async function start(options: Options) {
             'Access-Control-Allow-Methods': '*',
             'Access-Control-Allow-Headers': '*'
         },
-        actionFilters: [
-            checkPath
-        ]
+        authenticate: (req, res) => checkPath(req, res)
     })
 }
 
