@@ -60,4 +60,14 @@ function loadStyle() {
     })
 }
 
+export type InitArguments = {
+    app: Application
+}
+
+requirejs(["/clientjs_init.js"], function (initModule) {
+    if (initModule && typeof initModule.default == 'function') {
+        let args: InitArguments = { app }
+        initModule.default(args)
+    }
+})
 
