@@ -1,5 +1,5 @@
 import { controller, action } from "maishu-node-mvc";
-import { AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../data-context";
 import { Category } from "../entities";
 import { constants } from "../common";
 import { authDataContext } from "../decorators";

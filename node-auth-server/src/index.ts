@@ -4,7 +4,7 @@ import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
 import { authenticate } from './filters/authenticate';
 import { errors } from './errors';
-import { AuthDataContext, getDataContext } from './dataContext';
+import { AuthDataContext, getDataContext } from './data-context';
 
 interface Options {
     port: number,

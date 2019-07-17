@@ -2,7 +2,7 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
-import { getDataContext } from './dataContext';
+import { getDataContext } from './data-context';
 import { Token } from './entities';
 import { guid } from './utility';
 

@@ -1,7 +1,7 @@
 import http = require("http");
 import url = require("url");
 import { ActionResult, ContentResult } from 'maishu-node-mvc';
-import { getDataContext } from "../dataContext";
+import { getDataContext } from "../data-context";
 import { Path, RoleResource, Resource, ResourceData, ResourcePath } from "../entities";
 import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";

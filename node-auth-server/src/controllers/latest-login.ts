@@ -1,5 +1,5 @@
 import { controller, action, formData } from "maishu-node-mvc";
-import { AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../data-context";
 import { authDataContext } from "../decorators";
 
 @controller("latest-login")

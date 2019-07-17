@@ -3,7 +3,7 @@ import * as settings from '../settings'
 import { errors } from '../errors';
 import { controller, action, formData } from 'maishu-node-mvc';
 import { actionPaths } from '../common';
-import { AuthDataContext } from '../dataContext';
+import { AuthDataContext } from '../data-context';
 import { guid } from '../utility';
 import { authDataContext } from '../decorators';
 

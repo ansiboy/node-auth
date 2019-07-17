@@ -1,4 +1,4 @@
-const { getDataContext, initDatabase } = require("../out/dataContext");
+const { getDataContext, initDatabase } = require("../out/data-context");
 const { setConnection } = require("../out/settings")
 
 setConnection({

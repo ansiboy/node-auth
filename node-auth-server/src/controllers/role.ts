@@ -2,7 +2,7 @@ import { errors } from "../errors";
 import { controller, action, formData } from "maishu-node-mvc";
 import { currentUserId, currentUser, authDataContext } from "../decorators";
 import { Role, User, RoleResource } from "../entities";
-import { AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../data-context";
 import { actionPaths } from "../common";
 import { guid } from "../utility";
 

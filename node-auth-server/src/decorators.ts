@@ -3,7 +3,7 @@ import { TokenManager } from './token';
 import http = require('http')
 import querystring = require('querystring');
 import url = require('url');
-import { AuthDataContext, getDataContext } from './dataContext';
+import { AuthDataContext, getDataContext } from './data-context';
 import { errors } from './errors';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(

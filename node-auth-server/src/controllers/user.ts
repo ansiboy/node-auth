@@ -2,7 +2,7 @@ import { errors } from '../errors';
 import { TokenManager } from '../token';
 import { controller, formData, action } from 'maishu-node-mvc';
 import { currentUserId, currentUser, currentTokenId, authDataContext } from '../decorators';
-import { AuthDataContext } from '../dataContext';
+import { AuthDataContext } from '../data-context';
 import { User, LoginResult } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';

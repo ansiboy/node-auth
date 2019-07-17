@@ -1,7 +1,7 @@
 import { Controller, action } from "maishu-node-mvc";
 import { actionPaths } from "../common";
 import { authDataContext } from "../decorators";
-import { AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../data-context";
 
 export class ResourcePathController extends Controller {
     @action(actionPaths.resource_path.list)
