@@ -13,9 +13,9 @@ interface State {
 }
 
 let sortFieldWidth = 80
-let nameFieldWidth = 280
-let operationFieldWidth = 200
-let typeFieldWidth = 140
+let nameFieldWidth = 180
+let operationFieldWidth = 140
+let typeFieldWidth = 100
 let remarkWidth = 240
 
 export default class ResourceListPage extends React.Component<PageProps, State> {
@@ -30,44 +30,7 @@ export default class ResourceListPage extends React.Component<PageProps, State> 
     }
     async componentDidMount() {
 
-        // let [resources] = await Promise.all([this.permissionService.resource.list()]);
-        // let menuItems = translateToMenuItems(resources);
 
-        // this.gridView = createGridView({
-        //     dataSource: dataSources.resource,
-        //     element: this.dataTable,
-        //     showHeader: false,
-        //     showFooter: false,
-        //     pageSize: null,
-        //     columns: [
-        //         boundField<MenuItem>({ dataField: 'sort_number', itemStyle: { width: `${sortFieldWidth}px` } }),
-        //         customField<MenuItem>({
-        //             headerText: '菜单名称',
-        //             itemStyle: { width: `${nameFieldWidth}px` },
-        //             createItemCell: () => {
-        //                 let cell = new GridViewDataCell<MenuItem>({
-        //                     render: (item: MenuItem, element) => {
-        //                         element.style.paddingLeft = `${this.parentDeep(item) * 20 + 10}px`
-        //                         element.innerHTML = item.name;
-        //                     }
-        //                 })
-
-        //                 return cell
-        //             }
-        //         }),
-        //         boundField<MenuItem>({ dataField: "page_path", headerText: "路径" }),
-        //         boundField<MenuItem>({ dataField: "remark", headerText: "备注", itemStyle: { width: `${remarkWidth}px` } }),
-        //         boundField<MenuItem>({ dataField: "type", headerText: "类型", itemStyle: { width: `${typeFieldWidth}px` } }),
-        //         dateTimeField<MenuItem>({ dataField: 'create_date_time', headerText: '创建时间', }),
-        //         operationField<MenuItem>(this.props.data.resourceId, this.props.app, `${operationFieldWidth}px`)
-        //     ],
-        //     sort: (dataItems) => {
-        //         dataItems = dataItems.filter(o => o.type == "menu" || o.type == "button");
-        //         dataItems = translateToMenuItems(dataItems)
-        //         return dataItems;
-        //     }
-
-        // })
     }
 
     parentDeep(menuItem: MenuItem) {

@@ -1,19 +1,19 @@
 import http = require("http");
 import url = require("url");
 import { ActionResult, ContentResult } from 'maishu-node-mvc';
-import { getDataContext, AuthDataContext } from "../dataContext";
-import { Path, ResourcePath, RoleResource, Resource } from "../entities";
+import { getDataContext } from "../dataContext";
+import { Path, RoleResource, Resource, ResourceData, ResourcePath } from "../entities";
 import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";
 import { constants } from "../common";
-
+import UrlPattern = require("url-pattern");
 
 let allPaths: Path[];
 
 /**
  * 检查路径是否允许访问
  */
-export async function checkPath(req: http.IncomingMessage, res: http.ServerResponse): Promise<ActionResult> {
+export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse): Promise<ActionResult> {
     let dc = await getDataContext();
 
     if (!allPaths) {
@@ -21,7 +21,6 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
     }
 
     let u = url.parse(req.url);
-    let path = allPaths.filter(o => o.value == u.pathname)[0];
 
     let roleId: string = null;
     let userId = await getUserIdFromRequest(req);
@@ -38,24 +37,42 @@ export async function checkPath(req: http.IncomingMessage, res: http.ServerRespo
     if (roleId == constants.adminRoleId)
         return null;
 
-    if (path != null) {
+    let [allResources, allRoleResources, allResourcePaths] = await Promise.all([dc.resources.find(), dc.roleResources.find(), dc.resourcePath.find()]);
+    for (let i = 0; i < allPaths.length; i++) {
+        if (!allPaths[i].value)
+            continue;
 
-        let [allResources, roleResources, resourcePaths] = await Promise.all([dc.resources.find(), dc.roleResources.find(), dc.resourcePath.find()]);
-        let myResources = translateResources(allResources, roleResources);
-        let resourceIds = resourcePaths.filter(o => o.path_id == path.id).map(o => o.resource_id);
-        let roleIds = myResources.filter(a => resourceIds.indexOf(a.id) >= 0).map(o => o.roleIds)[0];
-        if (roleIds.indexOf(roleId) >= 0)
-            return null;
-
+        var pattern = new UrlPattern(allPaths[i].value);
+        if (pattern.match(u.pathname)) {
+            let roleIds = getAllowVisitRoleIds(allResources, allRoleResources, allResourcePaths, allPaths[i]);
+            if (roleIds.indexOf(roleId) >= 0 || roleIds.indexOf(constants.anonymousRoleId) >= 0)
+                return null;
+        }
     }
 
     let error = roleId == constants.anonymousRoleId ? errors.userNotLogin() : errors.forbidden(u.pathname);
     error.name = errorNames.noPermission;
-    let result = new ContentResult("{}", "application/json; charset=utf-8", errorStatusCodes.noPermission);
+    let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", errorStatusCodes.noPermission);
     console.warn(error);
     return result;
 
 }
+
+/**
+ * 获取运行访问该路径的角色
+ * @param path 路径
+ */
+function getAllowVisitRoleIds(allResources: Resource[], roleResources: RoleResource[], resourcePaths: ResourcePath[], path: Path) {
+    let myResources = translateResources(allResources, roleResources);
+    let resourceIds = resourcePaths.filter(o => o.path_id == path.id).map(o => o.resource_id);
+    let roleIds: string[] = [];
+    myResources.filter(a => resourceIds.indexOf(a.id) >= 0)
+        .map(o => o.roleIds).forEach(o => roleIds.push(...o));
+
+    return roleIds;
+}
+
+
 
 type MyResource = {
     id: string,

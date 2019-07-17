@@ -175,6 +175,12 @@ export let errors = {
         let err  = new Error(msg);
         err.name = errors.userIdNull.name;
         return err;
+    },
+    noPermission(){
+        let msg = "no permission";
+        let err = new Error(msg);
+        err.name = errors.noPermission.name;
+        return err;
     }
 }
 

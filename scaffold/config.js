@@ -1,4 +1,5 @@
-{
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = {
     "imageService": {
         "port": 4100,
         "db": {

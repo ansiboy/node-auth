@@ -111,7 +111,7 @@ export class Resource implements Model {
     @JoinTable({
         name: "resource_path",
         joinColumns: [{ name: "resource_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }]
+        inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }],
     })
     api_paths?: Path[];
 }

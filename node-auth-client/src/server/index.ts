@@ -6,7 +6,6 @@ import fs = require("fs");
 
 interface Config {
     port: number,
-    roleId: string,
     gateway: string,
     controllerPath: string,
     staticRootDirectory: string,
@@ -42,7 +41,6 @@ export function start(config: Config) {
     console.assert(fs.existsSync(virtualPaths["lib"]));
     virtualPaths["node_modules"] = node_modules_path;
 
-    settings.roleId = config.roleId;
     settings.gateway = config.gateway;
     settings.clientStaticRoot = config.staticRootDirectory;
     settings.innerStaticRoot = innerStaticRootDirectory;

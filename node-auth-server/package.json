@@ -11,11 +11,12 @@
     },
     "dependencies": {
         "is-class": "0.0.5",
-        "maishu-node-mvc": "^1.9.0",
+        "maishu-node-mvc": "file:../../node-mvc",
         "memory-cache": "^0.2.0",
         "mysql": "^2.15.0",
         "qcloudsms_js": "^0.1.1",
-        "typeorm": "^0.2.18"
+        "typeorm": "^0.2.18",
+        "url-pattern": "^1.0.3"
     },
     "scripts": {
         "test": "mocha out/test",

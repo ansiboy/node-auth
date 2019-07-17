@@ -38,7 +38,7 @@ requirejs.config({
     }
 })
 
-requirejs(['assert/application', "assert/startup"], function (appModule, initModule, startupModule) {
+requirejs(["assert/startup"], function (startupModule) {
 
     console.assert(startupModule != null && typeof startupModule["default"] == "function");
     startupModule["default"]();

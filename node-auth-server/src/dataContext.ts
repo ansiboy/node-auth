@@ -75,6 +75,10 @@ export class AuthDataContext {
         return this.resources.save(resource);
     }
 
+    public async initDatabase(adminMobile: string, adminPassword: string) {
+        return initDatabase(this, adminMobile, adminPassword);
+    }
+
     async dispose() {
         // await this.entityManager.connection.close();
     }
@@ -111,20 +115,20 @@ export let getDataContext = (function () {
     var dc: AuthDataContext = null;
     return async function () {
         if (dc == null) {
-            dc = await createDataContext();
+            dc = await createDataContext("shop_auth");
         }
 
         return dc;
     }
 })()
 
-export async function initDatabase(dc: AuthDataContext) {
+async function initDatabase(dc: AuthDataContext, adminMobile: string, adminPassword: string) {
     if (!dc) throw errors.argumentNull("dc");
     try {
         await initRoleTable(dc);
         await initResource(dc);
         await initRoleResourceTable(dc);
-        await initUserTable(dc);
+        await initUserTable(dc, adminMobile, adminPassword);
     }
     finally {
         dc.dispose();
@@ -162,7 +166,7 @@ async function initRoleTable(dc: AuthDataContext) {
     await dc.roles.save(anonymousRole);
 }
 
-async function initUserTable(dc: AuthDataContext) {
+async function initUserTable(dc: AuthDataContext, adminMobile: string, adminPassword) {
     let count = await dc.users.count();
     if (count > 0)
         return;
@@ -171,8 +175,8 @@ async function initUserTable(dc: AuthDataContext) {
 
     let admin: User = {
         id: adminUserId,
-        mobile: "18502146746",
-        password: "22",
+        mobile: adminMobile,
+        password: adminPassword,
         user_name: "admin",
         create_date_time: new Date(Date.now()),
         is_system: true,
@@ -209,7 +213,10 @@ async function initResource(dc: AuthDataContext) {
         sort_number: 40,
         create_date_time: new Date(Date.now()),
         type: "module",
-        api_paths: await Promise.all([actionPaths.resource.list].map(p => getPath(dc, p)))
+        api_paths: await Promise.all([
+            actionPaths.resource.list,
+            actionPaths.role.item,
+        ].map(p => getPath(dc, p)))
     }
 
     await dc.resources.save(baseModuleResource);
@@ -438,9 +445,6 @@ async function initResource(dc: AuthDataContext) {
         page_path: `#${pageBasePath}/token/list`,
         icon: "icon-magic",
         api_paths: await Promise.all([actionPaths.token.list].map(p => getPath(dc, p)))
-        //  [
-        //     { id: guid(), value: actionPaths.token.list, create_date_time: new Date(Date.now()) }
-        // ]
     }
     await dc.resources.save(tokenResource);
     await createNormalAddButtonResource(dc, tokenResourceId, `${jsBasePath}/token/controls.js`,

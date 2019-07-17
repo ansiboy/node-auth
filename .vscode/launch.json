@@ -15,7 +15,8 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/startup/index.js"
+            "program": "${workspaceRoot}/startup/index.js",
+            "args": ["--experimental-modules "]
         }
     ]
 }
