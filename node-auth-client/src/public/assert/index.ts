@@ -1,5 +1,5 @@
-export * from "assert/components/index";
-export * from "assert/controls/index";
+export * from "./components/index";
+export * from "./controls/index";
 
 export { ValidateDataField } from "./components/item-dialog";
 export { errors } from "./errors";

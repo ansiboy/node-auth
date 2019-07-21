@@ -5,11 +5,12 @@ import { MainMasterPage } from "./masters/main-master-page";
 import React = require("react");
 import { MasterPage } from "./masters/master-page";
 import { PermissionService } from "./services/index";
-import { config } from '../config';
+import settings = require('auth/settings');
+import { config } from "../config";
 import { errors } from "./errors";
 
-PermissionService.baseUrl = config.permissionServiceUrl;
-if (!config.permissionServiceUrl)
+PermissionService.baseUrl = settings.gateway;
+if (!settings.gateway)
     throw errors.serviceUrlCanntNull("permissionService");
 
 export default function startup() {

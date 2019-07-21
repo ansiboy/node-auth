@@ -37,7 +37,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     if (roleId == constants.adminRoleId)
         return null;
 
-    let [allResources, allRoleResources, allResourcePaths] = await Promise.all([dc.resources.find(), dc.roleResources.find(), dc.resourcePath.find()]);
+    let [allResources, allRoleResources, allResourcePaths] = await Promise.all([dc.resources.find(), dc.roleResources.find(), dc.resourcePaths.find()]);
     for (let i = 0; i < allPaths.length; i++) {
         if (!allPaths[i].value)
             continue;
@@ -76,6 +76,7 @@ function getAllowVisitRoleIds(allResources: Resource[], roleResources: RoleResou
 
 type MyResource = {
     id: string,
+    name: string;
     parentId: string,
     parent: MyResource,
     children: MyResource[],
@@ -85,7 +86,7 @@ type MyResource = {
 
 function translateResources(resources: Resource[], roleResources: RoleResource[]) {
     let myResources: MyResource[] = resources.map(o => ({
-        id: o.id, parentId: o.parent_id,
+        id: o.id, parentId: o.parent_id, name: o.name,
         roleIds: roleResources.filter(r => r.resource_id == o.id).map(r => r.role_id)
     } as MyResource));
 
@@ -97,6 +98,7 @@ function translateResources(resources: Resource[], roleResources: RoleResource[]
     }
 
     // 父资源的角色可以访问子资源，所以要把父角色加入到子资源的角色中去
+    
     myResources.forEach(myResource => {
         console.assert(myResource.roleIds != null);
         let p = myResource.parent;

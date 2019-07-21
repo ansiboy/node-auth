@@ -103,7 +103,6 @@ export default class ResourceController {
         let pathIds = allPaths.filter(o => paths.indexOf(o.value) >= 0).map(o => o.id);
         let resourcePaths = pathIds.map(o => ({ resource_id: resourceId, path_id: o } as ResourcePath));
 
-        await dc.roleResources.delete({ resource_id: resourceId });
-        await dc.resourcePath.save(resourcePaths);
+        await dc.resourcePaths.save(resourcePaths);
     }
 }

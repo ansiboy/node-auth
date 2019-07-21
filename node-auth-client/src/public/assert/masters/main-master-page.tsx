@@ -63,7 +63,8 @@ export class MainMasterPage extends MasterPage<State> {
             return;
         }
 
-        throw errors.notImplement()
+        this.app.redirect("outer-page", { target: pagePath });
+        // throw errors.notImplement()
     }
 
     private findMenuItemByResourceId(menuItems: MenuItem[], resourceId: string) {
@@ -110,13 +111,6 @@ export class MainMasterPage extends MasterPage<State> {
         s.user.logout()
         location.href = `?${Date.now()}#login`
     }
-
-    // loadMenuItmes() {
-    //     this.ps.resource.list().then(resources => {
-    //         let menuItems = translateToMenuItems(resources).filter(o => o.parent == null);
-    //         this.setState({ menus: menuItems });
-    //     })
-    // }
 
     /**
      * 加载用户登录后所要显示的数据
@@ -226,10 +220,7 @@ export class MainMasterPage extends MasterPage<State> {
                         )}
                     </ul>
                 </div>
-                <div className="main" ref={e => {
-                    if (e == null) return
-                    // e.appendChild(this.pageContainer)
-                }}>
+                <div className="main">
                     <nav className="navbar navbar-default">
                         <ul className="toolbar">
                             {this.state.toolbar}

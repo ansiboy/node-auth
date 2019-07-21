@@ -6,6 +6,7 @@ import path = require("path");
 import { constants, actionPaths } from "./common";
 import { guid } from "./utility";
 import { errors } from "./errors";
+import { DH_CHECK_P_NOT_PRIME } from "constants";
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -18,7 +19,9 @@ export class AuthDataContext {
     smsRecords: Repository<SMSRecord>;
     paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
-    resourcePath: Repository<ResourcePath>;
+    resourcePaths: Repository<ResourcePath>;
+
+    baseModuleResourceId: string;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
@@ -31,8 +34,9 @@ export class AuthDataContext {
         this.smsRecords = this.entityManager.getRepository(SMSRecord);
         this.paths = this.entityManager.getRepository(Path);
         this.roleResources = this.entityManager.getRepository(RoleResource);
-        this.resourcePath = this.entityManager.getRepository(ResourcePath);
+        this.resourcePaths = this.entityManager.getRepository(ResourcePath);
 
+        this.baseModuleResourceId = baseModuleResourceId;
     }
 
     public async createTopButtonResource(args: {
@@ -75,9 +79,52 @@ export class AuthDataContext {
         return this.resources.save(resource);
     }
 
+    public createMenuItem(args: {
+        id: string, name: string, url?: string,
+        icon?: string, sortNumber?: number, parentId?: string,
+    }) {
+        let resource: Resource = {
+            id: args.id, create_date_time: new Date(Date.now()),
+            name: args.name, icon: args.icon, type: "menu", sort_number: args.sortNumber,
+            page_path: args.url, parent_id: args.parentId
+        }
+
+        return this.resources.save(resource);
+    }
+
+    public async appendPathsToResource(paths: string[], resourceId: string) {
+        if (paths == null)
+            throw errors.argumentNull("paths");
+
+        if (!Array.isArray(paths))
+            throw errors.argumentTypeIncorrect("paths", "Array");
+
+        if (!resourceId)
+            throw errors.argumentNull("resourceId");
+
+        if (paths.length == 0)
+            return;
+
+        let allPaths = await this.paths.find();
+        let allPathStrings = allPaths.map(o => o.value);
+
+        // 过滤掉已存在的路径
+        paths = paths.filter(p => allPathStrings.indexOf(p) < 0);
+
+        let pathObjects: Path[] = paths.map(o => ({ id: guid(), value: o, create_date_time: new Date(Date.now()) }));
+        await this.paths.save(pathObjects);
+        let resourcePaths: ResourcePath[] = pathObjects.map(o => ({ resource_id: resourceId, path_id: o.id }));
+        await this.resourcePaths.save(resourcePaths);
+    }
+
     public async initDatabase(adminMobile: string, adminPassword: string) {
         return initDatabase(this, adminMobile, adminPassword);
     }
+
+    public guid() {
+        return guid();
+    }
+
 
     async dispose() {
         // await this.entityManager.connection.close();
@@ -86,9 +133,12 @@ export class AuthDataContext {
 
 
 
-// let connection: Connection;
-async function createDataContext(name?: string): Promise<AuthDataContext> {
-    // if (connection == null) {
+async function createDataContext(name: string, synchronize: boolean, entitiesDirectory?: string): Promise<AuthDataContext> {
+
+    let entities: string[] = [path.join(__dirname, "entities.js")]
+    if (entitiesDirectory) {
+        entities.push(path.join(entitiesDirectory, "*.js"));
+    }
     let connection = await createConnection({
         type: "mysql",
         host: conn.auth.host,
@@ -99,12 +149,9 @@ async function createDataContext(name?: string): Promise<AuthDataContext> {
         synchronize: true,
         logging: true,
         connectTimeout: 1000,
-        entities: [
-            path.join(__dirname, "entities.js")
-        ],
+        entities,
         name: name
     })
-    // }
 
     let dc = new AuthDataContext(connection.manager)
     return dc
@@ -113,9 +160,12 @@ async function createDataContext(name?: string): Promise<AuthDataContext> {
 
 export let getDataContext = (function () {
     var dc: AuthDataContext = null;
-    return async function () {
+    return async function (synchronize?: boolean, entitiesDirectory?: string) {
+        if (synchronize == null)
+            synchronize = false;
+
         if (dc == null) {
-            dc = await createDataContext("shop_auth");
+            dc = await createDataContext("shop_auth", synchronize, entitiesDirectory);
         }
 
         return dc;
@@ -210,7 +260,7 @@ async function initResource(dc: AuthDataContext) {
     let baseModuleResource: Resource = {
         id: baseModuleResourceId,
         name: "基本功能",
-        sort_number: 40,
+        sort_number: 11000,
         create_date_time: new Date(Date.now()),
         type: "module",
         api_paths: await Promise.all([
@@ -225,7 +275,7 @@ async function initResource(dc: AuthDataContext) {
     let loginResource: Resource = {
         id: guid(),
         name: "登录",
-        sort_number: 100,
+        sort_number: 11100,
         create_date_time: new Date(Date.now()),
         type: "module",
         parent_id: baseModuleResourceId,
@@ -237,7 +287,7 @@ async function initResource(dc: AuthDataContext) {
     let registerResource: Resource = {
         id: guid(),
         name: "注册",
-        sort_number: 200,
+        sort_number: 11200,
         create_date_time: new Date(Date.now()),
         type: "module",
         parent_id: baseModuleResource.id,
@@ -249,7 +299,7 @@ async function initResource(dc: AuthDataContext) {
     let forgetResource: Resource = {
         id: guid(),
         name: "找回密码",
-        sort_number: 300,
+        sort_number: 11300,
         create_date_time: new Date(Date.now()),
         type: "module",
         parent_id: baseModuleResource.id,
@@ -268,15 +318,12 @@ async function initResource(dc: AuthDataContext) {
     let userResource: Resource = {
         id: userResourceId,
         name: "用户管理",
-        sort_number: 80,
+        sort_number: 12000,
         type: "menu",
         create_date_time: new Date(Date.now()),
         page_path: `#${pageBasePath}/user/list`,
         icon: "icon-group",
         api_paths: await Promise.all([actionPaths.user.list].map(p => getPath(dc, p)))
-        // [
-        //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
-        // ]
     }
     await dc.resources.save(userResource);
     await createNormalAddButtonResource(dc, userResourceId, `${buttonInvokePrefix}:showItem`,
@@ -300,9 +347,6 @@ async function initResource(dc: AuthDataContext) {
         data: { position: "top-right", code: "search" },
         parent_id: userResource.id,
         api_paths: await Promise.all([actionPaths.user.list].map(p => getPath(dc, p)))
-        //  [
-        //     { id: guid(), value: actionPaths.user.list, create_date_time: new Date(Date.now()) },
-        // ]
     }
 
     await dc.resources.save(searchResource);
@@ -313,7 +357,7 @@ async function initResource(dc: AuthDataContext) {
     let permissionResource: Resource = {
         id: permissionResourceId,
         name: "权限管理",
-        sort_number: 100,
+        sort_number: 13000,
         type: "menu",
         create_date_time: new Date(Date.now()),
         icon: "icon-lock",
@@ -328,7 +372,7 @@ async function initResource(dc: AuthDataContext) {
     let roleResource: Resource = {
         id: roleResourceId,
         name: "角色管理",
-        sort_number: 200,
+        sort_number: 13100,
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
@@ -386,7 +430,7 @@ async function initResource(dc: AuthDataContext) {
     let menuResource: Resource = {
         id: menuResourceId,
         name: "菜单管理",
-        sort_number: 300,
+        sort_number: 13200,
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
@@ -438,7 +482,7 @@ async function initResource(dc: AuthDataContext) {
     let tokenResource: Resource = {
         id: tokenResourceId,
         name: "令牌管理",
-        sort_number: 400,
+        sort_number: 13400,
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
@@ -456,7 +500,7 @@ async function initResource(dc: AuthDataContext) {
     let pathResource: Resource = {
         id: pathResourceId,
         name: "API 设置",
-        sort_number: 500,
+        sort_number: 13500,
         type: "menu",
         create_date_time: new Date(Date.now()),
         parent_id: permissionResourceId,
@@ -479,7 +523,7 @@ async function initResource(dc: AuthDataContext) {
     let personalResource: Resource = {
         id: personalResourceId,
         name: "个人中心",
-        sort_number: 600,
+        sort_number: 14000,
         type: "menu",
         create_date_time: new Date(Date.now()),
         icon: "icon-user",
@@ -491,7 +535,7 @@ async function initResource(dc: AuthDataContext) {
     let changeMobileResource: Resource = {
         id: guid(),
         name: "修改手机号",
-        sort_number: 800,
+        sort_number: 14100,
         type: "menu",
         create_date_time: new Date(Date.now()),
         icon: "icon-tablet",
@@ -508,7 +552,7 @@ async function initResource(dc: AuthDataContext) {
     let changePasswordResource: Resource = {
         id: guid(),
         name: "修改密码",
-        sort_number: 700,
+        sort_number: 14200,
         type: "menu",
         create_date_time: new Date(Date.now()),
         icon: "icon-key",

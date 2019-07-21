@@ -7,13 +7,14 @@ import fs = require("fs");
 interface Config {
     port: number,
     gateway: string,
-    controllerPath: string,
+    controllerPath?: string,
     staticRootDirectory: string,
+    proxy?: import("maishu-node-mvc").Config["proxy"],
+    bindIP?: string,
 }
 
 
 export function start(config: Config) {
-
     if (!config.staticRootDirectory)
         throw errors.settingItemNull("clientRootDirectory");
 
@@ -47,10 +48,11 @@ export function start(config: Config) {
 
     startServer({
         port: config.port,
-        rootPath: __dirname,
         staticRootDirectory: config.staticRootDirectory,
         controllerDirectory: config.controllerPath ? [path.join(__dirname, './controllers'), config.controllerPath] : [path.join(__dirname, './controllers')],
-        virtualPaths
+        virtualPaths,
+        proxy: config.proxy,
+        bindIP: config.bindIP,
     });
 }
 

@@ -3,7 +3,7 @@
         "allowJs": true,
         "jsx": "react",
         "baseUrl": "./",
-        "outDir": "../../out/public/modules",
+        "outDir": "../../out/public",
         "target": "es6",
         "module": "amd",
         "paths": {

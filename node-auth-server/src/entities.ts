@@ -234,3 +234,12 @@ export class ResourcePath {
     @PrimaryColumn({ type: "char", length: 36 })
     path_id: string;
 }
+
+@Entity("resource_category")
+export class ResourceCategory {
+    @PrimaryColumn({ type: "char", length: 36 })
+    id: string;
+
+    @Column({ type: "varchar", length: 40 })
+    name: string;
+}

@@ -48,4 +48,15 @@ export class ClientJSController extends Controller {
 
         return this.content(html, "text/html");
     }
+
+    @action("/auth/settings.js")
+    settings() {
+        return `define(["require", "exports"], function (require, exports) {
+                    "use strict";
+                    let settings = {
+                        gateway: "${settings.gateway}"
+                    };
+                    return settings;
+                });`
+    }
 }

@@ -10,7 +10,7 @@ export class PathController {
     async list(@authDataContext dc: AuthDataContext, @formData { resourceId }: { resourceId: string }): Promise<Path[]> {
         let items: Path[];
         if (resourceId) {
-            let resourcePaths = await dc.resourcePath.find({ resource_id: resourceId });
+            let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
             items = await dc.paths.findByIds(resourcePaths.map(o => o.path_id));
         }
         else {
@@ -21,7 +21,7 @@ export class PathController {
 
     @action(actionPaths.path.listByResourceIds)
     async listByResourceIds(@authDataContext dc: AuthDataContext, @formData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
-        let resourcePaths = await dc.resourcePath.createQueryBuilder()
+        let resourcePaths = await dc.resourcePaths.createQueryBuilder()
             .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
             .getMany();
 

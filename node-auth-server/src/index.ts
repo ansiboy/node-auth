@@ -9,17 +9,19 @@ import { AuthDataContext, getDataContext } from './data-context';
 interface Options {
     port: number,
     db: ConnectionConfig,
+    bindIP?: string,
     proxy?: Config['proxy'],
-    backendControllers?: string,
-}
-
-interface InitArguments {
-    dc: AuthDataContext,
+    /** 控制器所在文件夹 */
+    controllersDirectory?: string,
+    /** 实体类所在文件夹 */
+    entitiesDirectory?: string,
+    /** 用于初始化数据库数据 */
+    initDatabase?: (dc: AuthDataContext) => Promise<any>
 }
 
 export type StartOptions = Options;
 
-export async function start(options: Options, initFunc?: (args: InitArguments) => Promise<any>) {
+export async function start(options: Options) {
 
     if (!options)
         throw errors.argumentNull("options");
@@ -32,17 +34,18 @@ export async function start(options: Options, initFunc?: (args: InitArguments) =
 
     setConnection(options.db);
 
-    if (initFunc) {
-        let dc = await getDataContext();
-        await initFunc({ dc });
+    if (options.initDatabase) {
+        let dc = await getDataContext(true, options.entitiesDirectory);
+        await options.initDatabase(dc);
     }
 
     let ctrl_dir = [path.join(__dirname, 'controllers')];
-    if (options.backendControllers)
-        ctrl_dir.push(options.backendControllers);
+    if (options.controllersDirectory)
+        ctrl_dir.push(options.controllersDirectory);
 
     startServer({
-        port: options.port, rootPath: __dirname,
+        port: options.port,
+        bindIP: options.bindIP,
         controllerDirectory: ctrl_dir,
         staticRootDirectory: path.join(__dirname, '../../out/client'),
         headers: {
