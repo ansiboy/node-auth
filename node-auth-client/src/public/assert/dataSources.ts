@@ -2,7 +2,6 @@ import { DataSource, DataSourceSelectArguments, DataSourceSelectResult, DataSour
 import { PermissionService } from "./services/index";
 import { MenuItem } from "./masters/main-master-page";
 import { User, Role, Path, Resource } from "entities";
-import { ValueStore } from "maishu-chitu";
 import errorHandle from "error-handle";
 
 let permissionService: PermissionService = new PermissionService((error) => errorHandle(error));

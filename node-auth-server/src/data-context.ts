@@ -1,12 +1,9 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, Db } from "typeorm";
-import { conn } from './settings';
+import { createConnection, EntityManager, Repository, Connection, Db, getConnection } from "typeorm";
 import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath } from "./entities";
-import path = require("path");
 import { constants, actionPaths } from "./common";
 import { guid } from "./utility";
 import { errors } from "./errors";
-import { DH_CHECK_P_NOT_PRIME } from "constants";
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -133,44 +130,26 @@ export class AuthDataContext {
 
 
 
-async function createDataContext(name: string, synchronize: boolean, entitiesDirectory?: string): Promise<AuthDataContext> {
+export async function createDataContext(): Promise<AuthDataContext> {
 
-    let entities: string[] = [path.join(__dirname, "entities.js")]
-    if (entitiesDirectory) {
-        entities.push(path.join(entitiesDirectory, "*.js"));
-    }
-    let connection = await createConnection({
-        type: "mysql",
-        host: conn.auth.host,
-        port: conn.auth.port,
-        username: conn.auth.user,
-        password: conn.auth.password,
-        database: conn.auth.database,
-        synchronize: true,
-        logging: true,
-        connectTimeout: 1000,
-        entities,
-        name: name
-    })
+    let connection = getConnection(constants.dbName)
 
     let dc = new AuthDataContext(connection.manager)
     return dc
 }
 
 
-export let getDataContext = (function () {
-    var dc: AuthDataContext = null;
-    return async function (synchronize?: boolean, entitiesDirectory?: string) {
-        if (synchronize == null)
-            synchronize = false;
+// export let getDataContext = (function () {
+//     var dc: AuthDataContext = null;
+//     return async function () {
 
-        if (dc == null) {
-            dc = await createDataContext("shop_auth", synchronize, entitiesDirectory);
-        }
+//         if (dc == null) {
+//             dc = await createDataContext();
+//         }
 
-        return dc;
-    }
-})()
+//         return dc;
+//     }
+// })()
 
 async function initDatabase(dc: AuthDataContext, adminMobile: string, adminPassword: string) {
     if (!dc) throw errors.argumentNull("dc");

@@ -1,5 +1,5 @@
 let node_modules = '../../node_modules'
-let lib = '../../lib'
+let lib = '../../assert/lib'
 
 
 requirejs.config({

@@ -1,10 +1,12 @@
 import { startServer, Config } from 'maishu-node-mvc';
 import path = require('path');
-import { setConnection } from './settings';
 import { ConnectionConfig } from 'mysql';
 import { authenticate } from './filters/authenticate';
 import { errors } from './errors';
-import { AuthDataContext, getDataContext } from './data-context';
+import { AuthDataContext, createDataContext } from './data-context';
+import { createConnection, ConnectionOptions } from 'typeorm';
+import { constants } from './common';
+import { setConnection } from './settings';
 
 interface Options {
     port: number,
@@ -15,12 +17,13 @@ interface Options {
     controllersDirectory?: string,
     /** 实体类所在文件夹 */
     entitiesDirectory?: string,
+    permissions?: { [path: string]: string[] }
     /** 用于初始化数据库数据 */
     initDatabase?: (dc: AuthDataContext) => Promise<any>
 }
 
 export type StartOptions = Options;
-
+export { constants } from './common';
 export async function start(options: Options) {
 
     if (!options)
@@ -33,9 +36,29 @@ export async function start(options: Options) {
         throw errors.argumentFieldNull("port", "options");
 
     setConnection(options.db);
+    let entities: string[] = [path.join(__dirname, "entities.js")]
+    if (options.entitiesDirectory) {
+        entities.push(path.join(options.entitiesDirectory, "*.js"));
+    }
+
+    let dbOptions: ConnectionOptions = {
+        type: "mysql",
+        host: options.db.host,
+        port: options.db.port,
+        username: options.db.user,
+        password: options.db.password,
+        database: options.db.database,
+        synchronize: true,
+        logging: false,
+        connectTimeout: 3000,
+        entities,
+        name: constants.dbName
+    }
+
+    await createConnection(dbOptions)
 
     if (options.initDatabase) {
-        let dc = await getDataContext(true, options.entitiesDirectory);
+        let dc = await createDataContext();
         await options.initDatabase(dc);
     }
 
@@ -55,7 +78,7 @@ export async function start(options: Options) {
             'Access-Control-Allow-Headers': '*'
         },
         proxy: options.proxy,
-        authenticate: (req, res) => authenticate(req, res)
+        authenticate: (req, res) => authenticate(req, res, options.permissions)
     })
 }
 

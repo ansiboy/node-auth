@@ -2,13 +2,21 @@
 import * as chitu_react from 'maishu-chitu-react';
 import { MasterPage } from './masters/master-page';
 import 'text!../content/admin_style_default.less'
-import { PageData, Page } from "maishu-chitu"
+import { PageData, Page, ValueStore } from "maishu-chitu"
 import errorHandle from 'error-handle';
+import { MainMasterPage } from './masters/main-master-page';
+import { PermissionService } from './services/index';
+import { LoginInfo } from './services/service';
 
 export class Application extends chitu_react.Application {
     pageMasters: { [key: string]: string } = {}
-    masterPages: { [key: string]: MasterPage<any> } = {}
+    masterPages = {
+        simple: null as MasterPage<any>,
+        default: null as MainMasterPage
+    }
     masterElements: { [key: string]: HTMLElement } = {}
+
+    loginInfo: ValueStore<LoginInfo> = PermissionService.loginInfo;
 
     constructor(simpleContainer: HTMLElement, mainContainer: HTMLElement) {
         super({

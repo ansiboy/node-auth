@@ -3,12 +3,13 @@ import { Application } from '../application';
 import { MasterPage, MasterPageProps } from './master-page';
 import { masterPageNames } from './names';
 import { Resource } from 'entities';
-import { errors } from 'assert/errors';
 import { PermissionService, Service } from 'assert/services/index';
 import { translateToMenuItems } from 'assert/dataSources';
 import { LoginInfo } from 'assert/services/service';
 
-export type MenuItem = Resource & { icon?: string, parent: MenuItem, children: MenuItem[] }
+export type MenuItem = Resource & {
+    icon?: string, parent: MenuItem, children: MenuItem[],
+}
 
 interface State {
     currentPageName?: string,
@@ -63,8 +64,16 @@ export class MainMasterPage extends MasterPage<State> {
             return;
         }
 
-        this.app.redirect("outer-page", { target: pagePath });
-        // throw errors.notImplement()
+        this.app.redirect("outer-page", { target: pagePath, resourceId: node.id });
+    }
+
+    formatString(s: string, args: string[]) {
+        // var s = arguments[0];
+        for (var i = 0; i < args.length - 1; i++) {
+            var reg = new RegExp("\\{" + i + "\\}", "gm");
+            s = s.replace(reg, args[i]);
+        }
+        return s;
     }
 
     private findMenuItemByResourceId(menuItems: MenuItem[], resourceId: string) {
@@ -135,6 +144,10 @@ export class MainMasterPage extends MasterPage<State> {
 
     clearUserData() {
         this.setState({ menus: [], username: null, roleName: null })
+    }
+
+    get menuItems(): MenuItem[] {
+        return this.state.menus;
     }
 
     componentDidMount() {

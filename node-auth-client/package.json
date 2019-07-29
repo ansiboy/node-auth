@@ -1,6 +1,6 @@
 {
     "name": "maishu-admin",
-    "version": "2.19.0",
+    "version": "2.21.0",
     "main": "out/server/index.js",
     "types": "out/server/index.d.ts",
     "scripts": {
@@ -14,7 +14,7 @@
         "maishu-chitu-react": "^1.8.2",
         "maishu-chitu-service": "^1.7.0",
         "maishu-dilu": "^1.4.3",
-        "maishu-node-mvc": "^1.15.0",
+        "maishu-node-mvc": "^1.15.2",
         "maishu-node-static": "^1.3.0",
         "maishu-services-sdk": "^1.13.4",
         "maishu-ui-toolkit": "^1.4.3",

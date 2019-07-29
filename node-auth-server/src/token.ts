@@ -2,7 +2,7 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
-import { getDataContext } from './data-context';
+import { createDataContext } from './data-context';
 import { Token } from './entities';
 import { guid } from './utility';
 
@@ -71,7 +71,7 @@ export class TokenManager {
         token.content_type = contentType;
         token.create_date_time = new Date(Date.now());
 
-        let dc = await getDataContext();
+        let dc = await createDataContext();
         try {
             await dc.tokens.save(token);
             return token;
@@ -110,7 +110,7 @@ export class TokenManager {
     }
 
     static async remove(id: string) {
-        let dc = await getDataContext();
+        let dc = await createDataContext();
         try {
             await dc.tokens.delete({ id });
         }

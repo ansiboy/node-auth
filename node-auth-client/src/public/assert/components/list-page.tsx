@@ -1,9 +1,8 @@
 import React = require("react");
-import { DataSource, DataControlField } from "maishu-wuzhui";
+import { DataSource, DataControlField, GridView } from "maishu-wuzhui";
 import { PermissionService } from 'assert/services/index'
 import { translateToMenuItems } from "assert/dataSources";
 import { ListView } from "../controls/list-view";
-import { PageProps } from "assert/index";
 import { constants } from "./constants";
 import errorHandle from "error-handle";
 
@@ -38,7 +37,7 @@ export class ListPage<T> extends React.Component<ListPageProps<T>, State> {
         return this.props.dataSource;
     }
 
-    get gridView() {
+    get gridView(): GridView<T> {
         return this.listView.gridView;
     }
 

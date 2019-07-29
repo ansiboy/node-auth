@@ -22,7 +22,7 @@ function startClientSide() {
     const { start } = require('../node-auth-client/out/server/index');
     const { config } = require('./config.js');
     start({
-        port: 4212,
+        port: 4222,
         roleId: '535e89a2-5b17-4e65-fecb-0259015b1a9b',
         controllerPath: path.join(__dirname, '../node-auth-client/demo/server/controllers'),
         staticRootDirectory: path.join(__dirname, "../node-auth-client/demo/public"),

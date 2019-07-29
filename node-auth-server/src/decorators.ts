@@ -3,12 +3,12 @@ import { TokenManager } from './token';
 import http = require('http')
 import querystring = require('querystring');
 import url = require('url');
-import { AuthDataContext, getDataContext } from './data-context';
+import { AuthDataContext, createDataContext } from './data-context';
 import { errors } from './errors';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
-        let dc = await getDataContext()
+        let dc = await createDataContext()
         return dc
     },
     async (dc) => {
@@ -54,7 +54,7 @@ export let currentUser = createParameterDecorator(async (req) => {
     try {
         var obj = JSON.parse(token.content);
         let userId = obj.UserId || (obj as UserToken).user_id;
-        let dc = await getDataContext();
+        let dc = await createDataContext();
         let user = await dc.users.findOne(userId);
         if (!user)
             throw errors.objectNotExistWithId(userId, "User");

@@ -11,6 +11,7 @@ interface Config {
     staticRootDirectory: string,
     proxy?: import("maishu-node-mvc").Config["proxy"],
     bindIP?: string,
+    virtualPaths?: { [path: string]: string },
 }
 
 
@@ -28,19 +29,21 @@ export function start(config: Config) {
     if (!stat.isDirectory())
         throw errors.pathIsNotDirectory(config.staticRootDirectory);
 
-    var node_modules_path = path.join(__dirname, "../../node_modules")
-    if (!fs.existsSync(node_modules_path)) {
-        var appDir = path.dirname(require.main.filename);
-        node_modules_path = path.join(appDir, 'node_modules');
-    }
+    // var node_modules_path = path.join(__dirname, "../../node_modules")
+    // if (!fs.existsSync(node_modules_path)) {
+    //     var appDir = path.dirname(require.main.filename);
+    //     node_modules_path = path.join(appDir, 'node_modules');
+    // }
 
 
     let innerStaticRootDirectory = path.join(__dirname, "../public");
     let virtualPaths = createVirtulaPaths(innerStaticRootDirectory, config.staticRootDirectory);
     virtualPaths["assert"] = path.join(__dirname, "assert");
-    virtualPaths["lib"] = path.join(__dirname, '../../lib');
-    console.assert(fs.existsSync(virtualPaths["lib"]));
-    virtualPaths["node_modules"] = node_modules_path;
+    // virtualPaths["lib"] = path.join(__dirname, '../../lib');
+    // console.assert(fs.existsSync(virtualPaths["lib"]));
+    // virtualPaths["node_modules"] = node_modules_path;
+
+    virtualPaths = Object.assign(config.virtualPaths || {}, virtualPaths);
 
     settings.gateway = config.gateway;
     settings.clientStaticRoot = config.staticRootDirectory;

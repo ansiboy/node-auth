@@ -1,5 +1,5 @@
 import { customField } from "maishu-wuzhui-helper";
-import { GridViewDataCell } from "maishu-wuzhui";
+import { GridViewDataCell, CustomField } from "maishu-wuzhui";
 
 export function valueTextField<T>(args: {
     dataField: keyof T,
@@ -7,7 +7,8 @@ export function valueTextField<T>(args: {
     headerText: string,
     sortExpression?: string,
     itemStyle?: Partial<CSSStyleDeclaration>,
-}) {
+}): CustomField<any> {
+    
     return customField({
         headerText: args.headerText,
         sortExpression: args.sortExpression,

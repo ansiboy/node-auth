@@ -1,7 +1,7 @@
 import http = require("http");
 import url = require("url");
 import { ActionResult, ContentResult } from 'maishu-node-mvc';
-import { getDataContext } from "../data-context";
+import { createDataContext } from "../data-context";
 import { Path, RoleResource, Resource, ResourceData, ResourcePath } from "../entities";
 import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";
@@ -13,8 +13,11 @@ let allPaths: Path[];
 /**
  * 检查路径是否允许访问
  */
-export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse): Promise<ActionResult> {
-    let dc = await getDataContext();
+export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
+    permissions: { [path: string]: string[] }): Promise<ActionResult> {
+
+    permissions = permissions || {};
+    let dc = await createDataContext();
 
     if (!allPaths) {
         allPaths = await dc.paths.find({ relations: ["resource"] });
@@ -36,6 +39,20 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
 
     if (roleId == constants.adminRoleId)
         return null;
+
+    //==================================================
+    // 检查通过配置设置的权限
+    let paths = Object.getOwnPropertyNames(permissions);
+    for (let i = 0; i < paths.length; i++) {
+        var pattern = new UrlPattern(paths[i]);
+        if (pattern.match(u.pathname)) {
+            let roleIds = permissions[paths[i]] || [];
+            if (roleIds.indexOf(roleId) >= 0)
+                return null;
+
+        }
+    }
+    //==================================================
 
     let [allResources, allRoleResources, allResourcePaths] = await Promise.all([dc.resources.find(), dc.roleResources.find(), dc.resourcePaths.find()]);
     for (let i = 0; i < allPaths.length; i++) {
@@ -98,7 +115,7 @@ function translateResources(resources: Resource[], roleResources: RoleResource[]
     }
 
     // 父资源的角色可以访问子资源，所以要把父角色加入到子资源的角色中去
-    
+
     myResources.forEach(myResource => {
         console.assert(myResource.roleIds != null);
         let p = myResource.parent;
