@@ -33,8 +33,15 @@ export default function startup() {
     loadStyle();
 
     app.masterPages = masterPages;
-    app.run();
 
+    requirejs(["clientjs_init.js"], function (initModule) {
+        if (initModule && typeof initModule.default == 'function') {
+            let args: InitArguments = { app }
+            initModule.default(args)
+        }
+
+        app.run();
+    })
 }
 
 /** 加载样式文件 */
@@ -65,10 +72,4 @@ export type InitArguments = {
     app: Application
 }
 
-requirejs(["/clientjs_init.js"], function (initModule) {
-    if (initModule && typeof initModule.default == 'function') {
-        let args: InitArguments = { app }
-        initModule.default(args)
-    }
-})
 

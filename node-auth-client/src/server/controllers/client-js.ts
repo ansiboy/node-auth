@@ -1,13 +1,14 @@
 import { controller, action, Controller } from "maishu-node-mvc";
-import { settings } from "../settings";
+// import { settings } from "../settings";
 import path = require("path");
 import fs = require("fs");
 import { errors } from "../errors";
+import { Settings, settings } from "../settings";
 
 @controller()
 export class ClientJSController extends Controller {
     @action("/clientjs_init.js")
-    initjs() {
+    initjs(@settings settings: Settings) {
         let initJS = `define([],function(){
             return {
                 default: function(){
@@ -15,6 +16,11 @@ export class ClientJSController extends Controller {
                 }
             }
         })`;
+
+        // let settingsHeader = req.headers["settings"] as string;
+        // console.assert(settingsHeader != null);
+        // let settings = JSON.parse(settingsHeader) as Settings;
+
         if (settings.clientStaticRoot) {
             let initJSPath = path.join(settings.clientStaticRoot, "init.js");
             if (fs.existsSync(initJSPath)) {
@@ -26,7 +32,7 @@ export class ClientJSController extends Controller {
     }
 
     @action("/")
-    indexHtml() {
+    indexHtml(@settings settings: Settings) {
         let html: string = null;
         if (settings.clientStaticRoot) {
             let indexHtmlPath = path.join(settings.clientStaticRoot, "_index.html");
@@ -50,7 +56,7 @@ export class ClientJSController extends Controller {
     }
 
     @action("/auth/settings.js")
-    settings() {
+    settings(@settings settings: Settings) {
         return `define(["require", "exports"], function (require, exports) {
                     "use strict";
                     let settings = {

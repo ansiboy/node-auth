@@ -8,6 +8,7 @@ requirejs.config({
         css: `${lib}/css`,
         less: `${lib}/require-less-0.1.5/less`,
         lessc: `${lib}/require-less-0.1.5/lessc`,
+        normalize: `${lib}/require-less-0.1.5/normalize`,
         text: `${lib}/text`,
 
         jquery: `${lib}/jquery-2.1.3`,
@@ -34,6 +35,7 @@ requirejs.config({
         "swiper": `${node_modules}/swiper/dist/js/swiper`,
         "xml2js": `${node_modules}/xml2js/lib/xml2js`,
         "polyfill": `${node_modules}/@babel/polyfill/dist/polyfill`,
+        "url-pattern": `${node_modules}/url-pattern/lib/url-pattern`,
         "error-handle": `_error-handle`,
     }
 })

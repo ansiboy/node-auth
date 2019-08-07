@@ -4,7 +4,7 @@ webpackES5Config.entry = __dirname + "/out-es5/public/index.js" //已多次提�
 webpackES5Config.output = Object.assign({}, webpackES5Config.output)
 webpackES5Config.output.filename = "index.es5.js"
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     require('load-grunt-tasks')(grunt);
 
@@ -15,7 +15,10 @@ module.exports = function(grunt) {
                     // includes files within path
                     // { expand: true, cwd: 'src', src: ['content/*'], dest: 'out' },
                     // { expand: true, cwd: 'src', src: ['content/*'], dest: 'out-es5' },
-                    { expand: true, cwd: 'src/public', src: ['**/*.html', '**/*.css', '**/*.less'], dest: 'out/public' },
+                    {
+                        expand: true, cwd: 'src/public', dest: 'out/public',
+                        src: ['**/*.html', '**/*.css', '**/*.less', 'assert/lib/**']
+                    },
                 ],
             }
         },

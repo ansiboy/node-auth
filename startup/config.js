@@ -1,6 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = {
-    "port": 2957,
+    "port": 2959,
     "db": {
         "user": "root",
         "password": "81263",

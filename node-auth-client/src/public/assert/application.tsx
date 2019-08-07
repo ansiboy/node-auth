@@ -7,6 +7,7 @@ import errorHandle from 'error-handle';
 import { MainMasterPage } from './masters/main-master-page';
 import { PermissionService } from './services/index';
 import { LoginInfo } from './services/service';
+import UrlPattern = require("url-pattern");
 
 export class Application extends chitu_react.Application {
     pageMasters: { [key: string]: string } = {}
@@ -17,16 +18,45 @@ export class Application extends chitu_react.Application {
     masterElements: { [key: string]: HTMLElement } = {}
 
     loginInfo: ValueStore<LoginInfo> = PermissionService.loginInfo;
+    // modulesPath: { [path: string]: string } = {};
+    modulePathPatterns: { source: UrlPattern, target: UrlPattern }[] = [];
 
     constructor(simpleContainer: HTMLElement, mainContainer: HTMLElement) {
         super({
             container: {
                 simple: simpleContainer,
                 default: mainContainer
-            }
+            },
+            modulesPath: ""
         })
 
         this.error.add((sender, error, page) => errorHandle(error, sender, page as chitu_react.Page))
+    }
+
+    setModulePath(pathPattern: string, targetPattern: string) {
+        this.modulePathPatterns.push({
+            source: new UrlPattern(pathPattern),
+            target: new UrlPattern(targetPattern)
+        });
+    }
+
+    loadjs(path) {
+        let isMatch = false;
+        for (let i = 0; i < this.modulePathPatterns.length; i++) {
+            let { source, target } = this.modulePathPatterns[i];
+            let m = source.match(path);
+            if (m != null) {
+                path = target.stringify(m);
+                isMatch = true;
+                break;
+            }
+        }
+
+        if (isMatch == false) {
+            path = "modules/" + path;
+        }
+
+        return super.loadjs(path);
     }
 
     createPageElement(pageName: string, containerName: string) {
