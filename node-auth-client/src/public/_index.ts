@@ -1,9 +1,9 @@
-let node_modules = '../../node_modules'
-let lib = '../../assert/lib'
+let node_modules = 'node_modules'
+let lib = 'assert/lib'
 
 
 requirejs.config({
-    baseUrl: '/',
+    baseUrl: './',
     paths: {
         css: `${lib}/css`,
         less: `${lib}/require-less-0.1.5/less`,
