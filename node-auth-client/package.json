@@ -1,6 +1,6 @@
 {
     "name": "maishu-admin",
-    "version": "2.25.0",
+    "version": "2.32.0",
     "main": "out/server/index.js",
     "types": "out/server/index.d.ts",
     "scripts": {
@@ -10,8 +10,8 @@
         "bootstrap": "^3.4.1",
         "js-md5": "^0.7.3",
         "less": "^3.9.0",
-        "maishu-chitu": "^3.5.1",
-        "maishu-chitu-react": "^1.8.2",
+        "maishu-chitu": "^3.10.0",
+        "maishu-chitu-react": "^1.16.0",
         "maishu-chitu-service": "^1.7.0",
         "maishu-dilu": "^1.4.3",
         "maishu-node-mvc": "^1.15.4",

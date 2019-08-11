@@ -13,19 +13,19 @@ export class Application extends chitu_react.Application {
     pageMasters: { [key: string]: string } = {}
     masterPages = {
         simple: null as MasterPage<any>,
-        default: null as MainMasterPage
+        default: null as MainMasterPage,
     }
-    masterElements: { [key: string]: HTMLElement } = {}
 
     loginInfo: ValueStore<LoginInfo> = PermissionService.loginInfo;
-    // modulesPath: { [path: string]: string } = {};
-    modulePathPatterns: { source: UrlPattern, target: UrlPattern }[] = [];
 
-    constructor(simpleContainer: HTMLElement, mainContainer: HTMLElement) {
+    private modulePathPatterns: { source: UrlPattern, target: UrlPattern }[] = [];
+
+    constructor(simpleContainer: HTMLElement, mainContainer: HTMLElement, blankContainer: HTMLElement) {
         super({
             container: {
                 simple: simpleContainer,
-                default: mainContainer
+                default: mainContainer,
+                blank: blankContainer,
             },
             modulesPath: ""
         })
@@ -40,7 +40,7 @@ export class Application extends chitu_react.Application {
         });
     }
 
-    loadjs(path) {
+    protected loadjs(path) {
         let isMatch = false;
         for (let i = 0; i < this.modulePathPatterns.length; i++) {
             let { source, target } = this.modulePathPatterns[i];
@@ -61,9 +61,9 @@ export class Application extends chitu_react.Application {
 
     createPageElement(pageName: string, containerName: string) {
         let element = super.createPageElement(pageName, containerName);
-        let master = this.masterPages[containerName];
-        console.assert(master != null);
-        master.pageContainer.appendChild(element);
+        let container = this.containers[containerName];
+        console.assert(container != null);
+        container.appendChild(element);
         return element;
     }
 
@@ -79,7 +79,11 @@ export class Application extends chitu_react.Application {
 }
 
 
-export let app = new Application(document.getElementById('simple-master'), document.getElementById('main-master'))
+export let app = new Application(
+    document.getElementById('simple-master'),
+    document.getElementById('main-master'),
+    document.getElementById('blank-master')
+)
 
 
 

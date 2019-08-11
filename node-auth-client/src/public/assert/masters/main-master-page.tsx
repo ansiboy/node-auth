@@ -6,6 +6,7 @@ import { Resource } from 'entities';
 import { PermissionService, Service } from 'assert/services/index';
 import { translateToMenuItems } from 'assert/dataSources';
 import { LoginInfo } from 'assert/services/service';
+import { Page, PageMaster } from 'maishu-chitu';
 
 export type MenuItem = Resource & {
     icon?: string, parent: MenuItem, children: MenuItem[],
@@ -63,6 +64,10 @@ export class MainMasterPage extends MasterPage<State> {
             this.app.redirect(pagePath, { resourceId: node.id });
             return;
         }
+        // else if (pagePath.startsWith("/")) {
+        //     location.href = pagePath;
+        //     return;
+        // }
 
         this.app.redirect("outer-page", { target: pagePath, resourceId: node.id });
     }
@@ -246,7 +251,7 @@ export class MainMasterPage extends MasterPage<State> {
                             </li>
                         </ul>
                     </nav>
-                    <div className="page-container"
+                    <div className={`page-container page-placeholder`}
                         ref={(e: HTMLElement) => this.pageContainer = e || this.pageContainer}>
                     </div>
                 </div>
