@@ -1,20 +1,13 @@
 
 import * as chitu_react from 'maishu-chitu-react';
-import { MasterPage } from './masters/master-page';
 import 'text!../content/admin_style_default.less'
 import { PageData, Page, ValueStore } from "maishu-chitu"
 import errorHandle from 'error-handle';
-import { MainMasterPage } from './masters/main-master-page';
 import { PermissionService } from './services/index';
 import { LoginInfo } from './services/service';
 import UrlPattern = require("url-pattern");
 
 export class Application extends chitu_react.Application {
-    pageMasters: { [key: string]: string } = {}
-    masterPages = {
-        simple: null as MasterPage<any>,
-        default: null as MainMasterPage,
-    }
 
     loginInfo: ValueStore<LoginInfo> = PermissionService.loginInfo;
 
@@ -59,13 +52,13 @@ export class Application extends chitu_react.Application {
         return super.loadjs(path);
     }
 
-    createPageElement(pageName: string, containerName: string) {
-        let element = super.createPageElement(pageName, containerName);
-        let container = this.containers[containerName];
-        console.assert(container != null);
-        container.appendChild(element);
-        return element;
-    }
+    // createPageElement(pageName: string, containerName: string) {
+    //     let element = super.createPageElement(pageName, containerName);
+    //     let container = this.containers[containerName];
+    //     console.assert(container != null);
+    //     container.appendChild(element);
+    //     return element;
+    // }
 
     showPage(pageUrl: string, args?: PageData, forceRender?: boolean): Page {
         args = args || {}

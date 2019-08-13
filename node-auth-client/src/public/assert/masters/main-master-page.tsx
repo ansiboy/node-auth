@@ -6,7 +6,7 @@ import { Resource } from 'entities';
 import { PermissionService, Service } from 'assert/services/index';
 import { translateToMenuItems } from 'assert/dataSources';
 import { LoginInfo } from 'assert/services/service';
-import { Page, PageMaster } from 'maishu-chitu';
+import { ValueStore } from 'maishu-chitu';
 
 export type MenuItem = Resource & {
     icon?: string, parent: MenuItem, children: MenuItem[],
@@ -31,6 +31,7 @@ export class MainMasterPage extends MasterPage<State> {
     element: HTMLElement;
     private app: Application;
     ps: PermissionService;
+    menuResources = new ValueStore<Resource[]>([]);
 
     constructor(props: MasterPageProps) {
         super(props);
@@ -40,6 +41,10 @@ export class MainMasterPage extends MasterPage<State> {
 
         this.app = props.app;
         this.ps = this.app.createService(PermissionService);
+        this.menuResources.add((value) => {
+            let menuItems = translateToMenuItems(value).filter(o => o.parent == null);
+            this.setState({ menus: menuItems })
+        })
     }
 
     private showPageByNode(node: MenuItem) {
@@ -64,10 +69,6 @@ export class MainMasterPage extends MasterPage<State> {
             this.app.redirect(pagePath, { resourceId: node.id });
             return;
         }
-        // else if (pagePath.startsWith("/")) {
-        //     location.href = pagePath;
-        //     return;
-        // }
 
         this.app.redirect("outer-page", { target: pagePath, resourceId: node.id });
     }
@@ -131,8 +132,7 @@ export class MainMasterPage extends MasterPage<State> {
      */
     async loadUserData(loginInfo: LoginInfo) {
         this.ps.resource.list().then(resources => {
-            let menuItems = translateToMenuItems(resources).filter(o => o.parent == null);
-            this.setState({ menus: menuItems });
+            this.menuResources.value = resources;
         })
 
         this.setState({
@@ -151,9 +151,9 @@ export class MainMasterPage extends MasterPage<State> {
         this.setState({ menus: [], username: null, roleName: null })
     }
 
-    get menuItems(): MenuItem[] {
-        return this.state.menus;
-    }
+    // get menuItems(): MenuItem[] {
+    //     return this.state.menus;
+    // }
 
     componentDidMount() {
         this.app.pageCreated.add((sender, page) => {

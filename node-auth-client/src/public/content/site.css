@@ -13,9 +13,9 @@
 }
 
 .main .pagination {
-    margin: 0;
+    margin  : 0;
     position: relative;
-    top: 3px;
+    top     : 3px;
 }
 
 ul.pagination {
@@ -23,8 +23,8 @@ ul.pagination {
 }
 
 .pagingBar .total {
-    position: relative;
-    top: 8px;
+    position     : relative;
+    top          : 8px;
     margin-bottom: 12px;
 }
 
@@ -38,8 +38,8 @@ ul.pagination {
 }
 
 .role-permission .checkbox input[type="checkbox"] {
-    position: unset;
-    margin-left: unset;
+    position    : unset;
+    margin-left : unset;
     margin-right: 4px;
 }
 
@@ -47,13 +47,17 @@ ul.pagination {
     padding: 20px;
 }
 
+.page {
+    overflow-x: hidden;
+}
+
 .distributor-item .well .main_camp_brand span label {
-    display: unset;
+    display     : unset;
     margin-right: 10px;
 }
 
 .toolbar li {
-    color: white;
+    color      : white;
     padding-top: 4px;
 }
 
@@ -71,16 +75,16 @@ td button:last-child {
 
 .modal-body.well {
     background-color: white;
-    border: none;
-    padding-top: 20px;
-    padding-left: 30px;
-    margin: 0px;
+    border          : none;
+    padding-top     : 20px;
+    padding-left    : 30px;
+    margin          : 0px;
 }
 
 .empty {
-    padding-top: 40px;
+    padding-top   : 40px;
     padding-bottom: 40px;
-    text-align: center;
+    text-align    : center;
 }
 
 #simple-master {

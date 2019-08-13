@@ -3,7 +3,7 @@ import { startServer } from 'maishu-node-mvc'
 import { errors } from './errors';
 import path = require('path')
 import fs = require("fs");
-import { Settings, SettingsHeaderName } from './settings';
+import { Settings, SettingsHeaderName as SettingsName } from './settings';
 
 interface Config {
     port: number,
@@ -40,16 +40,7 @@ export function start(config: Config) {
     let innerStaticRootDirectory = path.join(__dirname, "../public");
     let virtualPaths = createVirtulaPaths(innerStaticRootDirectory, config.staticRootDirectory);
     virtualPaths["assert"] = path.join(innerStaticRootDirectory, "assert");
-    // virtualPaths["lib"] = path.join(__dirname, '../../lib');
-    // console.assert(fs.existsSync(virtualPaths["lib"]));
-    // virtualPaths["node_modules"] = node_modules_path;
-
     virtualPaths = Object.assign(config.virtualPaths || {}, virtualPaths);
-
-    // settings.gateway = config.gateway;
-    // settings.clientStaticRoot = config.staticRootDirectory;
-    // settings.innerStaticRoot = innerStaticRootDirectory;
-
     startServer({
         port: config.port,
         staticRootDirectory: config.staticRootDirectory,
@@ -58,14 +49,13 @@ export function start(config: Config) {
         proxy: config.proxy,
         bindIP: config.bindIP,
         actionFilters: [
-            (req, res) => {
+            (req, res, context) => {
                 let settings: Settings = {
                     clientStaticRoot: config.staticRootDirectory,
                     gateway: config.gateway,
                     innerStaticRoot: innerStaticRootDirectory,
                 }
-                req.headers[SettingsHeaderName] = JSON.stringify(settings);
-
+                context.data[SettingsName] = settings;
                 return null;
             }
         ]

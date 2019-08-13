@@ -14,7 +14,7 @@ if (!settings.gateway)
     throw errors.serviceUrlCanntNull("permissionService");
 
 export default function startup() {
-    async function createMasterPages(app: Application): Promise<{ simple: HTMLElement, main: HTMLElement }> {
+    async function createMasterPages(app: Application) {
         return new Promise<{ simple: HTMLElement, main: HTMLElement }>((resolve, reject) => {
             let container = document.createElement('div')
 
@@ -32,11 +32,12 @@ export default function startup() {
     createMasterPages(app);
     loadStyle();
 
-    app.masterPages = masterPages;
+    // app.masterPages = masterPages;
 
     requirejs(["clientjs_init.js"], function (initModule) {
+        console.assert(masterPages.default != null);
         if (initModule && typeof initModule.default == 'function') {
-            let args: InitArguments = { app }
+            let args: InitArguments = { app, mainMaster: masterPages.default }
             initModule.default(args)
         }
 
@@ -69,7 +70,8 @@ function loadStyle() {
 }
 
 export type InitArguments = {
-    app: Application
+    app: Application,
+    mainMaster: MainMasterPage,
 }
 
 
