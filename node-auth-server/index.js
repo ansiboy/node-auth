@@ -34,6 +34,12 @@ start({
     },
     async initDatabase(dc) {
         // await dc.initDatabase("18502146746", "b6d767d2f8ed5d21a44b0e5886680cb9")
+    },
+    headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': '*',
+        'Access-Control-Allow-Headers': '*'
     }
 })
 

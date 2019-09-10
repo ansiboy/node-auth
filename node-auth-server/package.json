@@ -1,6 +1,6 @@
 {
     "name": "maishu-node-auth",
-    "version": "1.4.0",
+    "version": "1.4.3",
     "main": "out/index.js",
     "devDependencies": {
         "@types/memory-cache": "^0.2.0",

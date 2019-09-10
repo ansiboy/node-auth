@@ -32,7 +32,9 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
             where: { id: userId },
             select: ["role_id"]
         })
-        roleId = user.role_id;
+        
+        if (user != null)
+            roleId = user.role_id;
     }
 
     roleId = roleId || constants.anonymousRoleId;

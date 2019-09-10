@@ -1,4 +1,4 @@
-import { startServer, Config } from 'maishu-node-mvc';
+import { startServer, Config, ActionResult } from 'maishu-node-mvc';
 import path = require('path');
 import { ConnectionConfig } from 'mysql';
 import { authenticate } from './filters/authenticate';
@@ -7,6 +7,7 @@ import { AuthDataContext, createDataContext } from './data-context';
 import { createConnection, ConnectionOptions } from 'typeorm';
 import { constants } from './common';
 import { setConnection } from './settings';
+import * as http from "http";
 
 interface Options {
     port: number,
@@ -19,7 +20,9 @@ interface Options {
     entitiesDirectory?: string,
     permissions?: { [path: string]: string[] }
     /** 用于初始化数据库数据 */
-    initDatabase?: (dc: AuthDataContext) => Promise<any>
+    initDatabase?: (dc: AuthDataContext) => Promise<any>,
+    actionFilters?: ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<ActionResult | null>)[];
+    headers?: { [name: string]: string; }
 }
 
 export type StartOptions = Options;
@@ -71,14 +74,10 @@ export async function start(options: Options) {
         bindIP: options.bindIP,
         controllerDirectory: ctrl_dir,
         staticRootDirectory: path.join(__dirname, '../../out/client'),
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': '*',
-            'Access-Control-Allow-Headers': '*'
-        },
+        headers: options.headers,
         proxy: options.proxy,
-        authenticate: (req, res) => authenticate(req, res, options.permissions)
+        authenticate: (req, res) => authenticate(req, res, options.permissions),
+        actionFilters: options.actionFilters
     })
 }
 
