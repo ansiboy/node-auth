@@ -2,9 +2,9 @@
 import * as chitu_react from 'maishu-chitu-react';
 import { MasterPage } from './masters/master-page';
 import { MainMasterPage } from './masters/main-master-page';
-import 'text!../content/admin_style_default.less'
+// import 'text!../content/admin_style_default.less'
 import { PageData, Page } from "maishu-chitu"
-import errorHandle from 'error-handle';
+import errorHandle from '../error-handle';
 
 export class Application extends chitu_react.Application {
     pageMasters: { [key: string]: string } = {}

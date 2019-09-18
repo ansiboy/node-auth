@@ -1,7 +1,7 @@
 import React = require("react");
 import { PageView as BasePageView } from "../controls/index";
 import { PermissionService } from "assert/services/index";
-import errorHandle from "error-handle";
+import errorHandle from "../../error-handle";
 import { translateToMenuItems } from "assert/dataSources";
 
 let ps = new PermissionService((err) => errorHandle(err));

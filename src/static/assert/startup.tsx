@@ -36,26 +36,28 @@ export default function startup() {
 
 /** 加载样式文件 */
 function loadStyle() {
-    let str: string = require('text!../content/admin_style_default.less')
-    if (config.firstPanelWidth) {
-        str = str + `\r\n@firstPanelWidth: ${config.firstPanelWidth}px;`
-    }
-
-    if (config.secondPanelWidth) {
-        str = str + `\r\n@secondPanelWidth: ${config.secondPanelWidth}px;`
-    }
-
-    let less = (window as any)['less']
-    less.render(str, function (e: Error, result: { css: string }) {
-        if (e) {
-            console.error(e)
-            return
+    requirejs(['text!content/admin_style_default.less'], function (str) {
+        if (config.firstPanelWidth) {
+            str = str + `\r\n@firstPanelWidth: ${config.firstPanelWidth}px;`
         }
 
-        let style = document.createElement('style')
-        document.head.appendChild(style)
-        style.innerText = result.css
+        if (config.secondPanelWidth) {
+            str = str + `\r\n@secondPanelWidth: ${config.secondPanelWidth}px;`
+        }
+
+        let less = (window as any)['less']
+        less.render(str, function (e: Error, result: { css: string }) {
+            if (e) {
+                console.error(e)
+                return
+            }
+
+            let style = document.createElement('style')
+            document.head.appendChild(style)
+            style.innerText = result.css
+        })
     })
+
 }
 
 

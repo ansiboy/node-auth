@@ -3,9 +3,8 @@ import { DataSource, DataControlField } from "maishu-wuzhui";
 import { PermissionService } from 'assert/services/index'
 import { translateToMenuItems } from "assert/dataSources";
 import { ListView } from "../controls/list-view";
-import { PageProps } from "assert/index";
 import { constants } from "./constants";
-import errorHandle from "error-handle";
+import errorHandle from "../../error-handle";
 
 interface State {
     buttons?: JSX.Element[],

@@ -58,7 +58,7 @@ export class PageView {
         let { element } = args;
         element.innerHTML = `
         <div class="tabbable">
-            <ul class="nav nav-tabs" style="min-height:34">
+            <ul class="nav nav-tabs" style="min-height:34px">
                 <li className="pull-left">
                     <div style="font-weight: bold; font-size: 16px">${menuItem.name}</div>
                 </li>

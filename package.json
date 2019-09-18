@@ -2,10 +2,14 @@
     "name": "maishu-node-auth",
     "version": "1.0.14",
     "main": "out/index.js",
+    "scripts": {
+        "test": "mocha out/test",
+        "build": "grunt"
+    },
     "dependencies": {
         "bootstrap": "^3.4.1",
         "js-md5": "^0.7.3",
-        "less": "^3.9.0",
+        "less": "^3.10.3",
         "maishu-chitu": "^3.4.6",
         "maishu-chitu-react": "^1.8.2",
         "maishu-chitu-service": "^1.7.0",
@@ -42,9 +46,5 @@
         "typeorm": "^0.2.18",
         "webpack": "^4.30.0",
         "webpack-cli": "^3.3.0"
-    },
-    "scripts": {
-        "test": "mocha out/test",
-        "build": "tsc -p src"
     }
 }
