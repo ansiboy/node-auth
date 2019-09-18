@@ -9,7 +9,6 @@ export let config = {
         showForgetPassword: true,
         showRegister: true,
     },
-    permissionServiceUrl: "http://127.0.0.1:2857/auth"
 }
 
 

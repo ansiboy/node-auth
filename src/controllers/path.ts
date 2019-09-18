@@ -1,9 +1,8 @@
 import { controller, action, formData } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext } from "../dataContext";
+import { AuthDataContext } from "../data-context";
 import { Path } from "../entities";
-import { errors } from "../errors";
 import { actionPaths } from "../common";
-import { guid } from "../utility";
+import { authDataContext } from "../decorators";
 
 @controller("path")
 export class PathController {
@@ -11,7 +10,8 @@ export class PathController {
     async list(@authDataContext dc: AuthDataContext, @formData { resourceId }: { resourceId: string }): Promise<Path[]> {
         let items: Path[];
         if (resourceId) {
-            items = await dc.paths.find({ resource_id: resourceId });
+            let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
+            items = await dc.paths.findByIds(resourcePaths.map(o => o.path_id));
         }
         else {
             items = await dc.paths.find();
@@ -19,6 +19,16 @@ export class PathController {
         return items;
     }
 
+    @action(actionPaths.path.listByResourceIds)
+    async listByResourceIds(@authDataContext dc: AuthDataContext, @formData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
+        let resourcePaths = await dc.resourcePaths.createQueryBuilder()
+            .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
+            .getMany();
+
+        let pathIds = resourcePaths.map(o => o.path_id);
+        let paths = await dc.paths.findByIds(pathIds);
+        return paths;
+    }
 
     // @action()
     // async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {

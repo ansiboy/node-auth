@@ -40,7 +40,7 @@ export function setForm(formElement: HTMLElement, options: LoginOptions, app: Ap
         let password = passwordInput.value
 
         await service.user.login(username, password)
-
+        
         console.assert(options.redirectURL != null)
         location.href = options.redirectURL
     })

@@ -36,7 +36,10 @@
                 "../../node_modules/csstype/index.d.ts"
             ],
             "entities": [
-                "../../../node-auth-server/out/entities.d.ts"
+                "../../out/entities.d.ts"
+            ],
+            "url-pattern":[
+                "../../node_modules/url-pattern/index.d.ts"
             ]
         }
     }

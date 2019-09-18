@@ -23,7 +23,8 @@
         "react": "^16.8.2",
         "react-dom": "^16.8.2",
         "remove": "^0.1.5",
-        "requirejs": "^2.3.6"
+        "requirejs": "^2.3.6",
+        "url-pattern": "^1.0.3"
     },
     "devDependencies": {
         "@babel/core": "^7.4.4",

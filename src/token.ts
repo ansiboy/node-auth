@@ -2,7 +2,7 @@ import { errors } from './errors';
 import * as settings from './settings';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
-import { createDataContext } from './dataContext';
+import { createDataContext } from './data-context';
 import { Token } from './entities';
 import { guid } from './utility';
 
@@ -71,7 +71,7 @@ export class TokenManager {
         token.content_type = contentType;
         token.create_date_time = new Date(Date.now());
 
-        let dc = await createDataContext("token");
+        let dc = await createDataContext();
         try {
             await dc.tokens.save(token);
             return token;
@@ -110,7 +110,7 @@ export class TokenManager {
     }
 
     static async remove(id: string) {
-        let dc = await createDataContext("token");
+        let dc = await createDataContext();
         try {
             await dc.tokens.delete({ id });
         }
@@ -131,7 +131,7 @@ setInterval(() => {
         }
 
         console.assert(token != null);
-        let interval = Date.now() - token.cacheDateTime;
+        let interval = Date.now() - (token.cacheDateTime || 0);
         let hour = 1000 * 60 * 60;
         if (interval > hour * 2) {
             cache.del(keys[i]);

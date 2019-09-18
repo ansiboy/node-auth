@@ -1,90 +1,85 @@
-import { startServer, Config } from 'maishu-node-mvc';
+import { startServer, Config, ActionResult } from 'maishu-node-mvc';
 import path = require('path');
+import { ConnectionConfig } from 'mysql';
+import { authenticate } from './filters/authenticate';
+import { errors } from './errors';
+import { AuthDataContext, createDataContext } from './data-context';
+import { createConnection, ConnectionOptions } from 'typeorm';
+import { constants } from './common';
 import { setConnection } from './settings';
-import { ConnectionConfig } from "mysql";
-import { initDatabase } from './dataContext';
-import { checkPath } from './filters/checkPath';
-import { TokenManager } from './token';
+import * as http from "http";
 
+interface Options {
+    port: number,
+    db: ConnectionConfig,
+    bindIP?: string,
+    proxy?: Config['proxy'],
+    /** 控制器所在文件夹 */
+    controllersDirectory?: string,
+    /** 实体类所在文件夹 */
+    entitiesDirectory?: string,
+    permissions?: { [path: string]: string[] }
+    /** 用于初始化数据库数据 */
+    initDatabase?: (dc: AuthDataContext) => Promise<any>,
+    actionFilters?: ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<ActionResult | null>)[];
+    headers?: { [name: string]: string; },
+    virtualPaths?: Config["virtualPaths"]
+}
 
-//===========================================
-// 目标主机，服务所在的主机
-const target_host = '127.0.0.1';
-//===========================================
+export type StartOptions = Options;
+export { constants } from './common';
+export async function start(options: Options) {
 
-let config = {
-    port: 2857,
-    db: {
-        host: "127.0.0.1",
-        port: 3306,
-        user: "root",
-        password: "81263",
-        database: "shop_auth"
-    },
-    // proxy: {
-    //     '/AdminSite/(\\S+)': { targetUrl: `http://${target_host}:9000/Admin/$1`, headers: proxyHeader },
-    //     '/AdminStock/(\\S+)': { targetUrl: `http://${target_host}:9005/Admin/$1`, headers: proxyHeader },
-    //     '/AdminShop/(\\S+)': { targetUrl: `http://${target_host}:9010/Admin/$1`, headers: proxyHeader },
-    //     '/AdminMember/(\\S+)': { targetUrl: `http://${target_host}:9020/Admin/$1`, headers: proxyHeader },
-    //     '/AdminWeiXin/(\\S+)': { targetUrl: `http://${target_host}:9030/Admin/$1`, headers: proxyHeader },
-    //     '/AdminAccount/(\\S+)': { targetUrl: `http://${target_host}:9035/Admin/$1`, headers: proxyHeader },
-    //     '/UserSite/(\\S+)': { targetUrl: `http://${target_host}:9000/User/$1`, headers: proxyHeader },
-    //     '/UserStock/(\\S+)': { targetUrl: `http://${target_host}:9005/User/$1`, headers: proxyHeader },
-    //     '/UserShop/(\\S+)': { targetUrl: `http://${target_host}:9010/User/$1`, headers: proxyHeader },
-    //     '/UserMember/(\\S+)': { targetUrl: `http://${target_host}:9020/User/$1`, headers: proxyHeader },
-    //     '/UserWeiXin/(\\S+)': { targetUrl: `http://${target_host}:9030/User/$1`, headers: proxyHeader },
-    //     '/UserAccount/(\\S+)': { targetUrl: `http://${target_host}:9035/User/$1`, headers: proxyHeader }
-    // }
-};
+    if (!options)
+        throw errors.argumentNull("options");
 
-(async function start() {
+    if (!options.db)
+        throw errors.argumentFieldNull("db", "options");
 
-    setConnection(config.db);
+    if (!options.port)
+        throw errors.argumentFieldNull("port", "options");
 
-    await initDatabase();
+    setConnection(options.db);
+    let entities: string[] = [path.join(__dirname, "entities.js")]
+    if (options.entitiesDirectory) {
+        entities.push(path.join(options.entitiesDirectory, "*.js"));
+    }
+
+    let dbOptions: ConnectionOptions = {
+        type: "mysql",
+        host: options.db.host,
+        port: options.db.port,
+        username: options.db.user,
+        password: options.db.password,
+        database: options.db.database,
+        synchronize: true,
+        logging: false,
+        connectTimeout: 3000,
+        entities,
+        name: constants.dbName
+    }
+
+    await createConnection(dbOptions)
+
+    if (options.initDatabase) {
+        let dc = await createDataContext();
+        await options.initDatabase(dc);
+    }
+
+    let ctrl_dir = [path.join(__dirname, 'controllers')];
+    if (options.controllersDirectory)
+        ctrl_dir.push(options.controllersDirectory);
 
     startServer({
-        port: config.port,
-        controllerDirectory: path.join(__dirname, 'controllers'),
+        port: options.port,
+        bindIP: options.bindIP,
+        controllerDirectory: ctrl_dir,
         staticRootDirectory: path.join(__dirname, 'static'),
-        virtualPaths: {
-            node_modules: path.join(__dirname, "../node_modules")
-        },
-        headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': '*',
-            'Access-Control-Allow-Headers': '*'
-        },
-        // actionFilters: [
-        //     checkPath
-        // ]
+        headers: options.headers,
+        proxy: options.proxy,
+        authenticate: (req, res) => authenticate(req, res, options.permissions),
+        actionFilters: options.actionFilters,
+        virtualPaths: options.virtualPaths
     })
-})();
-
-
-
-/**
- * 
- * @param {http.IncomingMessage} req 
- */
-async function proxyHeader(req) {
-    let header = {} as any;
-    let tokenText = req.headers['token'];
-    if (tokenText) {
-        try {
-            let token = await TokenManager.parse(tokenText);
-            var obj = JSON.parse(token.content);
-            header = obj
-        } catch (err) {
-            console.error(err)
-        }
-    }
-
-    if (header.user_id) {
-        header['SellerId'] = header.user_id;
-        header['UserId'] = header.user_id;
-    }
-
-    return header
 }
+

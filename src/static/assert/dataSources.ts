@@ -2,8 +2,7 @@ import { DataSource, DataSourceSelectArguments, DataSourceSelectResult, DataSour
 import { PermissionService } from "./services/index";
 import { MenuItem } from "./masters/main-master-page";
 import { User, Role, Path, Resource } from "entities";
-import { ValueStore } from "maishu-chitu";
-import errorHandle from "../error-handle";
+import errorHandle from "error-handle";
 
 let permissionService: PermissionService = new PermissionService((error) => errorHandle(error));
 
@@ -183,13 +182,14 @@ function createModuleDataSource() {
     let dataSource = new DataSource<Module>({
         primaryKeys: ["id"],
         select: async () => {
-            let [resources, paths] = await Promise.all([
-                permissionService.resource.list(), permissionService.path.list()
+            let [resources, paths, resourcePaths] = await Promise.all([
+                permissionService.resource.list(), permissionService.path.list(), permissionService.resourcePaths.list()
             ]);
 
             let dataItems = translateToMenuItems(resources);
             dataItems.forEach(dataItem => {
-                (dataItem as Module).paths = paths.filter(o => o.resource_id == dataItem.id);
+                let pathIds = resourcePaths.filter(o => o.resource_id == dataItem.id).map(o => o.path_id);
+                (dataItem as Module).paths = paths.filter(o => pathIds.indexOf(o.id) >= 0);
             })
             return { dataItems, totalRowCount: dataItems.length };
         },

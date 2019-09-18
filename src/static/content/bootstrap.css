@@ -6797,3 +6797,8 @@ button.close {
     display: none !important;
   }
 }
+.page-header {
+  margin: unset;
+  padding-bottom: unset;
+  border-bottom: unset;
+}

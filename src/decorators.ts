@@ -3,10 +3,24 @@ import { TokenManager } from './token';
 import http = require('http')
 import querystring = require('querystring');
 import url = require('url');
-import { createDataContext } from './dataContext';
+import { AuthDataContext, createDataContext } from './data-context';
 import { errors } from './errors';
 
+export let authDataContext = createParameterDecorator<AuthDataContext>(
+    async () => {
+        let dc = await createDataContext()
+        return dc
+    },
+    async (dc) => {
+        await dc.dispose()
+    }
+)
+
 export let currentUserId = createParameterDecorator(async (req) => {
+    return getUserIdFromRequest(req);
+})
+
+export async function getUserIdFromRequest(req: http.IncomingMessage) {
     let formData = await getQueryObject(req);
     let tokenText = (req.headers['token'] as string) || formData["token"];
     if (!tokenText)
@@ -25,7 +39,7 @@ export let currentUserId = createParameterDecorator(async (req) => {
         console.error(err)
         return null
     }
-})
+}
 
 export let currentUser = createParameterDecorator(async (req) => {
     let formData = await getQueryObject(req);
@@ -68,23 +82,34 @@ export let ApplicationId = createParameterDecorator(async (req) => {
     return formData['application-id']
 })
 
+/**
+ * 
+ * @param request 获取 QueryString 里的对象
+ */
 function getQueryObject(request: http.IncomingMessage): { [key: string]: any } {
     let contentType = request.headers['content-type'] as string;
     let obj: { [key: string]: any } = {};
-    if (contentType != null && contentType.indexOf('application/json') >= 0) {
+    let urlInfo = url.parse(request.url || '');
+    let { query } = urlInfo;
+
+    if (!query) {
+        return obj;
+    }
+
+    query = decodeURIComponent(query);
+    let queryIsJSON = (contentType != null && contentType.indexOf('application/json') >= 0) ||
+        (query != null && query[0] == '{' && query[query.length - 1] == '}')
+
+    if (queryIsJSON) {
         let arr = (request.url || '').split('?');
         let str = arr[1]
         if (str != null) {
-            str = decodeURI(str);
+            str = decodeURIComponent(str);
             obj = JSON.parse(str);  //TODO：异常处理
         }
     }
     else {
-        let urlInfo = url.parse(request.url || '');
-        let { search } = urlInfo;
-        if (search) {
-            obj = querystring.parse(search.substr(1));
-        }
+        obj = querystring.parse(query);
     }
 
     return obj;

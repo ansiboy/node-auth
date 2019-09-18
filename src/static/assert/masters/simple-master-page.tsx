@@ -9,7 +9,6 @@ export class SimpleMasterPage extends MasterPage<State>{
 
     name: string = masterPageNames.simple;
     pageContainer: HTMLElement;
-    // element: HTMLElement;
 
     get element() {
         return this.pageContainer

@@ -1,6 +1,6 @@
 import React = require("react");
 import * as ui from 'maishu-ui-toolkit'
-import { dataSources, MyDataSource } from "../../assert/dataSources";
+import { dataSources, MyDataSource } from "assert/dataSources";
 import { FormValidator, ValidateField, Rule } from 'maishu-dilu'
 import { Page, Application } from "maishu-chitu-react";
 import { parseUrl } from "maishu-chitu";

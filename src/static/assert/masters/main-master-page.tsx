@@ -3,12 +3,14 @@ import { Application } from '../application';
 import { MasterPage, MasterPageProps } from './master-page';
 import { masterPageNames } from './names';
 import { Resource } from 'entities';
-import { errors } from 'assert/errors';
 import { PermissionService, Service } from 'assert/services/index';
 import { translateToMenuItems } from 'assert/dataSources';
 import { LoginInfo } from 'assert/services/service';
+import { ValueStore } from 'maishu-chitu';
 
-export type MenuItem = Resource & { icon?: string, parent: MenuItem, children: MenuItem[] }
+export type MenuItem = Resource & {
+    icon?: string, parent: MenuItem, children: MenuItem[],
+}
 
 interface State {
     currentPageName?: string,
@@ -29,6 +31,7 @@ export class MainMasterPage extends MasterPage<State> {
     element: HTMLElement;
     private app: Application;
     ps: PermissionService;
+    menuResources = new ValueStore<Resource[]>([]);
 
     constructor(props: MasterPageProps) {
         super(props);
@@ -38,6 +41,10 @@ export class MainMasterPage extends MasterPage<State> {
 
         this.app = props.app;
         this.ps = this.app.createService(PermissionService);
+        this.menuResources.add((value) => {
+            let menuItems = translateToMenuItems(value).filter(o => o.parent == null);
+            this.setState({ menus: menuItems })
+        })
     }
 
     private showPageByNode(node: MenuItem) {
@@ -63,7 +70,16 @@ export class MainMasterPage extends MasterPage<State> {
             return;
         }
 
-        throw errors.notImplement()
+        this.app.redirect("outer-page", { target: pagePath, resourceId: node.id });
+    }
+
+    formatString(s: string, args: string[]) {
+        // var s = arguments[0];
+        for (var i = 0; i < args.length - 1; i++) {
+            var reg = new RegExp("\\{" + i + "\\}", "gm");
+            s = s.replace(reg, args[i]);
+        }
+        return s;
     }
 
     private findMenuItemByResourceId(menuItems: MenuItem[], resourceId: string) {
@@ -111,20 +127,12 @@ export class MainMasterPage extends MasterPage<State> {
         location.href = `?${Date.now()}#login`
     }
 
-    // loadMenuItmes() {
-    //     this.ps.resource.list().then(resources => {
-    //         let menuItems = translateToMenuItems(resources).filter(o => o.parent == null);
-    //         this.setState({ menus: menuItems });
-    //     })
-    // }
-
     /**
      * 加载用户登录后所要显示的数据
      */
     async loadUserData(loginInfo: LoginInfo) {
         this.ps.resource.list().then(resources => {
-            let menuItems = translateToMenuItems(resources).filter(o => o.parent == null);
-            this.setState({ menus: menuItems });
+            this.menuResources.value = resources;
         })
 
         this.setState({
@@ -226,10 +234,7 @@ export class MainMasterPage extends MasterPage<State> {
                         )}
                     </ul>
                 </div>
-                <div className="main" ref={e => {
-                    if (e == null) return
-                    // e.appendChild(this.pageContainer)
-                }}>
+                <div className="main">
                     <nav className="navbar navbar-default">
                         <ul className="toolbar">
                             {this.state.toolbar}
@@ -242,7 +247,7 @@ export class MainMasterPage extends MasterPage<State> {
                             </li>
                         </ul>
                     </nav>
-                    <div className="page-container"
+                    <div className={`page-container page-placeholder`}
                         ref={(e: HTMLElement) => this.pageContainer = e || this.pageContainer}>
                     </div>
                 </div>

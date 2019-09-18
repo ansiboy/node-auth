@@ -3,11 +3,11 @@ import { ValueStore } from "maishu-chitu";
 import { MenuItem } from "assert/masters/main-master-page";
 import { translateToMenuItems } from "assert/dataSources";
 import { customField } from "maishu-wuzhui-helper";
-import { GridViewCell } from "maishu-wuzhui";
+import { GridViewCell, CustomField } from "maishu-wuzhui";
 import { loadControlModule } from "./page-view";
 
-export function operationField<T extends Entity>
-    (resourceId: string, permissionService: PermissionService, pageView: object, width?: string) {
+export function operationField<T>
+    (resourceId: string, permissionService: PermissionService, pageView: object, width?: string): CustomField<T> {
 
     width = width || '120px'
     let menuItemStorage = new ValueStore<MenuItem>();

@@ -1,8 +1,9 @@
+
 export let constants = {
     adminRoleId: "535e89a2-5b17-4e65-fecb-0259015b1a9b",
     anonymousRoleId: "738FB92C-60CF-4280-B5AE-61C376D0AADF",
     controllerBasePath: "/auth",
-
+    dbName: "shop_auth",
 }
 
 let basePath = constants.controllerBasePath;
@@ -49,7 +50,8 @@ export let actionPaths = {
         list: `${basePath}/token/list`,
     },
     path: {
-        list: `${basePath}/path/list`
+        list: `${basePath}/path/list`,
+        listByResourceIds: `${basePath}/path/listByResourceIds`,
     },
     resource: {
         add: `${basePath}/resource/add`,
@@ -62,8 +64,12 @@ export let actionPaths = {
             set: `${basePath}/resource/path/set`
         }
     },
+    resource_path: {
+        list: `${basePath}/resource_path/list`
+    },
     sms: {
         sendVerifyCode: `${basePath}/sms/sendVerifyCode`,
         checkVerifyCode: `${basePath}/sms/checkVerifyCode`
     }
 }
+

@@ -1,6 +1,7 @@
 import { customDataField } from "./custom-data-field";
+import { CustomField } from "maishu-wuzhui";
 
-export function dateTimeField<T>(args: { dataField: Extract<keyof T, string>, headerText: string, }) {
+export function dateTimeField<T>(args: { dataField: Extract<keyof T, string>, headerText: string, }): CustomField<T> {
 
     return customDataField<T>({
         // dataField: args.dataField,

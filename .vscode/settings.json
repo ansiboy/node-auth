@@ -6,8 +6,7 @@
         "**/*.intellisense.js": true,
         ".tscache": true,
         "**/.baseDir.*": true,
-        "src/**/*.map": true,
-        "src/**/*.d.ts": true
+        "src/**/*.map": true
         //"src/**/typings":true
     }
 }

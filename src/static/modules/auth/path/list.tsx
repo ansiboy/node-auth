@@ -1,10 +1,10 @@
 import { operationField, customDataField, ListPage } from "assert/index";
 import React = require("react");
-import { dataSources, MyDataSource, translateToMenuItems, Module } from "assert/dataSources";
+import { dataSources, Module } from "assert/dataSources";
 import { Path, Resource } from "entities";
 import { PermissionService } from "assert/services/index";
 import { MenuItem } from "assert/masters/main-master-page";
-import { createGridView, customField } from "maishu-wuzhui-helper";
+import { customField } from "maishu-wuzhui-helper";
 import { GridViewDataCell, GridView } from "maishu-wuzhui";
 import ReactDOM = require("react-dom");
 import { ValueStore } from "maishu-chitu";
@@ -67,10 +67,6 @@ export default class PathListPage extends React.Component<PageProps, State>{
         let { } = this.state;
         return <ListPage dataSource={dataSources.module} resourceId={this.props.data.resourceId}
             pageSize={null}
-            // transform={(dataItems) => {
-            //     dataItems = translateToMenuItems(dataItems);
-            //     return dataItems;
-            // }}
             columns={[
                 customField<MenuItem>({
                     headerText: '功能模块',
@@ -89,10 +85,7 @@ export default class PathListPage extends React.Component<PageProps, State>{
                 customDataField<Module>({
                     headerText: "路径",
                     render: (dataItem, element) => {
-                        // let renderPaths = (paths: Path[]) => {
-                        //     paths = paths.filter(o => o.resource_id == dataItem.id);
-                        //     (dataItem as MyMenuItem).paths = paths;
-                        let paths = dataItem.paths;
+                        let paths = dataItem.paths.sort((a, b) => a.value < b.value ? -1 : 1);
                         ReactDOM.render(<table className="table" style={{ marginBottom: 0, backgroundColor: "unset" }}>
                             <tbody>
                                 {paths.map(o =>
@@ -101,11 +94,6 @@ export default class PathListPage extends React.Component<PageProps, State>{
                                 )}
                             </tbody>
                         </table>, element)
-                        // }
-
-                        // this.pathsStorage.attach((value) => {
-                        //     renderPaths(value);
-                        // })
                     }
                 }),
                 operationField<MenuItem>(this.props.data.resourceId, this.ps, this, `${operationFieldWidth - 18}px`)
