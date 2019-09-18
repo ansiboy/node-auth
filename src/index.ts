@@ -1,7 +1,7 @@
 import { startServer, Config } from 'maishu-node-mvc';
 import path = require('path');
 import { setConnection } from './settings';
-import { ConnectionConfig } from 'mysql';
+import { ConnectionConfig } from "mysql";
 import { initDatabase } from './dataContext';
 import { checkPath } from './filters/checkPath';
 
@@ -18,9 +18,9 @@ export async function start(options: Options) {
     await initDatabase();
 
     startServer({
-        port: options.port, rootPath: __dirname,
+        port: options.port, 
         controllerDirectory: path.join(__dirname, 'controllers'),
-        staticRootDirectory: path.join(__dirname, '../../out/client'),
+        staticRootDirectory: path.join(__dirname, 'static'),
         headers: {
             'Content-Type': 'application/json;charset=utf-8',
             'Access-Control-Allow-Origin': '*',
