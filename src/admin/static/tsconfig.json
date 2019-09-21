@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "experimentalDecorators": true,
-        "outDir": "../../out",
+        "outDir": "../../../out/admin/static",
         "jsx": "react",
         "baseUrl": "./",
         "declaration": true,
@@ -9,37 +9,37 @@
         "target": "es6",
         "paths": {
             "maishu-chitu": [
-                "../../node_modules/maishu-chitu/out/index.d.ts"
+                "../../../node_modules/maishu-chitu/out/index.d.ts"
             ],
             "maishu-chitu-react": [
-                "../../node_modules/maishu-chitu-react/out/index.d.ts"
+                "../../../node_modules/maishu-chitu-react/out/index.d.ts"
             ],
             "maishu-chitu-service": [
-                "../../node_modules/maishu-chitu-service/out/index.d.ts"
+                "../../../node_modules/maishu-chitu-service/out/index.d.ts"
             ],
             "maishu-dilu": [
-                "../../node_modules/maishu-dilu/out/index.d.ts"
+                "../../../node_modules/maishu-dilu/out/index.d.ts"
             ],
             "maishu-ui-toolkit": [
-                "../../node_modules/maishu-ui-toolkit/out/index.d.ts"
+                "../../../node_modules/maishu-ui-toolkit/out/index.d.ts"
             ],
             "maishu-services-sdk": [
-                "../../node_modules/maishu-services-sdk/out/index.d.ts"
+                "../../../node_modules/maishu-services-sdk/out/index.d.ts"
             ],
             "maishu-wuzhui": [
-                "../../node_modules/maishu-wuzhui/out/index.d.ts"
+                "../../../node_modules/maishu-wuzhui/out/index.d.ts"
             ],
             "maishu-wuzhui-helper": [
-                "../../node_modules/maishu-wuzhui-helper/out/index.d.ts"
+                "../../../node_modules/maishu-wuzhui-helper/out/index.d.ts"
             ],
             "csstype": [
-                "../../node_modules/csstype/index.d.ts"
+                "../../../node_modules/csstype/index.d.ts"
             ],
             "entities": [
-                "../../out/entities.d.ts"
+                "../../../out/entities.d.ts"
             ],
             "url-pattern":[
-                "../../node_modules/url-pattern/index.d.ts"
+                "../../../node_modules/url-pattern/index.d.ts"
             ]
         }
     }

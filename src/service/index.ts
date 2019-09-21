@@ -12,12 +12,12 @@ import * as http from "http";
 interface Options {
     port: number,
     db: ConnectionConfig,
-    bindIP?: string,
-    proxy?: Config['proxy'],
+    // bindIP?: string,
+    // proxy?: Config['proxy'],
     /** 控制器所在文件夹 */
-    controllersDirectory?: string,
+    // controllersDirectory?: string,
     /** 实体类所在文件夹 */
-    entitiesDirectory?: string,
+    // entitiesDirectory?: string,
     permissions?: { [path: string]: string[] }
     /** 用于初始化数据库数据 */
     initDatabase?: (dc: AuthDataContext) => Promise<any>,
@@ -28,7 +28,7 @@ interface Options {
 
 export type StartOptions = Options;
 export { constants } from './common';
-export async function start(options: Options) {
+export function start(options: Options) {
 
     if (!options)
         throw errors.argumentNull("options");
@@ -36,14 +36,14 @@ export async function start(options: Options) {
     if (!options.db)
         throw errors.argumentFieldNull("db", "options");
 
-    if (!options.port)
-        throw errors.argumentFieldNull("port", "options");
+    // if (!options.port)
+    //     throw errors.argumentFieldNull("port", "options");
 
     setConnection(options.db);
     let entities: string[] = [path.join(__dirname, "entities.js")]
-    if (options.entitiesDirectory) {
-        entities.push(path.join(options.entitiesDirectory, "*.js"));
-    }
+    // if (options.entitiesDirectory) {
+    //     entities.push(path.join(options.entitiesDirectory, "*.js"));
+    // }
 
     let dbOptions: ConnectionOptions = {
         type: "mysql",
@@ -59,27 +59,22 @@ export async function start(options: Options) {
         name: constants.dbName
     }
 
-    await createConnection(dbOptions)
+    createConnection(dbOptions)
 
-    if (options.initDatabase) {
-        let dc = await createDataContext();
-        await options.initDatabase(dc);
-    }
+    // if (options.initDatabase) {
+    //     let dc = await createDataContext();
+    //     await options.initDatabase(dc);
+    // }
 
     let ctrl_dir = [path.join(__dirname, 'controllers')];
-    if (options.controllersDirectory)
-        ctrl_dir.push(options.controllersDirectory);
+    // if (options.controllersDirectory)
+    //     ctrl_dir.push(options.controllersDirectory);
 
-    startServer({
+    return startServer({
         port: options.port,
-        bindIP: options.bindIP,
+        // bindIP: "127.0.0.1",
         controllerDirectory: ctrl_dir,
-        staticRootDirectory: path.join(__dirname, 'static'),
-        headers: options.headers,
-        proxy: options.proxy,
-        authenticate: (req, res) => authenticate(req, res, options.permissions),
-        actionFilters: options.actionFilters,
-        virtualPaths: options.virtualPaths
+        // authenticate: (req, res) => authenticate(req, res, options.permissions),
     })
 }
 
