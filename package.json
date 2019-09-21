@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "bootstrap": "^3.4.1",
+        "cookies": "^0.7.3",
         "js-md5": "^0.7.3",
         "less": "^3.10.3",
         "maishu-chitu": "^3.4.6",

@@ -2,6 +2,7 @@ import React = require("react");
 import { config } from "../config";
 import { PageProps } from "maishu-chitu-react";
 import { setForm as setLoginForm, USERNAME, PASSWORD, LOGIN } from "assert/forms/login";
+import { FormValidator } from "maishu-dilu";
 
 interface Props extends PageProps {
     data: {
@@ -18,6 +19,8 @@ interface State {
 
 export default class LoginPage extends React.Component<Props, State> {
     private element: HTMLElement;
+    private validator: FormValidator;
+    
     constructor(props) {
         super(props)
 

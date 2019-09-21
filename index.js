@@ -1,17 +1,18 @@
-const { startServer } = require('maishu-node-mvc')
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')
 const { start } = require('./out/index')
 const { constants } = require("./out/common");
-
-//===========================================
-// 目标主机，服务所在的主机
+const { TokenManager } = require("./out/token");
+const Cookies = require("cookies")
+    //===========================================
+    // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
 //===========================================
 
 start({
     port: config.port,
+    // bindIP: "127.0.0.1",
     db: {
         host: config.db.host,
         port: config.db.port,
@@ -34,9 +35,12 @@ start({
         '/UserShop/(\\S+)': { targetUrl: `http://${target_host}:9010/User/$1`, headers: proxyHeader },
         '/UserMember/(\\S+)': { targetUrl: `http://${target_host}:9020/User/$1`, headers: proxyHeader },
         '/UserWeiXin/(\\S+)': { targetUrl: `http://${target_host}:9030/User/$1`, headers: proxyHeader },
-        '/UserAccount/(\\S+)': { targetUrl: `http://${target_host}:9035/User/$1`, headers: proxyHeader }
+        '/UserAccount/(\\S+)': { targetUrl: `http://${target_host}:9035/User/$1`, headers: proxyHeader },
+        "^/Images/Editor/(\\S+)": "http://web.alinq.cn/store2/Images/Editor/$1",
+        "/merchant(\\S*)": `http://127.0.0.1:65271$1`,
+        "/image(\\S*)": `http://127.0.0.1:48628$1`
     },
-    async initDatabase(dc) {
+    async initDatabase() {
         // await dc.initDatabase("18502146746", "b6d767d2f8ed5d21a44b0e5886680cb9")
     },
     headers: {
@@ -54,6 +58,7 @@ start({
         "*.png": [constants.anonymousRoleId],
         "*.woff": [constants.anonymousRoleId],
         "*.map": [constants.anonymousRoleId],
+
         "/admin/*": [constants.anonymousRoleId],
         "/user/*": [constants.anonymousRoleId],
         "/designer/*": [constants.anonymousRoleId],
@@ -62,6 +67,8 @@ start({
         "/auth/*": [constants.anonymousRoleId],
         "/UserMember/*": [constants.anonymousRoleId],
         "/UserShop/*": [constants.anonymousRoleId],
+        "/Images/*": [constants.anonymousRoleId],
+        "/merchant*": [constants.anonymousRoleId],
     }
 })
 
@@ -71,11 +78,12 @@ start({
  * @param {http.IncomingMessage} req 
  */
 async function proxyHeader(req) {
+    let cookies = new Cookies(req);
     let header = {}
-    let tokenText = req.headers['token']
+    let tokenText = req.headers['token'] || cookies.get("token");
     if (tokenText) {
         try {
-            let token = await Token.parse(tokenText);
+            let token = await TokenManager.parse(tokenText);
             var obj = JSON.parse(token.content);
             header = obj
         } catch (err) {
