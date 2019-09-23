@@ -1,4 +1,4 @@
-import { controller, action, formData } from "maishu-node-mvc";
+import { controller, action, routeData } from "maishu-node-mvc";
 import { AuthDataContext } from "../data-context";
 import { Path } from "../entities";
 import { actionPaths } from "../common";
@@ -7,7 +7,7 @@ import { authDataContext } from "../decorators";
 @controller("path")
 export class PathController {
     @action(actionPaths.path.list)
-    async list(@authDataContext dc: AuthDataContext, @formData { resourceId }: { resourceId: string }): Promise<Path[]> {
+    async list(@authDataContext dc: AuthDataContext, @routeData { resourceId }: { resourceId: string }): Promise<Path[]> {
         let items: Path[];
         if (resourceId) {
             let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
@@ -20,7 +20,7 @@ export class PathController {
     }
 
     @action(actionPaths.path.listByResourceIds)
-    async listByResourceIds(@authDataContext dc: AuthDataContext, @formData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
+    async listByResourceIds(@authDataContext dc: AuthDataContext, @routeData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
         let resourcePaths = await dc.resourcePaths.createQueryBuilder()
             .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
             .getMany();
@@ -31,7 +31,7 @@ export class PathController {
     }
 
     // @action()
-    // async add(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
+    // async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Path }): Promise<Partial<Path>> {
     //     if (!item) throw errors.argumentNull("item");
 
     //     item.id = guid();
@@ -43,7 +43,7 @@ export class PathController {
     // }
 
     // @action()
-    // async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Path }): Promise<Partial<Path>> {
+    // async update(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Path }): Promise<Partial<Path>> {
     //     if (!item) throw errors.argumentNull("item");
     //     if (!item.id) throw errors.argumentFieldNull("id", "item");
     //     if (!item.value) throw errors.argumentFieldNull("value", "item");
@@ -59,8 +59,8 @@ export class PathController {
     // }
 
     // @action()
-    // async remove(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Partial<Path>> {
-    //     if (!id) throw errors.argumentFieldNull("id", "formData");
+    // async remove(@authDataContext dc: AuthDataContext, @routeData { id }): Promise<Partial<Path>> {
+    //     if (!id) throw errors.argumentFieldNull("id", "routeData");
 
     //     await dc.paths.delete({ id });
     //     return { id }

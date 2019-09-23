@@ -1,4 +1,4 @@
-import { controller, action, Controller, formData } from "maishu-node-mvc";
+import { controller, action, Controller, routeData } from "maishu-node-mvc";
 import { PermissionService } from 'maishu-services-sdk'
 import { settings } from "../settings";
 import { errors } from "../errors";
@@ -18,8 +18,8 @@ export type MenuItem = {
 @controller("auth/menu")
 export class MenuController extends Controller {
     @action()
-    async list(@formData { userId }): Promise<MenuItem[]> {
-        if (!userId) throw errors.argumentFieldNull("formData", "userId");
+    async list(@routeData { userId }): Promise<MenuItem[]> {
+        if (!userId) throw errors.argumentFieldNull("routeData", "userId");
 
         // if (!settings.roleId)
         //     throw errors.settingItemNull('roleId');

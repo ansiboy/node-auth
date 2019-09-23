@@ -1,11 +1,11 @@
-import { controller, formData, action, Controller } from "maishu-node-mvc";
+import { controller, routeData, action, Controller } from "maishu-node-mvc";
 import { UserService, LoginInfo } from "maishu-services-sdk";
 import path = require("path");
 
 @controller("auth/user")
 export class UserController extends Controller {
     @action()
-    async login(@formData { username, password }): Promise<LoginInfo> {
+    async login(@routeData { username, password }): Promise<LoginInfo> {
         let us = new UserService();
         let r = await us.login(username, password);
         return r;

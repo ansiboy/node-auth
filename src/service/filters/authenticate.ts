@@ -10,11 +10,19 @@ import UrlPattern = require("url-pattern");
 
 let allPaths: Path[];
 
+export interface PermissionConfig {
+    [path: string]: PermissionConfigItem
+}
+
+export interface PermissionConfigItem {
+    roleIds: string[]
+}
+
 /**
  * 检查路径是否允许访问
  */
 export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
-    permissions: { [path: string]: string[] }): Promise<ActionResult> {
+    permissions: PermissionConfig): Promise<ActionResult> {
 
     permissions = permissions || {};
     let dc = await createDataContext();
@@ -26,7 +34,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     let u = url.parse(req.url);
 
     let roleId: string = null;
-    let userId = await getUserIdFromRequest(req);
+    let userId = await getUserIdFromRequest(req, res);
     if (userId) {
         let user = await dc.users.findOne({
             where: { id: userId },
@@ -48,7 +56,8 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     for (let i = 0; i < paths.length; i++) {
         var pattern = new UrlPattern(paths[i]);
         if (pattern.match(u.pathname)) {
-            let roleIds = permissions[paths[i]] || [];
+            let obj = permissions[paths[i]] || {} as PermissionConfigItem;
+            let roleIds = obj.roleIds || [];
             if (roleIds.indexOf(roleId) >= 0)
                 return null;
 

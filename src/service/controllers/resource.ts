@@ -1,5 +1,5 @@
 import { errors } from "../errors";
-import { controller, formData, action } from "maishu-node-mvc";
+import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource, User, Path, ResourcePath } from "../entities";
 import { AuthDataContext } from "../data-context";
 import { actionPaths, constants } from "../common";
@@ -12,7 +12,7 @@ import { guid } from "../utility";
 export default class ResourceController {
 
     @action(actionPaths.resource.add)
-    async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { item }: { item: Resource }): Promise<Partial<Resource>> {
+    async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
         if (!item.name) throw errors.argumentFieldNull('name', 'item')
 
         item.id = guid()
@@ -33,7 +33,7 @@ export default class ResourceController {
     }
 
     @action(actionPaths.resource.update)
-    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Resource }) {
+    async update(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
@@ -46,8 +46,8 @@ export default class ResourceController {
     }
 
     @action(actionPaths.resource.remove)
-    async remove(@authDataContext dc: AuthDataContext, @formData { id }) {
-        if (!id) throw errors.argumentFieldNull('id', "formData");
+    async remove(@authDataContext dc: AuthDataContext, @routeData { id }) {
+        if (!id) throw errors.argumentFieldNull('id', "routeData");
 
         await dc.resources.delete(id);
         return { id };
@@ -78,8 +78,8 @@ export default class ResourceController {
     }
 
     @action(actionPaths.resource.item)
-    async item(@authDataContext dc: AuthDataContext, @formData { id }) {
-        if (!id) throw errors.argumentFieldNull("id", "formData");
+    async item(@authDataContext dc: AuthDataContext, @routeData { id }) {
+        if (!id) throw errors.argumentFieldNull("id", "routeData");
 
         let item = await dc.resources.findOne(id);
         return item;
@@ -87,9 +87,9 @@ export default class ResourceController {
 
     @action(actionPaths.resource.path.set)
     async set(@authDataContext dc: AuthDataContext,
-        @formData { resourceId, paths }: { resourceId: string, paths: string[] }) {
-        if (!resourceId) throw errors.argumentFieldNull("resourceId", "formData");
-        if (!paths) throw errors.argumentFieldNull("pathIds", "formData");
+        @routeData { resourceId, paths }: { resourceId: string, paths: string[] }) {
+        if (!resourceId) throw errors.argumentFieldNull("resourceId", "routeData");
+        if (!paths) throw errors.argumentFieldNull("pathIds", "routeData");
 
         let allPaths = await dc.paths.find();
         let allPathStrings = allPaths.map(o => o.value);

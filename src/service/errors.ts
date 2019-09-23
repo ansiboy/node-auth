@@ -115,6 +115,12 @@ export let errors = {
         error.name = errorNames.FieldNull;
         return error;
     },
+    routeDataFieldNull(fieldName: string): Error {
+        let msg = `The '${fieldName}' field of route data cannt be null.`;
+        let error = new Error(msg);
+        error.name = errorNames.FieldNull;
+        return error;
+    },
     userNotLogin(): Error {
         let msg = `User id is required.`;
         let err = new Error(msg);

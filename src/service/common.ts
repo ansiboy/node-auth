@@ -4,6 +4,7 @@ export let constants = {
     anonymousRoleId: "738FB92C-60CF-4280-B5AE-61C376D0AADF",
     controllerBasePath: "",
     dbName: "shop_auth",
+    cookieToken: "token"
 }
 
 let basePath = constants.controllerBasePath;
@@ -12,6 +13,7 @@ export let actionPaths = {
         add: `${basePath}/user/add`,
         update: `${basePath}/user/update`,
         list: `${basePath}/user/list`,
+        roleList: `${basePath}/user/role/list`,
         item: `${basePath}/user/item`,
         remove: `${basePath}/user/remove`,
         login: `${basePath}/user/login`,

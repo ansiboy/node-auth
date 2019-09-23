@@ -11,6 +11,12 @@
             "maishu-chitu": [
                 "../../../node_modules/maishu-chitu/out/index.d.ts"
             ],
+            "maishu-chitu-admin": [
+                "../../../node_modules/maishu-chitu-admin/out/index.d.ts"
+            ],
+            "maishu-chitu-admin/static": [
+                "../../../node_modules/maishu-chitu-admin/out/static/index.d.ts"
+            ],
             "maishu-chitu-react": [
                 "../../../node_modules/maishu-chitu-react/out/index.d.ts"
             ],
@@ -42,5 +48,8 @@
                 "../../../node_modules/url-pattern/index.d.ts"
             ]
         }
-    }
+    },
+    "exclude": [
+        "node_modules/**/node_modules/**"
+    ]
 }

@@ -5,6 +5,8 @@ import querystring = require('querystring');
 import url = require('url');
 import { AuthDataContext, createDataContext } from './data-context';
 import { errors } from './errors';
+import Cookies = require('cookies');
+import { constants } from './common';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
@@ -16,13 +18,15 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
     }
 )
 
-export let currentUserId = createParameterDecorator(async (req) => {
-    return getUserIdFromRequest(req);
+export let currentUserId = createParameterDecorator(async (req, res) => {
+    return getUserIdFromRequest(req, res);
 })
 
-export async function getUserIdFromRequest(req: http.IncomingMessage) {
-    let formData = await getQueryObject(req);
-    let tokenText = (req.headers['token'] as string) || formData["token"];
+export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+    let routeData = await getQueryObject(req);
+    let cookie = new Cookies(req, res);
+    let tokenText = (req.headers['token'] as string) || routeData["token"] || cookie.get(constants.cookieToken);
+
     if (!tokenText)
         return null
 
@@ -42,8 +46,8 @@ export async function getUserIdFromRequest(req: http.IncomingMessage) {
 }
 
 export let currentUser = createParameterDecorator(async (req) => {
-    let formData = await getQueryObject(req);
-    let tokenText = (req.headers['token'] as string) || formData["token"];
+    let routeData = await getQueryObject(req);
+    let tokenText = (req.headers['token'] as string) || routeData["token"];
     if (!tokenText)
         return null
 
@@ -68,8 +72,8 @@ export let currentUser = createParameterDecorator(async (req) => {
 })
 
 export let currentTokenId = createParameterDecorator(async (req) => {
-    let formData = await getQueryObject(req);
-    let tokenText = (req.headers['token'] as string) || formData["token"];
+    let routeData = await getQueryObject(req);
+    let tokenText = (req.headers['token'] as string) || routeData["token"];
     return tokenText;
 })
 
@@ -78,8 +82,8 @@ export let ApplicationId = createParameterDecorator(async (req) => {
     if (appId)
         return appId
 
-    let formData = getQueryObject(req)
-    return formData['application-id']
+    let routeData = getQueryObject(req)
+    return routeData['application-id']
 })
 
 /**

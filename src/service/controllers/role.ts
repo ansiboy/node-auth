@@ -1,5 +1,5 @@
 import { errors } from "../errors";
-import { controller, action, formData } from "maishu-node-mvc";
+import { controller, action, routeData as formData } from "maishu-node-mvc";
 import { currentUserId, currentUser, authDataContext } from "../decorators";
 import { Role, User, RoleResource } from "../entities";
 import { AuthDataContext } from "../data-context";
@@ -69,7 +69,7 @@ export default class RoleController {
     async list(@authDataContext dc: AuthDataContext, @currentUserId userId: string) {
         if (!dc) throw errors.argumentNull("dc");
         if (!userId) throw errors.userIdNull();
-        
+
         let user = await dc.users.findOne(userId);
         if (!user)
             throw errors.objectNotExistWithId(userId, "User");

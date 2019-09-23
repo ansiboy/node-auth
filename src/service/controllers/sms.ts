@@ -1,7 +1,7 @@
 import * as QcloudSms from 'qcloudsms_js'
 import * as settings from '../settings'
 import { errors } from '../errors';
-import { controller, action, formData } from 'maishu-node-mvc';
+import { controller, action, routeData } from 'maishu-node-mvc';
 import { actionPaths } from '../common';
 import { AuthDataContext } from '../data-context';
 import { guid } from '../utility';
@@ -18,7 +18,7 @@ interface SMSRecord {
 @controller('sms')
 export default class SMSController {
     @action(actionPaths.sms.sendVerifyCode)
-    async sendVerifyCode(@authDataContext dc: AuthDataContext, @formData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    async sendVerifyCode(@authDataContext dc: AuthDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
