@@ -1,18 +1,18 @@
 import React = require("react");
-import { createGridView, boundField, dateTimeField, createItemDialog } from "maishu-wuzhui-helper";
-import { dataSources } from "services/data-sources";
+import { boundField, dateTimeField } from "maishu-wuzhui-helper";
+import { dataSources } from "../../services/data-sources";
 import { rules } from "maishu-dilu";
 import { Role } from "maishu-services-sdk";
-import { TextInput } from "components/index";
-import { DataListPage } from "components/pages/data-list-page";
+import { TextInput, DataListPage } from "../../components/index";
+import { DataControlField } from "maishu-wuzhui";
 
 export default class RoleListPage extends DataListPage<Role> {
     dataSource = dataSources.role;
     itemName: string = "角色";
-    columns = [
-        boundField({ dataField: 'id', headerText: '编号', headerStyle: { width: '300px' }, itemStyle: { textAlign: 'center' } }),
-        boundField({ dataField: 'name', headerText: '名称' }),
-        dateTimeField({ dataField: 'create_date_time', headerText: '创建时间' }),
+    columns: DataControlField<Role>[] = [
+        boundField<Role>({ dataField: 'id', headerText: '编号', headerStyle: { width: '300px' }, itemStyle: { textAlign: 'center' } }),
+        boundField<Role>({ dataField: 'name', headerText: '名称' }),
+        dateTimeField<Role>({ dataField: 'create_date_time', headerText: '创建时间' }),
     ];
 
     renderEditor() {

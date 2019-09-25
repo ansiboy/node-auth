@@ -13,7 +13,6 @@ export let actionPaths = {
         add: `${basePath}/user/add`,
         update: `${basePath}/user/update`,
         list: `${basePath}/user/list`,
-        roleList: `${basePath}/user/role/list`,
         item: `${basePath}/user/item`,
         remove: `${basePath}/user/remove`,
         login: `${basePath}/user/login`,
@@ -25,7 +24,9 @@ export let actionPaths = {
         isMobileRegister: `${basePath}/user/isMobileRegister`,
         isUserNameRegister: `${basePath}/user/isUserNameRegister`,
         isEmailRegister: `${basePath}/user/isEmailRegister`,
-        latestLogin: `${basePath}/user/latestLogin`
+        latestLogin: `${basePath}/user/latestLogin`,
+        roleList: `${basePath}/user/role/list`,
+        resourceList: `${basePath}/user/resource/list`,
     },
     role: {
         add: `${basePath}/role/add`,

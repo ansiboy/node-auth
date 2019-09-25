@@ -9,6 +9,8 @@ export abstract class DataListPage<T> extends BasePage {
     abstract dataSource: DataSource<T>;
     abstract itemName: string;
     abstract columns: DataControlField<T>[];
+    pageSize?: number = 15;
+    headerFixed = false;
 
     private itemTable: HTMLTableElement;
     gridView: GridView<T>;
@@ -34,7 +36,8 @@ export abstract class DataListPage<T> extends BasePage {
         this.gridView = createGridView({
             element: this.itemTable,
             dataSource: this.dataSource,
-            columns: this.columns
+            columns: this.columns,
+            pageSize: this.pageSize
         })
     }
 

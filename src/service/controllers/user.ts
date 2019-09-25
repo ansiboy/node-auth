@@ -62,11 +62,6 @@ export default class UserController {
 
         data = data || {}
 
-        // let sql = `select code from sms_record where id = ?`
-        // let [rows] = await execute(conn, sql, [smsId])
-        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-        //     throw errors.verifyCodeIncorrect(verifyCode)
-        // }
         let ctrl = new SMSController();
         if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
             throw errors.verifyCodeIncorrect(verifyCode);
@@ -76,8 +71,6 @@ export default class UserController {
             create_date_time: new Date(Date.now()),
         }
 
-        // sql = 'insert into user set ?'
-        // await execute(conn, sql, user)
         await dc.users.insert(user)
 
         let token = await TokenManager.create({ user_id: user.id } as UserToken);
@@ -167,9 +160,6 @@ export default class UserController {
                 break
         }
 
-        // let [rows] = await execute(conn, sql, [username, password])
-
-        // let user: User = rows == null ? null : rows[0]
         if (user == null) {
             throw errors.usernameOrPasswordIncorrect(username)
         }
@@ -266,93 +256,6 @@ export default class UserController {
         let user = await dc.users.findOne(userId);
         return user
     }
-
-    /**
-     * 获取当前登录用户角色
-     * @param param0
-     * 1. userId string 
-     */
-    @action()
-    async getRoles(@authDataContext dc: AuthDataContext, @currentUserId userId) {
-        if (!userId) throw errors.userIdNull();
-
-        let item = await dc.users.findOne({
-            where: { id: userId },
-            select: ["role_id"]
-        });
-
-        return item.role_id;
-    }
-
-    // /**
-    //  * 设置用户权限
-    //  * @param param0 
-    //  * 1. userId string, 用设置权限的用户 ID
-    //  * 1. roleIds string[], 角色 ID 数组
-    //  */
-    // @action()
-    // async setRoles(@connection conn: mysql.Connection, @routeData { userId, roleIds }) {
-    //     if (!userId) throw errors.userIdNull();
-    //     if (!roleIds) throw errors.argumentNull('roleIds')
-    //     if (!conn) throw errors.argumentNull('conn')
-    //     if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
-
-    //     await execute(conn, `delete from user_role where user_id = ?`, userId)
-
-    //     if (roleIds.length > 0) {
-    //         let values = []
-    //         let sql = `insert into user_role (user_id, role_id) values `
-    //         for (let i = 0; i < roleIds.length; i++) {
-    //             sql = sql + "(?,?)"
-    //             values.push(userId, roleIds[i])
-    //         }
-
-    //         await execute(conn, sql, values)
-    //     }
-    // }
-
-    // /**
-    //  * 获取用户角色编号
-    //  */
-    // @action("/role/userRoleIds", "role/ids")
-    // async userRoleIds(@authDataContext dc: AuthDataContext, @routeData { userIds }: { userIds: string[] }): Promise<{ user_id: string, role_id: string }[]> {
-    //     if (userIds == null) throw errors.argumentNull('userIds');
-    //     if (dc == null) throw errors.argumentNull('conn');
-
-    //     if (!userIds) throw errors.argumentNull("userIds");
-    //     let users = await dc.users.findByIds(userIds);
-    //     let result = users.map(o => ({ user_id: o.id, role_id: o.role_id }));
-
-    //     return result;
-    // }
-
-
-    // @action("addRoles", "role/add")
-    // async addRoles(@connection conn: mysql.Connection, @routeData { userId, roleIds }) {
-    //     if (!userId) throw errors.argumentNull("userId")
-    //     if (!roleIds) throw errors.argumentNull("roleIds")
-    //     if (!conn) throw errors.argumentNull("conn")
-
-    //     if (!Array.isArray(roleIds)) throw errors.argumentTypeIncorrect('roleIds', 'array')
-    //     if (roleIds.length == 0)
-    //         return errors.argumentEmptyArray("roleIds")
-
-    //     let roleController = new RoleController()
-    //     let userRoles = await this.userRoleIds(conn, { userIds: [userId] })
-    //     let userRoleIds = userRoles.map(o => o.role_id)
-    //     let values = []
-    //     let sql = `insert into user_role (user_id, role_id) values `
-    //     for (let i = 0; i < roleIds.length; i++) {
-    //         if (userRoleIds.indexOf(roleIds[i]) >= 0)
-    //             continue
-
-    //         sql = sql + "(?,?)"
-    //         values.push(userId, roleIds[i])
-    //     }
-
-    //     if (values.length > 0)
-    //         await execute(conn, sql, values)
-    // }
 
     @action(actionPaths.user.list)
     async list(@authDataContext dc: AuthDataContext, @routeData { args }: { args: SelectArguments }) {
@@ -453,7 +356,7 @@ export default class UserController {
         return items;
     }
 
-    /** 获取当前角色列表 */
+    /** 获取当前用户角色的子角色列表 */
     @action(actionPaths.user.roleList)
     async roleList(@authDataContext dc: AuthDataContext, @routeData { userId }) {
         if (!dc) throw errors.argumentNull("dc");
@@ -471,6 +374,32 @@ export default class UserController {
         return roles;
     }
 
+    /** 获取用户所允许访问的资源 */
+    @action(actionPaths.user.resourceList)
+    async resourceList(@authDataContext dc: AuthDataContext, @routeData { userId }) {
+        if (!userId) throw errors.routeDataFieldNull("userId");
+
+        let user = await dc.users.findOne(userId);
+        if (user == null)
+            throw errors.objectNotExistWithId(userId, "user");
+
+        if (!user.role_id)
+            return [];
+
+        if (user.role_id == constants.adminRoleId) {
+            return dc.resources.find({ order: { sort_number: "ASC" } });
+        }
+
+        let roleResources = await dc.roleResources.find({ role_id: user.role_id });
+        if (roleResources.length == 0) {
+            return [];
+        }
+
+        let resourceIds = roleResources.map(o => o.resource_id);
+        let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
+
+        return resources;
+    }
 }
 
 

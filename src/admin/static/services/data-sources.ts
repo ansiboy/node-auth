@@ -1,13 +1,16 @@
 import { DataSource } from "maishu-wuzhui";
-import { PermissionService } from "maishu-services-sdk";
+import { PermissionService, User, Role, Resource } from "maishu-services-sdk";
 import { errorHandle } from "maishu-chitu-admin/static";
+import { LocalService, DataSourceMethods } from "./local-service";
 
 PermissionService.baseUrl = "../service/auth";
 
 let ps = new PermissionService((err) => {
-    debugger;
     errorHandle(err)
 });
+
+let ls = new LocalService((err) => errorHandle(err));
+
 let roleDataSource = new DataSource({
     primaryKeys: ["id"],
     select: async () => {
@@ -25,6 +28,24 @@ let roleDataSource = new DataSource({
     }
 })
 
+let userDataSource = new DataSource<User>({
+    primaryKeys: ["id"],
+    select: async (args) => {
+        let r = await ps.user.list(args);
+        return r;
+    },
+    insert: async (item) => {
+        let r = await ps.user.add(item);
+        return r;
+    },
+    update: async (item) => {
+        let r = await ps.user.update(item);
+        return r;
+    }
+})
+
 export let dataSources = {
-    role: roleDataSource
+    role: ls.dataSource<Role>("role", DataSourceMethods.all),
+    user: ls.dataSource<User>("user", DataSourceMethods.insert | DataSourceMethods.update),
+    resource: ls.dataSource<Resource>("resouce")
 }

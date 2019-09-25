@@ -1,8 +1,13 @@
-import { controller, action } from "maishu-chitu-admin/node_modules/maishu-node-mvc";
+import { controller, action, createParameterDecorator } from "maishu-node-mvc";
 import { PermissionService } from "maishu-services-sdk";
 import { routeData, request, response } from "maishu-node-mvc";
 import Cookies = require("cookies");
 import { constants } from "../../service";
+
+export let currentTokenId = createParameterDecorator(async (req) => {
+    let userId = req.headers["user_id"] || req.headers["userid"];
+    return userId;
+})
 
 @controller("/")
 export class HomeController {
@@ -15,7 +20,7 @@ export class HomeController {
     @action()
     async login(@routeData { username, password }, @request req, @response res) {
         let r = await this.ps.user.login(username, password);
-debugger
+        debugger
         let cookies = new Cookies(req, res);
         let now = new Date();
         let expires = new Date();
@@ -26,8 +31,9 @@ debugger
     }
 
     @action()
-    async roles() {
-        let r = await this.ps.role.list();
+    async roles(@currentTokenId userId) {
+        debugger;
+        let r = await this.ps.user.role.list(userId);
         return r;
     }
 

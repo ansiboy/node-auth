@@ -10,7 +10,7 @@ export abstract class BasePage<P = {}, S = {}> extends React.Component<P, S> {
             let toolbarRight = this.renderToolbarRight();
             return <>
                 <div className="tabbable">
-                    <ul className="nav nav-tabs" style={{ minHeight: 34 }}>
+                    <ul className="nav nav-tabs">
                         {toolbarLeft.map((o, i) =>
                             <li key={i} className="pull-left">{o}</li>
                         )}

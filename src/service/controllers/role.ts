@@ -1,5 +1,5 @@
 import { errors } from "../errors";
-import { controller, action, routeData as formData } from "maishu-node-mvc";
+import { controller, action, routeData as formData, routeData, } from "maishu-node-mvc";
 import { currentUserId, currentUser, authDataContext } from "../decorators";
 import { Role, User, RoleResource } from "../entities";
 import { AuthDataContext } from "../data-context";
@@ -18,19 +18,14 @@ import { guid } from "../utility";
 export default class RoleController {
 
     @action(actionPaths.role.add)
-    async add(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @formData { item }: { item: Role }) {
+    async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.argumentFieldNull("name", "item");
-        if (!userId) throw errors.userIdNull();
-
-        let user = await dc.users.findOne(userId);
-        if (!user)
-            throw errors.objectNotExistWithId(userId, "User");
 
         let role: Role = {
             id: guid(), name: item.name, remark: item.remark,
             create_date_time: new Date(Date.now()),
-            parent_id: user.role_id,
+            parent_id: item.parent_id,
         }
 
         await dc.roles.save(role);
@@ -66,16 +61,11 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action(actionPaths.role.list)
-    async list(@authDataContext dc: AuthDataContext, @currentUserId userId: string) {
+    async list(@authDataContext dc: AuthDataContext, @routeData { parent_id }) {
+        debugger;
         if (!dc) throw errors.argumentNull("dc");
-        if (!userId) throw errors.userIdNull();
-
-        let user = await dc.users.findOne(userId);
-        if (!user)
-            throw errors.objectNotExistWithId(userId, "User");
-
         let roles = await dc.roles.find({
-            where: { parent_id: user.role_id },
+            where: parent_id ? { parent_id } : {},
             order: { create_date_time: "DESC" }
         });
 

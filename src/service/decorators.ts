@@ -24,8 +24,8 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
 
 export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.ServerResponse) {
     let routeData = await getQueryObject(req);
-    let cookie = new Cookies(req, res);
-    let tokenText = (req.headers['token'] as string) || routeData["token"] || cookie.get(constants.cookieToken);
+    let cookies = new Cookies(req, res);
+    let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
 
     if (!tokenText)
         return null
@@ -45,9 +45,10 @@ export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.
     }
 }
 
-export let currentUser = createParameterDecorator(async (req) => {
+export let currentUser = createParameterDecorator(async (req, res) => {
     let routeData = await getQueryObject(req);
-    let tokenText = (req.headers['token'] as string) || routeData["token"];
+    let cookies = new Cookies(req, res);
+    let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
     if (!tokenText)
         return null
 

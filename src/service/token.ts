@@ -49,26 +49,14 @@ function query(conn: mysql.Connection, sql: string, value?: any): Promise<[any[]
  * 用于解释和生成 token 。
  */
 export class TokenManager {
-    // id?: string;
-    // content: string;
-    // contentType: string;
-    // createDateTime: Date;
-    // cacheDateTime: number;
-
-    //application/json")
-    static async create(content: object): Promise<Token>
-    static async create(content: string, contentType: string): Promise<Token>
-    static async create(content: string | object, contentType?: string): Promise<Token> {
+    static async create(content: object): Promise<Token> {
+        if(content == null) throw errors.argumentNull("content");
         let token = new Token();
 
-        if (typeof content == 'object') {
-            content = JSON.stringify(content)
-            contentType = 'application/json'
-        }
 
         token.id = guid();
-        token.content = content;
-        token.content_type = contentType;
+        token.content = JSON.stringify(content);
+        token.content_type = 'application/json';
         token.create_date_time = new Date(Date.now());
 
         let dc = await createDataContext();

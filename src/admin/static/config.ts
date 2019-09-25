@@ -1,20 +1,8 @@
 import { WebSiteConfig } from "maishu-chitu-admin/static";
 
 export let config = {
-    // firstPanelWidth: 130,
-    // secondPanelWidth: 130,
     loginRedirectURL: "index",
-    // logoutRedirectURL: "",
-    // registerRedirectURL: "",
-    // login: {
-    //     title: "好易权限管理系统",
-    //     showForgetPassword: true,
-    //     showRegister: true,
-    // },
 }
-
-// let c = {}
-// export default c;
 
 export default {
     menuItems: [

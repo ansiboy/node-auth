@@ -4,6 +4,8 @@ import { ConnectionConfig } from "mysql";
 import { startServer } from "maishu-node-mvc";
 import { AddressInfo } from "net";
 import { authenticate, PermissionConfig } from "./service/filters/authenticate";
+import Cookies = require("cookies");
+import { TokenManager } from "./service/index";
 
 interface Config {
     port: number,
@@ -12,7 +14,9 @@ interface Config {
 }
 
 export function start(config: Config) {
-    let { server: serviceServer } = startService({ port: 0, db: config.db })
+    let { server: serviceServer } = startService({
+        port: 0, db: config.db
+    })
     let servicePort = (serviceServer.address() as AddressInfo).port;
 
     let authServiceURL = `http://127.0.0.1:${servicePort}`
@@ -23,11 +27,39 @@ export function start(config: Config) {
     startServer({
         port: config.port,
         proxy: {
-            "/admin(\\S*)": `http://127.0.0.1:${adminPort}$1`,
-            "/auth(\\S*)": `${authServiceURL}$1`
+            "/admin(\\S*)": { targetUrl: `http://127.0.0.1:${adminPort}$1`, headers: proxyHeaders },
+            "/auth(\\S*)": { targetUrl: `${authServiceURL}$1`, }
         },
         authenticate: (req, res) => authenticate(req, res, config.permissions),
     })
+}
+
+/**
+ * 
+ * @param {http.IncomingMessage} req 
+ */
+async function proxyHeaders(req) {
+    let cookies = new Cookies(req, null);
+    let headers = {}
+    let tokenText = req.headers['token'] || cookies.get("token");
+    if (tokenText) {
+        try {
+            let token = await TokenManager.parse(tokenText);
+            var obj = JSON.parse(token.content);
+            headers = obj
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    let userId = headers["user_id"] || headers["user-id"];
+    if (userId) {
+        headers['SellerId'] = userId;
+        headers['UserId'] = userId;
+        headers['user-id'] = userId;
+    }
+
+    return headers
 }
 
 start({
@@ -44,3 +76,5 @@ start({
         "/service(/*)": { roleIds: [constants.anonymousRoleId] }
     }
 });
+
+

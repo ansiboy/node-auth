@@ -3,7 +3,7 @@ import { guid } from "maishu-chitu-service";
 import { ValidateDataField, ItemDialogContext } from "../item-dialog";
 
 export interface InputControlProps<T> extends ValidateDataField {
-    dataField: Extract<keyof T, string>,
+    dataField: keyof T,
 }
 
 export abstract class InputControl<T, P = InputControlProps<T>, S = {}> extends React.Component<P, S> {

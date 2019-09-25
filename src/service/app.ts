@@ -240,34 +240,34 @@ function createTargetResquest(host: string, path: string, port: number, token: T
         (response) => {
             console.assert(response != null);
 
-            const StatusCodeGenerateToken = 666; // 生成 Token
-            if (response.statusCode == StatusCodeGenerateToken) {
-                let responseContent: string;
-                let contentType = response.headers['content-type'] as string;
-                response.on('data', (data: ArrayBuffer) => {
-                    responseContent = data.toString();
-                })
-                response.on('end', () => {
-                    TokenManager.create(responseContent, contentType)
-                        .then((o: Token) => {
-                            res.setHeader("content-type", "application/json");
-                            var obj = JSON.stringify({ token: o.id });
-                            res.write(obj);
-                            res.end();
-                        }).catch(err => {
-                            outputError(res, err);
-                        })
-                })
+            // const StatusCodeGenerateToken = 666; // 生成 Token
+            // if (response.statusCode == StatusCodeGenerateToken) {
+            //     let responseContent: string;
+            //     let contentType = response.headers['content-type'] as string;
+            //     response.on('data', (data: ArrayBuffer) => {
+            //         responseContent = data.toString();
+            //     })
+            //     response.on('end', () => {
+            //         TokenManager.create(responseContent, contentType)
+            //             .then((o: Token) => {
+            //                 res.setHeader("content-type", "application/json");
+            //                 var obj = JSON.stringify({ token: o.id });
+            //                 res.write(obj);
+            //                 res.end();
+            //             }).catch(err => {
+            //                 outputError(res, err);
+            //             })
+            //     })
+            // }
+            // else {
+            for (var key in response.headers) {
+                res.setHeader(key, response.headers[key]);
             }
-            else {
-                for (var key in response.headers) {
-                    res.setHeader(key, response.headers[key]);
-                }
-                res.statusCode = response.statusCode;
-                res.statusMessage = response.statusMessage
-                response.pipe(res);
-            }
-        },
+            res.statusCode = response.statusCode;
+            res.statusMessage = response.statusMessage
+            response.pipe(res);
+        }
+        // },
     );
 
     return request;

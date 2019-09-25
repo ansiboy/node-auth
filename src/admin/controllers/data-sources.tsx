@@ -1,0 +1,66 @@
+import { PermissionService, User, DataSourceSelectResult, Role, Resource } from "maishu-services-sdk";
+import { controller, action, routeData, createParameterDecorator } from "maishu-node-mvc";
+
+export let currentUserId = createParameterDecorator(async (req) => {
+    let userId = req.headers["user_id"] || req.headers["userid"];
+    return userId;
+})
+
+@controller("data-sources")
+export class DataSourcesController {
+    ps: PermissionService;
+    constructor() {
+        this.ps = new PermissionService();
+    }
+
+    @action()
+    insert_user(@routeData { item }) {
+        return this.ps.user.add(item);
+    }
+
+    @action()
+    update_user(@routeData { item }) {
+        return this.ps.user.update(item);
+    }
+
+    @action()
+    select_user(@routeData { args }): Promise<DataSourceSelectResult<User>> {
+        return this.ps.user.list(args);
+    }
+
+    @action()
+    async select_role(@currentUserId userId): Promise<DataSourceSelectResult<Role>> {
+        let roles = await this.ps.user.role.list(userId);
+        return { dataItems: roles, totalRowCount: roles.length };
+    }
+
+    @action()
+    insert_role(@routeData { item }) {
+        return this.ps.role.add(item);
+    }
+
+    @action()
+    update_role(@routeData { item }) {
+        return this.ps.role.update(item);
+    }
+
+    @action()
+    delete_role(@routeData { item }) {
+        return this.ps.role.remove(item.id);
+    }
+
+    @action()
+    async select_resouce(@currentUserId userId): Promise<DataSourceSelectResult<Resource>> {
+        let r = await this.ps.user.resource.list(userId);
+        return { dataItems: r, totalRowCount: r.length };
+    }
+
+    @action()
+    async insert_resource(@routeData { item }) {
+        let r = await this.ps.resource.add(item);
+        return r;
+    }
+
+
+
+}

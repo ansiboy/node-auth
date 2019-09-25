@@ -1,13 +1,15 @@
 import { startServer, Config, ActionResult } from 'maishu-node-mvc';
 import path = require('path');
 import { ConnectionConfig } from 'mysql';
-import { authenticate } from './filters/authenticate';
+import { authenticate, PermissionConfig } from './filters/authenticate';
 import { errors } from './errors';
 import { AuthDataContext, createDataContext } from './data-context';
 import { createConnection, ConnectionOptions } from 'typeorm';
 import { constants } from './common';
 import { setConnection } from './settings';
 import * as http from "http";
+
+export { TokenManager } from "./token";
 
 interface Options {
     port: number,
@@ -18,7 +20,7 @@ interface Options {
     // controllersDirectory?: string,
     /** 实体类所在文件夹 */
     // entitiesDirectory?: string,
-    permissions?: { [path: string]: string[] }
+    permissions?: PermissionConfig,
     /** 用于初始化数据库数据 */
     initDatabase?: (dc: AuthDataContext) => Promise<any>,
     actionFilters?: ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<ActionResult | null>)[];
@@ -74,7 +76,7 @@ export function start(options: Options) {
         port: options.port,
         // bindIP: "127.0.0.1",
         controllerDirectory: ctrl_dir,
-        // authenticate: (req, res) => authenticate(req, res, options.permissions),
+
     })
 }
 

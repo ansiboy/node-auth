@@ -55,25 +55,8 @@ export default class ResourceController {
 
 
     @action(actionPaths.resource.list)
-    async list(@authDataContext dc: AuthDataContext, @currentUser user: User): Promise<Resource[]> {
-        if (!user)
-            throw errors.argumentNull("user");
-
-        if (!user.role_id)
-            return [];
-
-        if (user.role_id == constants.adminRoleId) {
-            return dc.resources.find({ order: { sort_number: "ASC" } });
-        }
-
-        let roleResources = await dc.roleResources.find({ role_id: user.role_id });
-        if (roleResources.length == 0) {
-            return [];
-        }
-
-        let resourceIds = roleResources.map(o => o.resource_id);
-        let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
-
+    async list(@authDataContext dc: AuthDataContext): Promise<Resource[]> {
+        let resources = await dc.resources.find({ order: { sort_number: "ASC" } });
         return resources;
     }
 
