@@ -5,7 +5,7 @@ import { createGridView } from "maishu-wuzhui-helper";
 import { createItemDialog, Dialog, ItemDialogContext } from "components/item-dialog";
 import ReactDOM = require("react-dom");
 import { InputControl, InputControlProps } from "components/inputs/input-control";
-import { GridViewCellControl } from "../../../../../node_modules/maishu-wuzhui/out/fields/BoundField";
+import { GridViewCellControl } from "maishu-wuzhui";
 
 interface BoundInputControlProps<T> extends InputControlProps<T> {
     boundField: BoundField<T>
@@ -72,7 +72,7 @@ export abstract class DataListPage<T> extends BasePage {
             createItemCell(dataItem: T) {
                 let cell = new GridViewCell();
                 ReactDOM.render(
-                    <DataCommand {...{ dataItem, dataSource: it.dataSource, dialog: it.dialog, }} />,
+                    <DataCommand<T> {...{ dataItem, dataSource: it.dataSource, dialog: it.dialog, }} />,
                     cell.element
                 );
                 return cell;
@@ -81,10 +81,7 @@ export abstract class DataListPage<T> extends BasePage {
     }
 
     componentDidMount() {
-
-        let it = this;
         this.columns = this.columns || [];
-        // this.columns.push(this.operationColumn)
         this.gridView = createGridView({
             element: this.itemTable,
             dataSource: this.dataSource,
@@ -168,7 +165,7 @@ interface DataCommandProps<T> {
     dialog: Dialog<T>
 }
 
-class DataCommand extends React.Component<DataCommandProps<any>> {
+class DataCommand<T> extends React.Component<DataCommandProps<T>> {
     private edit() {
         this.props.dialog.show(this.props.dataItem);
     }

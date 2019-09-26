@@ -152,7 +152,6 @@ export function createItemDialog<T>
             if (ItemDialog.instance.validator)
                 ItemDialog.instance.validator.clearErrors();
 
-            // ItemDialog.instance.setState({ dataItem: dataItem });
             ItemDialog.instance.setDataItem(dataItem);
             showDialog(ItemDialog.instance.dialogElement);
         }
