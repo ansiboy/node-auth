@@ -20,7 +20,6 @@ export class HomeController {
     @action()
     async login(@routeData { username, password }, @request req, @response res) {
         let r = await this.ps.user.login(username, password);
-        debugger
         let cookies = new Cookies(req, res);
         let now = new Date();
         let expires = new Date();
@@ -32,7 +31,6 @@ export class HomeController {
 
     @action()
     async roles(@currentTokenId userId) {
-        debugger;
         let r = await this.ps.user.role.list(userId);
         return r;
     }

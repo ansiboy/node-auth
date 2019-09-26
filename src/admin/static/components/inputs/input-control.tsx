@@ -6,7 +6,7 @@ export interface InputControlProps<T> extends ValidateDataField {
     dataField: keyof T,
 }
 
-export abstract class InputControl<T, P = InputControlProps<T>, S = {}> extends React.Component<P, S> {
+export abstract class InputControl<T, P extends InputControlProps<T> = InputControlProps<T>, S = {}> extends React.Component<P, S> {
 
     static defaultProps: InputControlProps<any> = { validateRules: [] } as InputControlProps<any>;
 
@@ -15,7 +15,7 @@ export abstract class InputControl<T, P = InputControlProps<T>, S = {}> extends 
 
     id = guid();
 
-    constructor(props) {
+    constructor(props: InputControl<T, P>["props"]) {
         super(props);
 
         let render = this.render;

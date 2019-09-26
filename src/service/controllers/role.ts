@@ -62,7 +62,6 @@ export default class RoleController {
     /** 获取角色列表 */
     @action(actionPaths.role.list)
     async list(@authDataContext dc: AuthDataContext, @routeData { parent_id }) {
-        debugger;
         if (!dc) throw errors.argumentNull("dc");
         let roles = await dc.roles.find({
             where: parent_id ? { parent_id } : {},

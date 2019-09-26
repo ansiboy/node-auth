@@ -1,4 +1,4 @@
-import { PermissionService, User, DataSourceSelectResult, Role, Resource } from "maishu-services-sdk";
+import { PermissionService, User, DataSourceSelectResult, Role, Resource, Token } from "maishu-services-sdk";
 import { controller, action, routeData, createParameterDecorator } from "maishu-node-mvc";
 
 export let currentUserId = createParameterDecorator(async (req) => {
@@ -61,6 +61,14 @@ export class DataSourcesController {
         return r;
     }
 
+    @action()
+    async select_token(@routeData { args }): Promise<DataSourceSelectResult<Token>> {
+        return this.ps.token.list(args);
+    }
 
+    @action()
+    async insert_token(@routeData { item }) {
+        return this.ps.token.add(item);
+    }
 
 }

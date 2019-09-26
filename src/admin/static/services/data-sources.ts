@@ -1,5 +1,5 @@
 import { DataSource } from "maishu-wuzhui";
-import { PermissionService, User, Role, Resource } from "maishu-services-sdk";
+import { PermissionService, User, Role, Resource, Token } from "maishu-services-sdk";
 import { errorHandle } from "maishu-chitu-admin/static";
 import { LocalService, DataSourceMethods } from "./local-service";
 
@@ -47,5 +47,6 @@ let userDataSource = new DataSource<User>({
 export let dataSources = {
     role: ls.dataSource<Role>("role", DataSourceMethods.all),
     user: ls.dataSource<User>("user", DataSourceMethods.insert | DataSourceMethods.update),
-    resource: ls.dataSource<Resource>("resouce")
+    resource: ls.dataSource<Resource>("resouce"),
+    token: ls.dataSource<Token>("token", DataSourceMethods.insert | DataSourceMethods.delete)
 }
