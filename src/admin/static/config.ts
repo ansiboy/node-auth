@@ -15,6 +15,11 @@ export default {
                 { name: "API 设置", icon: "icon-rss", path: "#path/list" }
             ]
         },
-        { name: "个人中心", icon: "icon-user" },
+        {
+            name: "个人中心", icon: "icon-user", children: [
+                { name: "修改手机号", icon: "icon-tablet", path: "#personal/change-mobile" },
+                { name: "修改密码", icon: "icon-key", path: "#personal/change-password" }
+            ]
+        },
     ]
 } as WebSiteConfig
