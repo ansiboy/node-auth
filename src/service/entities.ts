@@ -17,7 +17,7 @@ export class Role implements Model {
     name: string;
 
     @Column({ type: "varchar", length: 200, nullable: true })
-    remark: string;
+    remark?: string;
 
     @Column({ type: "json", nullable: true, })
     data?: any;

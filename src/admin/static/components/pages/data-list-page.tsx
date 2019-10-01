@@ -110,7 +110,7 @@ export abstract class DataListPage<T> extends BasePage {
         }
 
         this.dialog = createItemDialog(this.dataSource, this.itemName, editor);
-        let button = <button key="btnAdd" className="btn btn-primary btn-sm"
+        let button = <button key="btnAdd" className="btn btn-primary"
             onClick={() => this.dialog.show({} as T)}>
             <i className="icon-plus"></i>
             <span>添加</span>

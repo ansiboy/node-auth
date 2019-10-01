@@ -7,6 +7,8 @@ import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";
 import { constants } from "../common";
 import UrlPattern = require("url-pattern");
+import { settings } from "maishu-services-sdk";
+import { conn } from "../settings";
 
 let allPaths: Path[];
 
@@ -25,7 +27,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     permissions: PermissionConfig): Promise<ActionResult> {
 
     permissions = permissions || {};
-    let dc = await createDataContext();
+    let dc = await createDataContext(conn.auth);
 
     if (!allPaths) {
         allPaths = await dc.paths.find({ relations: ["resource"] });

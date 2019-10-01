@@ -50,7 +50,7 @@ function query(conn: mysql.Connection, sql: string, value?: any): Promise<[any[]
  */
 export class TokenManager {
     static async create(content: object): Promise<Token> {
-        if(content == null) throw errors.argumentNull("content");
+        if (content == null) throw errors.argumentNull("content");
         let token = new Token();
 
 
@@ -59,7 +59,8 @@ export class TokenManager {
         token.content_type = 'application/json';
         token.create_date_time = new Date(Date.now());
 
-        let dc = await createDataContext();
+        console.assert(settings.conn.auth != null);
+        let dc = await createDataContext(settings.conn.auth);
         try {
             await dc.tokens.save(token);
             return token;
@@ -98,7 +99,8 @@ export class TokenManager {
     }
 
     static async remove(id: string) {
-        let dc = await createDataContext();
+        console.assert(settings.conn.auth != null);
+        let dc = await createDataContext(settings.conn.auth);
         try {
             await dc.tokens.delete({ id });
         }

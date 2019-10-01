@@ -1,8 +1,14 @@
 import { PermissionService, User, DataSourceSelectResult, Role, Resource, Token } from "maishu-services-sdk";
 import { controller, action, routeData, createParameterDecorator } from "maishu-node-mvc";
+import Cookies = require("cookies");
+import { errors } from "../../service/errors";
 
-export let currentUserId = createParameterDecorator(async (req) => {
+export let currentUserId = createParameterDecorator(async (req, res) => {
     let userId = req.headers["user_id"] || req.headers["userid"];
+
+    if (userId == null)
+        throw errors.canntGetUserIdFromHeader();
+
     return userId;
 })
 
@@ -51,6 +57,8 @@ export class DataSourcesController {
 
     @action()
     async select_resouce(@currentUserId userId): Promise<DataSourceSelectResult<Resource>> {
+        if (userId == null) throw errors.currentUserIdNull();
+
         let r = await this.ps.user.resource.list(userId);
         return { dataItems: r, totalRowCount: r.length };
     }

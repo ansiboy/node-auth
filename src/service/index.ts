@@ -42,26 +42,26 @@ export function start(options: Options) {
     //     throw errors.argumentFieldNull("port", "options");
 
     setConnection(options.db);
-    let entities: string[] = [path.join(__dirname, "entities.js")]
+    // let entities: string[] = [path.join(__dirname, "entities.js")]
     // if (options.entitiesDirectory) {
     //     entities.push(path.join(options.entitiesDirectory, "*.js"));
     // }
 
-    let dbOptions: ConnectionOptions = {
-        type: "mysql",
-        host: options.db.host,
-        port: options.db.port,
-        username: options.db.user,
-        password: options.db.password,
-        database: options.db.database,
-        synchronize: true,
-        logging: false,
-        connectTimeout: 3000,
-        entities,
-        name: constants.dbName
-    }
+    // let dbOptions: ConnectionOptions = {
+    //     type: "mysql",
+    //     host: options.db.host,
+    //     port: options.db.port,
+    //     username: options.db.user,
+    //     password: options.db.password,
+    //     database: options.db.database,
+    //     synchronize: true,
+    //     logging: false,
+    //     connectTimeout: 3000,
+    //     entities,
+    //     name: constants.dbName
+    // }
 
-    createConnection(dbOptions)
+    // createConnection(dbOptions)
 
     // if (options.initDatabase) {
     //     let dc = await createDataContext();

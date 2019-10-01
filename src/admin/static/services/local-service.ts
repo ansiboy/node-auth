@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu";
 import { LoginInfo, User } from "maishu-services-sdk";
-import { LocalValueStore, AjaxOptions } from "maishu-chitu-service";
+import { LocalValueStore, AjaxOptions, CookieValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
 import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui";
 
@@ -14,11 +14,13 @@ export enum DataSourceMethods {
 export class LocalService extends Service {
 
     loginInfo = new LocalValueStore<LoginInfo>("login-info");
+    token = new CookieValueStore<string>("token");
 
     async login(username: string, password: string) {
         password = md5(password);
         let r = await this.postByJson<LoginInfo>("login", { username, password });
         this.loginInfo.value = r;
+        this.token.value = r.token;
         return r;
     }
 

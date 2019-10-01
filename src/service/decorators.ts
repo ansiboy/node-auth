@@ -7,10 +7,11 @@ import { AuthDataContext, createDataContext } from './data-context';
 import { errors } from './errors';
 import Cookies = require('cookies');
 import { constants } from './common';
+import { conn } from './settings';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
-        let dc = await createDataContext()
+        let dc = await createDataContext(conn.auth)
         return dc
     },
     async (dc) => {
@@ -59,7 +60,7 @@ export let currentUser = createParameterDecorator(async (req, res) => {
     try {
         var obj = JSON.parse(token.content);
         let userId = obj.UserId || (obj as UserToken).user_id;
-        let dc = await createDataContext();
+        let dc = await createDataContext(conn.auth);
         let user = await dc.users.findOne(userId);
         if (!user)
             throw errors.objectNotExistWithId(userId, "User");

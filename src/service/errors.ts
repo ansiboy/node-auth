@@ -187,6 +187,18 @@ export let errors = {
         let err = new Error(msg);
         err.name = errors.noPermission.name;
         return err;
+    },
+    canntGetUserIdFromHeader(){
+        let msg = "Can not get user id from header.";
+        let err = new Error(msg);
+        err.name = errors.canntGetUserIdFromHeader.name;
+        return err;
+    },
+    currentUserIdNull(){
+        let msg = "Current user id is null.";
+        let err = new Error(msg);
+        err.name = errors.currentUserIdNull.name;
+        return err;
     }
 }
 

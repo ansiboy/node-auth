@@ -1,9 +1,11 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, Db, getConnection } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions } from "typeorm";
 import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath } from "./entities";
 import { constants, actionPaths } from "./common";
 import { guid } from "./utility";
 import { errors } from "./errors";
+import { ConnectionConfig } from "mysql";
+import path = require("path");
 
 export class AuthDataContext {
     private entityManager: EntityManager;
@@ -122,34 +124,44 @@ export class AuthDataContext {
         return guid();
     }
 
-
     async dispose() {
         // await this.entityManager.connection.close();
     }
 }
 
 
+let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(): Promise<AuthDataContext> {
+export async function createDataContext(conn: ConnectionConfig): Promise<AuthDataContext> {
 
-    let connection = getConnection(constants.dbName)
+    let connection = connections[conn.database]; //getConnection(constants.dbName)
+    if (connection == null) {
+        let entities: string[] = [path.join(__dirname, "entities.js")]
+        let dbOptions: ConnectionOptions = {
+            type: "mysql",
+            host: conn.host,
+            port: conn.port,
+            username: conn.user,
+            password: conn.password,
+            database: conn.database,
+            synchronize: true,
+            logging: false,
+            connectTimeout: 3000,
+            entities,
+            name: constants.dbName
+        }
+
+        connection = await createConnection(dbOptions);
+        connections[conn.database] = connection;
+    }
+
+
+    let connection1 = getConnection(constants.dbName);
+    console.assert(connection == connection1);
 
     let dc = new AuthDataContext(connection.manager)
     return dc
 }
-
-
-// export let getDataContext = (function () {
-//     var dc: AuthDataContext = null;
-//     return async function () {
-
-//         if (dc == null) {
-//             dc = await createDataContext();
-//         }
-
-//         return dc;
-//     }
-// })()
 
 async function initDatabase(dc: AuthDataContext, adminMobile: string, adminPassword: string) {
     if (!dc) throw errors.argumentNull("dc");
