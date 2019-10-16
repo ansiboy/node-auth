@@ -1,6 +1,5 @@
 import { PermissionService, User, DataSourceSelectResult, Role, Resource, Token } from "maishu-services-sdk";
 import { controller, action, routeData, createParameterDecorator } from "maishu-node-mvc";
-import Cookies = require("cookies");
 import { errors } from "../../service/errors";
 
 export let currentUserId = createParameterDecorator(async (req, res) => {

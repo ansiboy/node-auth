@@ -1,4 +1,4 @@
-import { User } from "maishu-services-sdk";
+import { User } from "entities";
 import { dataSources } from "../../services/data-sources";
 import { DataSource, DataControlField } from "maishu-wuzhui";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";

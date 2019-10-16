@@ -1,10 +1,9 @@
 import React = require("react");
 import { PageProps } from "maishu-chitu-react";
-// import { setForm as setLoginForm, USERNAME, PASSWORD, LOGIN } from "assert/forms/login";
 import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
 import { LocalService } from "services/local-service";
-import { config } from "../config";
+import config from "../config";
 
 interface Props extends PageProps {
     data: {

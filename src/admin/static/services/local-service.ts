@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu";
-import { LoginInfo, User } from "maishu-services-sdk";
-import { LocalValueStore, AjaxOptions, CookieValueStore } from "maishu-chitu-service";
+import { LoginInfo } from "maishu-services-sdk";
+import { LocalValueStore, CookieValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
 import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui";
 
@@ -24,7 +24,7 @@ export class LocalService extends Service {
         return r;
     }
 
-    dataSource<T extends ({ id: string })>(name: string, methods?: DataSourceMethods) {
+    dataSource<T extends ({ id: string })>(name: string, methods?: DataSourceMethods): DataSource<T> {
         methods = methods || DataSourceMethods.all;
         let options: DataSourceArguments<T> = {
             primaryKeys: ["id"],

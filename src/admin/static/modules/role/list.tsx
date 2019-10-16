@@ -2,9 +2,9 @@ import React = require("react");
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 import { dataSources } from "../../services/data-sources";
 import { rules } from "maishu-dilu";
-import { Role } from "maishu-services-sdk";
 import { TextInput, DataListPage } from "../../components/index";
 import { DataControlField } from "maishu-wuzhui";
+import { Role } from "entities";
 
 export default class RoleListPage extends DataListPage<Role> {
     dataSource = dataSources.role;

@@ -1,5 +1,5 @@
 import React = require("react");
-import { PermissionService } from "maishu-services-sdk";
+import { PermissionService } from "services/permission-service";
 import { FormValidator, rules } from "maishu-dilu";
 import { PageProps } from "maishu-chitu-react";
 import { sendVerifyCode } from "./change-password";

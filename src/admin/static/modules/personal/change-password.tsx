@@ -3,7 +3,7 @@ import React = require("react");
 import { FormValidator, rules } from "maishu-dilu";
 
 import { alert, buttonOnClick } from "maishu-ui-toolkit";
-import { PermissionService } from "maishu-services-sdk";
+import { PermissionService } from "services/permission-service";
 import { errorHandle } from "maishu-chitu-admin/static";
 import { PageProps } from "maishu-chitu-react";
 import { errors } from "errors";

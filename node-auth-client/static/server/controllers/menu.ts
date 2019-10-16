@@ -27,7 +27,7 @@ export class MenuController extends Controller {
         let ps = new PermissionService();
         let roles = await ps.getUserRoles(userId);
         let resourceIds: string[] = [];
-        let arrResourceIds = await Promise.all(roles.map(o => ps.getRoleResourceIds(o.id)))
+        let arrResourceIds = await Promise.all(roles.map(o => ps.role.resourceIds(o.id)))
         for (let i = 0; i < arrResourceIds.length; i++) {
             resourceIds.push(...arrResourceIds[i])
         }
@@ -36,9 +36,9 @@ export class MenuController extends Controller {
         let resources = r.dataItems;
         resources = resources.filter(o => resourceIds.indexOf(o.id) >= 0 && o.type == 'menu');
 
-        let top = resources.filter(o => !o.parent_id).map(o => ({ id: o.id, name: o.name, path: o.path, parentId: o.parent_id } as MenuItem))
+        let top = resources.filter(o => !o.parent_id).map(o => ({ id: o.id, name: o.name, path: o.page_path, parentId: o.parent_id } as MenuItem))
         for (let i = 0; i < top.length; i++) {
-            top[i].children = resources.filter(o => o.parent_id == top[i].id).map(o => ({ id: o.id, name: o.name, path: o.path, parentId: o.parent_id } as MenuItem))
+            top[i].children = resources.filter(o => o.parent_id == top[i].id).map(o => ({ id: o.id, name: o.name, path: o.page_path, parentId: o.parent_id } as MenuItem))
         }
         return top
     }

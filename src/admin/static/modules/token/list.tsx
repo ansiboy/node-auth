@@ -1,5 +1,5 @@
 import { DataListPage } from "components/index";
-import { Token } from "maishu-services-sdk";
+import { Token } from "entities";
 import { DataSource } from "maishu-wuzhui";
 import { dataSources } from "services/data-sources";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";

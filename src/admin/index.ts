@@ -13,6 +13,7 @@ export function start(config: Config) {
         port: config.port,
         // staticRootDirectory: path.join(__dirname, "static"),
         // controllerPath: path.join(__dirname, "controllers"),
+        // sourceDirectory: path.join(__dirname, "../../src"),
         rootDirectory: __dirname,
         virtualPaths: {
             "node_modules": path.join(__dirname, "../../node_modules")

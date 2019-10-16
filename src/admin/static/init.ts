@@ -1,5 +1,10 @@
-import { InitArguments } from "maishu-chitu-admin/static";
-import { PageData } from "maishu-chitu";
+import { InitArguments, Service } from "maishu-chitu-admin/static";
+import { PageData, AjaxOptions } from "maishu-chitu";
+import { PermissionService } from "./services/permission-service";
+import config from "config";
+
+PermissionService.baseUrl = config.permissionServiceUrl;
+
 
 export default function init(args: InitArguments) {
     let showPage = args.app.showPage;

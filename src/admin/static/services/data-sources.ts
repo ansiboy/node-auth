@@ -1,9 +1,8 @@
 import { DataSource } from "maishu-wuzhui";
-import { PermissionService, User, Role, Resource, Token } from "maishu-services-sdk";
+import { PermissionService } from "./permission-service";
 import { errorHandle } from "maishu-chitu-admin/static";
 import { LocalService, DataSourceMethods } from "./local-service";
-
-PermissionService.baseUrl = "../service/auth";
+import { User, Role, Resource, Token } from "entities";
 
 let ps = new PermissionService((err) => {
     errorHandle(err)

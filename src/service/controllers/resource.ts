@@ -7,10 +7,11 @@ import { currentUser, authDataContext } from "../decorators";
 import { guid } from "../utility";
 
 
-
+/** 资源控制器 */
 @controller("resource")
 export default class ResourceController {
 
+    
     @action(actionPaths.resource.add)
     async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
         if (!item.name) throw errors.argumentFieldNull('name', 'item')

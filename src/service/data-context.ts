@@ -133,7 +133,6 @@ export class AuthDataContext {
 let connections: { [dbName: string]: Connection } = {};
 
 export async function createDataContext(conn: ConnectionConfig): Promise<AuthDataContext> {
-
     let connection = connections[conn.database]; //getConnection(constants.dbName)
     if (connection == null) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
@@ -156,8 +155,8 @@ export async function createDataContext(conn: ConnectionConfig): Promise<AuthDat
     }
 
 
-    let connection1 = getConnection(constants.dbName);
-    console.assert(connection == connection1);
+    connection = getConnection(constants.dbName);
+    // console.assert(connection == connection1);
 
     let dc = new AuthDataContext(connection.manager)
     return dc

@@ -9,8 +9,6 @@ import { BaseController, SelectArguments } from './base-controller';
 import { actionPaths, constants } from '../common';
 import SMSController from './sms';
 import { guid } from '../utility';
-import Cookies = require('cookies');
-
 
 @controller('/user')
 export default class UserController {

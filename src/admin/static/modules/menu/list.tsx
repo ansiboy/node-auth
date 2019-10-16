@@ -1,8 +1,8 @@
 import { DataListPage } from "components/index";
-import { Resource } from "maishu-services-sdk";
-import { DataSource, DataControlField, GridViewDataCell, CustomBoundField } from "maishu-wuzhui";
+import { Resource } from "entities";
+import { DataSource, DataControlField, CustomBoundField } from "maishu-wuzhui";
 import { dataSources } from "services/data-sources";
-import { boundField, customField, dateTimeField } from "maishu-wuzhui-helper";
+import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 
 let sortFieldWidth = 80
 let nameFieldWidth = 180
