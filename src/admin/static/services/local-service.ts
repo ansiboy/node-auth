@@ -1,4 +1,4 @@
-import { Service } from "maishu-chitu";
+import { Service } from "maishu-chitu-admin/static";
 import { LoginInfo } from "maishu-services-sdk";
 import { LocalValueStore, CookieValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");

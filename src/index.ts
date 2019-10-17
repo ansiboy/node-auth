@@ -1,8 +1,7 @@
-import { start as startAdmin } from "./admin";
+import { start as startAdminServer } from "./admin";
 import { start as startServiceServer, constants } from "./service";
 import { ConnectionConfig } from "mysql";
 import { startServer, Config as MVCConfig } from "maishu-node-mvc";
-import { AddressInfo } from "net";
 import { authenticate, PermissionConfig } from "./service/filters/authenticate";
 import { getToken } from "./service/index";
 
@@ -10,7 +9,7 @@ export { TokenManager, constants, getToken } from "./service/index";
 export { createDataContext, AuthDataContext } from "./service/data-context";
 export * from "./service/entities";
 
-interface Arguments {
+interface Settings {
     port: number,
     db: ConnectionConfig,
     permissions?: PermissionConfig,
@@ -19,31 +18,29 @@ interface Arguments {
     actionFilters?: MVCConfig["actionFilters"]
 }
 
-export function start(args: Arguments) {
-    let { server: serviceServer } = startServiceServer({
-        port: 0, db: args.db
-    })
-    let servicePort = (serviceServer.address() as AddressInfo).port;
+export function start(settings: Settings) {
 
+    console.assert(settings.port != null);
+
+    let servicePort = settings.port + 100;
+    let adminPort = settings.port + 200;
     let authServiceURL = `http://127.0.0.1:${servicePort}`
-    let { server: adminServer } = startAdmin({ port: 0, authServiceURL })
 
-    let adminPort = (adminServer.address() as AddressInfo).port;
-    console.log(`${adminPort} ${servicePort}`)
+    startServiceServer({ port: servicePort, db: settings.db })
+    startAdminServer({ port: adminPort, authServiceURL })
 
-    let proxy = Object.assign(args.proxy || {}, {
+    let proxy = Object.assign(settings.proxy || {}, {
         "/admin(\\S*)": { targetUrl: `http://127.0.0.1:${adminPort}$1`, headers: proxyHeaders },
         "/auth(\\S*)": { targetUrl: `${authServiceURL}$1`, headers: proxyHeaders }
     } as MVCConfig["proxy"])
 
     startServer({
-        port: args.port, proxy,
-        headers: args.headers,
-        authenticate: (req, res) => authenticate(req, res, args.permissions),
+        port: settings.port, proxy,
+        headers: settings.headers,
+        authenticate: (req, res) => authenticate(req, res, settings.permissions),
         actionFilters: [
-            ...(args.actionFilters || [])
+            ...(settings.actionFilters || [])
         ],
-        
     })
 }
 

@@ -2,7 +2,7 @@ import http = require("http");
 import url = require("url");
 import { ActionResult, ContentResult } from 'maishu-node-mvc';
 import { createDataContext } from "../data-context";
-import { Path, RoleResource, Resource, ResourceData, ResourcePath } from "../entities";
+import { Path, RoleResource, Resource, ResourcePath } from "../entities";
 import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";
 import { constants } from "../common";
@@ -47,7 +47,6 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     }
 
     roleId = roleId || constants.anonymousRoleId;
-
     if (roleId == constants.adminRoleId)
         return null;
 
