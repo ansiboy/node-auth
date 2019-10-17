@@ -1,9 +1,7 @@
 const config = require('./config.json')
 const path = require('path')
 const http = require('http')
-const { start } = require('./out/index')
-const { constants } = require("./out/common");
-const { TokenManager } = require("./out/token");
+const { start, constants, TokenManager } = require('./out/index')
 const Cookies = require("cookies")
 //===========================================
 // 目标主机，服务所在的主机
@@ -59,7 +57,7 @@ start({
         "*.woff": [constants.anonymousRoleId],
         "*.map": [constants.anonymousRoleId],
 
-        "/admin/*": [constants.anonymousRoleId],
+        "/admin/(*)": [constants.anonymousRoleId],
         "/user/*": [constants.anonymousRoleId],
         "/designer/*": [constants.anonymousRoleId],
         "/shop/*": [constants.anonymousRoleId],
@@ -99,12 +97,3 @@ async function proxyHeader(req) {
     return header
 }
 
-// startWeb({
-//     port: config.port + 1,
-//     roleId: config.roleId,
-//     gateway: `127.0.0.1:${config.port}`,
-//     controllerPath: path.join(__dirname, 'out/server/controllers'),
-//     // staticRootDirectory: path.join(__dirname, "out/public"),
-// })
-
-// console.log(`web: http://127.0.0.1:${config.port + 1}`)

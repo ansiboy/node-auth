@@ -5,7 +5,14 @@ import * as cache from 'memory-cache';
 import { createDataContext } from './data-context';
 import { Token } from './entities';
 import { guid } from './utility';
+import { IncomingMessage } from "http";
+import Cookies = require("cookies");
+import * as url from "url";
+import { g } from './global';
+import { getLogger } from './logger';
+import querystring = require('querystring');
 
+let logger = getLogger();
 const tableName = 'token';
 
 type MyToken = Token & { cacheDateTime?: number };
@@ -19,7 +26,7 @@ function mongoObjectId(): string {
 
 function execute<T>(callback: (collection: mysql.Connection) => Promise<T>): Promise<T> {
     return new Promise<T>(async (resolve, reject) => {
-        let conn = mysql.createConnection(settings.conn.auth);
+        let conn = mysql.createConnection(g.authConn);
         callback(conn)
             .then((result) => {
                 conn.end();
@@ -59,8 +66,8 @@ export class TokenManager {
         token.content_type = 'application/json';
         token.create_date_time = new Date(Date.now());
 
-        console.assert(settings.conn.auth != null);
-        let dc = await createDataContext(settings.conn.auth);
+        console.assert(g.authConn != null);
+        let dc = await createDataContext(g.authConn);
         try {
             await dc.tokens.save(token);
             return token;
@@ -99,8 +106,8 @@ export class TokenManager {
     }
 
     static async remove(id: string) {
-        console.assert(settings.conn.auth != null);
-        let dc = await createDataContext(settings.conn.auth);
+        console.assert(g.authConn != null);
+        let dc = await createDataContext(g.authConn);
         try {
             await dc.tokens.delete({ id });
         }
@@ -128,4 +135,25 @@ setInterval(() => {
         }
     }
 
-}, 1000 * 60 * 60); 
+}, 1000 * 60 * 60);
+
+export async function getToken(req: IncomingMessage) {
+    let cookies = new Cookies(req, null);
+
+    let urlInfo = url.parse(req.url || ""); 
+    let urlParams = querystring.parse(urlInfo.query || "");
+    let tokenText: string = req.headers['token'] as string || urlParams["token"] as string || cookies.get("token");
+
+    if (!tokenText)
+        return null;
+
+    //============================================
+    // token text 多了两个 "，要去除掉
+    tokenText = tokenText.replace(/"/g, "");
+    //============================================
+    let token = await TokenManager.parse(tokenText);
+    if (token == null) {
+        logger.warn(`Token '${tokenText}' is not exists`)
+    }
+    return token;
+}

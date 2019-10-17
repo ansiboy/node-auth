@@ -7,7 +7,7 @@ import { errorStatusCodes, errorNames, errors } from "../errors";
 import { getUserIdFromRequest } from "../decorators";
 import { constants } from "../common";
 import UrlPattern = require("url-pattern");
-import { conn } from "../settings";
+import { g } from "../global";
 
 let allPaths: Path[];
 
@@ -26,7 +26,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     permissions: PermissionConfig): Promise<ActionResult> {
 
     permissions = permissions || {};
-    let dc = await createDataContext(conn.auth);
+    let dc = await createDataContext(g.authConn);
 
     if (!allPaths) {
         allPaths = await dc.paths.find({ relations: ["resource"] });

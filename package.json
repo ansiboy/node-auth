@@ -12,6 +12,7 @@
         "is-class": "0.0.5",
         "js-md5": "^0.7.3",
         "less": "^3.10.3",
+        "log4js": "^5.2.2",
         "maishu-admin": "^2.30.0",
         "maishu-chitu-admin": "file:../chitu-admin",
         "maishu-node-mvc": "file:../node-mvc",

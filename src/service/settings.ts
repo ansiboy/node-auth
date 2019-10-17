@@ -8,49 +8,10 @@ export let bindIP = '0.0.0.0';
 //===========================================
 // 机器名称，用于集群，让客户端知道是哪台机器
 export const MACHINE_NAME = 'local-pc';
-//===========================================
-// 默认的 HTTP 头
-export const headers = [
-    { name: 'Content-Type', value: 'application/json;charset=utf-8' },
-    { name: 'gateway_machine', value: MACHINE_NAME },
-    // { name: 'Transfer-Encoding', value: 'identity' },
-    // { name: 'Connection', value: 'close' },
-    { name: 'Access-Control-Allow-Origin', value: '*' },
-    { name: 'Access-Control-Allow-Methods', value: '*' },
-    { name: 'Access-Control-Allow-Headers', value: '*' },
-];
-//===========================================
-
-const APP_KEY = 'application-id';
-const USER_TOKEN = 'token';
-const STORE_KEY = 'store-key';
-export let allowHeaders = `${APP_KEY}, ${USER_TOKEN}, ${STORE_KEY}, content-type`;
-export let conn = {
-    // auth: { host: 'localhost', user: 'liuyunyuan', password: 'Xuan520Lv', database: 'node_auth2', port: 3306 } as ConnectionConfig,
-    auth: null as ConnectionConfig,
-}
-
-export function setConnection(value: ConnectionConfig) {
-    conn.auth = value;
-}
 
 export let port = 2856;
 export let redirectInfos = {
     pathInfos: [
-        // { rootDir: 'AdminSite', targetUrl: `http://${target_host}:9000/Admin` },
-        // { rootDir: 'AdminStock', targetUrl: `http://${target_host}:9005/Admin` },
-        // { rootDir: 'AdminShop', targetUrl: `http://${target_host}:9010/Admin` },
-        // { rootDir: 'AdminMember', targetUrl: `http://${target_host}:9020/Admin` },
-        // { rootDir: 'AdminWeiXin', targetUrl: `http://${target_host}:9030/Admin` },
-        // { rootDir: 'AdminAccount', targetUrl: `http://${target_host}:9035/Admin` },
-
-        // { rootDir: 'UserSite', targetUrl: `http://${target_host}:9000/User` },
-        // { rootDir: 'UserStock', targetUrl: `http://${target_host}:9005/User` },
-        // { rootDir: 'UserShop', targetUrl: `http://${target_host}:9010/User` },
-        // { rootDir: 'UserMember', targetUrl: `http://${target_host}:9020/User` },
-        // { rootDir: 'UserWeiXin', targetUrl: `http://${target_host}:9030/User` },
-        // { rootDir: 'UserAccount', targetUrl: `http://${target_host}:9035/User` },
-
         { rootDir: 'app', targetUrl: `http://${target_host}:2893` },
         { rootDir: 'admin', targetUrl: `http://${target_host}:2894` },
         { rootDir: 'msg', targetUrl: `http://${target_host}:2895` },
