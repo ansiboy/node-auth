@@ -1,8 +1,0 @@
-/build
-/release
-node_modules
-/.git
-/.tscache
-.baseDir.*
-config.json5
-package-lock.json
