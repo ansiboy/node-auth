@@ -115,7 +115,7 @@ export let errors = {
         error.name = errorNames.FieldNull;
         return error;
     },
-    routeDataFieldNull(fieldName: string): Error {
+    routeDataFieldNull<T>(fieldName: keyof T): Error {
         let msg = `The '${fieldName}' field of route data cannt be null.`;
         let error = new Error(msg);
         error.name = errorNames.FieldNull;
@@ -178,26 +178,32 @@ export let errors = {
     },
     userIdNull() {
         let msg = `用户 ID 号为空`;
-        let err  = new Error(msg);
+        let err = new Error(msg);
         err.name = errors.userIdNull.name;
         return err;
     },
-    noPermission(){
+    noPermission() {
         let msg = "no permission";
         let err = new Error(msg);
         err.name = errors.noPermission.name;
         return err;
     },
-    canntGetUserIdFromHeader(){
+    canntGetUserIdFromHeader() {
         let msg = "Can not get user id from header.";
         let err = new Error(msg);
         err.name = errors.canntGetUserIdFromHeader.name;
         return err;
     },
-    currentUserIdNull(){
+    currentUserIdNull() {
         let msg = "Current user id is null.";
         let err = new Error(msg);
         err.name = errors.currentUserIdNull.name;
+        return err;
+    },
+    stationPathExists(path: string) {
+        let msg = `Station with path '${path}' is exists.`;
+        let err = new Error(msg);
+        err.name = errors.stationPathExists.name;
         return err;
     }
 }

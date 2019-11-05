@@ -2,12 +2,16 @@ import { start as startAdminServer } from "./admin";
 import { start as startServiceServer, constants } from "./service";
 import { ConnectionConfig } from "mysql";
 import { startServer, Config as MVCConfig } from "maishu-node-mvc";
-import { authenticate, PermissionConfig } from "./service/filters/authenticate";
+import { authenticate } from "./service/filters/authenticate";
 import { getToken } from "./service/index";
+import { g } from "./service/global";
+import { IncomingMessage } from "http";
+import { PermissionConfig } from "maishu-chitu-admin";
 
 export { TokenManager, constants, getToken } from "./service/index";
 export { createDataContext, AuthDataContext } from "./service/data-context";
 export * from "./service/entities";
+
 
 interface Settings {
     port: number,
@@ -30,9 +34,11 @@ export function start(settings: Settings) {
     startAdminServer({ port: adminPort, authServiceURL })
 
     let proxy = Object.assign(settings.proxy || {}, {
-        "/admin(\\S*)": { targetUrl: `http://127.0.0.1:${adminPort}$1`, headers: proxyHeaders },
-        "/auth(\\S*)": { targetUrl: `${authServiceURL}$1`, headers: proxyHeaders }
-    } as MVCConfig["proxy"])
+        "/admin/(\\S*)": { targetUrl: `http://127.0.0.1:${adminPort}/$1`, headers: proxyHeaders },
+        "/auth/(\\S*)": { targetUrl: `${authServiceURL}/$1`, headers: proxyHeaders }
+    } as MVCConfig["proxy"]);
+
+    settings.permissions = settings.permissions || {};
 
     startServer({
         port: settings.port, proxy,
@@ -42,9 +48,29 @@ export function start(settings: Settings) {
             ...(settings.actionFilters || [])
         ],
     })
+
+    g.stationInfos.add(stations => {
+        for (let i = 0; i < stations.length; i++) {
+            if (!stations[i].path.startsWith("/")) {
+                stations[i].path = "/" + stations[i].path;
+            }
+            if (!stations[i].path.endsWith("/")) {
+                stations[i].path = stations[i].path + "/";
+            }
+            let key = `${stations[i].path}(\\S*)`;
+            let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
+            if (!proxy[key]) {
+                proxy[key] = targetUrl;
+            }
+
+            if (stations[i].permissions) {
+                Object.assign(settings.permissions, stations[i].permissions);
+            }
+        }
+    })
 }
 
-async function proxyHeaders(req) {
+async function proxyHeaders(req: IncomingMessage) {
     let header = {};
     let token = await getToken(req);
     if (token != null) {

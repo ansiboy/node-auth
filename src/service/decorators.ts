@@ -24,7 +24,7 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
 })
 
 export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.ServerResponse) {
-    let routeData = await getQueryObject(req);
+    let routeData = getQueryObject(req);
     let cookies = new Cookies(req, res);
     let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
 
@@ -122,56 +122,3 @@ function getQueryObject(request: http.IncomingMessage): { [key: string]: any } {
 }
 
 
-// async function getFormData(req: http.IncomingMessage) {
-
-//     function getPostObject(request: http.IncomingMessage): Promise<any> {
-//         let length = request.headers['content-length'] || 0;
-//         let contentType = request.headers['content-type'] as string;
-//         if (length <= 0)
-//             return Promise.resolve({});
-
-//         return new Promise((reslove, reject) => {
-//             var text = "";
-//             request.on('data', (data: { toString: () => string }) => {
-//                 text = text + data.toString();
-//             });
-
-//             request.on('end', () => {
-//                 let obj;
-//                 try {
-//                     if (contentType.indexOf('application/json') >= 0) {
-//                         obj = JSON.parse(text)
-//                     }
-//                     else {
-//                         obj = querystring.parse(text);
-//                     }
-//                     reslove(obj);
-//                 }
-//                 catch (err) {
-//                     reject(err);
-//                 }
-//             })
-//         });
-//     }
-
-//     /**
-//      * 
-//      * @param request 获取 QueryString 里的对象
-//      */
-
-
-
-//     if (req.method == 'GET') {
-//         let queryData = getQueryObject(req);
-//         // dataPromise = Promise.resolve(queryData);
-//         return queryData
-//     }
-//     // else {
-//     let queryData = getQueryObject(req);
-//     let data = await getPostObject(req);
-
-//     console.assert(queryData != null)
-//     data = Object.assign(data, queryData)
-//     return data
-//     // }
-// }

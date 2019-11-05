@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { PermissionConfig } from "maishu-chitu-admin";
 
 export type LoginResult = { token: string, userId: string, roleId: string }
 
@@ -243,3 +244,10 @@ export class ResourceCategory {
     @Column({ type: "varchar", length: 40 })
     name: string;
 }
+
+// export interface StationInfo {
+//     path: string,
+//     ip: string,
+//     port: number,
+//     permissions?: PermissionConfig
+// }

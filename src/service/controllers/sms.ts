@@ -40,12 +40,6 @@ export default class SMSController {
                 throw errors.mobileExists(mobile);
         }
 
-        // let sql = 'insert into sms_record set ?'
-        // let obj: SMSRecord = {
-        //     id: guid(), mobile, content: msg,
-        //     code: verifyCode, create_date_time: new Date(Date.now())
-        // }
-        // await execute(conn, sql, obj)
         let obj: SMSRecord = {
             id: guid(), mobile, content: msg,
             code: verifyCode, create_date_time: new Date(Date.now())
@@ -53,20 +47,10 @@ export default class SMSController {
         await dc.smsRecords.insert(obj);
         sendMobileMessage(mobile, msg)
         return { smsId: obj.id };
-        // })
-
-        // return { smsId: obj.id }
     }
 
     @action(actionPaths.sms.checkVerifyCode)
     async checkVerifyCode(@authDataContext dc: AuthDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
-        // if (!conn) throw errors.argumentNull('conn')
-        // let sql = `select code from sms_record where id = ?`
-        // let [rows] = await execute(conn, sql, [smsId])
-        // if (rows == null || rows.length == 0 || rows[0].code != verifyCode) {
-        //     return false
-        // }
-        // return true
         let smsRecord = await dc.smsRecords.findOne(smsId);
         if (smsRecord == null || smsRecord.code != verifyCode)
             return false;

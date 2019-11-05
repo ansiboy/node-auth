@@ -8,16 +8,9 @@ import { getUserIdFromRequest } from "../decorators";
 import { constants } from "../common";
 import UrlPattern = require("url-pattern");
 import { g } from "../global";
+import { PermissionConfig, PermissionConfigItem } from "maishu-chitu-admin";
 
 let allPaths: Path[];
-
-export interface PermissionConfig {
-    [path: string]: PermissionConfigItem
-}
-
-export interface PermissionConfigItem {
-    roleIds: string[]
-}
 
 /**
  * 检查路径是否允许访问
@@ -47,7 +40,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     }
 
     roleId = roleId || constants.anonymousRoleId;
-    if (roleId == constants.adminRoleId)
+    if (roleId == constants.merchantRoleId)
         return null;
 
     //==================================================

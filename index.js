@@ -35,8 +35,8 @@ start({
         '/UserWeiXin/(\\S+)': { targetUrl: `http://${target_host}:9030/User/$1`, headers: proxyHeader },
         '/UserAccount/(\\S+)': { targetUrl: `http://${target_host}:9035/User/$1`, headers: proxyHeader },
         "^/Images/Editor/(\\S+)": "http://web.alinq.cn/store2/Images/Editor/$1",
-        "/merchant(\\S*)": `http://127.0.0.1:65271$1`,
-        "/image(\\S*)": `http://127.0.0.1:48628$1`
+        "/merchant(\\S*)": `http://127.0.0.1:65271/$1`,
+        "/image/(\\S*)": `http://127.0.0.1:48628/$1`
     },
     async initDatabase() {
         // await dc.initDatabase("18502146746", "b6d767d2f8ed5d21a44b0e5886680cb9")
