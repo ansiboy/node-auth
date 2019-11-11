@@ -17,9 +17,15 @@ export function start(settings: Settings) {
     g.authConn = settings.db;
     let ctrl_dir = [path.join(__dirname, 'controllers')];
 
-    return startServer({
-        port: settings.port,
+
+
+    let r = startServer({
+        // port: settings.port,
         controllerDirectory: ctrl_dir,
     })
+
+    r.server.listen(settings.port);
+
+    return r;
 }
 

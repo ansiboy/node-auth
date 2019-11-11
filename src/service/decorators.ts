@@ -1,4 +1,4 @@
-import { createParameterDecorator } from 'maishu-node-mvc'
+import { createParameterDecorator, getLogger } from 'maishu-node-mvc'
 import { TokenManager } from './token';
 import http = require('http')
 import querystring = require('querystring');
@@ -8,7 +8,7 @@ import { errors } from './errors';
 import Cookies = require('cookies');
 import { constants } from './common';
 import { g } from './global';
-import { getLogger } from './logger';
+import { PROJECt_NAME } from './config';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
@@ -30,7 +30,7 @@ export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.
     let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
 
     if (!tokenText) {
-        let logger = getLogger();
+        let logger = getLogger(PROJECt_NAME);
         logger.info("Token text is empty.");
         return null
     }

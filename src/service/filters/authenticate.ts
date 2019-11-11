@@ -1,6 +1,6 @@
 import http = require("http");
 import url = require("url");
-import { ActionResult, ContentResult } from 'maishu-node-mvc';
+import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
 import { createDataContext } from "../data-context";
 import { Path, RoleResource, Resource, ResourcePath } from "../entities";
 import { errorStatusCodes, errorNames, errors } from "../errors";
@@ -9,9 +9,8 @@ import { constants } from "../common";
 import UrlPattern = require("url-pattern");
 import { g } from "../global";
 import { PermissionConfig, PermissionConfigItem } from "maishu-chitu-admin";
-import { getLogger } from "../logger";
+import { PROJECt_NAME } from "../config";
 
-let logger = getLogger();
 
 let allPaths: Path[];
 /**
@@ -19,6 +18,8 @@ let allPaths: Path[];
  */
 export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
     permissions: PermissionConfig): Promise<ActionResult> {
+
+    let logger = getLogger(PROJECt_NAME, g.settings.logLevel);
 
     permissions = permissions || {};
     let dc = await createDataContext(g.authConn);

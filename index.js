@@ -11,7 +11,7 @@ const target_host = '127.0.0.1';
 start({
     port: config.port,
     // bindIP: "127.0.0.1",
-    
+    logLevel: "all",
     db: {
         host: config.db.host,
         port: config.db.port,
@@ -49,6 +49,9 @@ start({
         'Access-Control-Allow-Headers': '*'
     },
     permissions: {
+        "/": { roleIds: [constants.anonymousRoleId] },
+        "/socket.io/*": { roleIds: [constants.anonymousRoleId] },
+        "/socket*": { roleIds: [constants.anonymousRoleId] },
         "*.js": { roleIds: [constants.anonymousRoleId] },
         "*.html": { roleIds: [constants.anonymousRoleId] },
         "*.css": { roleIds: [constants.anonymousRoleId] },

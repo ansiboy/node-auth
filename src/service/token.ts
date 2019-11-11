@@ -1,5 +1,5 @@
 import { errors } from './errors';
-import * as settings from './settings';
+import * as settings from './config';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
 import { createDataContext } from './data-context';
@@ -9,10 +9,9 @@ import { IncomingMessage } from "http";
 import Cookies = require("cookies");
 import * as url from "url";
 import { g } from './global';
-import { getLogger } from './logger';
 import querystring = require('querystring');
+import { getLogger } from "maishu-node-mvc";
 
-let logger = getLogger();
 const tableName = 'token';
 
 type MyToken = Token & { cacheDateTime?: number };
@@ -138,9 +137,12 @@ setInterval(() => {
 }, 1000 * 60 * 60);
 
 export async function getToken(req: IncomingMessage) {
+
+    let logger = getLogger(settings.PROJECt_NAME, g.settings.logLevel);
+
     let cookies = new Cookies(req, null);
 
-    let urlInfo = url.parse(req.url || ""); 
+    let urlInfo = url.parse(req.url || "");
     let urlParams = querystring.parse(urlInfo.query || "");
     let tokenText: string = req.headers['token'] as string || urlParams["token"] as string || cookies.get("token");
 

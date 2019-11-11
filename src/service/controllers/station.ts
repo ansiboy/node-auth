@@ -1,10 +1,9 @@
-import { controller, action, routeData } from "maishu-node-mvc";
+import { controller, action, routeData, getLogger } from "maishu-node-mvc";
 import { StationInfo } from "maishu-chitu-admin";
 import { errors } from "../errors";
-import { getLogger } from "../logger";
 import { g } from "../global";
+import { PROJECt_NAME } from "../config";
 
-let logger = getLogger();
 
 @controller("station")
 export class StationController {
@@ -17,6 +16,8 @@ export class StationController {
 
     @action()
     register(@routeData data: StationInfo) {
+
+        let logger = getLogger(PROJECt_NAME, g.settings.logLevel);
         logger.info("Register action of station controller execute.");
 
         console.assert(data != null);
@@ -34,7 +35,7 @@ export class StationController {
         let stationInfos = g.stationInfos.value;
         let itemIndex = stationInfos.map(o => o.path).indexOf(data.path);
         if (itemIndex >= 0) {
-            let logger = getLogger();
+            let logger = getLogger(PROJECt_NAME, g.settings.logLevel);
             logger.info(`Station path is exists, path is '${data.path}'.`);
             return;
         }

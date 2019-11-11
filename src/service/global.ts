@@ -1,7 +1,7 @@
 import { ConnectionConfig } from "mysql";
 import { ValueStore } from "maishu-chitu-service"
 import { StationInfo, PermissionConfig } from "maishu-chitu-admin";
-import { startServer, Config as MVCConfig } from "maishu-node-mvc";
+import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
 
 export interface Settings {
     port: number,
@@ -10,7 +10,7 @@ export interface Settings {
     proxy?: MVCConfig["proxy"],
     headers?: MVCConfig["headers"],
     actionFilters?: MVCConfig["actionFilters"],
-    logLevel?: "trace" | "debug" | "info" | "warn" | "error" | "fatal",
+    logLevel?: LogLevel,
 }
 
 

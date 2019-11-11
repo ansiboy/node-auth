@@ -1,18 +1,16 @@
 import { start as startAdminServer } from "./admin";
 import { start as startServiceServer, constants } from "./service";
 import { ConnectionConfig } from "mysql";
-import { startServer, Config as MVCConfig } from "maishu-node-mvc";
+import { startServer, Settings as MVCConfig } from "maishu-node-mvc";
 import { authenticate } from "./service/filters/authenticate";
 import { getToken } from "./service/index";
 import { g, Settings } from "./service/global";
 import { IncomingMessage } from "http";
-import { PermissionConfig } from "maishu-chitu-admin";
+import { startSocketServer } from "./service/socket-server";
 
 export { TokenManager, constants, getToken } from "./service/index";
 export { createDataContext, AuthDataContext } from "./service/data-context";
 export * from "./service/entities";
-
-
 
 export function start(settings: Settings) {
 
@@ -33,14 +31,19 @@ export function start(settings: Settings) {
 
     settings.permissions = settings.permissions || {};
 
-    startServer({
-        port: settings.port, proxy,
+    let r = startServer({
+        // port: settings.port,
+        proxy,
         headers: settings.headers,
         authenticate: (req, res) => authenticate(req, res, settings.permissions),
         actionFilters: [
             ...(settings.actionFilters || [])
         ],
     })
+
+    startSocketServer(r.server);
+    r.server.listen(settings.port);
+
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {

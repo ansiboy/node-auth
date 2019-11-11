@@ -1,5 +1,5 @@
 import * as QcloudSms from 'qcloudsms_js'
-import * as settings from '../settings'
+import * as settings from '../config'
 import { errors } from '../errors';
 import { controller, action, routeData } from 'maishu-node-mvc';
 import { actionPaths } from '../common';
