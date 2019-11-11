@@ -11,6 +11,7 @@ const target_host = '127.0.0.1';
 start({
     port: config.port,
     // bindIP: "127.0.0.1",
+    
     db: {
         host: config.db.host,
         port: config.db.port,
@@ -67,6 +68,14 @@ start({
         // "/UserShop/*": { roleIds: [constants.anonymousRoleId] },
         // "/Images/*": { roleIds: [constants.anonymousRoleId] },
         // "/merchant*": { roleIds: [constants.anonymousRoleId] },
+        "/favicon.ico": { roleIds: [constants.anonymousRoleId] },
+        "/auth/user/login": { roleIds: [constants.anonymousRoleId] },
+
+        "/auth/station/list": { roleIds: [constants.anonymousRoleId] },
+        "/auth/station/register": { roleIds: [constants.anonymousRoleId] },
+
+        "/AdminMember/*": { roleIds: [constants.adminRoleId] },
+        "/UserMember/*": { roleIds: [constants.adminRoleId] }
     }
 })
 

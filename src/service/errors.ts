@@ -121,8 +121,8 @@ export let errors = {
         error.name = errorNames.FieldNull;
         return error;
     },
-    userNotLogin(): Error {
-        let msg = `User id is required.`;
+    userNotLogin(requestURL: string): Error {
+        let msg = `User id is required.request url is ${requestURL}.`;
         let err = new Error(msg);
         err.name = errorNames.UserNotLogin;
 

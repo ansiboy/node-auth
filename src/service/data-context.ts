@@ -175,7 +175,7 @@ async function initDatabase(dc: AuthDataContext, adminMobile: string, adminPassw
     }
 }
 
-let adminRoleId = constants.merchantRoleId;
+let adminRoleId = constants.adminRoleId;
 let anonymousRoleId = constants.anonymousRoleId;
 let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
 let buttonControlsPath = "assert/controls/button.js";

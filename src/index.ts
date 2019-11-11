@@ -4,7 +4,7 @@ import { ConnectionConfig } from "mysql";
 import { startServer, Config as MVCConfig } from "maishu-node-mvc";
 import { authenticate } from "./service/filters/authenticate";
 import { getToken } from "./service/index";
-import { g } from "./service/global";
+import { g, Settings } from "./service/global";
 import { IncomingMessage } from "http";
 import { PermissionConfig } from "maishu-chitu-admin";
 
@@ -13,19 +13,12 @@ export { createDataContext, AuthDataContext } from "./service/data-context";
 export * from "./service/entities";
 
 
-interface Settings {
-    port: number,
-    db: ConnectionConfig,
-    permissions?: PermissionConfig,
-    proxy?: MVCConfig["proxy"],
-    headers?: MVCConfig["headers"],
-    actionFilters?: MVCConfig["actionFilters"]
-}
 
 export function start(settings: Settings) {
 
     console.assert(settings.port != null);
 
+    g.settings = settings;
     let servicePort = settings.port + 100;
     let adminPort = settings.port + 200;
     let authServiceURL = `http://127.0.0.1:${servicePort}`
@@ -51,12 +44,6 @@ export function start(settings: Settings) {
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {
-            if (!stations[i].path.startsWith("/")) {
-                stations[i].path = "/" + stations[i].path;
-            }
-            if (!stations[i].path.endsWith("/")) {
-                stations[i].path = stations[i].path + "/";
-            }
             let key = `${stations[i].path}(\\S*)`;
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {

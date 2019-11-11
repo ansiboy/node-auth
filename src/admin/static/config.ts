@@ -1,4 +1,4 @@
-import { WebSiteConfig } from "maishu-chitu-admin/static";
+import { WebsiteConfig } from "maishu-chitu-admin/static";
 let config = Object.assign(
     {
         menuItems: [
@@ -18,7 +18,7 @@ let config = Object.assign(
                 ]
             },
         ]
-    } as WebSiteConfig,
+    } as WebsiteConfig,
     {
         loginRedirectURL: "index",
         permissionServiceUrl: "http://127.0.0.1:2858/auth"

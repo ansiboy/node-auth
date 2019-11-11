@@ -8,6 +8,7 @@ import { errors } from './errors';
 import Cookies = require('cookies');
 import { constants } from './common';
 import { g } from './global';
+import { getLogger } from './logger';
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
@@ -28,8 +29,11 @@ export async function getUserIdFromRequest(req: http.IncomingMessage, res: http.
     let cookies = new Cookies(req, res);
     let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
 
-    if (!tokenText)
+    if (!tokenText) {
+        let logger = getLogger();
+        logger.info("Token text is empty.");
         return null
+    }
 
     let token = await TokenManager.parse(tokenText);
     if (!token)

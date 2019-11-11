@@ -3,8 +3,8 @@
         "target": "esnext",
         "module": "commonjs",
         "outDir": "../out",
-        "sourceMap": true,
-        "declaration": true,
+        "sourceMap": false,
+        "declaration": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },

@@ -384,7 +384,7 @@ export default class UserController {
         if (!user.role_id)
             return [];
 
-        if (user.role_id == constants.merchantRoleId) {
+        if (user.role_id == constants.adminRoleId) {
             return dc.resources.find({ order: { sort_number: "ASC" } });
         }
 

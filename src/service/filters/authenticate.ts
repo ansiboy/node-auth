@@ -9,9 +9,11 @@ import { constants } from "../common";
 import UrlPattern = require("url-pattern");
 import { g } from "../global";
 import { PermissionConfig, PermissionConfigItem } from "maishu-chitu-admin";
+import { getLogger } from "../logger";
+
+let logger = getLogger();
 
 let allPaths: Path[];
-
 /**
  * 检查路径是否允许访问
  */
@@ -38,10 +40,19 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
         if (user != null)
             roleId = user.role_id;
     }
+    else {
+        logger.info("User id can not get.");
+    }
 
     roleId = roleId || constants.anonymousRoleId;
-    if (roleId == constants.merchantRoleId)
+
+    //==================================================
+    // 管理员拥有所有权限
+    if (roleId == constants.adminRoleId) {
+        logger.info(`Role is admin role.`);
         return null;
+    }
+    //==================================================
 
     //==================================================
     // 检查通过配置设置的权限
@@ -71,7 +82,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
         }
     }
 
-    let error = roleId == constants.anonymousRoleId ? errors.userNotLogin() : errors.forbidden(u.pathname);
+    let error = roleId == constants.anonymousRoleId ? errors.userNotLogin(req.url) : errors.forbidden(u.pathname);
     error.name = errorNames.noPermission;
     let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", errorStatusCodes.noPermission);
     console.warn(error);
@@ -92,7 +103,6 @@ function getAllowVisitRoleIds(allResources: Resource[], roleResources: RoleResou
 
     return roleIds;
 }
-
 
 
 type MyResource = {
