@@ -1,1 +1,0 @@
-export { InitArguments } from "./assert/startup";

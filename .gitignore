@@ -1,0 +1,4 @@
+node_modules
+gateway/**/*.js
+permission/**/*.js
+portal/**/*.js

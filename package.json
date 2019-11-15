@@ -1,0 +1,12 @@
+{
+    "name": "maishu-node-auth",
+    "version": "2.0.0",
+    "scripts": {
+        "build": "grunt build"
+    },
+    "dependencies": {
+        "grunt": "^1.0.4",
+        "grunt-shell": "^3.0.1",
+        "load-grunt-tasks": "^5.1.0"
+    }
+}
