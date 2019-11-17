@@ -5,8 +5,10 @@ import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator } from "maishu-node-mvc";
 import { settings } from "./global";
-import { tokenDataHeaderNames } from "maishu-node-auth-gateway";
 import { errors } from "./errors";
+import { createDatabaseIfNotExists, tokenDataHeaderNames, roleIds } from "../gateway";
+import { guid } from "../gateway/global";
+import { adminMobile, adminPassword } from "./website-config";
 
 export class PermissionDataContext {
     private entityManager: EntityManager;
@@ -44,33 +46,39 @@ export class PermissionDataContext {
 
 let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(conn: ConnectionConfig): Promise<PermissionDataContext> {
-    let connection = connections[conn.database];
+export async function createDataContext(connConfig: ConnectionConfig): Promise<PermissionDataContext> {
+    let connection = connections[connConfig.database];
+    let databaseCreated = false;
     if (connection == null) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
         let dbOptions: ConnectionOptions = {
             type: "mysql",
-            host: conn.host,
-            port: conn.port,
-            username: conn.user,
-            password: conn.password,
-            database: conn.database,
+            host: connConfig.host,
+            port: connConfig.port,
+            username: connConfig.user,
+            password: connConfig.password,
+            database: connConfig.database,
             synchronize: true,
             logging: false,
             connectTimeout: 3000,
             entities,
-            name: conn.database
+            name: connConfig.database
         }
 
+        databaseCreated = await createDatabaseIfNotExists(connConfig);
+
         connection = await createConnection(dbOptions);
-        connections[conn.database] = connection;
+        connections[connConfig.database] = connection;
     }
 
 
-    connection = getConnection(conn.database);
+    connection = getConnection(connConfig.database);
     // console.assert(connection == connection1);
 
-    let dc = new PermissionDataContext(connection.manager)
+    let dc = new PermissionDataContext(connection.manager);
+    if (databaseCreated) {
+        await initDatabase(dc);
+    }
     return dc
 }
 
@@ -107,13 +115,13 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
     return userId;
 })
 
-// async function initDatabase(dc: AuthDataContext, adminMobile: string, adminPassword: string) {
-//     if (!dc) throw errors.argumentNull("dc");
-//     await initRoleTable(dc);
-//     await initResource(dc);
-//     await initUserTable(dc, adminMobile, adminPassword);
+async function initDatabase(dc: PermissionDataContext) {
+    if (!dc) throw errors.argumentNull("dc");
+    await initRoleTable(dc);
+    // await initResource(dc);
+    await initUserTable(dc);
 
-// }
+}
 
 // let adminRoleId = roleIds.adminRoleId;
 // let anonymousRoleId = roleIds.anonymousRoleId;
@@ -122,50 +130,49 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
 // let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
 // const buttonInvokePrefix = "func";
 
-// async function initRoleTable(dc: AuthDataContext) {
-//     let count = await dc.roles.count();
-//     if (count > 0)
-//         return;
+async function initRoleTable(dc: PermissionDataContext) {
+    let count = await dc.roles.count();
+    if (count > 0)
+        return;
 
-//     let adminRole: Role = {
-//         id: adminRoleId,
-//         name: "超级管理员",
-//         remark: "系统预设的超级管理员",
-//         create_date_time: new Date(Date.now()),
-//     }
+    let adminRole: Role = {
+        id: roleIds.adminRoleId,
+        name: "超级管理员",
+        remark: "系统预设的超级管理员",
+        create_date_time: new Date(Date.now()),
+    }
 
-//     await dc.roles.save(adminRole);
+    await dc.roles.save(adminRole);
 
-//     let anonymousRole: Role = {
-//         id: roleIds.anonymousRoleId,
-//         name: "匿名用户组",
-//         remark: "系统预设的匿名用户组",
-//         create_date_time: new Date(Date.now()),
-//     }
+    let anonymousRole: Role = {
+        id: roleIds.anonymousRoleId,
+        name: "匿名用户组",
+        remark: "系统预设的匿名用户组",
+        create_date_time: new Date(Date.now()),
+    }
 
-//     await dc.roles.save(anonymousRole);
-// }
+    await dc.roles.save(anonymousRole);
+}
 
-// async function initUserTable(dc: AuthDataContext, adminMobile: string, adminPassword) {
-//     let count = await dc.users.count();
-//     if (count > 0)
-//         return;
+async function initUserTable(dc: PermissionDataContext) {
+    let count = await dc.users.count();
+    if (count > 0)
+        return;
 
-//     let adminRole = await dc.roles.findOne(adminRoleId);
+    let adminRole = await dc.roles.findOne(roleIds.adminRoleId);
 
-//     let admin: User = {
-//         id: adminUserId,
-//         mobile: adminMobile,
-//         password: adminPassword,
-//         user_name: "admin",
-//         create_date_time: new Date(Date.now()),
-//         is_system: true,
-//         // role_id: adminRole.id
-//     }
+    let admin: User = {
+        id: guid(),
+        mobile: adminMobile,
+        password: adminPassword,
+        user_name: "admin",
+        create_date_time: new Date(Date.now()),
+        is_system: true,
+    }
 
-//     await dc.users.save(admin);
+    await dc.users.save(admin);
 
-// }
+}
 
 // async function initResource(dc: AuthDataContext) {
 

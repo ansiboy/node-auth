@@ -1,5 +1,9 @@
 import { WebsiteConfig } from "maishu-chitu-admin";
 import { stationPath } from "./global";
+import md5 = require("js-md5");
+
+export let adminMobile = "18502146746";
+export let adminPassword = md5("11");
 
 let websiteConfig: WebsiteConfig & WebsiteConfigExt = {
     stationPath: stationPath,

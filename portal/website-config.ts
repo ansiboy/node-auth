@@ -1,5 +1,4 @@
 import { WebsiteConfig } from "maishu-chitu-admin";
-import { roleIds } from "maishu-node-auth-gateway";
 
 let lib = "./lib";
 let stationPath = "/portal/";

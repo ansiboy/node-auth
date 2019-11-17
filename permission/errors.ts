@@ -1,5 +1,5 @@
 import { statusCodes as myStatusCodes } from "./status-codes";
-import { statusCodes } from "maishu-node-auth-gateway";
+import { statusCodes } from "../gateway";
 
 export let errors = {
     argumentNull(argumentName: string): Error {

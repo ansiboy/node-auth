@@ -6,7 +6,7 @@ import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
 import SMSController from './sms';
 import { guid } from 'maishu-chitu-service';
-import { LoginResult, statusCodes } from "maishu-node-auth-gateway";
+import { LoginResult, statusCodes } from "../../gateway";
 
 @controller('/user')
 export default class UserController {

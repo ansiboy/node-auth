@@ -2,7 +2,7 @@ import { ContentResult } from 'maishu-node-mvc';
 import { PermissionDataContext } from '../data-context';
 import { User } from '../entities';
 import { SelectArguments } from './base-controller';
-import { LoginResult } from "maishu-node-auth-gateway";
+import { LoginResult } from "../../gateway";
 export default class UserController {
     /** 手机是否已注册 */
     isMobileRegister(dc: PermissionDataContext, { mobile }: {

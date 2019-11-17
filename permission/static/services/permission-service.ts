@@ -51,7 +51,7 @@ class ServiceModule {
         if (!PermissionService.baseUrl)
             throw errors.serviceUrlCanntNull('permissionService')
 
-        return `${PermissionService.baseUrl}/${path}`
+        return `${PermissionService.baseUrl}${path}`
     }
 }
 
@@ -344,7 +344,7 @@ class SMSModule extends ServiceModule {
 
 class TokenModule extends ServiceModule {
     async list(args) {
-        let url = this.url("token/list");
+        let url = "/auth/token/list";//this.url("token/list");
         let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
         return r;
     }

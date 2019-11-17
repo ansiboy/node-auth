@@ -22,5 +22,6 @@ export declare class AuthDataContext {
         fields?: Extract<keyof T, string>[];
     }): Promise<SelectResult<T>>;
 }
-export declare function createDataContext(conn: ConnectionConfig): Promise<AuthDataContext>;
+export declare function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext>;
 export declare let authDataContext: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
+export declare function createDatabaseIfNotExists(connConfig: ConnectionConfig): Promise<boolean>;

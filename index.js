@@ -3,7 +3,7 @@ let gatewayStationSettings = {
     "db": {
         "user": "root",
         "password": "81263",
-        "database": "haoyi_shop_auth",
+        "database": "node_auth_gateway",
         "host": "localhost",
         "port": 3306
     }
@@ -14,7 +14,7 @@ let permissionStationSettings = {
     db: {
         "user": "root",
         "password": "81263",
-        "database": "node-auth-permission",
+        "database": "node_auth_permission",
         "host": "localhost",
         "port": 3306
     }

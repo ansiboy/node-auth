@@ -1,6 +1,7 @@
 import { Settings } from "./types";
 export { socketMessages } from "./socket-server";
 export { LoginResult } from "./types";
+export { createDatabaseIfNotExists } from "./data-context";
 export declare let roleIds: {
     adminRoleId: string;
     anonymousRoleId: string;

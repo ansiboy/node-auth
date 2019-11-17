@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ConnectionConfig } from "mysql";
+import { ConnectionConfig, createConnection as createDBConnection, MysqlError } from "mysql";
 import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions } from "typeorm";
 import path = require("path");
 import { TokenData } from "./entities";
@@ -28,6 +28,7 @@ export class AuthDataContext {
 
         this.tokenDatas = this.entityManager.getRepository(TokenData);
     }
+
 
     static async list<T>(repository: Repository<T>, options: {
         selectArguments?: SelectArguments, relations?: string[],
@@ -63,31 +64,32 @@ export class AuthDataContext {
 
 let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(conn: ConnectionConfig): Promise<AuthDataContext> {
+export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
 
-    let connection = connections[conn.database];
+    let connection = connections[connConfig.database];
     if (connection == null) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
         let dbOptions: ConnectionOptions = {
             type: "mysql",
-            host: conn.host,
-            port: conn.port,
-            username: conn.user,
-            password: conn.password,
-            database: conn.database,
+            host: connConfig.host,
+            port: connConfig.port,
+            username: connConfig.user,
+            password: connConfig.password,
+            database: connConfig.database,
             synchronize: true,
             logging: false,
             connectTimeout: 3000,
             entities,
-            name: conn.database
+            name: connConfig.database
         }
 
+        await createDatabaseIfNotExists(connConfig);
         connection = await createConnection(dbOptions);
-        connections[conn.database] = connection;
+        connections[connConfig.database] = connection;
     }
 
 
-    connection = getConnection(conn.database);
+    connection = getConnection(connConfig.database);
 
     let dc = new AuthDataContext(connection.manager)
     return dc
@@ -102,3 +104,36 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
         return dc
     }
 )
+
+export function createDatabaseIfNotExists(connConfig: ConnectionConfig): Promise<boolean> {
+    let dbName = connConfig.database;
+    connConfig = Object.assign({}, connConfig);
+    connConfig.database = "mysql";
+
+    let conn = createDBConnection(connConfig);
+    let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
+    return new Promise<boolean>(function (resolve, reject) {
+        conn.query(cmd, function (err?: MysqlError, result?: Array<any>) {
+            if (err) {
+                reject(err);
+                console.log("err")
+                return;
+            }
+
+            if (result.length > 0) {
+                resolve(false);
+                return;
+            }
+
+            conn.query(`CREATE DATABASE ${dbName}`, function (err?: MysqlError) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve(true);
+            });
+
+        });
+    })
+}

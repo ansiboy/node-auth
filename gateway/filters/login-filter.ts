@@ -39,7 +39,7 @@ export let loginFilter: Settings["requestFilters"][0] = function (req, res): Pro
                 dc.tokenDatas.insert(tokenData);
             })
 
-            chunk = new Buffer(JSON.stringify(loginResult));
+            chunk = Buffer.from(JSON.stringify(loginResult));
             res.setHeader("content-length", chunk.length);
 
             args[0] = chunk;

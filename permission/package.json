@@ -7,7 +7,6 @@
         "maishu-chitu-react": "^1.20.0",
         "maishu-chitu-service": "^1.8.6",
         "maishu-dilu": "^1.4.3",
-        "maishu-node-auth-gateway": "file:../gateway",
         "maishu-node-mvc": "file:../../node-mvc",
         "maishu-wuzhui": "^1.6.0",
         "maishu-wuzhui-helper": "^1.8.1",
@@ -16,6 +15,7 @@
         "typeorm": "^0.2.20"
     },
     "devDependencies": {
+        "@types/js-md5": "^0.4.2",
         "@types/mysql": "^2.15.8"
     }
 }

@@ -17,7 +17,7 @@ export declare class PermissionDataContext {
     baseModuleResourceId: string;
     constructor(entityManager: EntityManager);
 }
-export declare function createDataContext(conn: ConnectionConfig): Promise<PermissionDataContext>;
+export declare function createDataContext(connConfig: ConnectionConfig): Promise<PermissionDataContext>;
 export declare let permissionDataContext: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare let currentUser: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare let currentUserId: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;

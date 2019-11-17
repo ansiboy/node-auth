@@ -12,6 +12,7 @@ import path = require("path");
 
 export { socketMessages } from "./socket-server";
 export { LoginResult } from "./types";
+export { createDatabaseIfNotExists } from "./data-context";
 
 export let roleIds = {
     adminRoleId: constants.adminRoleId,
