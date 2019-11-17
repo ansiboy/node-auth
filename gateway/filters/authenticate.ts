@@ -26,10 +26,10 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     if (token) {
         let tokenData = await TokenManager.parse(token);
         if (tokenData) {
-            userId = tokenData.userId;
+            userId = tokenData.user_id;
             // userRoleIds = tokenData.roleIds ? tokenData.roleIds.split(",") : [];
-            if (tokenData.roleIds) {
-                userRoleIds.push(...tokenData.roleIds.split(","));
+            if (tokenData.role_ids) {
+                userRoleIds.push(...tokenData.role_ids.split(","));
             }
         }
     }

@@ -10,7 +10,7 @@ export default class RoleListPage extends DataListPage<Role> {
     dataSource = dataSources.role;
     itemName: string = "角色";
     columns: DataControlField<Role>[] = [
-        boundField<Role>({ dataField: 'id', headerText: '编号', headerStyle: { width: '300px' }, itemStyle: { textAlign: 'center' } }),
+        boundField<Role>({ dataField: 'id', headerText: '编号', headerStyle: { width: '320px' }, itemStyle: { textAlign: 'left' } }),
         boundField<Role>({ dataField: 'name', headerText: '名称' }),
         dateTimeField<Role>({ dataField: 'create_date_time', headerText: '创建时间' }),
     ];

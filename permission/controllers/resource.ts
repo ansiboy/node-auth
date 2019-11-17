@@ -1,7 +1,7 @@
 import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource, User, Path, ResourcePath } from "../entities";
-import { AuthDataContext, authDataContext, currentUser } from "../data-context";
+import { PermissionDataContext, permissionDataContext, currentUser } from "../data-context";
 import { guid } from "maishu-chitu-service";
 
 
@@ -11,7 +11,7 @@ export default class ResourceController {
 
 
     @action()
-    async add(@authDataContext dc: AuthDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
+    async add(@permissionDataContext dc: PermissionDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
         if (!item.name) throw errors.argumentFieldNull('name', 'item')
 
         item.id = guid()
@@ -32,7 +32,7 @@ export default class ResourceController {
     }
 
     @action()
-    async update(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Resource }) {
+    async update(@permissionDataContext dc: PermissionDataContext, @routeData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
@@ -45,7 +45,7 @@ export default class ResourceController {
     }
 
     @action()
-    async remove(@authDataContext dc: AuthDataContext, @routeData { id }) {
+    async remove(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull('id', "routeData");
 
         await dc.resources.delete(id);
@@ -54,13 +54,13 @@ export default class ResourceController {
 
 
     @action()
-    async list(@authDataContext dc: AuthDataContext): Promise<Resource[]> {
+    async list(@permissionDataContext dc: PermissionDataContext): Promise<Resource[]> {
         let resources = await dc.resources.find({ order: { sort_number: "ASC" } });
         return resources;
     }
 
     @action()
-    async item(@authDataContext dc: AuthDataContext, @routeData { id }) {
+    async item(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull("id", "routeData");
 
         let item = await dc.resources.findOne(id);
@@ -68,7 +68,7 @@ export default class ResourceController {
     }
 
     @action()
-    async set(@authDataContext dc: AuthDataContext,
+    async set(@permissionDataContext dc: PermissionDataContext,
         @routeData { resourceId, paths }: { resourceId: string, paths: string[] }) {
         if (!resourceId) throw errors.argumentFieldNull("resourceId", "routeData");
         if (!paths) throw errors.argumentFieldNull("pathIds", "routeData");

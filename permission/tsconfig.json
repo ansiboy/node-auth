@@ -3,7 +3,7 @@
         "target": "esnext",
         "module": "commonjs",
         "sourceMap": false,
-        "declaration": false,
+        "declaration": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },

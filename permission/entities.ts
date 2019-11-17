@@ -1,7 +1,5 @@
 import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 
-// export type LoginResult = { token: string, userId: string, roleId: string }
-
 interface Model {
     id: string;
     create_date_time: Date;
@@ -109,20 +107,20 @@ export class Resource implements Model {
     api_paths?: Path[];
 }
 
-@Entity("token")
-export class Token {
-    @PrimaryColumn({ type: "char", length: 36 })
-    id: string;
+// @Entity("token")
+// export class Token {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     id: string;
 
-    @Column({ type: "text" })
-    content: string;
+//     @Column({ type: "text" })
+//     content: string;
 
-    @Column({ type: "varchar", length: 50 })
-    content_type: string;
+//     @Column({ type: "varchar", length: 50 })
+//     content_type: string;
 
-    @Column({ name: "create_date_time", type: "datetime" })
-    create_date_time: Date;
-}
+//     @Column({ name: "create_date_time", type: "datetime" })
+//     create_date_time: Date;
+// }
 
 @Entity("user")
 export class User implements Model {

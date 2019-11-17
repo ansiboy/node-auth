@@ -38,6 +38,9 @@
             "entities": [
                 "../entities.d.ts"
             ],
+            "gatewayEntities": [
+                "../../gateway/entities.d.ts"
+            ],
             "url-pattern":[
                 "../node_modules/url-pattern/index.d.ts"
             ]

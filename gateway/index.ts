@@ -81,8 +81,8 @@ async function proxyHeader(req: http.IncomingMessage) {
         logger.warn(`Token text is ${tokenText}`);
         try {
             let token = await TokenManager.parse(tokenText);
-            header[tokenDataHeaderNames.userId] = token.userId;
-            header[tokenDataHeaderNames.roleIds] = token.roleIds || "";
+            header[tokenDataHeaderNames.userId] = token.user_id;
+            header[tokenDataHeaderNames.roleIds] = token.role_ids || "";
 
         } catch (err) {
             console.error(err)

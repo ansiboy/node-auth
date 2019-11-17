@@ -1,9 +1,9 @@
 import { Controller, action } from "maishu-node-mvc";
-import { AuthDataContext, authDataContext } from "../data-context";
+import { PermissionDataContext, permissionDataContext } from "../data-context";
 
 export class ResourcePathController extends Controller {
     @action()
-    async list(@authDataContext dc: AuthDataContext) {
+    async list(@permissionDataContext dc: PermissionDataContext) {
         let r = await dc.resourcePaths.find();
         return r;
     }

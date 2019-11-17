@@ -1,4 +1,26 @@
-const config = require('./config.json');
+let gatewayStationSettings = {
+    "port": 2857,
+    "db": {
+        "user": "root",
+        "password": "81263",
+        "database": "haoyi_shop_auth",
+        "host": "localhost",
+        "port": 3306
+    }
+}
+
+let permissionStationSettings = {
+    port: gatewayStationSettings.port + 100,
+    db: {
+        "user": "root",
+        "password": "81263",
+        "database": "node-auth-permission",
+        "host": "localhost",
+        "port": 3306
+    }
+}
+
+
 const path = require('path');
 const http = require('http');
 
@@ -11,11 +33,12 @@ let { start: startPermission } = require("./permission/index");
 const target_host = '127.0.0.1';
 //===========================================
 
+
+
 startGateway({
-    port: config.port,
-    // bindIP: "127.0.0.1",
+    port: gatewayStationSettings.port,
     logLevel: "all",
-    db: config.db,
+    db: gatewayStationSettings.db,
     proxy: {
         '/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
         '/AdminStock/(\\S+)': `http://${target_host}:9005/Admin/$1`,
@@ -86,8 +109,9 @@ startGateway({
     }]
 })
 
+
 startPermission({
-    port: config.port + 100,
-    conn: config.db
+    port: permissionStationSettings.port,
+    db: permissionStationSettings.db
 })
 

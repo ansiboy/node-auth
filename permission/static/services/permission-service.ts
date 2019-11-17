@@ -1,8 +1,10 @@
 import { Service } from "maishu-chitu-admin/static";
 import { errors } from "errors";
 import { Role, Resource, User } from "entities";
+import { TokenData } from "gatewayEntities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
-
+import websiteConfig = require("json!websiteConfig");
+;
 export interface LoginInfo {
     token: string,
     userId: string,
@@ -10,12 +12,14 @@ export interface LoginInfo {
 
 export class PermissionService extends Service {
 
-    static baseUrl: string
+    static baseUrl: string = `${websiteConfig.stationPath}`;
     role = new RoleModule(this);
     user = new UserModule(this);
     sms = new SMSModule(this);
+    token = new TokenModule(this);
 
     protected url(path: string) {
+        debugger
         if (!PermissionService.baseUrl)
             throw errors.serviceUrlCanntNull('permissionService')
 
@@ -336,4 +340,12 @@ class SMSModule extends ServiceModule {
         return this.postByJson<{ smsId: string }>(url, { mobile, type: 'resetPassword' })
     }
 
+}
+
+class TokenModule extends ServiceModule {
+    async list(args) {
+        let url = this.url("token/list");
+        let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
+        return r;
+    }
 }

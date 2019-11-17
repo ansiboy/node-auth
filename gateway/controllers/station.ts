@@ -36,4 +36,5 @@ export class StationController {
         stationInfos.push(data);
         g.stationInfos.value = stationInfos;
     }
+
 }

@@ -3,7 +3,7 @@ import { PageProps } from "maishu-chitu-react";
 import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
 import { LocalService } from "services/local-service";
-import config from "../config";
+import config = require("json!websiteConfig");
 
 interface Props extends PageProps {
     data: {

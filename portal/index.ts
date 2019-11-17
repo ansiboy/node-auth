@@ -1,12 +1,10 @@
 import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
 import path = require("path");
-// import { gateway } from "./static/constants";
 import websiteConfig from "./website-config";
-
-const anonymousRoleId = "738FB92C-60CF-4280-B5AE-61C376D0AADF";
+import { roleIds } from "../gateway";
 
 let permissions: PermissionConfig = {};
-permissions[`${websiteConfig.stationPath}*`] = { roleIds: [anonymousRoleId] };
+permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymousRoleId] };
 
 startAdmin({
     port: 6891,

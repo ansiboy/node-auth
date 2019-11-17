@@ -1,14 +1,14 @@
 import { errors } from "../errors";
 import { controller, action, routeData as formData, routeData, } from "maishu-node-mvc";
 import { Role, User, RoleResource } from "../entities";
-import { AuthDataContext, authDataContext, currentUser } from "../data-context";
+import { PermissionDataContext, permissionDataContext, currentUser } from "../data-context";
 import { guid } from "maishu-chitu-service";
 
 @controller("role")
 export default class RoleController {
 
     @action()
-    async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Role }) {
+    async add(@permissionDataContext dc: PermissionDataContext, @routeData { item }: { item: Role }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.argumentFieldNull("name", "item");
 
@@ -24,7 +24,7 @@ export default class RoleController {
     }
 
     @action()
-    async update(@authDataContext dc: AuthDataContext, @formData { item }: { item: Role }) {//id, name, remark
+    async update(@permissionDataContext dc: PermissionDataContext, @formData { item }: { item: Role }) {//id, name, remark
 
         if (!item) throw errors.argumentFieldNull("item", "formData");
         if (!item.id) throw errors.argumentFieldNull("id", "item");
@@ -42,7 +42,7 @@ export default class RoleController {
     }
 
     @action()
-    async remove(@authDataContext dc: AuthDataContext, @currentUser user: User, @formData { id }): Promise<Partial<Role>> {
+    async remove(@permissionDataContext dc: PermissionDataContext, @currentUser user: User, @formData { id }): Promise<Partial<Role>> {
         if (!id) throw errors.argumentNull('id');
 
         await dc.roles.delete({ id: id })
@@ -51,7 +51,7 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action()
-    async list(@authDataContext dc: AuthDataContext) {
+    async list(@permissionDataContext dc: PermissionDataContext) {
         if (!dc) throw errors.argumentNull("dc");
         let roles = await dc.roles.find({
             order: { create_date_time: "DESC" }
@@ -62,7 +62,7 @@ export default class RoleController {
 
     /** 获取单个角色 */
     @action()
-    async get(@authDataContext dc: AuthDataContext, @formData { id }): Promise<Role> {
+    async get(@permissionDataContext dc: PermissionDataContext, @formData { id }): Promise<Role> {
         if (!id) throw errors.argumentNull('id')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -78,7 +78,7 @@ export default class RoleController {
      * appId 应用 ID
      */
     @action()
-    async setResources(@authDataContext dc: AuthDataContext, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
+    async setResources(@permissionDataContext dc: PermissionDataContext, @formData { roleId, resourceIds }: { roleId: string, resourceIds: string[] }) {
 
         if (!roleId) throw errors.argumentFieldNull("roleId", "formData");
         if (!resourceIds) throw errors.argumentFieldNull("resourceIds", "formData");
@@ -97,7 +97,7 @@ export default class RoleController {
      * roleId: 角色编号 
      */
     @action()
-    async resourceIds(@authDataContext dc: AuthDataContext, @formData { roleId }): Promise<string[]> {
+    async resourceIds(@permissionDataContext dc: PermissionDataContext, @formData { roleId }): Promise<string[]> {
         if (!roleId) throw errors.argumentFieldNull('roleId', "formData");
 
         let items = await dc.roleResources.find({

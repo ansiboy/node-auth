@@ -1,11 +1,11 @@
 import { controller, action, routeData } from "maishu-node-mvc";
-import { AuthDataContext, authDataContext } from "../data-context";
+import { PermissionDataContext, permissionDataContext } from "../data-context";
 import { Path } from "../entities";
 
 @controller("path")
 export class PathController {
     @action()
-    async list(@authDataContext dc: AuthDataContext, @routeData { resourceId }: { resourceId: string }): Promise<Path[]> {
+    async list(@permissionDataContext dc: PermissionDataContext, @routeData { resourceId }: { resourceId: string }): Promise<Path[]> {
         let items: Path[];
         if (resourceId) {
             let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
@@ -18,7 +18,7 @@ export class PathController {
     }
 
     @action()
-    async listByResourceIds(@authDataContext dc: AuthDataContext, @routeData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
+    async listByResourceIds(@permissionDataContext dc: PermissionDataContext, @routeData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
         let resourcePaths = await dc.resourcePaths.createQueryBuilder()
             .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
             .getMany();

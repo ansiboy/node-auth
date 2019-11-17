@@ -30,8 +30,8 @@ export let loginFilter: Settings["requestFilters"][0] = function (req, res): Pro
             }
 
             let tokenData: TokenData = {
-                id: guid(), userId: loginResult.userId, roleIds: loginResult.roleIds,
-                createDateTime: new Date(Date.now())
+                id: guid(), user_id: loginResult.userId, role_ids: loginResult.roleIds,
+                create_date_time: new Date(Date.now())
             }
 
             loginResult.token = tokenData.id;
@@ -43,9 +43,9 @@ export let loginFilter: Settings["requestFilters"][0] = function (req, res): Pro
             res.setHeader("content-length", chunk.length);
 
             args[0] = chunk;
-            write.apply(this, args);
             let cookies = new Cookies(req, res);
-            cookies.set(tokenName, tokenData.id);
+            cookies.set(tokenName, tokenData.id, { expires: new Date(Date.now() + 60 * 60 * 1000 * 24 * 365), domain: req.headers.host });
+            write.apply(this, args);
         }
         catch (err) {
             logger.error(err);

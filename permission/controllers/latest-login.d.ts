@@ -1,4 +1,4 @@
-import { AuthDataContext } from "../data-context";
+import { PermissionDataContext } from "../data-context";
 /** 记录用户最后登录 */
 export default class LatestLoginController {
     /**
@@ -6,7 +6,7 @@ export default class LatestLoginController {
      * @param d 路由数据
      * @param d.userIds 指定用户的编号
      */
-    list(dc: AuthDataContext, d: {
+    list(dc: PermissionDataContext, d: {
         userIds: string[];
     }): Promise<import("../entities").UserLatestLogin[]>;
 }

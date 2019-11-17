@@ -2,7 +2,7 @@ import { start as startAdmin } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
 import { settings as globalSettings, stationPath, gateway } from "./global";
-import { roleIds } from "maishu-node-auth-gateway";
+import { roleIds } from "../gateway";
 
 export function start(settings: Settings) {
     Object.assign(globalSettings, settings)

@@ -1,3 +1,4 @@
 declare type WebsiteConfigExt = {
-    stationPath: string
+    stationPath: string,
+    loginRedirectURL?: string,
 }

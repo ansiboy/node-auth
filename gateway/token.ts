@@ -23,9 +23,9 @@ export class TokenManager {
 
 
         token.id = guid();
-        token.userId = userId;
-        token.roleIds = roleIds;
-        token.createDateTime = new Date(Date.now());
+        token.user_id = userId;
+        token.role_ids = roleIds;
+        token.create_date_time = new Date(Date.now());
 
         console.assert(g.settings.db != null);
         let dc = await createDataContext(g.settings.db);

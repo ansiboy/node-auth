@@ -3,6 +3,7 @@ import { stationPath } from "./global";
 
 let websiteConfig: WebsiteConfig & WebsiteConfigExt = {
     stationPath: stationPath,
+    loginRedirectURL: "index",
     menuItems: [
         { name: "用户管理", path: "#user/list", icon: "icon-group" },
         {

@@ -1,10 +1,10 @@
-import { AuthDataContext } from "../data-context";
+import { PermissionDataContext } from "../data-context";
 import { Path } from "../entities";
 export declare class PathController {
-    list(dc: AuthDataContext, { resourceId }: {
+    list(dc: PermissionDataContext, { resourceId }: {
         resourceId: string;
     }): Promise<Path[]>;
-    listByResourceIds(dc: AuthDataContext, { resourceIds }: {
+    listByResourceIds(dc: PermissionDataContext, { resourceIds }: {
         resourceIds: string[];
     }): Promise<Path[]>;
 }

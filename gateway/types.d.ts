@@ -1,12 +1,8 @@
 import { ConnectionConfig } from "mysql";
-import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
-import { TokenData } from "./entities";
-
+import { Settings as MVCConfig, LogLevel } from "maishu-node-mvc";
 export interface RequireConfig {
-
 }
 export interface RequireShim {
-
 }
 export declare type SimpleMenuItem = {
     name: string;
@@ -33,14 +29,19 @@ export interface StationInfo {
     port: number;
 }
 export interface Settings {
-    port: number,
-    db: ConnectionConfig,
-    permissions?: PermissionConfig,
-    proxy?: { [targetUrl: string]: string },
-    headers?: MVCConfig["headers"],
-    requestFilters?: MVCConfig["requestFilters"],
-    logLevel?: LogLevel,
-    virtualPaths?: MVCConfig["virtualPaths"],
+    port: number;
+    db: ConnectionConfig;
+    permissions?: PermissionConfig;
+    proxy?: {
+        [targetUrl: string]: string;
+    };
+    headers?: MVCConfig["headers"];
+    requestFilters?: MVCConfig["requestFilters"];
+    logLevel?: LogLevel;
+    virtualPaths?: MVCConfig["virtualPaths"];
 }
-
-export type LoginResult = { userId: string, roleIds?: string, token?: string };
+export declare type LoginResult = {
+    userId: string;
+    roleIds?: string;
+    token?: string;
+};

@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions } from "typeorm";
-import { Role, Category, Resource, Token, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath, UserRole } from "./entities";
+import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath, UserRole } from "./entities";
 import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator } from "maishu-node-mvc";
@@ -8,12 +8,12 @@ import { settings } from "./global";
 import { tokenDataHeaderNames } from "maishu-node-auth-gateway";
 import { errors } from "./errors";
 
-export class AuthDataContext {
+export class PermissionDataContext {
     private entityManager: EntityManager;
     categories: Repository<Category>;
     roles: Repository<Role>;
     resources: Repository<Resource>;
-    tokens: Repository<Token>;
+    // tokens: Repository<Token>;
     users: Repository<User>;
     userRoles: Repository<UserRole>;
     userLatestLogins: Repository<UserLatestLogin>;
@@ -29,7 +29,7 @@ export class AuthDataContext {
         this.roles = this.entityManager.getRepository<Role>(Role);
         this.categories = this.entityManager.getRepository<Category>(Category);
         this.resources = this.entityManager.getRepository<Resource>(Resource);
-        this.tokens = this.entityManager.getRepository<Token>(Token);
+        // this.tokens = this.entityManager.getRepository<Token>(Token);
         this.users = this.entityManager.getRepository<User>(User);
         this.userRoles = this.entityManager.getRepository(UserRole);
         this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
@@ -44,8 +44,8 @@ export class AuthDataContext {
 
 let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(conn: ConnectionConfig): Promise<AuthDataContext> {
-    let connection = connections[conn.database]; 
+export async function createDataContext(conn: ConnectionConfig): Promise<PermissionDataContext> {
+    let connection = connections[conn.database];
     if (connection == null) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
         let dbOptions: ConnectionOptions = {
@@ -70,14 +70,14 @@ export async function createDataContext(conn: ConnectionConfig): Promise<AuthDat
     connection = getConnection(conn.database);
     // console.assert(connection == connection1);
 
-    let dc = new AuthDataContext(connection.manager)
+    let dc = new PermissionDataContext(connection.manager)
     return dc
 }
 
-export let authDataContext = createParameterDecorator<AuthDataContext>(
+export let permissionDataContext = createParameterDecorator<PermissionDataContext>(
     async () => {
-        console.assert(settings.conn != null);
-        let dc = await createDataContext(settings.conn);
+        console.assert(settings.db != null);
+        let dc = await createDataContext(settings.db);
         return dc
     },
     async () => {
@@ -89,7 +89,7 @@ export let currentUser = createParameterDecorator(async (req, res) => {
     if (!userId)
         return null;
 
-    let dc = await createDataContext(settings.conn);
+    let dc = await createDataContext(settings.db);
     let user = await dc.users.findOne(userId);
 
     if (!user)

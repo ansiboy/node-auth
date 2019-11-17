@@ -2,7 +2,8 @@ import { DataSource } from "maishu-wuzhui";
 import { PermissionService } from "./permission-service";
 import { errorHandle } from "maishu-chitu-admin/static";
 import { LocalService, DataSourceMethods } from "./local-service";
-import { User, Role, Resource, Token } from "entities";
+import { User, Role, Resource, } from "entities";
+import { TokenData } from "gatewayEntities";
 
 let ps = new PermissionService((err) => {
     errorHandle(err)
@@ -43,9 +44,17 @@ let userDataSource = new DataSource<User>({
     }
 })
 
+let tokenDataSource = new DataSource<TokenData>({
+    primaryKeys: ["id"],
+    select: async (args) => {
+        let r = await ps.token.list(args);
+        return r;
+    }
+})
+
 export let dataSources = {
-    role: ls.dataSource<Role>("role", DataSourceMethods.all),
-    user: ls.dataSource<User>("user", DataSourceMethods.insert | DataSourceMethods.update),
+    role: roleDataSource,
+    user: userDataSource,
     resource: ls.dataSource<Resource>("resouce"),
-    token: ls.dataSource<Token>("token", DataSourceMethods.insert | DataSourceMethods.delete)
+    token: tokenDataSource
 }

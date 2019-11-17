@@ -1,6 +1,6 @@
 import { errors } from '../errors';
 import { controller, action, routeData, request, response, ContentResult } from 'maishu-node-mvc';
-import { AuthDataContext, authDataContext, currentUserId, currentUser } from '../data-context';
+import { PermissionDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
 import { User } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
@@ -14,7 +14,7 @@ export default class UserController {
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister(@authDataContext dc: AuthDataContext, @routeData { mobile }): Promise<boolean> {
+    async isMobileRegister(@permissionDataContext dc: PermissionDataContext, @routeData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -23,7 +23,7 @@ export default class UserController {
     }
 
     @action()
-    async isUserNameRegister(@authDataContext dc: AuthDataContext, @routeData { user_name }): Promise<boolean> {
+    async isUserNameRegister(@permissionDataContext dc: PermissionDataContext, @routeData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -33,7 +33,7 @@ export default class UserController {
     }
 
     @action()
-    async isEmailRegister(@authDataContext dc: AuthDataContext, @routeData { email }): Promise<boolean> {
+    async isEmailRegister(@permissionDataContext dc: PermissionDataContext, @routeData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -42,7 +42,7 @@ export default class UserController {
     }
 
     @action()
-    async register(@authDataContext dc: AuthDataContext,
+    async register(@permissionDataContext dc: PermissionDataContext,
         @routeData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -74,12 +74,12 @@ export default class UserController {
     }
 
     private loginActionResult(userId: string) {
-        let r: LoginResult = { userId };
+        let r: LoginResult = { userId: userId };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
     @action()
-    async resetPassword(@authDataContext dc: AuthDataContext, @routeData { mobile, password, smsId, verifyCode }) {
+    async resetPassword(@permissionDataContext dc: PermissionDataContext, @routeData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -104,7 +104,7 @@ export default class UserController {
     }
 
     @action()
-    async resetMobile(@authDataContext dc: AuthDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
+    async resetMobile(@permissionDataContext dc: PermissionDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
         if (!userId)
             throw errors.userIdNull();
 
@@ -131,7 +131,7 @@ export default class UserController {
         return { id: userId };
     }
 
-    async loginByUserName(dc: AuthDataContext, { username, password }): Promise<LoginResult> {
+    async loginByUserName(dc: PermissionDataContext, { username, password }): Promise<LoginResult> {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -170,7 +170,7 @@ export default class UserController {
         return r;
     }
 
-    private async loginByOpenId<T extends { openid }>(dc: AuthDataContext, args: T): Promise<LoginResult> {
+    private async loginByOpenId<T extends { openid }>(dc: PermissionDataContext, args: T): Promise<LoginResult> {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
 
@@ -189,7 +189,7 @@ export default class UserController {
         return r;
     }
 
-    private async loginByVerifyCode(@authDataContext dc: AuthDataContext,
+    private async loginByVerifyCode(@permissionDataContext dc: PermissionDataContext,
         @routeData args: { mobile: string, smsId: string, verifyCode: string }): Promise<LoginResult> {
 
         let { mobile, smsId, verifyCode } = args
@@ -209,7 +209,7 @@ export default class UserController {
     }
 
     @action()
-    async login(@authDataContext dc: AuthDataContext, @routeData args: any, @request req, @response res) {
+    async login(@permissionDataContext dc: PermissionDataContext, @routeData args: any, @request req, @response res) {
         args = args || {}
 
         let p: LoginResult;
@@ -249,7 +249,7 @@ export default class UserController {
 
     /** 获取用户信息 */
     @action()
-    async item(@authDataContext dc: AuthDataContext, @routeData { userId }: { userId: string }) {
+    async item(@permissionDataContext dc: PermissionDataContext, @routeData { userId }: { userId: string }) {
         if (!userId) throw errors.userIdNull();
 
         let user = await dc.users.findOne(userId);
@@ -257,36 +257,39 @@ export default class UserController {
     }
 
     @action()
-    async list(@authDataContext dc: AuthDataContext, @routeData { args }: { args: SelectArguments }) {
-        args = args || {};
-        if (args.filter) {
-            args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
-        }
-        else {
-            args.filter = "(User.is_system is null or User.is_system = false)";
-        }
+    async list(@permissionDataContext dc: PermissionDataContext, @routeData { args }: { args: SelectArguments }) {
+        // args = args || {};
+        // if (args.filter) {
+        //     args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
+        // }
+        // else {
+        //     args.filter = "(User.is_system is null or User.is_system = false)";
+        // }
 
-        let result = await BaseController.list<User>(dc.users, {
-            selectArguments: args, relations: ["role"],
-            fields: ["id", "mobile", "user_name", "email", "create_date_time"]
-        })
+        // let result = await BaseController.list<User>(dc.users, {
+        //     selectArguments: args, relations: ["role"],
+        //     fields: ["id", "mobile", "user_name", "email", "create_date_time"]
+        // })
 
-        if (result.dataItems.length > 0) {
-            let userIds = result.dataItems.map(o => o.id);
-            let ctrl = new LatestLoginController();
-            let latestLogins = await ctrl.list(dc, { userIds });
-            result.dataItems.forEach(user => {
-                user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
-                    .map(o => o.latest_login)[0];
-            })
-        }
+        // if (result.dataItems.length > 0) {
+        //     let userIds = result.dataItems.map(o => o.id);
+        //     let ctrl = new LatestLoginController();
+        //     let latestLogins = await ctrl.list(dc, { userIds });
+        //     result.dataItems.forEach(user => {
+        //         user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
+        //             .map(o => o.latest_login)[0];
+        //     })
+        // }
 
-        return result
+        // return result
+
+        let users = await dc.users.find();
+        return users;
     }
 
     /** 添加用户 */
     @action()
-    async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
+    async add(@permissionDataContext dc: PermissionDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
         if (item.mobile) {
             let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
             if (isMobileRegister)
@@ -318,14 +321,14 @@ export default class UserController {
     }
 
     @action()
-    async remove(@authDataContext dc: AuthDataContext, @routeData { id }) {
+    async remove(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull("id", "routeData");
         await dc.users.delete(id);
         return { id };
     }
 
     @action()
-    async update(@authDataContext dc: AuthDataContext, @routeData { user }: { user: User }) {
+    async update(@permissionDataContext dc: PermissionDataContext, @routeData { user }: { user: User }) {
         if (!user) throw errors.argumentNull('user');
         if (!user.id) throw errors.argumentFieldNull("id", "user");
 
@@ -346,7 +349,7 @@ export default class UserController {
     }
 
     @action()
-    async userLatestLogin(@authDataContext dc: AuthDataContext, @routeData { userIds }: { userIds: string[] }) {
+    async userLatestLogin(@permissionDataContext dc: PermissionDataContext, @routeData { userIds }: { userIds: string[] }) {
         let items = await dc.userLatestLogins.createQueryBuilder()
             .where(" id in (...:userIds)")
             .setParameter("userIds", userIds)
@@ -357,7 +360,7 @@ export default class UserController {
 
     /** 获取当前用户角色的子角色列表 */
     @action()
-    async roleList(@authDataContext dc: AuthDataContext, @routeData { userId }) {
+    async roleList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
         if (!dc) throw errors.argumentNull("dc");
         if (!userId) throw errors.routeDataFieldNull("userId");
 
@@ -375,7 +378,7 @@ export default class UserController {
 
     /** 获取用户所允许访问的资源 */
     @action()
-    async resourceList(@authDataContext dc: AuthDataContext, @routeData { userId }) {
+    async resourceList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
         if (!userId) throw errors.routeDataFieldNull("userId");
 
         let user = await dc.users.findOne(userId);
