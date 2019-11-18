@@ -5,7 +5,6 @@ import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
 import { loginFilter } from "./filters/login-filter";
 import Cookies = require("cookies");
-import { PROJECT_NAME } from "../../chitu-admin/out/global";
 import { TokenManager } from "./token";
 import http = require("http");
 import path = require("path");
@@ -62,7 +61,7 @@ export function start(settings: Settings) {
             let key = `${stations[i].path}(\\S*)`;
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {
-                proxy[key] = targetUrl;
+                proxy[key] = { targetUrl, headers: proxyHeader };
             }
 
             if (stations[i].permissions) {
@@ -77,10 +76,10 @@ async function proxyHeader(req: http.IncomingMessage) {
     let cookies = new Cookies(req, null);
     let header = {}
 
-    let logger = getLogger(`${PROJECT_NAME} ${proxyHeader.name}`);
+    let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[tokenName] as string || cookies.get(tokenName);
     if (tokenText) {
-        logger.warn(`Token text is ${tokenText}`);
+        logger.info(`Token text is ${tokenText}`);
         try {
             let token = await TokenManager.parse(tokenText);
             header[tokenDataHeaderNames.userId] = token.user_id;

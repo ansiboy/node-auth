@@ -3,20 +3,27 @@ import path = require("path");
 import websiteConfig from "./website-config";
 import { roleIds } from "../gateway";
 
-let permissions: PermissionConfig = {};
-permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymousRoleId] };
+export type Settings = {
+    port: number
+}
 
-startAdmin({
-    port: 6891,
-    rootDirectory: __dirname,
-    virtualPaths: {
-        node_modules: path.join(__dirname, "node_modules"),
-    },
-    station: {
-        gateway: websiteConfig.gateway,
-        path: websiteConfig.stationPath,
-        permissions
-    }
-})
+export function start(settings: Settings) {
+
+    let permissions: PermissionConfig = {};
+    permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymousRoleId] };
+
+    startAdmin({
+        port: settings.port,
+        rootDirectory: __dirname,
+        virtualPaths: {
+            node_modules: path.join(__dirname, "node_modules"),
+        },
+        station: {
+            gateway: websiteConfig.gateway,
+            path: websiteConfig.stationPath,
+            permissions
+        }
+    })
+}
 
 

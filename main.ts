@@ -20,20 +20,14 @@ let permissionStationSettings = {
     }
 }
 
-
-import path = require('path');
-import http = require('http');
-
 import { start as startGateway, roleIds } from "./gateway/index";
-require("./portal/index");
-let { start: startPermission } = require("./permission/index");
+import { start as startPortal } from "./portal/index";
+import { start as startPermission } from "./permission/index";
 
 //===========================================
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
 //===========================================
-
-
 
 startGateway({
     port: gatewayStationSettings.port,
@@ -95,12 +89,16 @@ startGateway({
         "/UserMember/*": { roleIds: [roleIds.adminRoleId] },
         "/portal/*": { roleIds: [roleIds.anonymousRoleId] }
     },
-    
+
 })
 
 
 startPermission({
     port: permissionStationSettings.port,
     db: permissionStationSettings.db
+})
+
+startPortal({
+    port: 6891
 })
 

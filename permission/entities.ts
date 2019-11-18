@@ -1,5 +1,25 @@
 import { Entity, Column, PrimaryColumn, ManyToMany, JoinTable, OneToMany, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 
+import { ValueTransformer } from 'typeorm';
+class BitBooleanTransformer implements ValueTransformer {
+    // To db from typeorm
+    to(value: boolean | null): Buffer | null {
+        if (value === null) {
+            return null;
+        }
+        const res = new Buffer(1);
+        res[0] = value ? 1 : 0;
+        return res;
+    }
+    // From db to typeorm
+    from(value: Buffer): boolean | null {
+        if (value === null) {
+            return null;
+        }
+        return value[0] === 1;
+    }
+}
+
 interface Model {
     id: string;
     create_date_time: Date;
@@ -74,40 +94,17 @@ export class Resource implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
-    // @Column({ type: "varchar", length: 45 })
-    // name: string;
-
-    // @Column({ name: "path", type: "varchar", length: 200, nullable: true })
-    // page_path?: string;
-
     @Column({ type: "char", length: 36, nullable: true })
     parent_id?: string;
 
     @Column({ type: "int" })
     sort_number: number;
 
-    // @Column({ type: "varchar", length: 45 })
-    // type: "menu" | "control" | "module";
-
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    // @Column({ type: "json", nullable: true })
-    // data?: ResourceData;
-
     @Column({ type: "varchar", length: 200, nullable: true })
     remark?: string;
-
-    // @Column({ type: "varchar", length: 30, nullable: true })
-    // icon?: string;
-
-    // @ManyToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" })
-    // @JoinTable({
-    //     name: "resource_path",
-    //     joinColumns: [{ name: "resource_id", referencedColumnName: "id" }],
-    //     inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }],
-    // })
-    // api_paths?: Path[];
 }
 
 @Entity("user")
@@ -136,7 +133,7 @@ export class User implements Model {
     @Column({ type: "varchar", length: 45, nullable: true })
     openid?: string;
 
-    @Column({ type: "bit", nullable: true })
+    @Column({ type: "bit", nullable: true, transformer: new BitBooleanTransformer() })
     is_system?: boolean;
 
     @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
@@ -186,25 +183,6 @@ export class SMSRecord implements Model {
     @Column({ type: "datetime" })
     create_date_time: Date;
 }
-
-// @Entity("path")
-// export class Path implements Model {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     id: string;
-
-//     @Column({ type: "datetime" })
-//     create_date_time: Date;
-
-//     @Column({ type: "varchar", unique: true })
-//     value: string;
-
-//     @Column({ type: "varchar", length: 200, nullable: true })
-//     remark?: string;
-
-
-//     @ManyToMany(() => Resource, resource => resource.api_paths)
-//     resource?: Resource;
-// }
 
 @Entity("role_resource", { synchronize: false })
 export class RoleResource {

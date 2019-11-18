@@ -16,11 +16,10 @@ export class PermissionService extends Service {
     role = new RoleModule(this);
     user = new UserModule(this);
     sms = new SMSModule(this);
-    token = new TokenModule(this);
+    // token = new TokenModule(this);
     resource = new ResourceModule(this);
 
     protected url(path: string) {
-        debugger
         if (!PermissionService.baseUrl)
             throw errors.serviceUrlCanntNull('permissionService')
 
@@ -343,13 +342,13 @@ class SMSModule extends ServiceModule {
 
 }
 
-class TokenModule extends ServiceModule {
-    async list(args) {
-        let url = `${websiteConfig.gatewayStaionPath}token/list`;//this.url("token/list");
-        let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
-        return r;
-    }
-}
+// class TokenModule extends ServiceModule {
+//     async list(args) {
+//         let url = `${websiteConfig.gatewayStaionPath}token/list`;//this.url("token/list");
+//         let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
+//         return r;
+//     }
+// }
 
 class ResourceModule extends ServiceModule {
     async list() {

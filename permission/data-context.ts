@@ -118,7 +118,6 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
 async function initDatabase(dc: PermissionDataContext) {
     if (!dc) throw errors.argumentNull("dc");
     await initRoleTable(dc);
-    // await initResource(dc);
     await initUserTable(dc);
 
 }
@@ -130,8 +129,8 @@ async function initRoleTable(dc: PermissionDataContext) {
 
     let adminRole: Role = {
         id: roleIds.adminRoleId,
-        name: "超级管理员",
-        remark: "系统预设的超级管理员",
+        name: "管理员",
+        remark: "系统预设的管理员",
         create_date_time: new Date(Date.now()),
     }
 

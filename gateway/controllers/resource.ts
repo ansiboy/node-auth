@@ -8,7 +8,7 @@ import fetch from "node-fetch";
 
 @controller(`${constants.controllerPathRoot}/resource`)
 export class ResourceController {
-    @action()
+    @action(`/${constants.controllerPathRoot}/menuItem/list`)
     async list(@request req: http.IncomingMessage) {
 
         let ctrl = new StationController();
