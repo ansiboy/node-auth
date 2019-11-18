@@ -4,6 +4,8 @@ import { Settings } from "./types";
 import { settings as globalSettings, stationPath, gateway } from "./global";
 import { roleIds } from "../gateway";
 
+export { Settings } from "./types";
+
 export function start(settings: Settings) {
     Object.assign(globalSettings, settings)
     return startAdmin({

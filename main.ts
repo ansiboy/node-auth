@@ -1,38 +1,22 @@
-let gatewayStationSettings = {
-    "port": 2857,
-    "db": {
-        "user": "root",
-        "password": "81263",
-        "database": "node_auth_gateway",
-        "host": "localhost",
-        "port": 3306
-    }
-}
-
-let permissionStationSettings = {
-    port: gatewayStationSettings.port + 100,
-    db: {
-        "user": "root",
-        "password": "81263",
-        "database": "node_auth_permission",
-        "host": "localhost",
-        "port": 3306
-    }
-}
-
-import { start as startGateway, roleIds } from "./gateway/index";
-import { start as startPortal } from "./portal/index";
-import { start as startPermission } from "./permission/index";
+import { Settings as GatewaySettings, roleIds } from "./gateway";
+import { Settings as PermissionSettings } from "./permission";
+import { Settings as PortalSettings } from "./portal";
+import { start } from "./index";
 
 //===========================================
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
 //===========================================
-
-startGateway({
-    port: gatewayStationSettings.port,
+let gatewayStationSettings: GatewaySettings = {
+    port: 2857,
+    db: {
+        "user": "root",
+        "password": "81263",
+        "database": "node_auth_gateway",
+        "host": "localhost",
+        "port": 3306
+    },
     logLevel: "all",
-    db: gatewayStationSettings.db,
     proxy: {
         '/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
         '/AdminStock/(\\S+)': `http://${target_host}:9005/Admin/$1`,
@@ -69,16 +53,6 @@ startGateway({
         "*.woff": { roleIds: [roleIds.anonymousRoleId] },
         "*.map": { roleIds: [roleIds.anonymousRoleId] },
 
-        // "/admin/(*)": { roleIds: [constants.anonymousRoleId] },
-        // "/user/*": { roleIds: [constants.anonymousRoleId] },
-        // "/designer/*": { roleIds: [constants.anonymousRoleId] },
-        // "/shop/*": { roleIds: [constants.anonymousRoleId] },
-        // "/chitu-admin/*": { roleIds: [constants.anonymousRoleId] },
-        // "/auth/*": { roleIds: [constants.anonymousRoleId] },
-        // "/UserMember/*": { roleIds: [constants.anonymousRoleId] },
-        // "/UserShop/*": { roleIds: [constants.anonymousRoleId] },
-        // "/Images/*": { roleIds: [constants.anonymousRoleId] },
-        // "/merchant*": { roleIds: [constants.anonymousRoleId] },
         "/favicon.ico": { roleIds: [roleIds.anonymousRoleId] },
         "/auth/user/login": { roleIds: [roleIds.anonymousRoleId] },
 
@@ -90,15 +64,25 @@ startGateway({
         "/portal/*": { roleIds: [roleIds.anonymousRoleId] }
     },
 
-})
+}
 
+let permissionStationSettings: PermissionSettings = {
+    port: gatewayStationSettings.port + 100,
+    db: {
+        "user": "root",
+        "password": "81263",
+        "database": "node_auth_permission",
+        "host": "localhost",
+        "port": 3306
+    }
+}
 
-startPermission({
-    port: permissionStationSettings.port,
-    db: permissionStationSettings.db
-})
-
-startPortal({
+let portalStationSettings: PortalSettings = {
     port: 6891
-})
+}
 
+start({
+    gatewaySettings: gatewayStationSettings,
+    permissionSettings: permissionStationSettings,
+    portalSettings: portalStationSettings,
+})

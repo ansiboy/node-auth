@@ -171,13 +171,15 @@ class DataCommand<T> extends React.Component<DataCommandProps<T>> {
     }
     render() {
         return <>
-            <button className="btn btn-minier btn-info"
-                onClick={() => this.edit()}>
-                <i className="icon-pencil"></i>
-            </button>
-            <button className="btn btn-minier btn-danger">
-                <i className="icon-trash"></i>
-            </button>
+            {this.props.dataSource.canUpdate ?
+                <button className="btn btn-minier btn-info"
+                    onClick={() => this.edit()}>
+                    <i className="icon-pencil"></i>
+                </button> : null}
+            {this.props.dataSource.canDelete ?
+                <button className="btn btn-minier btn-danger">
+                    <i className="icon-trash"></i>
+                </button> : null}
         </>
     }
 }

@@ -54,12 +54,6 @@ let tokenDataSource = new DataSource<TokenData>({
     }
 })
 
-
-// interface MenuItem extends Resource {
-//     children: MenuItem[];
-//     parent: MenuItem,
-// }
-
 export type MenuItem = Resource & WebsiteConfig["menuItems"][0] & {
     parent?: MenuItem,
     roleNames?: string,

@@ -48,7 +48,7 @@ export default class MenuListPage extends DataListPage<MenuItem> {
         boundField<MenuItem>({ dataField: "path", headerText: "路径" }),
         boundField<MenuItem>({ dataField: "icon", headerText: "图标", itemStyle: { width: `${iconFieldWidth}px` } }),
         boundField<MenuItem>({ dataField: "roleNames", headerText: "角色", itemStyle: { width: `${roleFieldWidth}px` } }),
-        dateTimeField<MenuItem>({ dataField: "create_date_time", headerText: "创建时间" })
+        // dateTimeField<MenuItem>({ dataField: "create_date_time", headerText: "创建时间" })
     ];
 
     // translate = (items) => {
