@@ -12,8 +12,8 @@ export class StationController {
         return r;
     }
 
-    @action()
-    register(@routeData data: StationInfo) {
+    /** 注册站点 */
+    register(data: StationInfo) {
 
         let logger = getLogger(g.projectName, g.settings.logLevel);
         logger.info("Register action of station controller execute.");

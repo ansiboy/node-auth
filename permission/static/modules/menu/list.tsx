@@ -34,17 +34,17 @@ export default class MenuListPage extends DataListPage<Resource> {
             dataField: 'sort_number', itemStyle: { width: `${sortFieldWidth}px` }, headerText: "序号", readOnly: true,
 
         }),
-        new CustomBoundField<MenuItem>({
-            dataField: "name",
-            headerText: "菜单名称",
-            itemStyle: { width: `${nameFieldWidth}px` },
-            cellRender: (dataItem, element) => {
-                element.style.paddingLeft = `${this.parentDeep(dataItem) * 20 + 10}px`
-                element.innerHTML = dataItem.name;
-            }
-        }),
-        boundField<Resource>({ dataField: "page_path", headerText: "路径" }),
-        boundField<Resource>({ dataField: "icon", headerText: "图标" }),
+        // new CustomBoundField<MenuItem>({
+        //     dataField: "name",
+        //     headerText: "菜单名称",
+        //     itemStyle: { width: `${nameFieldWidth}px` },
+        //     cellRender: (dataItem, element) => {
+        //         element.style.paddingLeft = `${this.parentDeep(dataItem) * 20 + 10}px`
+        //         element.innerHTML = dataItem.name;
+        //     }
+        // }),
+        // boundField<Resource>({ dataField: "page_path", headerText: "路径" }),
+        // boundField<Resource>({ dataField: "icon", headerText: "图标" }),
         dateTimeField<Resource>({ dataField: "create_date_time", headerText: "创建时间" })
     ];
 

@@ -36,6 +36,9 @@ export class Role implements Model {
 
     @Column({ type: "char", length: 36, nullable: true })
     parent_id?: string;
+
+    @ManyToMany(() => Role, role => role.users)
+    users?: User[];
 }
 
 @Entity("category")
@@ -71,11 +74,11 @@ export class Resource implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
-    @Column({ type: "varchar", length: 45 })
-    name: string;
+    // @Column({ type: "varchar", length: 45 })
+    // name: string;
 
-    @Column({ name: "path", type: "varchar", length: 200, nullable: true })
-    page_path?: string;
+    // @Column({ name: "path", type: "varchar", length: 200, nullable: true })
+    // page_path?: string;
 
     @Column({ type: "char", length: 36, nullable: true })
     parent_id?: string;
@@ -83,44 +86,29 @@ export class Resource implements Model {
     @Column({ type: "int" })
     sort_number: number;
 
-    @Column({ type: "varchar", length: 45 })
-    type: "menu" | "control" | "module";
+    // @Column({ type: "varchar", length: 45 })
+    // type: "menu" | "control" | "module";
 
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @Column({ type: "json", nullable: true })
-    data?: ResourceData;
+    // @Column({ type: "json", nullable: true })
+    // data?: ResourceData;
 
     @Column({ type: "varchar", length: 200, nullable: true })
     remark?: string;
 
-    @Column({ type: "varchar", length: 30, nullable: true })
-    icon?: string;
+    // @Column({ type: "varchar", length: 30, nullable: true })
+    // icon?: string;
 
-    @ManyToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" })
-    @JoinTable({
-        name: "resource_path",
-        joinColumns: [{ name: "resource_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }],
-    })
-    api_paths?: Path[];
+    // @ManyToMany(() => Path, path => path.resource, { cascade: true, onDelete: "CASCADE" })
+    // @JoinTable({
+    //     name: "resource_path",
+    //     joinColumns: [{ name: "resource_id", referencedColumnName: "id" }],
+    //     inverseJoinColumns: [{ name: "path_id", referencedColumnName: "id" }],
+    // })
+    // api_paths?: Path[];
 }
-
-// @Entity("token")
-// export class Token {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     id: string;
-
-//     @Column({ type: "text" })
-//     content: string;
-
-//     @Column({ type: "varchar", length: 50 })
-//     content_type: string;
-
-//     @Column({ name: "create_date_time", type: "datetime" })
-//     create_date_time: Date;
-// }
 
 @Entity("user")
 export class User implements Model {
@@ -151,15 +139,16 @@ export class User implements Model {
     @Column({ type: "bit", nullable: true })
     is_system?: boolean;
 
-    // @Column({ type: "char", length: 36, nullable: true })
-    // role_id?: string;
-
-    // @ManyToOne(type => Role)
-    // @JoinColumn({ name: "role_id", referencedColumnName: "id" })
-    // role?: Role;
+    @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
+    @JoinTable({
+        name: "user_role",
+        joinColumns: [{ name: "user_id", referencedColumnName: "id" }],
+        inverseJoinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+    })
+    roles?: Role[];
 }
 
-@Entity("user_role")
+@Entity("user_role", { synchronize: false })
 export class UserRole {
     @PrimaryColumn({ type: "char", length: 36 })
     user_id: string;
@@ -198,24 +187,24 @@ export class SMSRecord implements Model {
     create_date_time: Date;
 }
 
-@Entity("path")
-export class Path implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
-    id: string;
+// @Entity("path")
+// export class Path implements Model {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     id: string;
 
-    @Column({ type: "datetime" })
-    create_date_time: Date;
+//     @Column({ type: "datetime" })
+//     create_date_time: Date;
 
-    @Column({ type: "varchar", unique: true })
-    value: string;
+//     @Column({ type: "varchar", unique: true })
+//     value: string;
 
-    @Column({ type: "varchar", length: 200, nullable: true })
-    remark?: string;
+//     @Column({ type: "varchar", length: 200, nullable: true })
+//     remark?: string;
 
 
-    @ManyToMany(() => Resource, resource => resource.api_paths)
-    resource?: Resource;
-}
+//     @ManyToMany(() => Resource, resource => resource.api_paths)
+//     resource?: Resource;
+// }
 
 @Entity("role_resource", { synchronize: false })
 export class RoleResource {
@@ -244,9 +233,3 @@ export class ResourceCategory {
     name: string;
 }
 
-// export interface StationInfo {
-//     path: string,
-//     ip: string,
-//     port: number,
-//     permissions?: PermissionConfig
-// }

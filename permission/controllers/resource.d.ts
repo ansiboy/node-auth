@@ -19,8 +19,4 @@ export default class ResourceController {
     item(dc: PermissionDataContext, { id }: {
         id: any;
     }): Promise<Resource>;
-    set(dc: PermissionDataContext, { resourceId, paths }: {
-        resourceId: string;
-        paths: string[];
-    }): Promise<void>;
 }

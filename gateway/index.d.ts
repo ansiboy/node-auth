@@ -8,4 +8,5 @@ export declare let roleIds: {
 };
 export { statusCodes } from "./status-codes";
 export { tokenDataHeaderNames } from "./global";
+export declare let stationPath: string;
 export declare function start(settings: Settings): void;

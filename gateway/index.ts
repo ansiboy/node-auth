@@ -21,6 +21,7 @@ export let roleIds = {
 
 export { statusCodes } from "./status-codes";
 export { tokenDataHeaderNames } from "./global";
+export let stationPath = `/${constants.controllerPathRoot}/`;
 
 export function start(settings: Settings) {
 

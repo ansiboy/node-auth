@@ -11,6 +11,7 @@ export declare class Role implements Model {
     resources?: Resource[];
     role_id?: string;
     parent_id?: string;
+    users?: User[];
 }
 export declare class Category implements Model {
     id: string;
@@ -31,16 +32,10 @@ export declare type ResourceData = {
 };
 export declare class Resource implements Model {
     id: string;
-    name: string;
-    page_path?: string;
     parent_id?: string;
     sort_number: number;
-    type: "menu" | "control" | "module";
     create_date_time: Date;
-    data?: ResourceData;
     remark?: string;
-    icon?: string;
-    api_paths?: Path[];
 }
 export declare class User implements Model {
     id: string;
@@ -52,6 +47,7 @@ export declare class User implements Model {
     data?: object;
     openid?: string;
     is_system?: boolean;
+    roles?: Role[];
 }
 export declare class UserRole {
     user_id: string;
@@ -68,13 +64,6 @@ export declare class SMSRecord implements Model {
     content: string;
     code?: string;
     create_date_time: Date;
-}
-export declare class Path implements Model {
-    id: string;
-    create_date_time: Date;
-    value: string;
-    remark?: string;
-    resource?: Resource;
 }
 export declare class RoleResource {
     role_id: string;

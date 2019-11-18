@@ -18,7 +18,7 @@ export function startSocketServer(server: http.Server) {
     let io = IO(server, {});
     io.on("connection", function (socket) {
         logger.info("A client connected.");
-        socket.on(socketMessages.registerStation, (data) => {
+        socket.on(socketMessages.registerStation, (data: string) => {
             logger.info(`Register station data:`, data);
             let stationInfo: StationInfo = JSON.parse(data);
             let ctrl = new StationController();

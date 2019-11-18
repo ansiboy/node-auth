@@ -1,12 +1,14 @@
 import { errors } from '../errors';
 import { controller, action, routeData, request, response, ContentResult } from 'maishu-node-mvc';
 import { PermissionDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
-import { User } from '../entities';
+import { User, UserRole } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
 import SMSController from './sms';
 import { guid } from 'maishu-chitu-service';
 import { LoginResult, statusCodes } from "../../gateway";
+import { roleIds } from "../global";
+import { FindOneOptions } from 'typeorm';
 
 @controller('/user')
 export default class UserController {
@@ -62,19 +64,25 @@ export default class UserController {
         if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
             throw errors.verifyCodeIncorrect(verifyCode);
 
-        let user = {
+        let user: User = {
             id: guid(), mobile, password, data,
-            create_date_time: new Date(Date.now()),
+            create_date_time: new Date(Date.now())
         }
 
-        await dc.users.insert(user)
+        let userRole: UserRole = {
+            user_id: user.id,
+            role_id: roleIds.normalUserRoleId,
+        }
 
-        let r: LoginResult = { userId: user.id };
+        await dc.users.insert(user);
+        await dc.userRoles.insert(userRole);
+
+        let r: LoginResult = { userId: user.id, roleIds: [userRole.role_id] };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
-    private loginActionResult(userId: string) {
-        let r: LoginResult = { userId: userId };
+    private loginActionResult(userId: string, roleIds: string[]) {
+        let r: LoginResult = { userId: userId, roleIds };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
@@ -100,7 +108,7 @@ export default class UserController {
         user.password = password;
         await dc.users.save(user);
 
-        return this.loginActionResult(user.id);
+        return this.loginActionResult(user.id, (user.roles || []).map(o => o.id));
     }
 
     @action()
@@ -143,30 +151,34 @@ export default class UserController {
             usernameRegex.test(username) ? 'username' :
                 emailRegex.test(username) ? 'email' : 'mobile' //'mobile'
 
+        let where: FindOneOptions<User>["where"];
         let user: User;
         switch (type) {
             default:
             case 'mobile':
                 // sql = `select id from user where mobile = ? and password = ?`
-                user = await dc.users.findOne({ mobile: username, password });
+                where = { mobile: username, password };
                 break
             case 'username':
                 // sql = `select id from user where user_name = ? and password = ?`
-                user = await dc.users.findOne({ user_name: username, password });
+                // user = await dc.users.findOne({ user_name: username, password });
+                where = { user_name: username, password };
                 break
             case 'email':
                 // sql = `select id from user where email = ? and password = ?`
-                user = await dc.users.findOne({ email: username, password });
+                // user = await dc.users.findOne({ email: username, password });
+                where = { email: username, password };
                 break
         }
 
+        user = await dc.users.findOne({ where, relations: ["roles"] });
         if (user == null) {
             throw errors.usernameOrPasswordIncorrect(username)
         }
 
         // let token = await TokenManager.create({ user_id: user.id } as UserToken)
         // return { token: token.id, userId: user.id, roleId: user.role_id }
-        let r: LoginResult = { userId: user.id };
+        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
         return r;
     }
 
@@ -174,7 +186,7 @@ export default class UserController {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
 
-        let user = await dc.users.findOne({ openid: openid });
+        let user = await dc.users.findOne({ where: { openid: openid, }, relations: ["roles"], });
         if (user == null) {
             user = {
                 id: guid(), openid, create_date_time: new Date(Date.now()),
@@ -185,7 +197,7 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id });
         // return { token: token.id, userId: user.id, roleId: user.role_id };
-        let r: LoginResult = { userId: user.id };
+        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
         return r;
     }
 
@@ -194,7 +206,7 @@ export default class UserController {
 
         let { mobile, smsId, verifyCode } = args
 
-        let user = await dc.users.findOne({ mobile });
+        let user = await dc.users.findOne({ where: { mobile }, relations: ["roles"] });
         if (user == null)
             throw errors.mobileExists(mobile);
 
@@ -204,7 +216,7 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id } as UserToken)
         // return { token: token.id, userId: user.id, roleId: user.role_id }
-        let r: LoginResult = { userId: user.id };
+        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
         return r;
     }
 
@@ -223,7 +235,7 @@ export default class UserController {
             p = await this.loginByUserName(dc, args)
         }
 
-        let r = await dc.userLatestLogins.findOne(p.userId);//.then(r => {
+        let r = await dc.userLatestLogins.findOne(p.userId);
         if (r == null) {
             r = { id: p.userId, latest_login: new Date(Date.now()), create_date_time: new Date(Date.now()) };
         }

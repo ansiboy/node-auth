@@ -52,9 +52,17 @@ let tokenDataSource = new DataSource<TokenData>({
     }
 })
 
+let resourceDataSource = new DataSource<Resource>({
+    primaryKeys: ["id"],
+    select: async (args) => {
+        let r = await ps.resource.list();
+        return { dataItems: r, totalRowCount: r.length };
+    }
+})
+
 export let dataSources = {
     role: roleDataSource,
     user: userDataSource,
-    resource: ls.dataSource<Resource>("resouce"),
+    resource: resourceDataSource,
     token: tokenDataSource
 }

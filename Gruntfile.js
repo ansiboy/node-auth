@@ -11,6 +11,9 @@ module.exports = function (grunt) {
             portal: {
                 command: "tsc -p portal"
             },
+            root: {
+                command: "tsc -p ./"
+            }
         }
     });
 

@@ -1,4 +1,3 @@
-import { ConnectionConfig } from "mysql";
 import { PermissionConfig, StationInfo, Settings } from "./types";
 import { ValueStore } from "maishu-chitu-service"
 

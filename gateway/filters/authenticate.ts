@@ -62,7 +62,8 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
 
     let error = userId == null ? errors.userNotLogin(req.url) : errors.forbidden(u.pathname);
     let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", statusCodes.noPermission);
-    console.warn(error);
+    logger.info(`Current user role is:`, userRoleIds);
+    logger.warn(error);
     return result;
 }
 

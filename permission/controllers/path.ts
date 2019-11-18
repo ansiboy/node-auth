@@ -1,32 +1,31 @@
 import { controller, action, routeData } from "maishu-node-mvc";
 import { PermissionDataContext, permissionDataContext } from "../data-context";
-import { Path } from "../entities";
 
 @controller("path")
 export class PathController {
-    @action()
-    async list(@permissionDataContext dc: PermissionDataContext, @routeData { resourceId }: { resourceId: string }): Promise<Path[]> {
-        let items: Path[];
-        if (resourceId) {
-            let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
-            items = await dc.paths.findByIds(resourcePaths.map(o => o.path_id));
-        }
-        else {
-            items = await dc.paths.find();
-        }
-        return items;
-    }
+    // @action()
+    // async list(@permissionDataContext dc: PermissionDataContext, @routeData { resourceId }: { resourceId: string }): Promise<Path[]> {
+    //     let items: Path[];
+    //     if (resourceId) {
+    //         let resourcePaths = await dc.resourcePaths.find({ resource_id: resourceId });
+    //         items = await dc.paths.findByIds(resourcePaths.map(o => o.path_id));
+    //     }
+    //     else {
+    //         items = await dc.paths.find();
+    //     }
+    //     return items;
+    // }
 
-    @action()
-    async listByResourceIds(@permissionDataContext dc: PermissionDataContext, @routeData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
-        let resourcePaths = await dc.resourcePaths.createQueryBuilder()
-            .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
-            .getMany();
+    // @action()
+    // async listByResourceIds(@permissionDataContext dc: PermissionDataContext, @routeData { resourceIds }: { resourceIds: string[] }): Promise<Path[]> {
+    //     let resourcePaths = await dc.resourcePaths.createQueryBuilder()
+    //         .where(`resource_id in (...:resourceIds)`).setParameters({ resourceIds })
+    //         .getMany();
 
-        let pathIds = resourcePaths.map(o => o.path_id);
-        let paths = await dc.paths.findByIds(pathIds);
-        return paths;
-    }
+    //     let pathIds = resourcePaths.map(o => o.path_id);
+    //     let paths = await dc.paths.findByIds(pathIds);
+    //     return paths;
+    // }
 
     // @action()
     // async add(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Path }): Promise<Partial<Path>> {

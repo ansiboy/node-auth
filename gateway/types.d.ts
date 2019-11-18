@@ -42,6 +42,6 @@ export interface Settings {
 }
 export declare type LoginResult = {
     userId: string;
-    roleIds?: string;
+    roleIds: string[];
     token?: string;
 };

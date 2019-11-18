@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions } from "typeorm";
-import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath, UserRole } from "./entities";
+import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, RoleResource, ResourcePath, UserRole } from "./entities";
 import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator } from "maishu-node-mvc";
-import { settings } from "./global";
+import { settings, roleIds } from "./global";
 import { errors } from "./errors";
-import { createDatabaseIfNotExists, tokenDataHeaderNames, roleIds } from "../gateway";
-import { guid } from "../gateway/global";
+import { createDatabaseIfNotExists, tokenDataHeaderNames } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
+import { guid } from "maishu-chitu-service";
 
 export class PermissionDataContext {
     private entityManager: EntityManager;
@@ -20,7 +20,7 @@ export class PermissionDataContext {
     userRoles: Repository<UserRole>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
-    paths: Repository<Path>;
+    // paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
     resourcePaths: Repository<ResourcePath>;
 
@@ -36,7 +36,7 @@ export class PermissionDataContext {
         this.userRoles = this.entityManager.getRepository(UserRole);
         this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
-        this.paths = this.entityManager.getRepository<Path>(Path);
+        // this.paths = this.entityManager.getRepository<Path>(Path);
         this.roleResources = this.entityManager.getRepository<RoleResource>(RoleResource);
         this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
     }
@@ -123,13 +123,6 @@ async function initDatabase(dc: PermissionDataContext) {
 
 }
 
-// let adminRoleId = roleIds.adminRoleId;
-// let anonymousRoleId = roleIds.anonymousRoleId;
-// let adminUserId = "240f103f-02a3-754c-f587-db122059fdfb";
-// let buttonControlsPath = "assert/controls/button.js";
-// let baseModuleResourceId = "AA3F1B10-311D-473E-A851-80D6FD8D91D3";
-// const buttonInvokePrefix = "func";
-
 async function initRoleTable(dc: PermissionDataContext) {
     let count = await dc.roles.count();
     if (count > 0)
@@ -152,6 +145,15 @@ async function initRoleTable(dc: PermissionDataContext) {
     }
 
     await dc.roles.save(anonymousRole);
+
+    let normalUserRole: Role = {
+        id: roleIds.normalUserRoleId,
+        name: "普通用户",
+        remark: "",
+        create_date_time: new Date(Date.now()),
+    }
+
+    await dc.roles.save(normalUserRole);
 }
 
 async function initUserTable(dc: PermissionDataContext) {
@@ -168,6 +170,7 @@ async function initUserTable(dc: PermissionDataContext) {
         user_name: "admin",
         create_date_time: new Date(Date.now()),
         is_system: true,
+        roles: [adminRole]
     }
 
     await dc.users.save(admin);

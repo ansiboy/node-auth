@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { EntityManager, Repository } from "typeorm";
-import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, Path, RoleResource, ResourcePath, UserRole } from "./entities";
+import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, RoleResource, ResourcePath, UserRole } from "./entities";
 import { ConnectionConfig } from "mysql";
 export declare class PermissionDataContext {
     private entityManager;
@@ -11,7 +11,6 @@ export declare class PermissionDataContext {
     userRoles: Repository<UserRole>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
-    paths: Repository<Path>;
     roleResources: Repository<RoleResource>;
     resourcePaths: Repository<ResourcePath>;
     baseModuleResourceId: string;

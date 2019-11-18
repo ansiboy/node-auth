@@ -17,6 +17,7 @@ export class PermissionService extends Service {
     user = new UserModule(this);
     sms = new SMSModule(this);
     token = new TokenModule(this);
+    resource = new ResourceModule(this);
 
     protected url(path: string) {
         debugger
@@ -344,8 +345,16 @@ class SMSModule extends ServiceModule {
 
 class TokenModule extends ServiceModule {
     async list(args) {
-        let url = "/auth/token/list";//this.url("token/list");
+        let url = `${websiteConfig.gatewayStaionPath}token/list`;//this.url("token/list");
         let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
+        return r;
+    }
+}
+
+class ResourceModule extends ServiceModule {
+    async list() {
+        let url = this.url("resource/list");
+        let r = await this.getByJson<Resource[]>(url);
         return r;
     }
 }

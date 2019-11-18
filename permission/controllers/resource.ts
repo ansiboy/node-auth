@@ -1,6 +1,6 @@
 import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
-import { Resource, User, Path, ResourcePath } from "../entities";
+import { Resource, User, ResourcePath } from "../entities";
 import { PermissionDataContext, permissionDataContext, currentUser } from "../data-context";
 import { guid } from "maishu-chitu-service";
 
@@ -12,7 +12,7 @@ export default class ResourceController {
 
     @action()
     async add(@permissionDataContext dc: PermissionDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
-        if (!item.name) throw errors.argumentFieldNull('name', 'item')
+        // if (!item.name) throw errors.argumentFieldNull('name', 'item')
 
         item.id = guid()
         item.create_date_time = new Date(Date.now())
@@ -37,7 +37,7 @@ export default class ResourceController {
         if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
         delete item.create_date_time;
-        delete item.type;
+        // delete item.type;
 
         await dc.resources.save(item)
 
@@ -67,24 +67,24 @@ export default class ResourceController {
         return item;
     }
 
-    @action()
-    async set(@permissionDataContext dc: PermissionDataContext,
-        @routeData { resourceId, paths }: { resourceId: string, paths: string[] }) {
-        if (!resourceId) throw errors.argumentFieldNull("resourceId", "routeData");
-        if (!paths) throw errors.argumentFieldNull("pathIds", "routeData");
+    // @action()
+    // async set(@permissionDataContext dc: PermissionDataContext,
+    //     @routeData { resourceId, paths }: { resourceId: string, paths: string[] }) {
+    //     if (!resourceId) throw errors.argumentFieldNull("resourceId", "routeData");
+    //     if (!paths) throw errors.argumentFieldNull("pathIds", "routeData");
 
-        let allPaths = await dc.paths.find();
-        let allPathStrings = allPaths.map(o => o.value);
-        let notExistsPaths = paths.filter(o => allPathStrings.indexOf(o) < 0)
-            .map(o => ({ id: guid(), value: o, create_date_time: new Date(Date.now()) }) as Path);
+    //     let allPaths = await dc.paths.find();
+    //     let allPathStrings = allPaths.map(o => o.value);
+    //     let notExistsPaths = paths.filter(o => allPathStrings.indexOf(o) < 0)
+    //         .map(o => ({ id: guid(), value: o, create_date_time: new Date(Date.now()) }) as Path);
 
-        await dc.paths.save(notExistsPaths);
+    //     await dc.paths.save(notExistsPaths);
 
-        allPaths.push(...notExistsPaths);
+    //     allPaths.push(...notExistsPaths);
 
-        let pathIds = allPaths.filter(o => paths.indexOf(o.value) >= 0).map(o => o.id);
-        let resourcePaths = pathIds.map(o => ({ resource_id: resourceId, path_id: o } as ResourcePath));
+    //     let pathIds = allPaths.filter(o => paths.indexOf(o.value) >= 0).map(o => o.id);
+    //     let resourcePaths = pathIds.map(o => ({ resource_id: resourceId, path_id: o } as ResourcePath));
 
-        await dc.resourcePaths.save(resourcePaths);
-    }
+    //     await dc.resourcePaths.save(resourcePaths);
+    // }
 }
