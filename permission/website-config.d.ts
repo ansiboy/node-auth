@@ -1,5 +1,5 @@
-import { WebsiteConfig } from "maishu-chitu-admin";
+/// <reference path="declare.d.ts" />
 export declare let adminMobile: string;
 export declare let adminPassword: string;
-declare let websiteConfig: WebsiteConfig & WebsiteConfigExt;
+declare let websiteConfig: PermissionWebsiteConfig;
 export default websiteConfig;

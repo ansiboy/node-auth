@@ -1,15 +1,13 @@
-/// <reference path="declare.d.ts"/>
 
-import { WebsiteConfig } from "maishu-chitu-admin";
+/// <reference path="declare.ts"/>
 
 let lib = "./lib";
 let stationPath = "/portal/";
-let stationConfig: WebsiteConfig & WebsiteConfigExt = {
+let stationConfig: PortalWebsiteConfig = {
     stationPath,
     requirejs: {
 
     },
-    permissions: {}
 }
 
 // stationConfig.permissions[`${stationPath}`] = { roleIds: [roleIds.anonymousRoleId] }

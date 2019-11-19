@@ -1,9 +1,6 @@
 import { InitArguments } from "maishu-chitu-admin/static";
 import { PageData } from "maishu-chitu";
-import { PermissionService } from "./services/permission-service";
-import websiteConfig = require("json!websiteConfig");
 
-// PermissionService.baseUrl = `${websiteConfig.stationPath}`;
 
 export default function init(args: InitArguments) {
     let showPage = args.app.showPage;

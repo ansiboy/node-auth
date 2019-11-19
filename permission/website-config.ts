@@ -1,3 +1,5 @@
+/// <reference path="./declare.ts"/>
+
 import { WebsiteConfig } from "maishu-chitu-admin";
 import { stationPath, roleIds, settings } from "./global";
 import md5 = require("js-md5");
@@ -6,7 +8,7 @@ import { stationPath as gatewayStaionPath } from "../gateway";
 export let adminMobile = "18502146746";
 export let adminPassword = md5("11");
 
-let websiteConfig: WebsiteConfig & WebsiteConfigExt = {
+let websiteConfig: PermissionWebsiteConfig = {
     stationPath: stationPath,
     gatewayStaionPath: gatewayStaionPath,
     loginRedirectURL: "index",
@@ -17,7 +19,6 @@ let websiteConfig: WebsiteConfig & WebsiteConfigExt = {
                 { id: "2EFE91D5-DBB1-4CC9-B943-A81CE3AF4271", name: "角色管理", icon: "icon-sitemap", path: "#role/list" },
                 { id: "B06EFFA1-B224-4E14-96D6-45F980634394", name: "菜单管理", icon: "icon-tasks", path: "#menu/list" },
                 { id: "DC10D377-40F9-4EFD-8F9C-147F486104EF", name: "令牌管理", icon: "icon-magic", path: "#token/list" },
-                // { id: "E79CB245-DA53-4078-997E-C061F115F2CA", name: "API 设置", icon: "icon-rss", path: "#path/list" }
             ]
         },
         {

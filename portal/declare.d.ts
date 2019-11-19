@@ -1,6 +1,0 @@
-
-type WebsiteConfigExt = {
-    stationPath: string,
-}
-
-

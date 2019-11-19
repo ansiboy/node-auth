@@ -15,22 +15,18 @@ export class ResourceController {
     @action()
     async list(@request req: http.IncomingMessage) {
 
-        let ctrl = new StationController();
-        let stations = ctrl.list();
-        let websiteConfigPaths = stations.map(o => `${o.path}websiteConfig`);
+        let stations = g.stationInfos.value;
 
         let u = url.parse(req.url);
         let protocol = u.protocol || "http:";
-        let websiteConfigUrls = websiteConfigPaths.map(p => `${protocol}//${req.headers.host}${p}`)
+        let websiteConfigUrls = stations.map(p => `${protocol}//${p.ip}:${p.port}/websiteConfig`)
 
         let logger = getLogger(constants.projectName, g.settings.logLevel);
-        logger.info(websiteConfigPaths);
+        logger.info(websiteConfigUrls);
 
         let menuItems: MyMenuItem[] = [];
         let websiteConfigs = await Promise.all(websiteConfigUrls.map(url => getWebsiteConfig(req, url)));
-        // websiteConfigs.forEach((websiteConfig, index) => {
 
-        // })
         for (let i = 0; i < websiteConfigs.length; i++) {
             let websiteConfig = websiteConfigs[i];
             if (websiteConfig.menuItems == null)

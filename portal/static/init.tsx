@@ -51,10 +51,13 @@ export default async function (args: InitArguments) {
     permissionService.me().then(me => {
         args.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
             <li className="pull-right" style={{ marginLeft: 10 }}>
-                {(me.roles || []).map(o => o.name).join(" ")}
+                <i className="icon-off" style={{ marginRight: 4 }} />
+                <span>退出</span>
             </li>
             <li className="pull-right">
-                {me.mobile || me.user_name}
+                <span>
+                    {me.mobile || me.user_name}({(me.roles || []).map(o => o.name).join(" ")})
+                </span>
             </li>
         </ul>)
     })
