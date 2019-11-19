@@ -4,7 +4,7 @@ import { PermissionDataContext } from "../data-context";
 export default class ResourceController {
     add(dc: PermissionDataContext, user: User, { item }: {
         item: Resource;
-    }): Promise<Partial<Resource>>;
+    }): Promise<void>;
     update(dc: PermissionDataContext, { item }: {
         item: Resource;
     }): Promise<{

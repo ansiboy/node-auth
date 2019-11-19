@@ -148,14 +148,6 @@ class UserModule extends ServiceModule {
         }
     }
 
-    resource = {
-        list: async (userId: string) => {
-            let url = this.url("user/resource/list");
-            let r = await this.getByJson<Resource[]>(url, { userId });
-            return r;
-        }
-    }
-
     /** 获取用户列表 */
     async list(args?: DataSourceSelectArguments) {
         let url = this.url('user/list');

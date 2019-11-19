@@ -17,7 +17,7 @@ type MyTokenData = TokenData & { cacheDateTime?: number };
  * 用于解释和生成 token 。
  */
 export class TokenManager {
-    static async create(userId: string, roleIds?: string): Promise<TokenData> {
+    static async create(userId: string, roleIds?: string[]): Promise<TokenData> {
         if (userId == null) throw errors.argumentNull("userId");
         let token = new TokenData();
 

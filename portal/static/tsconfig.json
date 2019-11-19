@@ -27,6 +27,9 @@
             ],
             "maishu-ui-toolkit": [
                 "../node_modules/maishu-ui-toolkit/out/index.d.ts"
+            ],
+            "permission-entities": [
+                "../../permission/entities.d.ts"
             ]
         }
     },

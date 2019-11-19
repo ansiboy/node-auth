@@ -3,7 +3,7 @@ import md5 = require("js-md5");
 import { ValueStore } from "maishu-chitu-service";
 import { errors } from "errors";
 import websiteConfig = require("json!websiteConfig");
-
+import { User } from "permission-entities"
 
 export interface LoginInfo {
     token: string;
@@ -30,13 +30,11 @@ export class PermissionService extends Service {
         return r;
     }
 
-    async stationList() {
-        let url = `${location.protocol}//${websiteConfig.gateway}/auth/station/list`;
-        let r = await this.get<{ path: string }[]>(url);
+    async me() {
+        let url = this.url("user/me");
+        let r = await this.get<User>(url);
         return r;
     }
-
-
 }
 
 // function setCookie(name: string, value: string, days?: number) {

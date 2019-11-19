@@ -22,15 +22,12 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
 
     let userId: string = null;
     let userRoleIds: string[] = [constants.anonymousRoleId];// 所有用户都拥有 anonymousRoleId 角色
-    let token = await getToken(req, res);
-    if (token) {
-        let tokenData = await TokenManager.parse(token);
-        if (tokenData) {
-            userId = tokenData.user_id;
-            // userRoleIds = tokenData.roleIds ? tokenData.roleIds.split(",") : [];
-            if (tokenData.role_ids) {
-                userRoleIds.push(...tokenData.role_ids.split(","));
-            }
+    let tokenData = await getTokenData(req, res);
+    if (tokenData) {
+        userId = tokenData.user_id;
+        // userRoleIds = tokenData.roleIds ? tokenData.roleIds.split(",") : [];
+        if (tokenData.role_ids) {
+            userRoleIds.push(...tokenData.role_ids);
         }
     }
 
@@ -67,14 +64,17 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     return result;
 }
 
-export function getToken(req: http.IncomingMessage, res: http.ServerResponse) {
+export async function getTokenData(req: http.IncomingMessage, res: http.ServerResponse) {
     let routeData = getQueryObject(req);
     let cookies = new Cookies(req, res);
 
     let tokenText = (req.headers['token'] as string) || routeData["token"] || cookies.get(constants.cookieToken);
-    return tokenText;
-}
+    if (!tokenText)
+        return null;
 
+    let tokenData = await TokenManager.parse(tokenText);
+    return tokenData;
+}
 
 /**
  * 

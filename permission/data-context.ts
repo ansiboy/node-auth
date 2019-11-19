@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions } from "typeorm";
-import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, RoleResource, ResourcePath, UserRole } from "./entities";
+import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath, UserRole } from "./entities";
 import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator } from "maishu-node-mvc";
@@ -21,7 +21,7 @@ export class PermissionDataContext {
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
     // paths: Repository<Path>;
-    roleResources: Repository<RoleResource>;
+    // roleResources: Repository<RoleResource>;
     resourcePaths: Repository<ResourcePath>;
 
     baseModuleResourceId: string;
@@ -37,7 +37,7 @@ export class PermissionDataContext {
         this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
         // this.paths = this.entityManager.getRepository<Path>(Path);
-        this.roleResources = this.entityManager.getRepository<RoleResource>(RoleResource);
+        // this.roleResources = this.entityManager.getRepository<RoleResource>(RoleResource);
         this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
     }
 
@@ -98,7 +98,7 @@ export let currentUser = createParameterDecorator(async (req, res) => {
         return null;
 
     let dc = await createDataContext(settings.db);
-    let user = await dc.users.findOne(userId);
+    let user = await dc.users.findOne(userId, { relations: ["roles"] });
 
     if (!user)
         throw errors.objectNotExistWithId(userId, "User");

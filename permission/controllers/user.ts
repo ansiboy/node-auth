@@ -256,7 +256,10 @@ export default class UserController {
     /** 获取登录用户的信息 */
     @action()
     async me(@currentUser user: User) {
-        return user;
+        return {
+            id: user.id, mobile: user.mobile, user_name: user.user_name,
+            roles: user.roles,
+        } as Partial<User>;
     }
 
     /** 获取用户信息 */
@@ -393,28 +396,28 @@ export default class UserController {
     async resourceList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
         if (!userId) throw errors.routeDataFieldNull("userId");
 
-        let user = await dc.users.findOne(userId);
-        if (user == null)
-            throw errors.objectNotExistWithId(userId, "user");
+        // let user = await dc.users.findOne(userId);
+        // if (user == null)
+        //     throw errors.objectNotExistWithId(userId, "user");
 
-        // if (!user.role_id)
+        // // if (!user.role_id)
+        // //     return [];
+
+        // // if (user.role_id == constants.adminRoleId) {
+        // //     return dc.resources.find({ order: { sort_number: "ASC" } });
+        // // }
+
+        // // let roleIds = 
+
+        // let roleResources = await dc.roleResources.find({});
+        // if (roleResources.length == 0) {
         //     return [];
-
-        // if (user.role_id == constants.adminRoleId) {
-        //     return dc.resources.find({ order: { sort_number: "ASC" } });
         // }
 
-        // let roleIds = 
+        // let resourceIds = roleResources.map(o => o.resource_id);
+        // let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
 
-        let roleResources = await dc.roleResources.find({});
-        if (roleResources.length == 0) {
-            return [];
-        }
-
-        let resourceIds = roleResources.map(o => o.resource_id);
-        let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
-
-        return resources;
+        // return resources;
     }
 }
 

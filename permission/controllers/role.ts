@@ -1,6 +1,6 @@
 import { errors } from "../errors";
 import { controller, action, routeData as formData, routeData, } from "maishu-node-mvc";
-import { Role, User, RoleResource } from "../entities";
+import { Role, User } from "../entities";
 import { PermissionDataContext, permissionDataContext, currentUser } from "../data-context";
 import { guid } from "maishu-chitu-service";
 
@@ -83,10 +83,10 @@ export default class RoleController {
         if (!roleId) throw errors.argumentFieldNull("roleId", "formData");
         if (!resourceIds) throw errors.argumentFieldNull("resourceIds", "formData");
 
-        await dc.roleResources.delete({ role_id: roleId })
+        // await dc.roleResources.delete({ role_id: roleId })
 
-        let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o } as RoleResource))
-        await dc.roleResources.save(roleResources);
+        // let roleResources = resourceIds.map(o => ({ role_id: roleId, resource_id: o }))
+        // await dc.roleResources.save(roleResources);
 
         return {}
     }
@@ -100,12 +100,13 @@ export default class RoleController {
     async resourceIds(@permissionDataContext dc: PermissionDataContext, @formData { roleId }): Promise<string[]> {
         if (!roleId) throw errors.argumentFieldNull('roleId', "formData");
 
-        let items = await dc.roleResources.find({
-            where: { role_id: roleId },
-            select: ["resource_id"]
-        })
+        // let items = await dc.roleResources.find({
+        //     where: { role_id: roleId },
+        //     select: ["resource_id"]
+        // })
 
-        let r = items.map(o => o.resource_id);
-        return r;
+        // let r = items.map(o => o.resource_id);
+        // return r;
+        return [];
     }
 }

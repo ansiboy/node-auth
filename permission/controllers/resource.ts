@@ -11,24 +11,24 @@ export default class ResourceController {
 
 
     @action()
-    async add(@permissionDataContext dc: PermissionDataContext, @currentUser user: User, @routeData { item }: { item: Resource }): Promise<Partial<Resource>> {
+    async add(@permissionDataContext dc: PermissionDataContext, @currentUser user: User, @routeData { item }: { item: Resource }) {
         // if (!item.name) throw errors.argumentFieldNull('name', 'item')
 
-        item.id = guid()
-        item.create_date_time = new Date(Date.now())
+        // item.id = guid()
+        // item.create_date_time = new Date(Date.now())
 
-        if (item.sort_number == null) {
-            let r = await dc.resources.createQueryBuilder()
-                .select("max(sort_number) as max_sort_number").getRawOne();
+        // if (item.sort_number == null) {
+        //     let r = await dc.resources.createQueryBuilder()
+        //         .select("max(sort_number) as max_sort_number").getRawOne();
 
-            item.sort_number = (r["max_sort_number"] || 0) + 100;
-        }
+        //     item.sort_number = (r["max_sort_number"] || 0) + 100;
+        // }
 
 
-        await dc.resources.save(item);
-        await dc.roleResources.save({ resource_id: item.id });
+        // await dc.resources.save(item);
+        // await dc.roleResources.save({ resource_id: item.id });
 
-        return { id: item.id, create_date_time: item.create_date_time, sort_number: item.sort_number };
+        // return { id: item.id, create_date_time: item.create_date_time, sort_number: item.sort_number };
     }
 
     @action()

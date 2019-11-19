@@ -43,16 +43,13 @@ export class Role implements Model {
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @ManyToMany(() => Resource)
-    @JoinTable({
-        name: "role_resource",
-        joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "resource_id", referencedColumnName: "id" }]
-    })
-    resources?: Resource[];
-
-    @Column({ type: "char", length: 36, nullable: true })
-    role_id?: string;
+    // @ManyToMany(() => Resource)
+    // @JoinTable({
+    //     name: "role_resource",
+    //     joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+    //     inverseJoinColumns: [{ name: "resource_id", referencedColumnName: "id" }]
+    // })
+    // resources?: Resource[];
 
     @Column({ type: "char", length: 36, nullable: true })
     parent_id?: string;
@@ -76,18 +73,18 @@ export class Category implements Model {
     create_date_time: Date;
 }
 
-export type ResourceData = {
-    position: "top-right" | "in-list",
-    code?: string,
-    button?: {
-        // text?: string,
-        className: string,
-        execute_path?: string,
-        toast?: string,
-        showButtonText: boolean,
-        title?: string,
-    }
-}
+// export type ResourceData = {
+//     position: "top-right" | "in-list",
+//     code?: string,
+//     button?: {
+//         // text?: string,
+//         className: string,
+//         execute_path?: string,
+//         toast?: string,
+//         showButtonText: boolean,
+//         title?: string,
+//     }
+// }
 
 @Entity("resource")
 export class Resource implements Model {
@@ -184,14 +181,14 @@ export class SMSRecord implements Model {
     create_date_time: Date;
 }
 
-@Entity("role_resource", { synchronize: false })
-export class RoleResource {
-    @PrimaryColumn({ type: "char", length: 36 })
-    role_id: string;
+// @Entity("role_resource", { synchronize: false })
+// export class RoleResource {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     role_id: string;
 
-    @PrimaryColumn({ type: "char", length: 36 })
-    resource_id: string;
-}
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     resource_id: string;
+// }
 
 @Entity("resource_path", { synchronize: false })
 export class ResourcePath {

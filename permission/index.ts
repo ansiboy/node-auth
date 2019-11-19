@@ -5,6 +5,7 @@ import { settings as globalSettings, stationPath, gateway } from "./global";
 import { roleIds } from "../gateway";
 
 export { Settings } from "./types";
+export { createDataContext } from "./data-context";
 
 export function start(settings: Settings) {
     Object.assign(globalSettings, settings)

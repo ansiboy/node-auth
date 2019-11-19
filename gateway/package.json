@@ -5,6 +5,7 @@
         "cookie": "^0.4.0",
         "cookies": "^0.8.0",
         "less": "^3.10.3",
+        "maishu-chitu-admin": "file:../../chitu-admin",
         "maishu-chitu-service": "^1.8.5",
         "maishu-node-mvc": "file:../../node-mvc",
         "memory-cache": "^0.2.0",

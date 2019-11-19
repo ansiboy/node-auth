@@ -5,7 +5,7 @@ import { IncomingMessage } from "http";
  * 用于解释和生成 token 。
  */
 export declare class TokenManager {
-    static create(userId: string, roleIds?: string): Promise<TokenData>;
+    static create(userId: string, roleIds?: string[]): Promise<TokenData>;
     /**
      * 对令牌字符串进行解释，转换为令牌对象
      * @param appId 应用ID

@@ -5,6 +5,8 @@ import { WebsiteConfig, RequireConfig } from "maishu-chitu-admin/static";
 import { errors } from "./errors";
 import config from "config";
 import websiteConfig = require("json!websiteConfig");
+import { GatewayService } from "services/gateway-service";
+import React = require("react");
 
 export default async function (args: InitArguments) {
 
@@ -16,29 +18,26 @@ export default async function (args: InitArguments) {
         }
     })
 
-    let s = args.app.createService(PermissionService);
-    let stations = await s.stationList();
+    let permissionService = args.app.createService(PermissionService);
+    let gatewayService = args.app.createService(GatewayService);
+    let stations = await gatewayService.stationList();
 
     let stationPaths = stations.filter(o => o.path != websiteConfig.stationPath).map(o => o.path);
 
     rewriteApplication(args.app, stationPaths);
 
-    let r = await initStations(stationPaths, args);
+    await initStations(stationPaths, args);
 
-    let menuItems: WebsiteConfig["menuItems"] = [];
-    for (let i = 0; i < stationPaths.length; i++) {
-        let config = r[stationPaths[i]];
-        console.assert(config != null);
-
-        let stack = [...config.menuItems];
+    gatewayService.myMenuItems().then(menuItems => {
+        let stack = [...menuItems];
         while (stack.length > 0) {
             let menuItem = stack.shift();
 
             if (menuItem.path != null && menuItem.path.startsWith("#")) {
                 let path = menuItem.path.substr(1);
-                console.assert(stationPaths[i].startsWith("/"), `Station path ${stationPaths[i]} not starts with '/'`);
-                console.assert(stationPaths[i].endsWith("/"), `Station path ${stationPaths[i]} not ends with '/'`);
-                menuItem.path = `#${stationPaths[i]}${path}`;
+                let stationPath = menuItem["stationPath"];
+                console.assert(stationPath != null);
+                menuItem.path = `#${stationPath}${path}`;
             }
 
             (menuItem.children || []).forEach(child => {
@@ -46,10 +45,22 @@ export default async function (args: InitArguments) {
             })
         }
 
-        menuItems.push(...config.menuItems);
-    }
+        args.mainMaster.setMenu(...menuItems);
+    })
 
-    args.mainMaster.setMenu(...menuItems);
+    permissionService.me().then(me => {
+        args.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
+            <li className="pull-right" style={{ marginLeft: 10 }}>
+                {(me.roles || []).map(o => o.name).join(" ")}
+            </li>
+            <li className="pull-right">
+                {me.mobile || me.user_name}
+            </li>
+        </ul>)
+    })
+
+
+
 }
 
 
@@ -76,19 +87,18 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
         let reqConfig: RequireConfig = {};
         let req: RequireJS = requirejs;
         for (let i = 0; i < stationPaths.length; i++) {
-            // let stationPathIndex = path.indexOf(stationPaths[i]);
-            if (!path.startsWith(stationPaths[i])) //(stationPathIndex < 0)
-                continue;
+            if (path.startsWith(stationPaths[i])) {
+                path = path.substr(stationPaths[i].length);
+                path = `${stationPaths[i]}${modulesPath}${path}`;
 
-            // let str1 = stationPathIndex > 0 ? path.substr(0, stationPathIndex) : "";
-            // let str2 = path.substr(stationPathIndex + stationPaths[i].length);
-            // path = stationPaths[i] + str1 + str2;
+                reqConfig.context = stationPaths[i];
+                req = contextRequireJSs[stationPaths[i]];
+                break;
+            }
 
-            path = path.substr(stationPaths[i].length);
-            path = `${stationPaths[i]}${modulesPath}${path}`;
-
-            reqConfig.context = stationPaths[i];
-            req = contextRequireJSs[stationPaths[i]];
+            if (i == stationPaths.length - 1) {
+                path = `${modulesPath}${path}`;
+            }
         }
 
         return new Promise<any>((reslove, reject) => {

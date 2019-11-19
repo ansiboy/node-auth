@@ -44,7 +44,7 @@ export default class UserController {
     login(dc: PermissionDataContext, args: any, req: any, res: any): Promise<ContentResult>;
     logout(): Promise<ContentResult>;
     /** 获取登录用户的信息 */
-    me(user: User): Promise<User>;
+    me(user: User): Promise<Partial<User>>;
     /** 获取用户信息 */
     item(dc: PermissionDataContext, { userId }: {
         userId: string;
@@ -74,5 +74,5 @@ export default class UserController {
     /** 获取用户所允许访问的资源 */
     resourceList(dc: PermissionDataContext, { userId }: {
         userId: any;
-    }): Promise<import("../entities").Resource[]>;
+    }): Promise<void>;
 }

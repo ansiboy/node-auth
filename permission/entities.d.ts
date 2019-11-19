@@ -8,8 +8,6 @@ export declare class Role implements Model {
     remark?: string;
     data?: any;
     create_date_time: Date;
-    resources?: Resource[];
-    role_id?: string;
     parent_id?: string;
     users?: User[];
 }
@@ -19,17 +17,6 @@ export declare class Category implements Model {
     name: string;
     create_date_time: Date;
 }
-export declare type ResourceData = {
-    position: "top-right" | "in-list";
-    code?: string;
-    button?: {
-        className: string;
-        execute_path?: string;
-        toast?: string;
-        showButtonText: boolean;
-        title?: string;
-    };
-};
 export declare class Resource implements Model {
     id: string;
     parent_id?: string;
@@ -64,10 +51,6 @@ export declare class SMSRecord implements Model {
     content: string;
     code?: string;
     create_date_time: Date;
-}
-export declare class RoleResource {
-    role_id: string;
-    resource_id: string;
 }
 export declare class ResourcePath {
     resource_id: string;
