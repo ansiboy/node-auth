@@ -1,5 +1,5 @@
 import { WebsiteConfig } from "maishu-chitu-admin";
-import { stationPath, roleIds } from "./global";
+import { stationPath, roleIds, settings } from "./global";
 import md5 = require("js-md5");
 import { stationPath as gatewayStaionPath } from "../gateway";
 

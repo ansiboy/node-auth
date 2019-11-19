@@ -6,15 +6,19 @@ import { start } from "./index";
 //===========================================
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
+const gatewayPort = 2857;
+const gateway = `127.0.0.1:${gatewayPort}`;
+const permissionStationPort = gatewayPort + 100;
+const portalStationPort = gatewayPort + 200;
 //===========================================
 let gatewayStationSettings: GatewaySettings = {
-    port: 2857,
+    port: gatewayPort,
     db: {
-        "user": "root",
-        "password": "81263",
-        "database": "node_auth_gateway",
-        "host": "localhost",
-        "port": 3306
+        user: "root",
+        password: "81263",
+        database: "node_auth_gateway",
+        host: "localhost",
+        port: 3306
     },
     logLevel: "all",
     proxy: {
@@ -67,18 +71,20 @@ let gatewayStationSettings: GatewaySettings = {
 }
 
 let permissionStationSettings: PermissionSettings = {
-    port: gatewayStationSettings.port + 100,
+    port: permissionStationPort,
+    gateway,
     db: {
-        "user": "root",
-        "password": "81263",
-        "database": "node_auth_permission",
-        "host": "localhost",
-        "port": 3306
-    }
+        user: "root",
+        password: "81263",
+        database: "node_auth_permission",
+        host: "localhost",
+        port: 3306
+    },
 }
 
 let portalStationSettings: PortalSettings = {
-    port: 6891
+    port: portalStationPort,
+    gateway,
 }
 
 start({

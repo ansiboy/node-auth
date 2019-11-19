@@ -4,7 +4,8 @@ import websiteConfig from "./website-config";
 import { roleIds } from "../gateway";
 
 export type Settings = {
-    port: number
+    port: number,
+    gateway: string,
 }
 
 export function start(settings: Settings) {
@@ -19,7 +20,7 @@ export function start(settings: Settings) {
             node_modules: path.join(__dirname, "node_modules"),
         },
         station: {
-            gateway: websiteConfig.gateway,
+            gateway: settings.gateway,
             path: websiteConfig.stationPath,
             permissions
         }

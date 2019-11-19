@@ -68,16 +68,25 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
     }
 
     app.loadjs = function (path: string) {
+
+        const modulesPath = "modules/";
+        console.assert(path.startsWith(modulesPath));
+        path = path.substr(modulesPath.length);
+
         let reqConfig: RequireConfig = {};
         let req: RequireJS = requirejs;
         for (let i = 0; i < stationPaths.length; i++) {
-            let stationPathIndex = path.indexOf(stationPaths[i]);
-            if (stationPathIndex < 0)
+            // let stationPathIndex = path.indexOf(stationPaths[i]);
+            if (!path.startsWith(stationPaths[i])) //(stationPathIndex < 0)
                 continue;
 
-            let str1 = stationPathIndex > 0 ? path.substr(0, stationPathIndex) : "";
-            let str2 = path.substr(stationPathIndex + stationPaths[i].length);
-            path = stationPaths[i] + str1 + str2;
+            // let str1 = stationPathIndex > 0 ? path.substr(0, stationPathIndex) : "";
+            // let str2 = path.substr(stationPathIndex + stationPaths[i].length);
+            // path = stationPaths[i] + str1 + str2;
+
+            path = path.substr(stationPaths[i].length);
+            path = `${stationPaths[i]}${modulesPath}${path}`;
+
             reqConfig.context = stationPaths[i];
             req = contextRequireJSs[stationPaths[i]];
         }

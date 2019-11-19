@@ -58,7 +58,7 @@ export function start(settings: Settings) {
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {
-            let key = `${stations[i].path}(\\S*)`;
+            let key = `^${stations[i].path}(\\S*)`;
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {
                 proxy[key] = { targetUrl, headers: proxyHeader };

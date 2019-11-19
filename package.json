@@ -1,6 +1,7 @@
 {
     "name": "maishu-node-auth",
     "version": "2.0.0",
+    "main": "index.js",
     "scripts": {
         "build": "grunt build"
     },
