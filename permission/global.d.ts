@@ -1,14 +1,9 @@
 import { Settings } from "./types";
+export { roleIds } from "../gateway";
 export declare let PROJECt_NAME: string;
 export declare let controllerPathRoot: string;
 export declare let stationPath: string;
 export declare let gateway: string;
-export declare let roleIds: {
-    adminRoleId: string;
-    anonymousRoleId: string;
-} & {
-    normalUserRoleId: string;
-};
 export declare let settings: Settings & {
     mobile: string;
     sendMessage: boolean;

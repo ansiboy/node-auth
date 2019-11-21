@@ -154,10 +154,6 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         result[stationPaths[i]] = stationWebsiteConfig;
     }
 
-    // for (let i = 0; i < stationPaths.length; i++) {
-    //     paths[stationPaths[i]] = stationAbsolutePaths[i];
-    // }
-
     await Promise.all(stationPaths.map((path, i) =>
 
         new Promise((resolve, reject) => {
@@ -218,7 +214,6 @@ let defaultPaths = {
     "react": `${node_modules}/react/umd/react.development`,
     "react-dom": `${node_modules}/react-dom/umd/react-dom.development`,
     "maishu-chitu": `${node_modules}/maishu-chitu/dist/index`,
-    "maishu-chitu-admin": `${node_modules}/maishu-chitu-admin/dist/chitu_admin`,
     "maishu-chitu-admin/static": `${node_modules}/maishu-chitu-admin/out/static/index`,
     "maishu-chitu-react": `${node_modules}/maishu-chitu-react/dist/index`,
     "maishu-chitu-service": `${node_modules}/maishu-chitu-service/dist/index`,

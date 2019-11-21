@@ -67,10 +67,6 @@ export default class UserController {
     userLatestLogin(dc: PermissionDataContext, { userIds }: {
         userIds: string[];
     }): Promise<import("../entities").UserLatestLogin[]>;
-    /** 获取当前用户角色的子角色列表 */
-    roleList(dc: PermissionDataContext, { userId }: {
-        userId: any;
-    }): Promise<import("../entities").Role[]>;
     /** 获取用户所允许访问的资源 */
     resourceList(dc: PermissionDataContext, { userId }: {
         userId: any;

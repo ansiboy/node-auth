@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { ConnectionConfig, createConnection as createDBConnection, MysqlError } from "mysql";
+import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
 import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions } from "typeorm";
 import path = require("path");
-import { TokenData } from "./entities";
-import { createParameterDecorator } from "maishu-node-mvc";
-import { g } from "./global";
+import { TokenData, Role, UserRole } from "./entities";
+import { createParameterDecorator, getLogger } from "maishu-node-mvc";
+import { g, constants, roleIds } from "./global";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -20,13 +20,17 @@ export interface SelectResult<T> {
 
 export class AuthDataContext {
 
-    tokenDatas: Repository<TokenData>;
     entityManager: EntityManager;
+    tokenDatas: Repository<TokenData>;
+    roles: Repository<Role>;
+    userRoles: Repository<UserRole>;
 
     constructor(entityManager: EntityManager) {
         this.entityManager = entityManager;
 
         this.tokenDatas = this.entityManager.getRepository(TokenData);
+        this.roles = this.entityManager.getRepository(Role);
+        this.userRoles = this.entityManager.getRepository(UserRole);
     }
 
 
@@ -83,7 +87,6 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
             name: connConfig.database
         }
 
-        await createDatabaseIfNotExists(connConfig);
         connection = await createConnection(dbOptions);
         connections[connConfig.database] = connection;
     }
@@ -105,10 +108,12 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
     }
 )
 
-export function createDatabaseIfNotExists(connConfig: ConnectionConfig): Promise<boolean> {
+export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void): Promise<boolean> {
     let dbName = connConfig.database;
     connConfig = Object.assign({}, connConfig);
     connConfig.database = "mysql";
+
+    let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
 
     let conn = createDBConnection(connConfig);
     let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
@@ -131,9 +136,78 @@ export function createDatabaseIfNotExists(connConfig: ConnectionConfig): Promise
                     return;
                 }
 
+                logger.info(`Create databasae ${dbName}.`)
+
+                if (initDatabase) {
+                    logger.info(`Initdatabase function is not null and executed to init the database.`);
+                    connConfig.database = dbName;
+                    initDatabase(connConfig);
+                }
+
                 resolve(true);
             });
 
         });
     })
+}
+
+export async function dataList<T>(repository: Repository<T>, options: {
+    selectArguments?: SelectArguments, relations?: string[],
+    fields?: Extract<keyof T, string>[]
+}): Promise<SelectResult<T>> {
+
+    let { selectArguments, relations, fields } = options;
+    selectArguments = selectArguments || {};
+
+    let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
+    if (!selectArguments.sortExpression) {
+        selectArguments.sortExpression = "create_date_time desc"
+    }
+
+    let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
+    console.assert(arr.length > 0)
+    order = {};
+    order[arr[0]] = arr[1].toUpperCase() as any;
+
+    let [items, count] = await repository.findAndCount({
+        where: selectArguments.filter, relations,
+        skip: selectArguments.startRowIndex,
+        take: selectArguments.maximumRows,
+        order: order,
+        select: fields,
+
+    });
+
+    return { dataItems: items, totalRowCount: count } as SelectResult<T>
+}
+
+export async function initDatabase(connConfig: ConnectionConfig) {
+    let dc = await createDataContext(connConfig);
+
+    let adminRole: Role = {
+        id: roleIds.admin,
+        name: "管理员",
+        remark: "系统预设的管理员",
+        create_date_time: new Date(Date.now()),
+    };
+
+    await dc.roles.save(adminRole);
+
+    let anonymousRole: Role = {
+        id: roleIds.anonymous,
+        name: "匿名用户组",
+        remark: "系统预设的匿名用户组",
+        create_date_time: new Date(Date.now()),
+    }
+
+    await dc.roles.save(anonymousRole);
+
+    let normalUserRole: Role = {
+        id: roleIds.normalUser,
+        name: "普通用户",
+        remark: "",
+        create_date_time: new Date(Date.now()),
+    }
+
+    await dc.roles.save(normalUserRole);
 }

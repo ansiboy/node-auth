@@ -1,5 +1,5 @@
 import { Settings } from "./types";
-import { roleIds as gatewayRoleIds } from "../gateway";
+export { roleIds } from "../gateway";
 
 //==============================================
 export let PROJECt_NAME = "node-auth-permission";
@@ -8,9 +8,6 @@ export let stationPath = "/permission/";
 export let gateway = "127.0.0.1:2857";
 //==============================================
 
-export let roleIds = Object.assign(gatewayRoleIds, {
-    normalUserRoleId: "516A72A0-21AE-4551-8A38-96EDAB0FAA5F"
-});
 
 let settingsExt = {
     mobile: '18502146746',

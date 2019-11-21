@@ -8,28 +8,27 @@ import Cookies = require("cookies");
 import { TokenManager } from "./token";
 import http = require("http");
 import path = require("path");
+import { createDatabaseIfNotExists, initDatabase } from "./data-context";
+import { roleIds } from "./global"
 
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
 export { createDatabaseIfNotExists } from "./data-context";
 
-export let roleIds = {
-    adminRoleId: constants.adminRoleId,
-    anonymousRoleId: constants.anonymousRoleId,
-}
 
 export { statusCodes } from "./status-codes";
-export { tokenDataHeaderNames } from "./global";
+export { tokenDataHeaderNames, roleIds, userIds } from "./global";
 export let stationPath = `/${constants.controllerPathRoot}/`;
 
-export function start(settings: Settings) {
+export async function start(settings: Settings) {
 
     console.assert(settings.port != null);
 
     g.settings = settings;
 
-    let proxy: MVCSettings["proxy"] = {};
+    await createDatabaseIfNotExists(settings.db, initDatabase);
 
+    let proxy: MVCSettings["proxy"] = {};
     settings.proxy = settings.proxy || {};
     for (let key in settings.proxy) {
         proxy[key] = { targetUrl: settings.proxy[key], headers: proxyHeader }
@@ -38,8 +37,8 @@ export function start(settings: Settings) {
     requestFilters.unshift(loginFilter);
 
     settings.permissions = settings.permissions || {};
-    settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymousRoleId] };
-    settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymousRoleId] };
+    settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
+    settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
 
     settings.virtualPaths = settings.virtualPaths || {};
     settings.virtualPaths["node_modules"] = path.join(__dirname, "node_modules");
@@ -78,20 +77,20 @@ async function proxyHeader(req: http.IncomingMessage) {
 
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[tokenName] as string || cookies.get(tokenName);
-    if (tokenText) {
-        logger.info(`Token text is ${tokenText}`);
-        try {
-            let token = await TokenManager.parse(tokenText);
-            header[tokenDataHeaderNames.userId] = token.user_id;
-            header[tokenDataHeaderNames.roleIds] = token.role_ids || "";
 
-        } catch (err) {
-            console.error(err)
-        }
-    }
-    else {
+    if (!tokenText) {
         logger.warn(`Token text is empty.`);
+        return header;
     }
+
+    logger.info(`Token text is ${tokenText}`);
+    let token = await TokenManager.parse(tokenText);
+    if (!token) {
+        logger.warn(`Token data '${tokenText}' is not exits.`);
+        return header;
+    }
+
+    header[tokenDataHeaderNames.userId] = token.user_id;
 
     return header
 }

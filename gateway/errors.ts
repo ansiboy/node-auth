@@ -7,6 +7,12 @@ export let errors = {
         error.name = `${statusCodes.argumentNull} ${errors.argumentNull.name}`;
         return error;
     },
+    argumentFieldNull(fieldName: string, objectName: string): Error {
+        let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
+        let error = new Error(msg);
+        error.name = `${statusCodes.fieldNull} ${errors.argumentFieldNull.name}`;
+        return error;
+    },
     routeDataFieldNull<T>(fieldName: keyof T): Error {
         let msg = `The '${fieldName}' field of route data cannt be null.`;
         let error = new Error(msg);
@@ -25,5 +31,11 @@ export let errors = {
         let error = new Error(msg);
         error.name = `${statusCodes.forbidden} ${errors.forbidden.name}`;
         return error;
+    },
+    objectNotExistWithId(id: string, name: string) {
+        let msg = `Object ${name} with id ${id} is not exists.`
+        let err = new Error(msg)
+        err.name = `${statusCodes.objectNotExistWithId} ${errors.objectNotExistWithId.name}`;
+        return err
     },
 }

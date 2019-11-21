@@ -30,7 +30,7 @@ export let loginFilter: Settings["requestFilters"][0] = function (req, res): Pro
             }
 
             let tokenData: TokenData = {
-                id: guid(), user_id: loginResult.userId, role_ids: loginResult.roleIds,
+                id: guid(), user_id: loginResult.userId,
                 create_date_time: new Date(Date.now())
             }
 

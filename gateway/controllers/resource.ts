@@ -36,7 +36,7 @@ export class ResourceController {
             while (stack.length > 0) {
                 let item = stack.shift();
                 item.stationPath = stations[i].path;
-                (item.children || []).reverse().forEach(child => {
+                (item.children || []).forEach(child => {
                     stack.unshift(child);
                 })
             }

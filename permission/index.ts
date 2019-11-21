@@ -2,13 +2,17 @@ import { start as startAdmin } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
 import { settings as globalSettings, stationPath, gateway } from "./global";
-import { roleIds } from "../gateway";
+import { roleIds, createDatabaseIfNotExists } from "../gateway";
 
 export { Settings } from "./types";
 export { createDataContext } from "./data-context";
+export { roleIds } from "./global";
 
-export function start(settings: Settings) {
+export async function start(settings: Settings) {
     Object.assign(globalSettings, settings)
+
+    await createDatabaseIfNotExists(settings.db);
+
     return startAdmin({
         port: settings.port,
         rootDirectory: __dirname,
@@ -19,7 +23,7 @@ export function start(settings: Settings) {
             path: stationPath,
             gateway: gateway,
             permissions: {
-                "/permission/*": { roleIds: [roleIds.adminRoleId, roleIds.anonymousRoleId] }
+                "/permission/*": { roleIds: [roleIds.admin, roleIds.anonymous] }
             }
         }
     })

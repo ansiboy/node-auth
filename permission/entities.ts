@@ -25,38 +25,38 @@ interface Model {
     create_date_time: Date;
 }
 
-@Entity("role")
-export class Role implements Model {
+// @Entity("role")
+// export class Role implements Model {
 
-    @PrimaryColumn({ type: "char", length: 36 })
-    id: string;
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     id: string;
 
-    @Column({ type: "varchar", length: 45 })
-    name: string;
+//     @Column({ type: "varchar", length: 45 })
+//     name: string;
 
-    @Column({ type: "varchar", length: 200, nullable: true })
-    remark?: string;
+//     @Column({ type: "varchar", length: 200, nullable: true })
+//     remark?: string;
 
-    @Column({ type: "json", nullable: true, })
-    data?: any;
+//     @Column({ type: "json", nullable: true, })
+//     data?: any;
 
-    @Column({ type: "datetime" })
-    create_date_time: Date;
+//     @Column({ type: "datetime" })
+//     create_date_time: Date;
 
-    // @ManyToMany(() => Resource)
-    // @JoinTable({
-    //     name: "role_resource",
-    //     joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-    //     inverseJoinColumns: [{ name: "resource_id", referencedColumnName: "id" }]
-    // })
-    // resources?: Resource[];
+//     // @ManyToMany(() => Resource)
+//     // @JoinTable({
+//     //     name: "role_resource",
+//     //     joinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+//     //     inverseJoinColumns: [{ name: "resource_id", referencedColumnName: "id" }]
+//     // })
+//     // resources?: Resource[];
 
-    @Column({ type: "char", length: 36, nullable: true })
-    parent_id?: string;
+//     @Column({ type: "char", length: 36, nullable: true })
+//     parent_id?: string;
 
-    @ManyToMany(() => Role, role => role.users)
-    users?: User[];
-}
+//     @ManyToMany(() => Role, role => role.users)
+//     users?: User[];
+// }
 
 @Entity("category")
 export class Category implements Model {
@@ -133,23 +133,23 @@ export class User implements Model {
     @Column({ type: "bit", nullable: true, transformer: new BitBooleanTransformer() })
     is_system?: boolean;
 
-    @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
-    @JoinTable({
-        name: "user_role",
-        joinColumns: [{ name: "user_id", referencedColumnName: "id" }],
-        inverseJoinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-    })
-    roles?: Role[];
+    // @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
+    // @JoinTable({
+    //     name: "user_role",
+    //     joinColumns: [{ name: "user_id", referencedColumnName: "id" }],
+    //     inverseJoinColumns: [{ name: "role_id", referencedColumnName: "id" }],
+    // })
+    // roles?: Role[];
 }
 
-@Entity("user_role", { synchronize: false })
-export class UserRole {
-    @PrimaryColumn({ type: "char", length: 36 })
-    user_id: string;
+// @Entity("user_role", { synchronize: false })
+// export class UserRole {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     user_id: string;
 
-    @PrimaryColumn({ type: "char", length: 36 })
-    role_id: string
-}
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     role_id: string
+// }
 
 @Entity("user-latest-login")
 export class UserLatestLogin implements Model {

@@ -1,14 +1,12 @@
 import "reflect-metadata";
 import { EntityManager, Repository } from "typeorm";
-import { Role, Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath, UserRole } from "./entities";
+import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig } from "mysql";
 export declare class PermissionDataContext {
     private entityManager;
     categories: Repository<Category>;
-    roles: Repository<Role>;
     resources: Repository<Resource>;
     users: Repository<User>;
-    userRoles: Repository<UserRole>;
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
     resourcePaths: Repository<ResourcePath>;
@@ -19,3 +17,4 @@ export declare function createDataContext(connConfig: ConnectionConfig): Promise
 export declare let permissionDataContext: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare let currentUser: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
 export declare let currentUserId: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
+export declare function initDatabase(db: ConnectionConfig): Promise<void>;

@@ -43,4 +43,4 @@ export interface Settings {
     virtualPaths?: MVCConfig["virtualPaths"],
 }
 
-export type LoginResult = { userId: string, roleIds: string[], token?: string };
+export type LoginResult = { userId: string, token?: string };

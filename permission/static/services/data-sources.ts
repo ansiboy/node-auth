@@ -2,7 +2,7 @@ import { DataSource } from "maishu-wuzhui";
 import { PermissionService } from "./permission-service";
 import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
 import { User, Resource, } from "entities";
-import { TokenData } from "gatewayEntities";
+import { TokenData, Role } from "gatewayEntities";
 import { GatewayService } from "./gateway-service";
 
 let ps = new PermissionService((err) => {
@@ -13,19 +13,19 @@ let gatewayService = new GatewayService((err) => {
     errorHandle(err);
 })
 
-let roleDataSource = new DataSource({
+let roleDataSource = new DataSource<Role>({
     primaryKeys: ["id"],
-    select: async () => {
-        let roles = await ps.role.list();
-        return { dataItems: roles, totalRowCount: roles.length };
+    select: async (args) => {
+        let r = await gatewayService.roleList(args);
+        return r;
     },
     insert: async (item) => {
-        let r = await ps.role.add(item.name, item.remark);
+        let r = await gatewayService.addRole(item.name, item.remark);
         Object.assign(item, r);
         return r;
     },
     update: async (item) => {
-        let r = await ps.role.update(item);
+        let r = await gatewayService.updateRole(item);
         return r;
     }
 })
@@ -63,9 +63,9 @@ let resourceDataSource = new DataSource<MenuItem>({
     primaryKeys: ["id"],
     select: async () => {
         let r: MenuItem[] = [];
-        let [menuItems, resources, roles] = await Promise.all([
+        let [menuItems, resources, roleResult] = await Promise.all([
             gatewayService.menuItemList(), ps.resource.list(),
-            ps.role.list()
+            gatewayService.roleList()
         ]);
         let stack = [...menuItems] as MenuItem[];
         while (stack.length > 0) {
@@ -74,6 +74,7 @@ let resourceDataSource = new DataSource<MenuItem>({
                 item.sort_number = r.length + 1;
             }
 
+            let roles = roleResult.dataItems;
             if (item.roleIds) {
                 item.roleNames = item.roleIds.map(roleId => roles.filter(r => r.id == roleId)[0])
                     .filter(role => role != null).map(o => o.name).join(",");

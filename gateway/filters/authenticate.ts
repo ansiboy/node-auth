@@ -4,11 +4,12 @@ import querystring = require('querystring');
 import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
 import { errors } from "../errors";
 import { PermissionConfig, PermissionConfigItem } from "../types";
-import { g, constants } from "../global";
+import { g, constants, roleIds } from "../global";
 import Cookies = require('cookies');
 import { TokenManager } from "../token";
 import UrlPattern = require("url-pattern");
 import { statusCodes } from "../status-codes";
+import { Role } from "../entities";
 
 /**
  * 检查路径是否允许访问
@@ -21,19 +22,31 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     permissions = permissions || {};
 
     let userId: string = null;
-    let userRoleIds: string[] = [constants.anonymousRoleId];// 所有用户都拥有 anonymousRoleId 角色
+    let userRoleIds: string[] = [roleIds.anonymous];// 所有访问者都拥有 anonymousRoleId 角色
     let tokenData = await getTokenData(req, res);
     if (tokenData) {
         userId = tokenData.user_id;
-        // userRoleIds = tokenData.roleIds ? tokenData.roleIds.split(",") : [];
-        if (tokenData.role_ids) {
-            userRoleIds.push(...tokenData.role_ids);
+        let ids = await Role.getUserRoleIds(userId);
+        if (ids) {
+            userRoleIds.push(...ids);
         }
+
+        //=========================================================
+        // 所有注册用户都拥有 anonymousRoleId 角色
+        if (userRoleIds.indexOf(roleIds.normalUser) < 0) {
+            userRoleIds.push(roleIds.normalUser);
+        }
+        //=========================================================
+
+        //tokenData.roleIds ? tokenData.roleIds.split(",") : [];
+        // if (tokenData.role_ids) {
+        //     userRoleIds.push(...tokenData.role_ids);
+        // }
     }
 
     //==================================================
     // 管理员拥有所有权限
-    if (userRoleIds.indexOf(constants.adminRoleId) >= 0) {
+    if (userRoleIds.indexOf(roleIds.admin) >= 0) {
         logger.info(`Role is admin role.`);
         return null;
     }

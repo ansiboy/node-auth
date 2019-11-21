@@ -36,7 +36,7 @@ let websiteConfig: PermissionWebsiteConfig = {
 let stack = [...websiteConfig.menuItems];
 while (stack.length > 0) {
     let item = stack.shift();
-    item.roleIds = [roleIds.adminRoleId];
+    item.roleIds = [roleIds.admin];
     (item.children || []).forEach(child => {
         stack.unshift(child);
     })

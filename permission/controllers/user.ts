@@ -1,7 +1,7 @@
 import { errors } from '../errors';
 import { controller, action, routeData, request, response, ContentResult } from 'maishu-node-mvc';
 import { PermissionDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
-import { User, UserRole } from '../entities';
+import { User } from '../entities';
 import LatestLoginController from './latest-login';
 import { BaseController, SelectArguments } from './base-controller';
 import SMSController from './sms';
@@ -69,20 +69,19 @@ export default class UserController {
             create_date_time: new Date(Date.now())
         }
 
-        let userRole: UserRole = {
-            user_id: user.id,
-            role_id: roleIds.normalUserRoleId,
-        }
+        // let userRole: UserRole = {
+        //     user_id: user.id,
+        //     role_id: roleIds.normalUserRoleId,
+        // }
 
         await dc.users.insert(user);
-        await dc.userRoles.insert(userRole);
 
-        let r: LoginResult = { userId: user.id, roleIds: [userRole.role_id] };
+        let r: LoginResult = { userId: user.id };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
-    private loginActionResult(userId: string, roleIds: string[]) {
-        let r: LoginResult = { userId: userId, roleIds };
+    private loginActionResult(userId: string) {
+        let r: LoginResult = { userId: userId };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
@@ -108,7 +107,7 @@ export default class UserController {
         user.password = password;
         await dc.users.save(user);
 
-        return this.loginActionResult(user.id, (user.roles || []).map(o => o.id));
+        return this.loginActionResult(user.id);
     }
 
     @action()
@@ -178,7 +177,7 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id } as UserToken)
         // return { token: token.id, userId: user.id, roleId: user.role_id }
-        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
+        let r: LoginResult = { userId: user.id };
         return r;
     }
 
@@ -186,7 +185,7 @@ export default class UserController {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
 
-        let user = await dc.users.findOne({ where: { openid: openid, }, relations: ["roles"], });
+        let user = await dc.users.findOne({ where: { openid: openid, } });
         if (user == null) {
             user = {
                 id: guid(), openid, create_date_time: new Date(Date.now()),
@@ -197,7 +196,7 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id });
         // return { token: token.id, userId: user.id, roleId: user.role_id };
-        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
+        let r: LoginResult = { userId: user.id };
         return r;
     }
 
@@ -206,7 +205,7 @@ export default class UserController {
 
         let { mobile, smsId, verifyCode } = args
 
-        let user = await dc.users.findOne({ where: { mobile }, relations: ["roles"] });
+        let user = await dc.users.findOne({ where: { mobile } });
         if (user == null)
             throw errors.mobileExists(mobile);
 
@@ -216,7 +215,7 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id } as UserToken)
         // return { token: token.id, userId: user.id, roleId: user.role_id }
-        let r: LoginResult = { userId: user.id, roleIds: (user.roles || []).map(o => o.id) };
+        let r: LoginResult = { userId: user.id, };
         return r;
     }
 
@@ -258,7 +257,7 @@ export default class UserController {
     async me(@currentUser user: User) {
         return {
             id: user.id, mobile: user.mobile, user_name: user.user_name,
-            roles: user.roles,
+            // roles: user.roles,
         } as Partial<User>;
     }
 
@@ -373,23 +372,23 @@ export default class UserController {
         return items;
     }
 
-    /** 获取当前用户角色的子角色列表 */
-    @action()
-    async roleList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
-        if (!dc) throw errors.argumentNull("dc");
-        if (!userId) throw errors.routeDataFieldNull("userId");
+    // /** 获取当前用户角色的子角色列表 */
+    // @action()
+    // async roleList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
+    //     if (!dc) throw errors.argumentNull("dc");
+    //     if (!userId) throw errors.routeDataFieldNull("userId");
 
-        let user = await dc.users.findOne(userId);
-        if (!user)
-            throw errors.objectNotExistWithId(userId, "User");
+    //     let user = await dc.users.findOne(userId);
+    //     if (!user)
+    //         throw errors.objectNotExistWithId(userId, "User");
 
-        let roles = await dc.roles.find({
-            // where: { parent_id: user.role_id },
-            order: { create_date_time: "DESC" }
-        });
+    //     let roles = await dc.roles.find({
+    //         // where: { parent_id: user.role_id },
+    //         order: { create_date_time: "DESC" }
+    //     });
 
-        return roles;
-    }
+    //     return roles;
+    // }
 
     /** 获取用户所允许访问的资源 */
     @action()

@@ -2,15 +2,6 @@ interface Model {
     id: string;
     create_date_time: Date;
 }
-export declare class Role implements Model {
-    id: string;
-    name: string;
-    remark?: string;
-    data?: any;
-    create_date_time: Date;
-    parent_id?: string;
-    users?: User[];
-}
 export declare class Category implements Model {
     id: string;
     code: string;
@@ -34,11 +25,6 @@ export declare class User implements Model {
     data?: object;
     openid?: string;
     is_system?: boolean;
-    roles?: Role[];
-}
-export declare class UserRole {
-    user_id: string;
-    role_id: string;
 }
 export declare class UserLatestLogin implements Model {
     id: string;
