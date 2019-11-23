@@ -1,5 +1,5 @@
 import { InitArguments, RequireJS } from "maishu-chitu-admin/static";
-import { PageData } from "maishu-chitu";
+import { PageData, Application } from "maishu-chitu";
 import { PermissionService } from "services/permission-service";
 import { WebsiteConfig, RequireConfig } from "maishu-chitu-admin/static";
 import { errors } from "./errors";
@@ -23,7 +23,6 @@ export default async function (args: InitArguments) {
     let stations = await gatewayService.stationList();
 
     let stationPaths = stations.filter(o => o.path != websiteConfig.stationPath).map(o => o.path);
-
     rewriteApplication(args.app, stationPaths);
 
     await initStations(stationPaths, args);
@@ -48,8 +47,15 @@ export default async function (args: InitArguments) {
 
             if (menuItem.path != null && menuItem.path.startsWith("#")) {
                 let path = menuItem.path.substr(1);
-                let stationPath = menuItem["stationPath"];
+                let stationPath: string = menuItem["stationPath"];
                 console.assert(stationPath != null);
+                if (stationPath.startsWith("/")) {
+                    stationPath = stationPath.substr(1);
+                }
+                if (stationPath.endsWith("/")) {
+                    stationPath = stationPath.substr(0, stationPath.length - 1);
+                }
+
                 menuItem.path = `#${stationPath}:${path}`;
             }
 
@@ -61,7 +67,7 @@ export default async function (args: InitArguments) {
         args.mainMaster.setMenu(...menuItems);
 
         args.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
-            <li className="pull-right" style={{ marginLeft: 10 }}>
+            <li className="pull-right" style={{ marginLeft: 10, cursor: "pointer" }} onClick={() => logout(gatewayService, args.app)}>
                 <i className="icon-off" style={{ marginRight: 4 }} />
                 <span>退出</span>
             </li>
@@ -74,10 +80,15 @@ export default async function (args: InitArguments) {
     })
 }
 
+async function logout(gs: GatewayService, app: Application) {
+    gs.logout();
+    PermissionService.token.value = "";
+    app.redirect("login");
+}
+
 
 async function rewriteApplication(app: InitArguments["app"], stationPaths: string[]) {
     console.assert(app != null);
-    // let stationAbsolutePaths = stationPaths.map(path => `${config.protocol}//${websiteConfig.gateway}${path}`);
     let showPage = app.showPage;
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
         args = args || {};
@@ -96,7 +107,6 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
         console.assert(path.startsWith(modulesPath));
         path = path.substr(modulesPath.length);
 
-        let reqConfig: RequireConfig = {};
         let req: RequireJS = requirejs;
         if (path.indexOf(":") >= 0) {
             let arr = path.split(":");
@@ -109,7 +119,6 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
             }
 
             path = `${stationPath}${modulesPath}${arr[1]}`;
-            reqConfig = { context: stationPath };
             req = contextRequireJSs[stationPath];
             console.assert(req != null);
         }
@@ -117,25 +126,6 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
             path = modulesPath + path;
             req = requirejs;
         }
-
-        // console.assert(path.startsWith(modulesPath));
-        // path = path.substr(modulesPath.length);
-
-
-        // for (let i = 0; i < stationPaths.length; i++) {
-        //     if (path.startsWith(stationPaths[i])) {
-        //         path = path.substr(stationPaths[i].length);
-        //         path = `${stationPaths[i]}${modulesPath}${path}`;
-
-        //         reqConfig.context = stationPaths[i];
-        //         req = contextRequireJSs[stationPaths[i]];
-        //         break;
-        //     }
-
-        //     if (i == stationPaths.length - 1) {
-        //         path = `${modulesPath}${path}`;
-        //     }
-        // }
 
         return new Promise<any>((reslove, reject) => {
             req([path],

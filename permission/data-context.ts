@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "typeorm";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig, Connection as DBConnection } from "mysql";
 import path = require("path");
@@ -38,11 +38,9 @@ export class PermissionDataContext {
 }
 
 
-let connections: { [dbName: string]: Connection } = {};
-
 export async function createDataContext(connConfig: ConnectionConfig): Promise<PermissionDataContext> {
-    let connection = connections[connConfig.database];
-    if (connection == null) {
+    let connectionManager = getConnectionManager();
+    if (connectionManager.has(connConfig.database) == false) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
         let dbOptions: ConnectionOptions = {
             type: "mysql",
@@ -58,13 +56,11 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
             name: connConfig.database
         }
 
-        connection = await createConnection(dbOptions);
-        connections[connConfig.database] = connection;
+        await createConnection(dbOptions);
     }
 
 
-    connection = getConnection(connConfig.database);
-
+    let connection = getConnection(connConfig.database);
     let dc = new PermissionDataContext(connection.manager);
     return dc
 }

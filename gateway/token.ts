@@ -60,6 +60,7 @@ export class TokenManager {
     static async remove(id: string) {
         console.assert(g.settings.db != null);
         let dc = await createDataContext(g.settings.db);
+        cache.del(id);
         await dc.tokenDatas.delete({ id });
     }
 }

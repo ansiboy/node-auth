@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
-import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions, ConnectionManager, getManager, getConnectionManager } from "typeorm";
 import path = require("path");
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, getLogger } from "maishu-node-mvc";
@@ -67,12 +67,11 @@ export class AuthDataContext {
 
 }
 
-let connections: { [dbName: string]: Connection } = {};
+// let connections: { [dbName: string]: Connection } = {};
 
 export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
-
-    let connection = connections[connConfig.database];
-    if (connection == null) {
+    let connectionManager = getConnectionManager();
+    if (connectionManager.has(connConfig.database) == false) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
         let dbOptions: ConnectionOptions = {
             type: "mysql",
@@ -88,17 +87,12 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
             name: connConfig.database
         }
 
-        connection = await createConnection(dbOptions);
-        connections[connConfig.database] = connection;
+        await createConnection(dbOptions);
     }
 
-
-    connection = getConnection(connConfig.database);
-
-    let dc = new AuthDataContext(connection.manager)
-    return dc
-
-
+    let connection = getConnection(connConfig.database); 
+    let dc = new AuthDataContext(connection.manager);
+    return dc;
 }
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
@@ -225,9 +219,5 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
     if (!tokenData)
         return null;
 
-    // if (userId == null)
-    //     throw errors.canntGetUserIdFromHeader();
-
-    // return userId;
     return tokenData.user_id;
 })

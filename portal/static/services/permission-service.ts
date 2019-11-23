@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu";
 import md5 = require("js-md5");
-import { LocalValueStore } from "maishu-chitu-service";
+import { ValueStore } from "maishu-chitu-service";
 import { errors } from "errors";
 import websiteConfig = require("json!websiteConfig");
 import { User } from "permission-entities"
@@ -12,7 +12,7 @@ export interface LoginInfo {
 
 export class PermissionService extends Service {
 
-    static token = window["token"] = window["token"] || new LocalValueStore<string>("token");
+    static token: ValueStore<string> = window["token"] = window["token"] || new ValueStore<string>();
 
     private url(path: string) {
         return `${location.protocol}//${websiteConfig.gateway}/permission/${path}`;
@@ -37,17 +37,13 @@ export class PermissionService extends Service {
     }
 }
 
-// function setCookie(name: string, value: string, days?: number) {
-//     // nodejs 没有 document
-//     if (typeof document == 'undefined')
-//         return;
 
-//     var expires = "";
-//     if (days) {
-//         var date = new Date();
-//         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-//         expires = "; expires=" + date.toUTCString();
-//     }
-//     document.cookie = name + "=" + (value || "") + expires + "; path=/";
-// }
+function getCookie(name: string) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+}
+
+PermissionService.token.value = getCookie("token");
+
 

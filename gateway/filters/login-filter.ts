@@ -1,5 +1,5 @@
 import { Settings, ActionResult, getLogger } from "maishu-node-mvc";
-import { g, constants, tokenName } from "../global";
+import { g, constants, TOKEN_NAME } from "../global";
 import { LoginResult } from "../types";
 import { createDataContext } from "../data-context";
 import { TokenData } from "../entities";
@@ -54,7 +54,7 @@ export let loginFilter: Settings["requestFilters"][0] = function (req, res): Pro
                     logger.error(`Request headers host filed is null or empty.`);
                 }
                 logger.log(`Set token cookie form domain '${req.headers.host}'`);
-                cookies.set(tokenName, tokenData.id, { expires: new Date(Date.now() + 60 * 60 * 1000 * 24 * 365), domain: req.headers.host });
+                cookies.set(TOKEN_NAME, tokenData.id, { expires: new Date(Date.now() + 60 * 60 * 1000 * 24 * 365), domain: req.headers.host });
                 let r = write.apply(this, args);
                 resolve();
                 return r;

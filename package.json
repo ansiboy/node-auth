@@ -25,5 +25,8 @@
         "qcloudsms_js": "^0.1.1",
         "requirejs": "^2.3.6",
         "typeorm": "^0.2.20"
+    },
+    "devDependencies": {
+        "@types/memory-cache": "^0.2.0"
     }
 }

@@ -1,4 +1,4 @@
-import { g, constants, tokenDataHeaderNames, tokenName, guid } from "./global";
+import { g, constants, tokenDataHeaderNames, TOKEN_NAME, guid } from "./global";
 import { startServer, Settings as MVCSettings, getLogger } from "maishu-node-mvc";
 import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
@@ -93,8 +93,12 @@ async function proxyResponseHandle(proxyResponse: http.IncomingMessage, req: htt
         let tokenData = createTokenData(loginResult.userId);
         loginResult.token = tokenData.id;
 
+        let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
         let cookies = new Cookies(req, res);
-        cookies.set(tokenName, tokenData.id);
+        cookies.set(TOKEN_NAME, tokenData.id, {
+            overwrite: true, maxAge: 60 * 60 * 1000 * 24 * 365, 
+            httpOnly: false,
+        });
         res.write(JSON.stringify(loginResult));
         res.end();
     })
@@ -106,7 +110,7 @@ async function proxyHeader(req: http.IncomingMessage) {
     let header = {}
 
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
-    let tokenText = req.headers[tokenName] as string || cookies.get(tokenName);
+    let tokenText = req.headers[TOKEN_NAME] as string || cookies.get(TOKEN_NAME);
 
     if (!tokenText) {
         logger.warn(`Token text is empty.`);

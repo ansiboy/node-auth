@@ -24,7 +24,7 @@ export let tokenDataHeaderNames = {
     userId: "user-id"
 }
 
-export const tokenName = "token";
+export const TOKEN_NAME = "token";
 
 export { guid } from "maishu-chitu-service";
 export let g = {

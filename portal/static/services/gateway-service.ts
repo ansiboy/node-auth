@@ -23,4 +23,9 @@ export class GatewayService extends Service {
         let url = this.url("user/myRoles");
         return this.get<Role[]>(url);
     }
+
+    logout() {
+        let url = this.url("user/logout");
+        return this.post<boolean>(url);
+    }
 }
