@@ -3,7 +3,7 @@ import { startServer, Settings as MVCSettings, getLogger } from "maishu-node-mvc
 import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
-import { loginFilter } from "./filters/login-filter";
+// import { loginFilter } from "./filters/login-filter";
 import Cookies = require("cookies");
 import { TokenManager } from "./token";
 import http = require("http");
@@ -38,8 +38,8 @@ export async function start(settings: Settings) {
             response: proxyResponseHandle
         }
     }
-    let requestFilters = settings.requestFilters || [];
-    requestFilters.unshift(loginFilter);
+    // let requestFilters = settings.requestFilters || [];
+    // requestFilters.unshift(loginFilter);
 
     settings.permissions = settings.permissions || {};
     settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
@@ -49,7 +49,7 @@ export async function start(settings: Settings) {
     settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
 
     let r = startServer({
-        proxy, requestFilters,
+        proxy,
         headers: settings.headers,
         authenticate: (req, res) => authenticate(req, res, settings.permissions),
         controllerDirectory: path.join(__dirname, "controllers"),
@@ -82,6 +82,8 @@ async function proxyResponseHandle(proxyResponse: http.IncomingMessage, req: htt
         return;
     }
 
+    let logger = getLogger(constants.projectName);
+    logger.info("Status code is login status code, process login logic.");
     let buffers: Buffer[] = [];
     proxyResponse.on("data", function (chunk: Buffer) {
         buffers.push(chunk);
@@ -96,7 +98,7 @@ async function proxyResponseHandle(proxyResponse: http.IncomingMessage, req: htt
         let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
         let cookies = new Cookies(req, res);
         cookies.set(TOKEN_NAME, tokenData.id, {
-            overwrite: true, maxAge: 60 * 60 * 1000 * 24 * 365, 
+            overwrite: true, expires,
             httpOnly: false,
         });
         res.write(JSON.stringify(loginResult));

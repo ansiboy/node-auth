@@ -19,7 +19,7 @@ export declare let userIds: {
 export declare let tokenDataHeaderNames: {
     userId: string;
 };
-export declare const tokenName = "token";
+export declare const TOKEN_NAME = "token";
 export { guid } from "maishu-chitu-service";
 export declare let g: {
     settings: Settings;

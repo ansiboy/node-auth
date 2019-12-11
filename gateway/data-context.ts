@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
 import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions, ConnectionManager, getManager, getConnectionManager } from "typeorm";
 import path = require("path");
+import fs = require("fs");
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, getLogger } from "maishu-node-mvc";
 import { g, constants, roleIds, userIds } from "./global";
@@ -70,9 +71,15 @@ export class AuthDataContext {
 // let connections: { [dbName: string]: Connection } = {};
 
 export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
+    let logger = getLogger(`${constants.projectName}:${createDataContext.name}`);
     let connectionManager = getConnectionManager();
     if (connectionManager.has(connConfig.database) == false) {
-        let entities: string[] = [path.join(__dirname, "entities.js")]
+        let entitiesPath = path.join(__dirname, "entities.js");
+        if (fs.existsSync(entitiesPath)) {
+            logger.error(`Entities path is not exists, path is ${entitiesPath}.`);
+        }
+
+        let entities: string[] = [entitiesPath];
         let dbOptions: ConnectionOptions = {
             type: "mysql",
             host: connConfig.host,
@@ -90,7 +97,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
         await createConnection(dbOptions);
     }
 
-    let connection = getConnection(connConfig.database); 
+    let connection = getConnection(connConfig.database);
     let dc = new AuthDataContext(connection.manager);
     return dc;
 }

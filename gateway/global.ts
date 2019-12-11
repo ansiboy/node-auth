@@ -4,7 +4,7 @@ import { ValueStore } from "maishu-chitu-service"
 export let constants = {
     dbName: "shop_auth",
     cookieToken: "token",
-    projectName: "node-auth-core",
+    projectName: "node-auth",
     controllerPathRoot: "auth"
 }
 

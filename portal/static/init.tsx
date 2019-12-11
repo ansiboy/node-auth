@@ -10,7 +10,6 @@ import React = require("react");
 
 export default async function (args: InitArguments) {
 
-
     let lib = "./lib";
     requirejs.config({
         paths: {
