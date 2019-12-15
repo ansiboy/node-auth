@@ -75,7 +75,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
     let connectionManager = getConnectionManager();
     if (connectionManager.has(connConfig.database) == false) {
         let entitiesPath = path.join(__dirname, "entities.js");
-        if (fs.existsSync(entitiesPath)) {
+        if (!fs.existsSync(entitiesPath)) {
             logger.error(`Entities path is not exists, path is ${entitiesPath}.`);
         }
 

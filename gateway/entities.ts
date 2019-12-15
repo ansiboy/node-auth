@@ -2,23 +2,6 @@ import { Entity, PrimaryColumn, Column, ValueTransformer, ManyToOne, OneToMany, 
 import { createDataContext } from "./data-context";
 import { g } from "./global";
 
-class RoleIdsStringTransformer implements ValueTransformer {
-    // To db from typeorm
-    to(value: string[] | null): string | null {
-        if (value === null || value.length == 0) {
-            return null;
-        }
-        let r = value.join(",");
-        return r;
-    }
-    // From db to typeorm
-    from(value: string): string[] | null {
-        if (value === null) {
-            return null;
-        }
-        return value.split(",");
-    }
-}
 
 @Entity("token_data")
 export class TokenData {

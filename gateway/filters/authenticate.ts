@@ -32,7 +32,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
         }
 
         //=========================================================
-        // 所有注册用户都拥有 anonymousRoleId 角色
+        // 所有注册用户都拥有 normalUser 角色
         if (userRoleIds.indexOf(roleIds.normalUser) < 0) {
             userRoleIds.push(roleIds.normalUser);
         }

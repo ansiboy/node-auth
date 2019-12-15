@@ -13,9 +13,13 @@ module.exports = function (grunt) {
             },
             root: {
                 command: "tsc -p ./"
+            },
+            start: {
+                command: "node index"
             }
         }
     });
 
-    grunt.registerTask("build", ["shell"]);
+    grunt.registerTask("build", ["shell:gateway", "shell:permission", "shell:portal", "shell:root"]);
+    grunt.registerTask("start", ["start"])
 }
