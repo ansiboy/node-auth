@@ -1,5 +1,13 @@
 type PortalWebsiteConfig = {
     stationPath: string,
-} & import("maishu-chitu-admin").WebsiteConfig
+    indexPage: string,
+    protocol: string,
+}
+
+interface ServerContextData {
+    indexPage: string,
+}
+
+
 
 

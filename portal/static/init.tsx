@@ -3,7 +3,7 @@ import { PageData, Application } from "maishu-chitu";
 import { PermissionService } from "services/permission-service";
 import { WebsiteConfig, RequireConfig } from "maishu-chitu-admin/static";
 import { errors } from "./errors";
-import config from "config";
+// import config from "config";
 import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "services/gateway-service";
 import React = require("react");
@@ -156,7 +156,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         }
     }
 
-    let stationAbsolutePaths = stationPaths.map(path => `${config.protocol}//${websiteConfig.gateway}${path}`);
+    let stationAbsolutePaths = stationPaths.map(path => `${websiteConfig.protocol}//${websiteConfig.gateway}${path}`);
 
     let result: { [path: string]: WebsiteConfig } = {};
     let responses = await Promise.all(stationAbsolutePaths.map(path => fetch(`${path}websiteConfig`)))

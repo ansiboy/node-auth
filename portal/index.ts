@@ -1,17 +1,14 @@
-import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
+import { start as startAdmin } from "maishu-chitu-admin";
 import path = require("path");
-import websiteConfig from "./website-config";
-import { roleIds } from "../gateway";
+import { stationPath, permissions } from "./website-config";
 
 export type Settings = {
     port: number,
     gateway: string,
+    indexPage?: string,
 }
 
 export function start(settings: Settings) {
-
-    let permissions: PermissionConfig = {};
-    permissions[`${websiteConfig.stationPath}*`] = { roleIds: [roleIds.anonymous] };
 
     startAdmin({
         port: settings.port,
@@ -21,9 +18,12 @@ export function start(settings: Settings) {
         },
         station: {
             gateway: settings.gateway,
-            path: websiteConfig.stationPath,
+            path: stationPath,
             permissions
-        }
+        },
+        serverContextData: {
+            indexPage: settings.indexPage
+        } as ServerContextData
     })
 }
 

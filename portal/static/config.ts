@@ -1,6 +1,6 @@
-let config = {
-    loginRedirectURL: "index",
-    protocol: location.protocol
-}
+// let config = {
+//     loginRedirectURL: "index",
+//     protocol: location.protocol
+// }
 
-export default config;
+// export default config;
