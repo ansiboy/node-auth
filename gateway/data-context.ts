@@ -87,6 +87,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
             username: connConfig.user,
             password: connConfig.password,
             database: connConfig.database,
+            charset: connConfig.charset,
             synchronize: true,
             logging: false,
             connectTimeout: 3000,
@@ -132,7 +133,11 @@ export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initData
                 return;
             }
 
-            conn.query(`CREATE DATABASE ${dbName}`, function (err?: MysqlError) {
+            let sql = `CREATE DATABASE ${dbName}`;
+            if (connConfig.charset) {
+                sql = sql + ` CHARACTER SET ${connConfig.charset}`;
+            }
+            conn.query(sql, function (err?: MysqlError) {
                 if (err) {
                     reject(err);
                     return;

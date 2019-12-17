@@ -49,6 +49,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
             username: connConfig.user,
             password: connConfig.password,
             database: connConfig.database,
+            charset: connConfig.charset,
             synchronize: true,
             logging: false,
             connectTimeout: 3000,

@@ -21,9 +21,7 @@ export async function start(settings: Settings) {
     return startAdmin({
         port: settings.port,
         rootDirectory: __dirname,
-        virtualPaths: {
-            "node_modules": path.join(__dirname, "../node_modules")
-        },
+        virtualPaths: settings.virtualPaths,
         station: { path: stationPath, gateway, permissions }
     })
 }

@@ -6,6 +6,7 @@ export type Settings = {
     port: number,
     gateway: string,
     indexPage?: string,
+    virtualPaths?: { [path: string]: string }
 }
 
 export function start(settings: Settings) {
@@ -13,9 +14,7 @@ export function start(settings: Settings) {
     startAdmin({
         port: settings.port,
         rootDirectory: __dirname,
-        virtualPaths: {
-            node_modules: path.join(__dirname, "../node_modules"),
-        },
+        virtualPaths: settings.virtualPaths,
         station: {
             gateway: settings.gateway,
             path: stationPath,
