@@ -4,7 +4,7 @@ import { Role } from "gateway-entities";
 
 export class GatewayService extends Service {
     private url(path: string) {
-        return `${location.protocol}//${websiteConfig.gateway}/auth/${path}`;
+        return `/auth/${path}`;
     }
 
     async myMenuItems() {

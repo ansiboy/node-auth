@@ -166,7 +166,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
 
         stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
         console.assert(stationWebsiteConfig.requirejs.context != null);
-        stationWebsiteConfig.requirejs.baseUrl = `http://${websiteConfig.gateway}${stationPaths[i]}`;//stationPaths[i];
+        stationWebsiteConfig.requirejs.baseUrl = `${stationPaths[i]}`;//stationPaths[i];
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
 
         stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);

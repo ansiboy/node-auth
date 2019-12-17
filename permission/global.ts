@@ -5,7 +5,6 @@ export { roleIds } from "../gateway";
 export let PROJECt_NAME = "node-auth-permission";
 export let controllerPathRoot = "permission";
 export let stationPath = "/permission/";
-export let gateway = "127.0.0.1:2857";
 //==============================================
 
 

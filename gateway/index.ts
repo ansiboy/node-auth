@@ -38,8 +38,6 @@ export async function start(settings: Settings) {
             response: proxyResponseHandle
         }
     }
-    // let requestFilters = settings.requestFilters || [];
-    // requestFilters.unshift(loginFilter);
 
     settings.permissions = settings.permissions || {};
     settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
@@ -55,10 +53,11 @@ export async function start(settings: Settings) {
         controllerDirectory: path.join(__dirname, "controllers"),
         staticRootDirectory: path.join(__dirname, "static"),
         virtualPaths: settings.virtualPaths,
+        bindIP: settings.bindIP,
     })
 
     startSocketServer(r.server);
-    r.server.listen(settings.port);
+    r.server.listen(settings.port, settings.bindIP);
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {

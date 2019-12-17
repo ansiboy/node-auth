@@ -15,7 +15,7 @@ export class PermissionService extends Service {
     static token: ValueStore<string> = window["token"] = window["token"] || new ValueStore<string>();
 
     private url(path: string) {
-        return `${location.protocol}//${websiteConfig.gateway}/permission/${path}`;
+        return `/permission/${path}`;
     }
 
     async login(username: string, password: string) {

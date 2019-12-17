@@ -1,7 +1,7 @@
 import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
-import { settings as globalSettings, stationPath, gateway } from "./global";
+import { settings as globalSettings, stationPath, } from "./global";
 import { roleIds, createDatabaseIfNotExists } from "../gateway";
 import { initDatabase } from "./data-context";
 
@@ -22,6 +22,10 @@ export async function start(settings: Settings) {
         port: settings.port,
         rootDirectory: __dirname,
         virtualPaths: settings.virtualPaths,
-        station: { path: stationPath, gateway, permissions }
+        station: {
+            path: stationPath,
+            gateway: settings.gateway,
+            permissions
+        }
     })
 }

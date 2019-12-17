@@ -41,6 +41,7 @@ export interface Settings {
     requestFilters?: MVCConfig["requestFilters"],
     logLevel?: LogLevel,
     virtualPaths?: MVCConfig["virtualPaths"],
+    bindIP?: string,
 }
 
 export type LoginResult = { userId: string, token?: string };
