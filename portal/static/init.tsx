@@ -169,7 +169,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         stationWebsiteConfig.requirejs.baseUrl = `${stationPaths[i]}`;//stationPaths[i];
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
 
-        // stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);
+        stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);
         // stationWebsiteConfig.requirejs.paths[`clientjs_init`] = `http://${websiteConfig.gateway}${stationPaths[i]}clientjs_init`
 
         contextRequireJSs[stationPaths[i]] = requirejs.config(stationWebsiteConfig.requirejs);
@@ -215,7 +215,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
     return result;
 }
 
-let node_modules = 'node_modules';
+let node_modules = '/node_modules';
 let lib = 'assert/lib';
 
 let defaultPaths = {
