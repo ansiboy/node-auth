@@ -43,8 +43,8 @@ export async function start(settings: Settings) {
     settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
 
-    settings.virtualPaths = settings.virtualPaths || {};
-    settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
+    // settings.virtualPaths = settings.virtualPaths || {};
+    // settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
 
     let r = startServer({
         proxy,

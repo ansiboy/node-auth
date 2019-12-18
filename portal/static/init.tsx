@@ -156,10 +156,10 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         }
     }
 
-    let stationAbsolutePaths = stationPaths.map(path => `${websiteConfig.protocol}//${websiteConfig.gateway}${path}`);
+    //let stationAbsolutePaths = stationPaths.map(path => `${websiteConfig.protocol}//${websiteConfig.gateway}${path}`);
 
     let result: { [path: string]: WebsiteConfig } = {};
-    let responses = await Promise.all(stationAbsolutePaths.map(path => fetch(`${path}websiteConfig`)))
+    let responses = await Promise.all(stationPaths.map(path => fetch(`${path}websiteConfig`)))
     let stationWebsiteConfigs: WebsiteConfig[] = await Promise.all(responses.map(r => r.json()));
     for (let i = 0; i < stationPaths.length; i++) {
         let stationWebsiteConfig = stationWebsiteConfigs[i];
@@ -169,7 +169,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         stationWebsiteConfig.requirejs.baseUrl = `${stationPaths[i]}`;//stationPaths[i];
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
 
-        stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);
+        // stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);
         // stationWebsiteConfig.requirejs.paths[`clientjs_init`] = `http://${websiteConfig.gateway}${stationPaths[i]}clientjs_init`
 
         contextRequireJSs[stationPaths[i]] = requirejs.config(stationWebsiteConfig.requirejs);
