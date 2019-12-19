@@ -3,6 +3,3 @@ declare type PortalWebsiteConfig = {
     indexPage: string;
     protocol: string;
 };
-interface ServerContextData {
-    indexPage: string;
-}

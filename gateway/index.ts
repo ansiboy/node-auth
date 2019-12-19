@@ -1,10 +1,10 @@
 import { g, constants, tokenDataHeaderNames, TOKEN_NAME, guid } from "./global";
-import { startServer, Settings as MVCSettings, getLogger } from "maishu-node-mvc";
+import { startServer, Settings as MVCSettings, getLogger, ProxyPipe } from "maishu-node-mvc";
 import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
 // import { loginFilter } from "./filters/login-filter";
-import Cookies = require("cookies");
+import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
 import path = require("path");
@@ -30,12 +30,20 @@ export async function start(settings: Settings) {
 
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
+    let proxyPipe: ProxyPipe = {
+        async onResponse(req, res, data) {
+            let r = await proxyResponseHandle(req, res, data);
+            return r;
+        }
+    }
+
     let proxy: MVCSettings["proxy"] = {};
     settings.proxy = settings.proxy || {};
     for (let key in settings.proxy) {
         proxy[key] = {
             targetUrl: settings.proxy[key], headers: proxyHeader,
-            response: proxyResponseHandle
+            // response: proxyResponseHandle
+            pipe: proxyPipe
         }
     }
 
@@ -64,7 +72,9 @@ export async function start(settings: Settings) {
             let key = `^${stations[i].path}(\\S*)`;
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {
-                proxy[key] = { targetUrl, headers: proxyHeader, response: proxyResponseHandle };
+                proxy[key] = {
+                    targetUrl, headers: proxyHeader, pipe: proxyPipe
+                };
             }
 
             if (stations[i].permissions) {
@@ -74,35 +84,51 @@ export async function start(settings: Settings) {
     })
 }
 
-async function proxyResponseHandle(proxyResponse: http.IncomingMessage, req: http.IncomingMessage, res: http.ServerResponse) {
+async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: http.IncomingMessage, buffer: Buffer): Promise<Buffer> {
 
     if (proxyResponse.statusCode != statusCodes.login) {
-        proxyResponse.pipe(res);
         return;
     }
 
     let logger = getLogger(constants.projectName);
     logger.info("Status code is login status code, process login logic.");
-    let buffers: Buffer[] = [];
-    proxyResponse.on("data", function (chunk: Buffer) {
-        buffers.push(chunk);
-    })
-    proxyResponse.on("end", function () {
-        let buffer = Buffer.concat(buffers);
 
-        let loginResult: LoginResult = JSON.parse(buffer.toString());
-        let tokenData = createTokenData(loginResult.userId);
-        loginResult.token = tokenData.id;
+    console.assert(buffer != null);
+    let loginResult: LoginResult = JSON.parse(buffer.toString());
+    let tokenData = createTokenData(loginResult.userId);
+    loginResult.token = tokenData.id;
 
-        let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
-        let cookies = new Cookies(req, res);
-        cookies.set(TOKEN_NAME, tokenData.id, {
-            overwrite: true, expires,
-            httpOnly: false,
-        });
-        res.write(JSON.stringify(loginResult));
-        res.end();
-    })
+    let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
+    let cookies = new Cookies(req, proxyResponse as any);
+    cookies.set(TOKEN_NAME, tokenData.id, {
+        overwrite: true, expires,
+        httpOnly: false,
+    });
+
+    return Buffer.from(JSON.stringify(loginResult));
+
+    // let logger = getLogger(constants.projectName);
+    // logger.info("Status code is login status code, process login logic.");
+    // let buffers: Buffer[] = [];
+    // proxyResponse.on("data", function (chunk: Buffer) {
+    //     buffers.push(chunk);
+    // })
+    // proxyResponse.on("end", function () {
+    //     let buffer = Buffer.concat(buffers);
+
+    //     let loginResult: LoginResult = JSON.parse(buffer.toString());
+    //     let tokenData = createTokenData(loginResult.userId);
+    //     loginResult.token = tokenData.id;
+
+    //     let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
+    //     let cookies = new Cookies(req, res);
+    //     cookies.set(TOKEN_NAME, tokenData.id, {
+    //         overwrite: true, expires,
+    //         httpOnly: false,
+    //     });
+    //     res.write(JSON.stringify(loginResult));
+    //     res.end();
+    // })
 }
 
 

@@ -10,13 +10,6 @@ import React = require("react");
 
 export default async function (args: InitArguments) {
 
-    let lib = "./lib";
-    requirejs.config({
-        paths: {
-            qrcode: `${lib}/qrcode`,
-        }
-    })
-
     let permissionService = args.app.createService(PermissionService);
     let gatewayService = args.app.createService(GatewayService);
     let stations = await gatewayService.stationList();
@@ -106,7 +99,8 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
         console.assert(path.startsWith(modulesPath));
         path = path.substr(modulesPath.length);
 
-        let req: RequireJS = requirejs;
+        // let req: RequireJS = requirejs;
+        let contextName: string;
         if (path.indexOf(":") >= 0) {
             let arr = path.split(":");
             let stationPath = arr[0];
@@ -118,16 +112,17 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
             }
 
             path = `${stationPath}${modulesPath}${arr[1]}`;
-            req = contextRequireJSs[stationPath];
-            console.assert(req != null);
+            // req = contextRequireJSs[stationPath];
+            contextName = stationPath;
+            // console.assert(req != null);
         }
         else {
             path = modulesPath + path;
-            req = requirejs;
+            // req = requirejs;
         }
 
         return new Promise<any>((reslove, reject) => {
-            req([path],
+            requirejs({ context: contextName }, [path],
                 function (result: any) {
                     reslove(result);
                 },
@@ -165,7 +160,7 @@ async function initStations(stationPaths: string[], initArguments: InitArguments
         let stationWebsiteConfig = stationWebsiteConfigs[i];
 
         stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
-        console.assert(stationWebsiteConfig.requirejs.context != null);
+        stationWebsiteConfig.requirejs.context = stationWebsiteConfig.requirejs.context || stationPaths[i];
         stationWebsiteConfig.requirejs.baseUrl = `${stationPaths[i]}`;//stationPaths[i];
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
 

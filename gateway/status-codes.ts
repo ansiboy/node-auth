@@ -4,6 +4,8 @@ export enum statusCodes {
     login = 282,
     logout = 283,
     //=============================================
+    forbidden = 403,
+    //=============================================
     // 失败的状态码，必须小于或等于 700
     argumentNull = 705,
 
@@ -20,5 +22,4 @@ export enum statusCodes {
     /** 指定 ID 的对象不存在 */
     objectNotExistWithId = 728,
 
-    forbidden = 403,
 }

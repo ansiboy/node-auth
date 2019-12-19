@@ -1,6 +1,7 @@
 export declare enum statusCodes {
     login = 282,
     logout = 283,
+    forbidden = 403,
     argumentNull = 705,
     /** 字段为空 */
     fieldNull = 709,
@@ -10,6 +11,5 @@ export declare enum statusCodes {
     noPermission = 726,
     userIdNull = 727,
     /** 指定 ID 的对象不存在 */
-    objectNotExistWithId = 728,
-    forbidden = 403
+    objectNotExistWithId = 728
 }

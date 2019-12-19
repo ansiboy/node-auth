@@ -4,9 +4,9 @@ type PortalWebsiteConfig = {
     protocol: string,
 }
 
-interface ServerContextData {
-    indexPage: string,
-}
+// interface ServerContextData {
+//     indexPage: string,
+// }
 
 
 

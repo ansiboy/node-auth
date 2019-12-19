@@ -1,6 +1,6 @@
 import { Service } from "maishu-chitu-service";
 import { WebsiteConfig } from "maishu-chitu-admin/static";
-import { TokenData, Role } from "gatewayEntities";
+import { TokenData, Role } from "gateway-entities";
 import { DataSourceSelectArguments } from "maishu-services-sdk";
 import { DataSourceSelectResult } from "maishu-wuzhui";
 

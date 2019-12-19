@@ -1,7 +1,6 @@
 /// <reference path="./declare.ts"/>
 
-import { WebsiteConfig } from "maishu-chitu-admin";
-import { stationPath, roleIds, settings } from "./global";
+import { stationPath, roleIds } from "./global";
 import md5 = require("js-md5");
 import { stationPath as gatewayStaionPath } from "../gateway";
 
@@ -27,10 +26,7 @@ let websiteConfig: PermissionWebsiteConfig = {
                 { id: "179E6DDB-D6D9-4878-8CBE-25DAFCF676DC", name: "修改密码", icon: "icon-key", path: "#personal/change-password" }
             ]
         },
-    ],
-    requirejs: {
-
-    }
+    ]
 }
 
 let stack = [...websiteConfig.menuItems];
