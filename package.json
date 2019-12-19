@@ -9,7 +9,6 @@
         "@types/cookies": "^0.7.4",
         "@types/mysql": "^2.15.8",
         "@types/react": "^16.9.11",
-        "cookies": "^0.8.0",
         "grunt": "^1.0.4",
         "grunt-shell": "^3.0.1",
         "js-md5": "^0.7.3",
