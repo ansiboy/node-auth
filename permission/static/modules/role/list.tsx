@@ -4,7 +4,7 @@ import { dataSources } from "../../services/data-sources";
 import { rules } from "maishu-dilu";
 import { TextInput, DataListPage } from "../../components/index";
 import { DataControlField } from "maishu-wuzhui";
-import { Role } from "gatewayEntities";
+import { Role } from "gateway-entities";
 
 export default class RoleListPage extends DataListPage<Role> {
     dataSource = dataSources.role;

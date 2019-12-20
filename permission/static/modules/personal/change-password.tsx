@@ -8,7 +8,7 @@ import { errorHandle } from "maishu-chitu-admin/static";
 import { PageProps } from "maishu-chitu-react";
 import { errors } from "errors";
 import { BasePage } from "components/pages/base-page";
-import { Role } from "gatewayEntities";
+import { Role } from "gateway-entities";
 
 const NEW_PASSWORD = "new_password";
 const VERIFY_CODE = "verify_code";

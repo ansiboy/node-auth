@@ -31,7 +31,7 @@ export async function start(settings: Settings) {
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
     let proxyPipe: ProxyPipe = {
-        async onResponse(req, res, data) {
+        async onResponse({ req, res }, data) {
             let r = await proxyResponseHandle(req, res, data);
             return r;
         }

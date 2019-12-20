@@ -2,7 +2,7 @@ import { DataSource } from "maishu-wuzhui";
 import { PermissionService } from "./permission-service";
 import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
 import { User, Resource, } from "entities";
-import { TokenData, Role } from "gatewayEntities";
+import { TokenData, Role } from "gateway-entities";
 import { GatewayService } from "./gateway-service";
 
 let ps = new PermissionService((err) => {
