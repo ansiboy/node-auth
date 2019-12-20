@@ -9,6 +9,7 @@ import * as url from "url";
 import { g, guid } from './global';
 import querystring = require('querystring');
 import { getLogger } from "maishu-node-mvc";
+import { ServerContextData } from './types';
 
 
 type MyTokenData = TokenData & { cacheDateTime?: number };
@@ -17,7 +18,7 @@ type MyTokenData = TokenData & { cacheDateTime?: number };
  * 用于解释和生成 token 。
  */
 export class TokenManager {
-    static async create(userId: string): Promise<TokenData> {
+    static async create(userId: string, contextData: ServerContextData): Promise<TokenData> {
         if (userId == null) throw errors.argumentNull("userId");
         let token = new TokenData();
 
@@ -27,8 +28,8 @@ export class TokenManager {
         // token.role_ids = roleIds;
         token.create_date_time = new Date(Date.now());
 
-        console.assert(g.settings.db != null);
-        let dc = await createDataContext(g.settings.db);
+        console.assert(contextData != null);
+        let dc = await createDataContext(contextData.db);
         await dc.tokenDatas.save(token);
         return token;
     }
@@ -38,7 +39,7 @@ export class TokenManager {
      * @param appId 应用ID
      * @tokenValue 令牌字符串
      */
-    static async parse(token: string): Promise<TokenData> {
+    static async parse(token: string, contextData: ServerContextData): Promise<TokenData> {
 
         if (!token)
             return Promise.reject(errors.argumentNull('tokenValue'));
@@ -46,7 +47,7 @@ export class TokenManager {
         let tokenData: MyTokenData = cache.get(token);
 
         if (tokenData == null) {
-            let dc = await createDataContext(g.settings.db);
+            let dc = await createDataContext(contextData.db);
             let tokenData = await dc.tokenDatas.findOne(token) as MyTokenData;
             if (tokenData != null) {
                 tokenData.cacheDateTime = Date.now();
@@ -57,9 +58,9 @@ export class TokenManager {
         return tokenData;
     }
 
-    static async remove(id: string) {
-        console.assert(g.settings.db != null);
-        let dc = await createDataContext(g.settings.db);
+    static async remove(id: string, contextData: ServerContextData) {
+        console.assert(contextData.db != null);
+        let dc = await createDataContext(contextData.db);
         cache.del(id);
         await dc.tokenDatas.delete({ id });
     }
@@ -85,9 +86,9 @@ setInterval(() => {
 
 }, 1000 * 60 * 60);
 
-export async function getToken(req: IncomingMessage) {
+export async function getToken(req: IncomingMessage, contextData: ServerContextData) {
 
-    let logger = getLogger(g.projectName, g.settings.logLevel);
+    let logger = getLogger(g.projectName, contextData.logLevel);
 
     let cookies = new Cookies(req, null);
 
@@ -102,7 +103,7 @@ export async function getToken(req: IncomingMessage) {
     // token text 多了两个 "，要去除掉
     tokenText = tokenText.replace(/"/g, "");
     //============================================
-    let token = await TokenManager.parse(tokenText);
+    let token = await TokenManager.parse(tokenText, contextData);
     if (token == null) {
         logger.warn(`Token '${tokenText}' is not exists`)
     }

@@ -3,7 +3,7 @@ import url = require("url");
 import querystring = require('querystring');
 import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
 import { errors } from "../errors";
-import { PermissionConfig, PermissionConfigItem } from "../types";
+import { PermissionConfig, PermissionConfigItem, ServerContextData } from "../types";
 import { g, constants, roleIds } from "../global";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "../token";
@@ -15,18 +15,18 @@ import { Role } from "../entities";
  * 检查路径是否允许访问
  */
 export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
-    permissions: PermissionConfig): Promise<ActionResult> {
+    permissions: PermissionConfig, contextData: ServerContextData): Promise<ActionResult> {
 
-    let logger = getLogger(g.projectName, g.settings.logLevel);
+    let logger = getLogger(g.projectName, contextData.logLevel);
 
     permissions = permissions || {};
 
     let userId: string = null;
     let userRoleIds: string[] = [roleIds.anonymous];// 所有访问者都拥有 anonymousRoleId 角色
-    let tokenData = await getTokenData(req, res);
+    let tokenData = await getTokenData(req, res, contextData);
     if (tokenData) {
         userId = tokenData.user_id;
-        let ids = await Role.getUserRoleIds(userId);
+        let ids = await Role.getUserRoleIds(userId, contextData);
         if (ids) {
             userRoleIds.push(...ids);
         }
@@ -77,7 +77,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     return result;
 }
 
-export async function getTokenData(req: http.IncomingMessage, res: http.ServerResponse) {
+export async function getTokenData(req: http.IncomingMessage, res: http.ServerResponse, contextData: ServerContextData) {
     let routeData = getQueryObject(req);
     let cookies = new Cookies(req, res);
 
@@ -85,7 +85,7 @@ export async function getTokenData(req: http.IncomingMessage, res: http.ServerRe
     if (!tokenText)
         return null;
 
-    let tokenData = await TokenManager.parse(tokenText);
+    let tokenData = await TokenManager.parse(tokenText, contextData);
     return tokenData;
 }
 

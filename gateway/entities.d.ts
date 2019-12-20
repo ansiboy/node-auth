@@ -1,3 +1,4 @@
+import { ServerContextData } from "./types";
 export declare class TokenData {
     id: string;
     user_id: string;
@@ -15,7 +16,7 @@ export declare class Role {
      * 获取指定用户的角色 ID
      * @param userId 指定的用户 ID
      */
-    static getUserRoleIds(userId: string): Promise<string[]>;
+    static getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]>;
 }
 export declare class UserRole {
     user_id: string;

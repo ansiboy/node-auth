@@ -1,6 +1,7 @@
 import { Entity, PrimaryColumn, Column, ValueTransformer, ManyToOne, OneToMany, JoinTable, JoinColumn } from "typeorm";
 import { createDataContext } from "./data-context";
 import { g } from "./global";
+import { ServerContextData } from "./types";
 
 
 @Entity("token_data")
@@ -48,9 +49,9 @@ export class Role {
      * 获取指定用户的角色 ID
      * @param userId 指定的用户 ID
      */
-    static async getUserRoleIds(userId: string): Promise<string[]> {
+    static async getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]> {
         //TODO: 缓存 roleids
-        let dc = await createDataContext(g.settings.db);
+        let dc = await createDataContext(contextData.db);
         let userRoles = await dc.userRoles.find({ user_id: userId });
         return userRoles.map(o => o.role_id);
     }

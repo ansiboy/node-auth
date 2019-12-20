@@ -1,6 +1,6 @@
 import { g, constants, tokenDataHeaderNames, TOKEN_NAME, guid } from "./global";
 import { startServer, Settings as MVCSettings, getLogger, ProxyPipe } from "maishu-node-mvc";
-import { Settings, LoginResult } from "./types";
+import { Settings, LoginResult, ServerContextData } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
 // import { loginFilter } from "./filters/login-filter";
@@ -26,13 +26,16 @@ export async function start(settings: Settings) {
 
     console.assert(settings.port != null);
 
-    g.settings = settings;
+    let contextData: ServerContextData = {
+        db: settings.db,
+        logLevel: settings.logLevel
+    }
 
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
     let proxyPipe: ProxyPipe = {
         async onResponse({ req, res }, data) {
-            let r = await proxyResponseHandle(req, res, data);
+            let r = await proxyResponseHandle(req, res, data, contextData);
             return r;
         }
     }
@@ -41,7 +44,7 @@ export async function start(settings: Settings) {
     settings.proxy = settings.proxy || {};
     for (let key in settings.proxy) {
         proxy[key] = {
-            targetUrl: settings.proxy[key], headers: proxyHeader,
+            targetUrl: settings.proxy[key], headers: (req) => proxyHeader(req, contextData),
             // response: proxyResponseHandle
             pipe: proxyPipe
         }
@@ -57,14 +60,15 @@ export async function start(settings: Settings) {
     let r = startServer({
         proxy,
         headers: settings.headers,
-        authenticate: (req, res) => authenticate(req, res, settings.permissions),
+        authenticate: (req, res) => authenticate(req, res, settings.permissions, contextData),
         controllerDirectory: path.join(__dirname, "controllers"),
         staticRootDirectory: path.join(__dirname, "static"),
         virtualPaths: settings.virtualPaths,
         bindIP: settings.bindIP,
+        serverContextData: contextData
     })
 
-    startSocketServer(r.server);
+    startSocketServer(r.server, contextData);
     r.server.listen(settings.port, settings.bindIP);
 
     g.stationInfos.add(stations => {
@@ -73,7 +77,7 @@ export async function start(settings: Settings) {
             let targetUrl = `http://${stations[i].ip}:${stations[i].port}/$1`;
             if (!proxy[key]) {
                 proxy[key] = {
-                    targetUrl, headers: proxyHeader, pipe: proxyPipe
+                    targetUrl, headers: (req) => proxyHeader(req, contextData), pipe: proxyPipe
                 };
             }
 
@@ -84,7 +88,7 @@ export async function start(settings: Settings) {
     })
 }
 
-async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: http.IncomingMessage, buffer: Buffer): Promise<Buffer> {
+async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: http.IncomingMessage, buffer: Buffer, contextData: ServerContextData): Promise<Buffer> {
 
     if (proxyResponse.statusCode != statusCodes.login) {
         return;
@@ -95,7 +99,7 @@ async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: htt
 
     console.assert(buffer != null);
     let loginResult: LoginResult = JSON.parse(buffer.toString());
-    let tokenData = createTokenData(loginResult.userId);
+    let tokenData = createTokenData(loginResult.userId, contextData);
     loginResult.token = tokenData.id;
 
     let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
@@ -132,7 +136,7 @@ async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: htt
 }
 
 
-async function proxyHeader(req: http.IncomingMessage) {
+async function proxyHeader(req: http.IncomingMessage, contextData: ServerContextData) {
     let cookies = new Cookies(req, null);
     let header = {}
 
@@ -145,7 +149,7 @@ async function proxyHeader(req: http.IncomingMessage) {
     }
 
     logger.info(`Token text is ${tokenText}`);
-    let token = await TokenManager.parse(tokenText);
+    let token = await TokenManager.parse(tokenText, contextData);
     if (!token) {
         logger.warn(`Token data '${tokenText}' is not exits.`);
         return header;
@@ -156,14 +160,14 @@ async function proxyHeader(req: http.IncomingMessage) {
     return header
 }
 
-function createTokenData(userId: string): TokenData {
+function createTokenData(userId: string, contextData: ServerContextData): TokenData {
     let tokenData: TokenData = {
         id: guid(), user_id: userId,
         create_date_time: new Date(Date.now())
     }
 
-    let logger = getLogger(`${constants.projectName}:${createTokenData.name}`, g.settings.logLevel);
-    createDataContext(g.settings.db).then(dc => {
+    let logger = getLogger(`${constants.projectName}:${createTokenData.name}`, contextData.logLevel);
+    createDataContext(contextData.db).then(dc => {
         return dc.tokenDatas.insert(tokenData);
     }).catch(err => {
         logger.error(err);

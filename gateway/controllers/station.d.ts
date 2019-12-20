@@ -1,8 +1,8 @@
-import { StationInfo } from "../types";
+import { StationInfo, ServerContextData } from "../types";
 export declare class StationController {
     list(): {
         path: string;
     }[];
     /** 注册站点 */
-    register(data: StationInfo): void;
+    register(data: StationInfo, contextData: ServerContextData): void;
 }

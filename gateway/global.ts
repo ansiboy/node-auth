@@ -28,7 +28,7 @@ export const TOKEN_NAME = "token";
 
 export { guid } from "maishu-chitu-service";
 export let g = {
-    settings: null as Settings,
+    // settings: null as Settings,
     projectName: constants.projectName,
     stationInfos: new ValueStore<(Readonly<StationInfo> & { permissions?: PermissionConfig })[]>([])
 };

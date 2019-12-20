@@ -4,9 +4,10 @@ import { createConnection, EntityManager, Repository, Connection, Db, getConnect
 import path = require("path");
 import fs = require("fs");
 import { TokenData, Role, UserRole } from "./entities";
-import { createParameterDecorator, getLogger } from "maishu-node-mvc";
+import { createParameterDecorator, getLogger, Logger } from "maishu-node-mvc";
 import { g, constants, roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
+import { ServerContext } from "./types";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -104,19 +105,19 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
 }
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
-    async () => {
-        console.assert(g.settings.db != null);
-        let dc = await createDataContext(g.settings.db);
+    async (req, res, context: ServerContext) => {
+        console.assert(context.data != null);
+        let dc = await createDataContext(context.data.db);
         return dc
     }
 )
 
-export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void): Promise<boolean> {
+export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void, logger?: Logger): Promise<boolean> {
     let dbName = connConfig.database;
     connConfig = Object.assign({}, connConfig);
     connConfig.database = "mysql";
 
-    let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
+    // let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
 
     let conn = createDBConnection(connConfig);
     let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
@@ -143,10 +144,10 @@ export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initData
                     return;
                 }
 
-                logger.info(`Create databasae ${dbName}.`)
+                info(`Create databasae ${dbName}.`)
 
                 if (initDatabase) {
-                    logger.info(`Initdatabase function is not null and executed to init the database.`);
+                    info(`Initdatabase function is not null and executed to init the database.`);
                     connConfig.database = dbName;
                     initDatabase(connConfig);
                 }
@@ -156,6 +157,13 @@ export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initData
 
         });
     })
+
+    function info(msg: string) {
+        if (!logger)
+            return;
+
+        logger.info(msg);
+    }
 }
 
 export async function dataList<T>(repository: Repository<T>, options: {
@@ -226,8 +234,8 @@ export async function initDatabase(connConfig: ConnectionConfig) {
     await dc.userRoles.save(userRole);
 }
 
-export let currentUserId = createParameterDecorator(async (req, res) => {
-    let tokenData = await getTokenData(req, res);
+export let currentUserId = createParameterDecorator(async (req, res, context: ServerContext) => {
+    let tokenData = await getTokenData(req, res, context.data);
     if (!tokenData)
         return null;
 
