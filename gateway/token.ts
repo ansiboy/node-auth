@@ -4,7 +4,7 @@ import * as cache from 'memory-cache';
 import { createDataContext } from './data-context';
 import { TokenData } from './entities';
 import { IncomingMessage } from "http";
-import Cookies = require("cookies");
+import Cookies = require("maishu-cookies");
 import * as url from "url";
 import { g, guid } from './global';
 import querystring = require('querystring');

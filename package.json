@@ -1,12 +1,11 @@
 {
     "name": "maishu-node-auth",
-    "version": "2.17.0",
+    "version": "2.18.0",
     "main": "index.js",
     "scripts": {
         "build": "grunt build"
     },
     "dependencies": {
-        "@types/cookies": "^0.7.4",
         "@types/mysql": "^2.15.8",
         "@types/react": "^16.9.11",
         "grunt": "^1.0.4",

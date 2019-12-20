@@ -5,7 +5,7 @@ import { errors } from "../errors";
 import http = require("http");
 import { getTokenData } from "../filters/authenticate";
 import { TokenManager } from "../token";
-import Cookies = require("cookies");
+import Cookies = require("maishu-cookies");
 
 @controller(`/${constants.controllerPathRoot}/user`)
 export default class UserController {
