@@ -1,6 +1,5 @@
 import { ConnectionConfig } from "mysql";
 import { Settings as MVCConfig, LogLevel, ServerContext as BaseServerContext } from "maishu-node-mvc";
-import { TokenData } from "./entities";
 export { SimpleMenuItem, WebsiteConfig } from "maishu-chitu-admin";
 export interface RequireConfig {
 

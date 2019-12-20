@@ -67,6 +67,17 @@ export class AuthDataContext {
         return { dataItems: items, totalRowCount: count } as SelectResult<T>
     }
 
+    /**
+ * 获取指定用户的角色 ID
+ * @param userId 指定的用户 ID
+ */
+    static async getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]> {
+        //TODO: 缓存 roleids
+        let dc = await createDataContext(contextData);
+        let userRoles = await dc.userRoles.find({ user_id: userId });
+        return userRoles.map(o => o.role_id);
+    }
+
 }
 
 // let connections: { [dbName: string]: Connection } = {};

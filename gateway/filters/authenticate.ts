@@ -10,6 +10,7 @@ import { TokenManager } from "../token";
 import UrlPattern = require("url-pattern");
 import { statusCodes } from "../status-codes";
 import { Role } from "../entities";
+import { AuthDataContext } from "../data-context";
 
 /**
  * 检查路径是否允许访问
@@ -26,7 +27,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     let tokenData = await getTokenData(req, res, contextData);
     if (tokenData) {
         userId = tokenData.user_id;
-        let ids = await Role.getUserRoleIds(userId, contextData);
+        let ids = await AuthDataContext.getUserRoleIds(userId, contextData);
         if (ids) {
             userRoleIds.push(...ids);
         }

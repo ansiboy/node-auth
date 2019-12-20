@@ -25,6 +25,11 @@ export declare class AuthDataContext {
         relations?: string[];
         fields?: Extract<keyof T, string>[];
     }): Promise<SelectResult<T>>;
+    /**
+ * 获取指定用户的角色 ID
+ * @param userId 指定的用户 ID
+ */
+    static getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]>;
 }
 export declare function createDataContext(contextData: ServerContextData): Promise<AuthDataContext>;
 export declare let authDataContext: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;

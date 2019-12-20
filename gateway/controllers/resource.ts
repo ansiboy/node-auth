@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
 import { Role } from "../entities";
+import { AuthDataContext } from "../data-context";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -53,7 +54,7 @@ export class ResourceController {
         if (!tokenData)
             throw errors.userNotLogin(req.url);
 
-        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id, context.data);
+        let userRoleIds = await AuthDataContext.getUserRoleIds(tokenData.user_id, context.data);
         let menuItems = await this.list(req, context);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 
