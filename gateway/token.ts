@@ -29,7 +29,7 @@ export class TokenManager {
         token.create_date_time = new Date(Date.now());
 
         console.assert(contextData != null);
-        let dc = await createDataContext(contextData.db);
+        let dc = await createDataContext(contextData);
         await dc.tokenDatas.save(token);
         return token;
     }
@@ -47,7 +47,7 @@ export class TokenManager {
         let tokenData: MyTokenData = cache.get(token);
 
         if (tokenData == null) {
-            let dc = await createDataContext(contextData.db);
+            let dc = await createDataContext(contextData);
             let tokenData = await dc.tokenDatas.findOne(token) as MyTokenData;
             if (tokenData != null) {
                 tokenData.cacheDateTime = Date.now();
@@ -60,7 +60,7 @@ export class TokenManager {
 
     static async remove(id: string, contextData: ServerContextData) {
         console.assert(contextData.db != null);
-        let dc = await createDataContext(contextData.db);
+        let dc = await createDataContext(contextData);
         cache.del(id);
         await dc.tokenDatas.delete({ id });
     }

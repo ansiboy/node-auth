@@ -51,7 +51,7 @@ export class Role {
      */
     static async getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]> {
         //TODO: 缓存 roleids
-        let dc = await createDataContext(contextData.db);
+        let dc = await createDataContext(contextData);
         let userRoles = await dc.userRoles.find({ user_id: userId });
         return userRoles.map(o => o.role_id);
     }

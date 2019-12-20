@@ -7,7 +7,7 @@ import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, getLogger, Logger } from "maishu-node-mvc";
 import { g, constants, roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
-import { ServerContext } from "./types";
+import { ServerContext, ServerContextData } from "./types";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -71,8 +71,9 @@ export class AuthDataContext {
 
 // let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
-    let logger = getLogger(`${constants.projectName}:${createDataContext.name}`);
+export async function createDataContext(contextData: ServerContextData): Promise<AuthDataContext> {
+    let connConfig = contextData.db;
+    let logger = getLogger(`${constants.projectName}:${createDataContext.name}`, contextData.logLevel);
     let connectionManager = getConnectionManager();
     if (connectionManager.has(connConfig.database) == false) {
         let entitiesPath = path.join(__dirname, "entities.js");
@@ -107,7 +108,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<A
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async (req, res, context: ServerContext) => {
         console.assert(context.data != null);
-        let dc = await createDataContext(context.data.db);
+        let dc = await createDataContext(context.data);
         return dc
     }
 )
@@ -196,8 +197,8 @@ export async function dataList<T>(repository: Repository<T>, options: {
     return { dataItems: items, totalRowCount: count } as SelectResult<T>
 }
 
-export async function initDatabase(connConfig: ConnectionConfig) {
-    let dc = await createDataContext(connConfig);
+export async function initDatabase(contextData: ServerContextData) {
+    let dc = await createDataContext(contextData);
 
     let adminRole: Role = {
         id: roleIds.admin,

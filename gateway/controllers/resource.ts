@@ -1,6 +1,6 @@
-import { controller, action, getLogger, request, response } from "maishu-node-mvc";
+import { controller, action, getLogger, request, response, serverContext } from "maishu-node-mvc";
 import { constants, g } from "../global";
-import { WebsiteConfig } from "../types";
+import { WebsiteConfig, ServerContext } from "../types";
 import http = require("http");
 import url = require("url");
 import fetch from "node-fetch";
@@ -13,7 +13,7 @@ type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 @controller(`${constants.controllerPathRoot}/menuItem`)
 export class ResourceController {
     @action()
-    async list(@request req: http.IncomingMessage) {
+    async list(@request req: http.IncomingMessage, @serverContext context: ServerContext) {
 
         let stations = g.stationInfos.value;
 
@@ -21,7 +21,7 @@ export class ResourceController {
         let protocol = u.protocol || "http:";
         let websiteConfigUrls = stations.map(p => `${protocol}//${p.ip}:${p.port}/websiteConfig`)
 
-        let logger = getLogger(constants.projectName, g.settings.logLevel);
+        let logger = getLogger(constants.projectName, context.data.logLevel);
         logger.info(websiteConfigUrls);
 
         let menuItems: MyMenuItem[] = [];
@@ -48,13 +48,13 @@ export class ResourceController {
     }
 
     @action()
-    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse) {
-        let tokenData = await getTokenData(req, res);
+    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @serverContext context: ServerContext) {
+        let tokenData = await getTokenData(req, res, context.data);
         if (!tokenData)
             throw errors.userNotLogin(req.url);
 
-        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id);
-        let menuItems = await this.list(req);
+        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id, context.data);
+        let menuItems = await this.list(req, context);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 
         return result;

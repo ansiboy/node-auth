@@ -31,7 +31,7 @@ export async function start(settings: Settings) {
         logLevel: settings.logLevel
     }
 
-    await createDatabaseIfNotExists(settings.db, initDatabase);
+    await createDatabaseIfNotExists(settings.db, () => initDatabase(contextData));
 
     let proxyPipe: ProxyPipe = {
         async onResponse({ req, res }, data) {
@@ -167,7 +167,7 @@ function createTokenData(userId: string, contextData: ServerContextData): TokenD
     }
 
     let logger = getLogger(`${constants.projectName}:${createTokenData.name}`, contextData.logLevel);
-    createDataContext(contextData.db).then(dc => {
+    createDataContext(contextData).then(dc => {
         return dc.tokenDatas.insert(tokenData);
     }).catch(err => {
         logger.error(err);
