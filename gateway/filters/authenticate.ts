@@ -5,7 +5,7 @@ import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
 import { errors } from "../errors";
 import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, constants, roleIds } from "../global";
-import Cookies = require('cookies');
+import Cookies = require("maishu-cookies");
 import { TokenManager } from "../token";
 import UrlPattern = require("url-pattern");
 import { statusCodes } from "../status-codes";
