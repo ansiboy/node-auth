@@ -1,5 +1,4 @@
 node_modules
-package-lock.json
-out
-out-es5
-dist
+**/*.js
+**/*.map
+!Gruntfile.js

@@ -3,7 +3,7 @@
     "db": {
         "user": "root",
         "password": "81263",
-        "name": "haoyi_shop_auth",
+        "database": "haoyi_shop_auth",
         "host": "localhost",
         "port": 3306
     }
