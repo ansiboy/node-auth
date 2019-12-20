@@ -1,7 +1,7 @@
 import { Service } from "maishu-chitu-admin/static";
 import { errors } from "errors";
 import { Resource, User } from "entities";
-import { TokenData } from "gatewayEntities";
+import { TokenData } from "gateway-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
 import websiteConfig = require("json!websiteConfig");
 ;

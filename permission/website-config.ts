@@ -3,11 +3,12 @@
 import { stationPath, roleIds } from "./global";
 import md5 = require("js-md5");
 import { stationPath as gatewayStaionPath } from "../gateway";
+import { WebsiteConfig } from "maishu-chitu-admin";
 
 export let adminMobile = "18502146746";
 export let adminPassword = md5("11");
 
-let websiteConfig: PermissionWebsiteConfig = {
+let websiteConfig: PermissionWebsiteConfig & WebsiteConfig = {
     stationPath: stationPath,
     gatewayStaionPath: gatewayStaionPath,
     loginRedirectURL: "index",

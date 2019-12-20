@@ -1,4 +1,4 @@
-declare type PermissionWebsiteConfig = import("maishu-chitu-admin").WebsiteConfig & {
+declare type PermissionWebsiteConfig = {
     stationPath: string,
     gateway?: string,
     gatewayStaionPath: string,
