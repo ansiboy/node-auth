@@ -1,12 +1,13 @@
-import { InitArguments, RequireJS } from "maishu-chitu-admin/static";
+import { InitArguments, RequireJS, WebsiteConfig } from "maishu-chitu-admin/static";
 import { PageData, Application } from "maishu-chitu";
 import { PermissionService } from "services/permission-service";
-import { WebsiteConfig, RequireConfig } from "maishu-chitu-admin/static";
-import { errors } from "./errors";
-// import config from "config";
+import { RequireConfig } from "maishu-chitu-admin/static";
 import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "services/gateway-service";
 import React = require("react");
+
+
+type StationPageLoaders = { [path: string]: StationPageLoader };
 
 export default async function (args: InitArguments) {
 
@@ -14,11 +15,13 @@ export default async function (args: InitArguments) {
     let gatewayService = args.app.createService(GatewayService);
     let stations = await gatewayService.stationList();
 
-    let stationPaths = stations.filter(o => o.path != websiteConfig.stationPath).map(o => o.path);
-    rewriteApplication(args.app, stationPaths);
+    let stationPaths = stations.filter(o => o.path).map(o => o.path);
+    let stationPageLoaders: StationPageLoaders = {};
+    for (let i = 0; i < stationPaths.length; i++) {
+        stationPageLoaders[stationPaths[i]] = new StationPageLoader(stationPaths[i], args.app);
+    }
 
-    await initStations(stationPaths, args);
-
+    rewriteApplication(args.app, stationPageLoaders);
 
     PermissionService.token.attach(async token => {
         if (!token) {
@@ -79,7 +82,7 @@ async function logout(gs: GatewayService, app: Application) {
 }
 
 
-async function rewriteApplication(app: InitArguments["app"], stationPaths: string[]) {
+async function rewriteApplication(app: InitArguments["app"], stationPageLoaders: StationPageLoaders) {
     console.assert(app != null);
     let showPage = app.showPage;
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
@@ -99,7 +102,6 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
         console.assert(path.startsWith(modulesPath));
         path = path.substr(modulesPath.length);
 
-        // let req: RequireJS = requirejs;
         let contextName: string;
         if (path.indexOf(":") >= 0) {
             let arr = path.split(":");
@@ -112,137 +114,143 @@ async function rewriteApplication(app: InitArguments["app"], stationPaths: strin
             }
 
             path = `${stationPath}${modulesPath}${arr[1]}`;
-            // req = contextRequireJSs[stationPath];
             contextName = stationPath;
-            // console.assert(req != null);
         }
         else {
             path = modulesPath + path;
-            // req = requirejs;
+            contextName = websiteConfig.stationPath;
         }
 
-        return new Promise<any>((reslove, reject) => {
-            requirejs({ context: contextName }, [path],
-                function (result: any) {
-                    reslove(result);
-                },
-                function (err: Error) {
-                    reject(err);
-                });
-        });
+        return stationPageLoaders[contextName].loadUrl(path);
+
+        // return new Promise<any>(async (reslove, reject) => {
+        //     requirejs([path], function (result: any) {
+        //         reslove(result);
+        //     }, function (err: Error) {
+        //         reject(err);
+        //     });
+        // });
     }
 }
 
-let contextRequireJSs: { [path: string]: RequireJS } = {};
+class StationPageLoader {
+    private stationPath: string;
+    private app: Application;
 
-async function initStations(stationPaths: string[], initArguments: InitArguments): Promise<{ [path: string]: WebsiteConfig }> {
+    private status: "success" | "doing" | "fail" = "fail";
+    private requirejs: RequireJS;
 
-    if (stationPaths == null)
-        throw errors.argumentNull("paths");
+    private promises: {
+        [path: string]: {
+            resolve: Function, reject: Function,
+            promise: Promise<any>
+        }
+    } = {};
 
-    for (let i = 0; i < stationPaths.length; i++) {
-        console.assert(stationPaths[i] != null, `paths[${i}] is null`);
-        if (stationPaths[i][0] != "/") {
-            stationPaths[i] = "/" + stationPaths[i];
+    constructor(stationPath: string, app: InitArguments["app"]) {
+        this.stationPath = stationPath;
+        this.app = app;
+
+        if (this.stationPath == websiteConfig.stationPath) {
+            this.status = "success";
+            this.requirejs = this.configRequirejs(websiteConfig);
+            console.assert(this.requirejs != null);
         }
 
-        if (stationPaths[i][stationPaths[i].length - 1] != "/") {
-            stationPaths[i] = stationPaths[i] + "/";
-        }
+        // this.start();
     }
 
-    //let stationAbsolutePaths = stationPaths.map(path => `${websiteConfig.protocol}//${websiteConfig.gateway}${path}`);
-
-    let result: { [path: string]: WebsiteConfig } = {};
-    let responses = await Promise.all(stationPaths.map(path => fetch(`${path}websiteConfig`)))
-    let stationWebsiteConfigs: WebsiteConfig[] = await Promise.all(responses.map(r => r.json()));
-    for (let i = 0; i < stationPaths.length; i++) {
-        let stationWebsiteConfig = stationWebsiteConfigs[i];
-
+    private configRequirejs(stationWebsiteConfig: WebsiteConfig) {
         stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
-        stationWebsiteConfig.requirejs.context = stationWebsiteConfig.requirejs.context || stationPaths[i];
-        stationWebsiteConfig.requirejs.baseUrl = `${stationPaths[i]}`;//stationPaths[i];
+        stationWebsiteConfig.requirejs.context = stationWebsiteConfig.requirejs.context || this.stationPath;
+        stationWebsiteConfig.requirejs.baseUrl = this.stationPath;
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
-
-        stationWebsiteConfig.requirejs.paths = Object.assign({}, defaultPaths, stationWebsiteConfig.requirejs.paths);
-        // stationWebsiteConfig.requirejs.paths[`clientjs_init`] = `http://${websiteConfig.gateway}${stationPaths[i]}clientjs_init`
-
-        contextRequireJSs[stationPaths[i]] = requirejs.config(stationWebsiteConfig.requirejs);
-        result[stationPaths[i]] = stationWebsiteConfig;
+        let req = requirejs.config(stationWebsiteConfig.requirejs);
+        return req;
     }
 
-    await Promise.all(stationPaths.map((path, i) =>
+    loadUrl(url: string): Promise<any> {
+        if (this.status == "success") {
+            return new Promise((resolve, reject) => {
+                this.requirejs([url], (obj) => resolve(obj), err => reject(err));
+            })
+        }
+        else if (this.status == "fail") {
+            this.start();
+        }
 
-        new Promise((resolve, reject) => {
-            let contextName = stationWebsiteConfigs[i].requirejs.context;
+        if (this.promises[url]) {
+            return this.promises[url].promise;
+        }
+
+        this.promises[url] = {} as any;
+        let p = new Promise((resolve, reject) => {
+            this.promises[url].reject = reject;
+            this.promises[url].resolve = resolve;
+        })
+
+        this.promises[url].promise = p;
+
+        return p;
+    }
+
+    private onStartSuccess() {
+        let urlsToLoad = Object.getOwnPropertyNames(this.promises);
+        urlsToLoad.forEach(url => {
+            this.requirejs([url], (obj) => {
+                this.promises[url].resolve(obj);
+            }, (err) => {
+                this.promises[url].reject(err);
+            });
+        })
+    }
+
+    private start() {
+        if (this.status == "success" || this.status == "doing") {
+            return;
+        }
+
+        let path = this.stationPath;
+        fetch(`${path}websiteConfig`).then(async response => {
+            let stationWebsiteConfig = await response.json();
+            this.requirejs = this.configRequirejs(stationWebsiteConfig);
+
+            let contextName = stationWebsiteConfig.requirejs.context;
             console.assert(contextName != null, `Context of site '${path}' requirejs config is null`);
             let clientjsInitPath = `clientjs_init`;
-            console.log(`Clinet init js file path ${clientjsInitPath}.`)
-            requirejs({ context: contextName }, [clientjsInitPath],
+            console.log(`Clinet init js file path ${clientjsInitPath}.`);
+
+            this.requirejs([clientjsInitPath],
                 (initModule) => {
                     if (initModule && typeof initModule.default == 'function') {
                         let args: InitArguments = {
-                            app: initArguments.app, mainMaster: null,
-                            requirejs: contextRequireJSs[path]
+                            app: this.app, mainMaster: null,
+                            requirejs: this.requirejs
                         };
 
                         let result = initModule.default(args) as Promise<any>;
                         if (result != null && result.then != null) {
                             result.then(() => {
-                                resolve();
+                                this.status = "success";
+                                this.onStartSuccess();
                             }).catch(err => {
-                                reject(err);
+                                console.error(err);
+                                this.status = "fail";
                             })
 
                             return;
                         }
-
-                        resolve();
+                        else {
+                            this.status = "success";
+                            this.onStartSuccess();
+                        }
                     }
                 },
-                function (err) {
-                    reject(err);
+                (err) => {
+                    console.error(err);
+                    this.status = "fail";
                 }
             )
         })
-    ));
-
-    return result;
-}
-
-let node_modules = '/node_modules';
-let lib = 'assert/lib';
-
-let defaultPaths = {
-    css: `${lib}/css`,
-    less: `${lib}/require-less-0.1.5/less`,
-    lessc: `${lib}/require-less-0.1.5/lessc`,
-    normalize: `${lib}/require-less-0.1.5/normalize`,
-    text: `${lib}/text`,
-
-    jquery: `${lib}/jquery-2.1.3`,
-    "jquery.event.drag": `${lib}/jquery.event.drag-2.2/jquery.event.drag-2.2`,
-    "jquery.event.drag.live": `${lib}/jquery.event.drag-2.2/jquery.event.drag.live-2.2`,
-
-    "js-md5": `${node_modules}/js-md5/src/md5`,
-
-    pin: `${lib}/jquery.pin/jquery.pin.min`,
-
-    "react": `${node_modules}/react/umd/react.development`,
-    "react-dom": `${node_modules}/react-dom/umd/react-dom.development`,
-    "maishu-chitu": `${node_modules}/maishu-chitu/dist/index`,
-    "maishu-chitu-admin/static": `${node_modules}/maishu-chitu-admin/out/static/index`,
-    "maishu-chitu-react": `${node_modules}/maishu-chitu-react/dist/index`,
-    "maishu-chitu-service": `${node_modules}/maishu-chitu-service/dist/index`,
-    "maishu-dilu": `${node_modules}/maishu-dilu/dist/index`,
-    "maishu-services-sdk": `${node_modules}/maishu-services-sdk/dist/index`,
-    "maishu-image-components": `${node_modules}/maishu-image-components/index`,
-    "maishu-ui-toolkit": `${node_modules}/maishu-ui-toolkit/dist/index`,
-    "maishu-node-auth": `${node_modules}/maishu-node-auth/dist/client/index`,
-    "maishu-wuzhui": `${node_modules}/maishu-wuzhui/dist/index`,
-    "maishu-wuzhui-helper": `${node_modules}/maishu-wuzhui-helper/dist/index`,
-    "swiper": `${node_modules}/swiper/dist/js/swiper`,
-    "xml2js": `${node_modules}/xml2js/lib/xml2js`,
-    "polyfill": `${node_modules}/@babel/polyfill/dist/polyfill`,
-    "url-pattern": `${node_modules}/url-pattern/lib/url-pattern`,
+    }
 }

@@ -1,29 +1,32 @@
-import { start as startAdmin } from "maishu-chitu-admin";
+import { start as startAdmin, Settings as BaseSettings } from "maishu-chitu-admin";
 import path = require("path");
 import { stationPath, permissions, ServerContextData } from "./website-config";
 
-export type Settings = {
+
+type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
+export type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> & {
     port: number,
     gateway: string,
     indexPage?: string,
-    virtualPaths?: { [path: string]: string }
+    virtualPaths?: { [path: string]: string },
+    mode?: "development" | "production"
 }
 
 export function start(settings: Settings) {
 
-    startAdmin({
-        port: settings.port,
+    let serverContextData: ServerContextData = {
+        indexPage: settings.indexPage
+    }
+    let innerSettings: InnerSettings = {
         rootDirectory: __dirname,
-        virtualPaths: settings.virtualPaths,
         station: {
             gateway: settings.gateway,
             path: stationPath,
             permissions
         },
-        serverContextData: {
-            indexPage: settings.indexPage
-        } as ServerContextData
-    })
+        serverContextData
+    }
+    startAdmin(Object.assign(settings, innerSettings));
 }
 
 

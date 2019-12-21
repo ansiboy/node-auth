@@ -1,16 +1,22 @@
-import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
+import { start as startAdmin, PermissionConfig, Settings as BaseSettings } from "maishu-chitu-admin";
 import path = require("path");
-import { Settings } from "./types";
-import { settings as globalSettings, stationPath, } from "./global";
+// import { Settings } from "./types";
+import { stationPath, smsSettings, ServerContextData } from "./global";
 import { roleIds, createDatabaseIfNotExists } from "../gateway";
 import { initDatabase } from "./data-context";
+import { ConnectionConfig } from "mysql";
 
-export { Settings } from "./types";
+// export { Settings } from "./types";
 export { createDataContext } from "./data-context";
 export { roleIds } from "./global";
 
+
+type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
+
+export type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> &
+{ gateway: string, db: ConnectionConfig, sms?: typeof smsSettings };
+
 export async function start(settings: Settings) {
-    Object.assign(globalSettings, settings)
 
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
@@ -18,14 +24,19 @@ export async function start(settings: Settings) {
     permissions[`${stationPath}*`] = {
         roleIds: [roleIds.admin, roleIds.anonymous],
     };
-    return startAdmin({
-        port: settings.port,
+
+    let mySettings: InnerSettings = {
         rootDirectory: __dirname,
-        virtualPaths: settings.virtualPaths,
         station: {
             path: stationPath,
             gateway: settings.gateway,
-            permissions
+            permissions,
+        },
+        serverContextData: <ServerContextData>{
+            sms: smsSettings,
+            db: settings.db,
         }
-    })
+    }
+
+    return startAdmin(Object.assign(settings, mySettings))
 }

@@ -3,8 +3,8 @@ import { createConnection, EntityManager, Repository, Connection, getConnection,
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig, Connection as DBConnection } from "mysql";
 import path = require("path");
-import { createParameterDecorator } from "maishu-node-mvc";
-import { settings, roleIds } from "./global";
+import { createParameterDecorator, ServerContext } from "maishu-node-mvc";
+import { roleIds, ServerContextData } from "./global";
 import { errors } from "./errors";
 import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
@@ -67,21 +67,21 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
 }
 
 export let permissionDataContext = createParameterDecorator<PermissionDataContext>(
-    async () => {
-        console.assert(settings.db != null);
-        let dc = await createDataContext(settings.db);
+    async (req, res, context: ServerContext<ServerContextData>) => {
+        console.assert(context.data.db != null);
+        let dc = await createDataContext(context.data.db);
         return dc
     },
     async () => {
     }
 )
 
-export let currentUser = createParameterDecorator(async (req, res) => {
+export let currentUser = createParameterDecorator(async (req, res, context: ServerContext<ServerContextData>) => {
     let userId = req.headers[tokenDataHeaderNames.userId] as string;
     if (!userId)
         return null;
 
-    let dc = await createDataContext(settings.db);
+    let dc = await createDataContext(context.data.db);
     let user = await dc.users.findOne(userId);
 
     if (!user)

@@ -1,9 +1,10 @@
 import * as QcloudSms from 'qcloudsms_js'
 import { errors } from '../errors';
-import { controller, action, routeData } from 'maishu-node-mvc';
+import { controller, action, routeData, serverContext, ServerContext } from 'maishu-node-mvc';
 import { PermissionDataContext, permissionDataContext } from '../data-context';
-import { settings } from '../global';
+// import { settings } from '../global';
 import { guid } from 'maishu-chitu-service';
+import { ServerContextData } from '../global';
 
 interface SMSRecord {
     id: string,
@@ -16,13 +17,15 @@ interface SMSRecord {
 @controller('sms')
 export default class SMSController {
     @action()
-    async sendVerifyCode(@permissionDataContext dc: PermissionDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    async sendVerifyCode(@permissionDataContext dc: PermissionDataContext, @serverContext context: ServerContext<ServerContextData>,
+        @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }
+    ) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
 
         let verifyCode = getRandomInt(1000, 9999).toFixed(0)
-        let verifyCodeText: string = settings.verifyCodeText.default;
+        let verifyCodeText: string = context.data.sms.verifyCodeText.default;
 
         let msg = verifyCodeText.replace('{0}', verifyCode);
         // let obj = await connect(async conn => {
@@ -43,7 +46,7 @@ export default class SMSController {
             code: verifyCode, create_date_time: new Date(Date.now())
         }
         await dc.smsRecords.insert(obj);
-        sendMobileMessage(mobile, msg)
+        sendMobileMessage(mobile, msg, context.data.sms);
         return { smsId: obj.id };
     }
 
@@ -67,7 +70,7 @@ function getRandomInt(min, max): number {
 }
 
 
-function sendMobileMessage(mobile: string, content: string) {
+function sendMobileMessage(mobile: string, content: string, settings: ServerContextData["sms"]) {
 
     //=====================================
     // 如果测试模式

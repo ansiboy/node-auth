@@ -1,9 +1,9 @@
-import { Settings } from "./types";
+import { ConnectionConfig } from "mysql";
 export { roleIds } from "../gateway";
 export declare let PROJECt_NAME: string;
 export declare let controllerPathRoot: string;
 export declare let stationPath: string;
-export declare let settings: Settings & {
+export declare let smsSettings: {
     mobile: string;
     sendMessage: boolean;
     verifyCodeText: {
@@ -14,4 +14,8 @@ export declare let settings: Settings & {
         mobile: string;
         sendMessage: boolean;
     };
+};
+export declare type ServerContextData = {
+    sms: typeof smsSettings;
+    db: ConnectionConfig;
 };
