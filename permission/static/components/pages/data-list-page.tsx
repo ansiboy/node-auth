@@ -2,7 +2,7 @@ import { BasePage } from "./base-page";
 import { DataSource, DataControlField, GridView, CustomField, GridViewCell, GridViewEditableCell, BoundField } from "maishu-wuzhui";
 import React = require("react");
 import { createGridView } from "maishu-wuzhui-helper";
-import { createItemDialog, Dialog, ItemDialogContext } from "components/item-dialog";
+import { createItemDialog, Dialog } from "components/item-dialog";
 import ReactDOM = require("react-dom");
 import { InputControl, InputControlProps } from "components/inputs/input-control";
 import { GridViewCellControl } from "maishu-wuzhui";

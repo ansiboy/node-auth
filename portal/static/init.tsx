@@ -1,5 +1,5 @@
-import { InitArguments, RequireJS, WebsiteConfig } from "maishu-chitu-admin/static";
-import { PageData, Application } from "maishu-chitu";
+import { InitArguments, RequireJS, WebsiteConfig, Application } from "maishu-chitu-admin/static";
+import { PageData } from "maishu-chitu";
 import { PermissionService } from "services/permission-service";
 import { RequireConfig } from "maishu-chitu-admin/static";
 import websiteConfig = require("json!websiteConfig");
@@ -53,6 +53,9 @@ export default async function (args: InitArguments) {
 
                 menuItem.path = `#${stationPath}:${path}`;
             }
+            else if (menuItem.path != null && menuItem.path.startsWith(":")) {
+                menuItem.path = `#${menuItem.path.substr(1)}`;
+            }
 
             (menuItem.children || []).forEach(child => {
                 stack.unshift(child);
@@ -78,7 +81,8 @@ export default async function (args: InitArguments) {
 async function logout(gs: GatewayService, app: Application) {
     gs.logout();
     PermissionService.token.value = "";
-    app.redirect("login");
+    // app.redirect("login");
+    location.href = "#login";
 }
 
 
@@ -86,12 +90,22 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
     console.assert(app != null);
     let showPage = app.showPage;
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
+
+        if (pageUrl.indexOf(":") < 0 && location.hash.length > 1) {
+            let stationPath = getStationPath(location.hash.substr(1));
+            if (stationPath) {
+                stationPath = stationPath.substr(1, stationPath.length - 2);
+                pageUrl = stationPath + ":" + pageUrl;
+            }
+        }
+
         args = args || {};
         let d = this.parseUrl(pageUrl)
         let names = ['login', 'forget-password', 'register']
         if (names.indexOf(d.pageName) >= 0) {
             args.container = 'simple'
         }
+
         return showPage.apply(this, [pageUrl, args, forceRender]);
     }
 
@@ -103,16 +117,9 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
         path = path.substr(modulesPath.length);
 
         let contextName: string;
-        if (path.indexOf(":") >= 0) {
+        let stationPath = getStationPath(path);
+        if (stationPath) {
             let arr = path.split(":");
-            let stationPath = arr[0];
-            if (stationPath.startsWith("/") == false) {
-                stationPath = "/" + stationPath;
-            }
-            if (stationPath.endsWith("/") == false) {
-                stationPath = stationPath + "/";
-            }
-
             path = `${stationPath}${modulesPath}${arr[1]}`;
             contextName = stationPath;
         }
@@ -122,15 +129,24 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
         }
 
         return stationPageLoaders[contextName].loadUrl(path);
-
-        // return new Promise<any>(async (reslove, reject) => {
-        //     requirejs([path], function (result: any) {
-        //         reslove(result);
-        //     }, function (err: Error) {
-        //         reject(err);
-        //     });
-        // });
     }
+}
+
+function getStationPath(path: string) {
+    if (path.indexOf(":") >= 0) {
+        let arr = path.split(":");
+        let stationPath = arr[0];
+        if (stationPath.startsWith("/") == false) {
+            stationPath = "/" + stationPath;
+        }
+        if (stationPath.endsWith("/") == false) {
+            stationPath = stationPath + "/";
+        }
+
+        return stationPath;
+    }
+
+    return null;
 }
 
 class StationPageLoader {
