@@ -11,29 +11,30 @@ export default class RoleListPage extends DataListPage<Role> {
     itemName: string = "角色";
     columns: DataControlField<Role>[] = [
         boundField<Role>({ dataField: 'id', headerText: '编号', headerStyle: { width: '320px' }, itemStyle: { textAlign: 'left' } }),
-        boundField<Role>({ dataField: 'name', headerText: '名称' }),
+        boundField<Role>({ dataField: 'name', headerText: '名称', headerStyle: { width: "200px" } }),
+        boundField<Role>({ dataField: "remark", headerText: "备注" }),
         dateTimeField<Role>({ dataField: 'create_date_time', headerText: '创建时间' }),
     ];
 
-    renderEditor() {
-        return <>
-            <div className="form-group clearfix input-control">
-                <label>名称*</label>
-                <span>
-                    <TextInput<Role> dataType="string" dataField="name" placeholder="请输入角色名称"
-                        validateRules={[
-                            rules.required("请输入角色名称")
-                        ]} />
-                </span>
-            </div>
-            <div className="form-group clearfix input-control">
-                <label>备注</label>
-                <span>
-                    <TextInput<Role> dataType="string" dataField="remark" placeholder="请输入备注" />
-                </span>
-            </div>
-        </>
-    }
+    // renderEditor() {
+    //     return <>
+    //         <div className="form-group clearfix input-control">
+    //             <label>名称*</label>
+    //             <span>
+    //                 <TextInput<Role> dataType="string" dataField="name" placeholder="请输入角色名称"
+    //                     validateRules={[
+    //                         rules.required("请输入角色名称")
+    //                     ]} />
+    //             </span>
+    //         </div>
+    //         <div className="form-group clearfix input-control">
+    //             <label>备注</label>
+    //             <span>
+    //                 <TextInput<Role> dataType="string" dataField="remark" placeholder="请输入备注" />
+    //             </span>
+    //         </div>
+    //     </>
+    // }
 
 }
 

@@ -74,4 +74,8 @@ class UserModule extends ServiceModule {
         let url = this.url("user/roles");
         return this.getByJson<Role[][]>(url, { userIds });
     }
+    setRoles(userId: string, roleids: string[]) {
+        let url = this.url("user/setRoles");
+        return this.postByJson(url, { userId, roleids });
+    }
 }

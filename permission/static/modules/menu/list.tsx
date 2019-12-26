@@ -11,7 +11,8 @@ let roleFieldWidth = 180;
 export default class MenuListPage extends DataListPage<MenuItem> {
     dataSource = dataSources.resource;
     itemName = "菜单";
-
+    showCommandField = false;
+    
     constructor(props) {
         super(props)
 

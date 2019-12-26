@@ -8,6 +8,10 @@ export default class UserController {
     roles(dc: AuthDataContext, { userIds }: {
         userIds: string[];
     }): Promise<Role[][]>;
+    setRoles(dc: AuthDataContext, { userId, roleids }: {
+        userId: string;
+        roleids: string[];
+    }): Promise<void>;
     private rolesByUserIds;
     logout(req: http.IncomingMessage, res: http.ServerResponse, context: ServerContext): Promise<boolean>;
 }

@@ -36,7 +36,7 @@ let roleDataSource = new PageDataSource<Role>({
     itemCanUpdate: (item) => !item.readonly,
 })
 
-export type MyUser = User & { roleNames?: string }
+export type MyUser = User & { roleIds?: string[] }
 
 let userDataSource = new DataSource<MyUser>({
     primaryKeys: ["id"],
@@ -45,7 +45,8 @@ let userDataSource = new DataSource<MyUser>({
         let userIds = r.dataItems.map(o => o.id);
         let roleses = await gs.user.roles(userIds);
         for (let i = 0; i < r.dataItems.length; i++) {
-            (r.dataItems[i] as MyUser).roleNames = roleses[i].map(o => o.name).join(" ");
+            // (r.dataItems[i] as MyUser).roleNames = roleses[i].map(o => o.name).join(" ");
+            (r.dataItems[i] as MyUser).roleIds = roleses[i].map(o => o.id);
         }
         return r;
     },
@@ -55,6 +56,7 @@ let userDataSource = new DataSource<MyUser>({
     },
     update: async (item) => {
         let r = await ps.user.update(item);
+        await gs.user.setRoles(item.id, item.roleIds);
         return r;
     }
 })

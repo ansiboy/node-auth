@@ -30,6 +30,19 @@ export default class UserController {
         return this.rolesByUserIds(dc, userIds);
     }
 
+    @action()
+    async setRoles(@authDataContext dc: AuthDataContext, @routeData { userId, roleids }: { userId: string, roleids: string[] }) {
+        if (userId == null) throw errors.routeDataFieldNull("userId");
+        if (roleids == null) throw errors.routeDataFieldNull("roleIds");
+
+        await dc.userRoles.delete({ user_id: userId });
+        if (roleids.length == 0)
+            return;
+
+        let userRoles = roleids.map(o => ({ user_id: userId, role_id: o } as UserRole));
+        await dc.userRoles.insert(userRoles);
+    }
+
     private async rolesByUserIds(dc: AuthDataContext, userIds: string[]): Promise<Role[][]> {
         userIds = userIds || [];
         if (userIds.length == 0)
