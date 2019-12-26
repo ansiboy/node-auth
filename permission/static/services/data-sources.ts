@@ -1,6 +1,6 @@
 import { DataSource } from "maishu-wuzhui";
 import { PermissionService } from "./permission-service";
-import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
+import { errorHandle, WebsiteConfig, PageDataSource } from "maishu-chitu-admin/static";
 import { User, Resource, } from "entities";
 import { TokenData, Role } from "gateway-entities";
 import { GatewayService } from "./gateway-service";
@@ -13,7 +13,7 @@ let gatewayService = new GatewayService((err) => {
     errorHandle(err);
 })
 
-let roleDataSource = new DataSource<Role>({
+let roleDataSource = new PageDataSource<Role>({
     primaryKeys: ["id"],
     select: async (args) => {
         let r = await gatewayService.roleList(args);
@@ -27,7 +27,13 @@ let roleDataSource = new DataSource<Role>({
     update: async (item) => {
         let r = await gatewayService.updateRole(item);
         return r;
-    }
+    },
+    delete: async (item) => {
+        let r = await gatewayService.removeRole(item.id);
+        return
+    },
+    itemCanDelete: (item) => !item.readonly,
+    itemCanUpdate: (item) => !item.readonly,
 })
 
 let userDataSource = new DataSource<User>({

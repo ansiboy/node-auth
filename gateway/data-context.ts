@@ -1,11 +1,11 @@
 import "reflect-metadata";
-import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
-import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions, ConnectionManager, getManager, getConnectionManager } from "typeorm";
+import { ConnectionConfig, createConnection as createDBConnection, MysqlError } from "mysql";
+import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-data";
 import path = require("path");
 import fs = require("fs");
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, getLogger, Logger } from "maishu-node-mvc";
-import { g, constants, roleIds, userIds } from "./global";
+import { constants, roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
 import { ServerContext, ServerContextData } from "./types";
 
@@ -216,6 +216,7 @@ export async function initDatabase(contextData: ServerContextData) {
         name: "管理员",
         remark: "系统预设的管理员",
         create_date_time: new Date(Date.now()),
+        readonly: true
     };
 
     await dc.roles.save(adminRole);
@@ -225,6 +226,7 @@ export async function initDatabase(contextData: ServerContextData) {
         name: "匿名用户组",
         remark: "系统预设的匿名用户组",
         create_date_time: new Date(Date.now()),
+        readonly: true
     }
 
     await dc.roles.save(anonymousRole);
@@ -234,6 +236,7 @@ export async function initDatabase(contextData: ServerContextData) {
         name: "普通用户",
         remark: "",
         create_date_time: new Date(Date.now()),
+        readonly: true
     }
 
     await dc.roles.save(normalUserRole);

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-data";
 
 
 @Entity("token_data")
@@ -42,7 +42,8 @@ export class Role {
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
 
-
+    @Column({ type: "bit", nullable: true, default: false })
+    readonly: boolean;
 }
 
 @Entity("user_role")

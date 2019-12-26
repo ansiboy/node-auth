@@ -11,6 +11,7 @@ export declare class Role {
     create_date_time: Date;
     parent_id?: string;
     userRoles?: UserRole[];
+    readonly: boolean;
 }
 export declare class UserRole {
     user_id: string;

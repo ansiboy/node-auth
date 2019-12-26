@@ -15,7 +15,7 @@ export default class RoleController {
         let role: Role = {
             id: guid(), name: item.name, remark: item.remark,
             create_date_time: new Date(Date.now()),
-            parent_id: item.parent_id,
+            parent_id: item.parent_id, readonly: false,
         }
 
         await dc.roles.save(role);

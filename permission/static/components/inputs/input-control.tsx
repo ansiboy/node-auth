@@ -1,7 +1,6 @@
 import React = require("react");
 import { guid } from "maishu-chitu-service";
 import { ValidateDataField } from "../item-dialog";
-import { Rule } from "maishu-dilu";
 
 export interface InputControlProps<T> extends ValidateDataField {
     dataField: keyof T,
@@ -25,6 +24,4 @@ export abstract class InputControl<T, P extends InputControlProps<T> = InputCont
     constructor(props: InputControl<T, P>["props"]) {
         super(props);
     }
-
-
 }

@@ -1,5 +1,5 @@
 import { Controller } from "maishu-node-mvc";
-import { Repository } from "typeorm";
+import { Repository } from "maishu-data";
 
 export interface SelectArguments {
     startRowIndex?: number;

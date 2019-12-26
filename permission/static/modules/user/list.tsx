@@ -2,7 +2,7 @@ import { User } from "entities";
 import { dataSources } from "../../services/data-sources";
 import { DataSource, DataControlField } from "maishu-wuzhui";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
-import { DataListPage } from "components/index";
+import { DataListPage } from "maishu-chitu-admin/static";
 
 export default class UserListPage extends DataListPage<User> {
     dataSource: DataSource<User> = dataSources.user;

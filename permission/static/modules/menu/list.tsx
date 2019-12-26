@@ -1,4 +1,4 @@
-import { DataListPage } from "components/index";
+import { DataListPage } from "maishu-chitu-admin/static";
 import { DataControlField, CustomBoundField } from "maishu-wuzhui";
 import { dataSources, MenuItem } from "services/data-sources";
 import { boundField } from "maishu-wuzhui-helper";

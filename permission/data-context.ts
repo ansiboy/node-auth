@@ -1,14 +1,13 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "typeorm";
+import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
-import { ConnectionConfig, Connection as DBConnection } from "mysql";
+import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator, ServerContext } from "maishu-node-mvc";
-import { roleIds, ServerContextData } from "./global";
+import { ServerContextData } from "./global";
 import { errors } from "./errors";
 import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
-import { guid } from "maishu-chitu-service";
 
 export class PermissionDataContext {
     private entityManager: EntityManager;
@@ -90,7 +89,7 @@ export let currentUser = createParameterDecorator(async (req, res, context: Serv
     return user;
 })
 
-export let currentUserId = createParameterDecorator(async (req, res) => {
+export let currentUserId = createParameterDecorator(async (req) => {
     let userId = req.headers[tokenDataHeaderNames.userId];
 
     if (userId == null)

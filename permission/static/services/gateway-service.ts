@@ -52,4 +52,9 @@ export class GatewayService extends Service {
         let url = this.url("user/myRoles");
         return this.get<Role[]>(url);
     }
+
+    removeRole(id: string) {
+        let url = this.url("role/remove");
+        return this.postByJson(url, { id });
+    }
 }

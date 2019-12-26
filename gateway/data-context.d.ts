@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { ConnectionConfig } from "mysql";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, Repository } from "maishu-data";
 import { TokenData, Role, UserRole } from "./entities";
 import { Logger } from "maishu-node-mvc";
 import { ServerContextData } from "./types";

@@ -2,7 +2,7 @@ import React = require("react");
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 import { dataSources } from "../../services/data-sources";
 import { rules } from "maishu-dilu";
-import { TextInput, DataListPage } from "../../components/index";
+import { TextInput, DataListPage } from "maishu-chitu-admin/static";
 import { DataControlField } from "maishu-wuzhui";
 import { Role } from "gateway-entities";
 

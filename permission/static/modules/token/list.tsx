@@ -1,4 +1,4 @@
-import { DataListPage } from "components/index";
+import { DataListPage } from "maishu-chitu-admin/static";
 import { TokenData } from "gateway-entities";
 import { DataSource } from "maishu-wuzhui";
 import { dataSources } from "services/data-sources";

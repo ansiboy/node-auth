@@ -17,6 +17,7 @@
         "maishu-chitu-admin": "file:../chitu-admin",
         "maishu-chitu-react": "^1.20.0",
         "maishu-cookies": "file:../cookies",
+        "maishu-data": "file:../node-data",
         "maishu-dilu": "^1.4.3",
         "maishu-node-mvc": "file:../node-mvc",
         "maishu-ui-toolkit": "^1.4.3",

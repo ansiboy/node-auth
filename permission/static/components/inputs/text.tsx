@@ -32,26 +32,22 @@ export class TextInput<T> extends InputControl<T, InputFieldProps<T>, InputField
     render() {
         let { dataField, placeholder, dataType } = this.props;
         let { value } = this.state;
-        return <ItemDialogContext.Consumer>
-            {args => {
-                return <input name={name || dataField as string} className="form-control"
-                    placeholder={placeholder} type={this.props.type}
-                    value={value || ""}
-                    ref={e => this.input = e || this.input}
-                    onChange={e => {
-                        if (dataType == "number") {
-                            if (!rules.numeric().validate(e.target.value))
-                                return;
 
-                            var integerRegex = /^\d+$/;
-                            let value = integerRegex.test(e.target.value) ? parseInt(e.target.value) : parseFloat(e.target.value);
-                            this.setState({ value })
-                        }
-                        this.setState({ value: e.target.value })
-                    }} />
-            }}
-        </ItemDialogContext.Consumer>
+        return <input name={name || dataField as string} className="form-control"
+            placeholder={placeholder} type={this.props.type}
+            value={value || ""}
+            ref={e => this.input = e || this.input}
+            onChange={e => {
+                if (dataType == "number") {
+                    if (!rules.numeric().validate(e.target.value))
+                        return;
 
+                    var integerRegex = /^\d+$/;
+                    let value = integerRegex.test(e.target.value) ? parseInt(e.target.value) : parseFloat(e.target.value);
+                    this.setState({ value })
+                }
+                this.setState({ value: e.target.value })
+            }} />
     }
 }
 
