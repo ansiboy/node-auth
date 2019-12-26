@@ -9,37 +9,44 @@ let ps = new PermissionService((err) => {
     errorHandle(err)
 });
 
-let gatewayService = new GatewayService((err) => {
+let gs = new GatewayService((err) => {
     errorHandle(err);
 })
 
 let roleDataSource = new PageDataSource<Role>({
     primaryKeys: ["id"],
     select: async (args) => {
-        let r = await gatewayService.roleList(args);
+        let r = await gs.role.list(args);
         return r;
     },
     insert: async (item) => {
-        let r = await gatewayService.addRole(item.name, item.remark);
+        let r = await gs.role.add(item.name, item.remark);
         Object.assign(item, r);
         return r;
     },
     update: async (item) => {
-        let r = await gatewayService.updateRole(item);
+        let r = await gs.role.update(item);
         return r;
     },
     delete: async (item) => {
-        let r = await gatewayService.removeRole(item.id);
+        let r = await gs.role.remove(item.id);
         return
     },
     itemCanDelete: (item) => !item.readonly,
     itemCanUpdate: (item) => !item.readonly,
 })
 
-let userDataSource = new DataSource<User>({
+export type MyUser = User & { roleNames?: string }
+
+let userDataSource = new DataSource<MyUser>({
     primaryKeys: ["id"],
     select: async (args) => {
         let r = await ps.user.list(args);
+        let userIds = r.dataItems.map(o => o.id);
+        let roleses = await gs.user.roles(userIds);
+        for (let i = 0; i < r.dataItems.length; i++) {
+            (r.dataItems[i] as MyUser).roleNames = roleses[i].map(o => o.name).join(" ");
+        }
         return r;
     },
     insert: async (item) => {
@@ -55,7 +62,7 @@ let userDataSource = new DataSource<User>({
 let tokenDataSource = new DataSource<TokenData>({
     primaryKeys: ["id"],
     select: async (args) => {
-        let r = await gatewayService.tokenList(args);
+        let r = await gs.tokenList(args);
         return r;
     }
 })
@@ -70,8 +77,8 @@ let resourceDataSource = new DataSource<MenuItem>({
     select: async () => {
         let r: MenuItem[] = [];
         let [menuItems, resources, roleResult] = await Promise.all([
-            gatewayService.menuItemList(), ps.resource.list(),
-            gatewayService.roleList()
+            gs.menuItemList(), ps.resource.list(), gs.role.list()
+
         ]);
         let stack = [...menuItems] as MenuItem[];
         while (stack.length > 0) {

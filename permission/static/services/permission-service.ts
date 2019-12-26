@@ -3,6 +3,7 @@ import { errors } from "errors";
 import { Resource, User } from "entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
 import websiteConfig = require("json!websiteConfig");
+import { ServiceModule } from "./service-module";
 ;
 export interface LoginInfo {
     token: string,
@@ -11,141 +12,15 @@ export interface LoginInfo {
 
 export class PermissionService extends Service {
 
-    static baseUrl: string = `${websiteConfig.stationPath}`;
+    baseUrl: string = `${websiteConfig.stationPath}`;
     // role = new RoleModule(this);
     user = new UserModule(this);
     sms = new SMSModule(this);
     // token = new TokenModule(this);
     resource = new ResourceModule(this);
-
-    protected url(path: string) {
-        if (!PermissionService.baseUrl)
-            throw errors.serviceUrlCanntNull('permissionService')
-
-        if (PermissionService.baseUrl.endsWith("/"))
-            return `${PermissionService.baseUrl}${path}`;
-
-        return `${PermissionService.baseUrl}/${path}`
-    }
-
-
 }
-
-class ServiceModule {
-    service: PermissionService;
-    getByJson: Service["getByJson"];
-    postByJson: Service["postByJson"];
-    get: Service["get"];
-    post: Service["post"];
-
-    constructor(service: PermissionService) {
-        this.service = service;
-        this.getByJson = this.service.getByJson.bind(this.service);
-        this.postByJson = this.service.postByJson.bind(this.service);
-        this.get = this.service.get.bind(this.service);
-        this.post = this.service.post.bind(this.service);
-    }
-
-    protected url(path: string) {
-        if (!PermissionService.baseUrl)
-            throw errors.serviceUrlCanntNull('permissionService')
-
-        return `${PermissionService.baseUrl}${path}`
-    }
-}
-
-// class RoleModule extends ServiceModule {
-
-//     resource = {
-//         /**
-//          * 获取角色所允许访问的资源 id
-//          * @param roleId 指定的角色编号
-//          */
-//         ids: async (roleId: string) => {
-//             if (!roleId) throw errors.argumentNull('roleId')
-//             let url = this.url('role/resourceIds')
-//             let r = await this.getByJson<string[]>(url, { roleId })
-//             return r || []
-//         }
-//     }
-
-//     async list() {
-//         let url = this.url("role/list")
-//         return this.get<Role[]>(url);
-//     }
-
-//     item(id: string) {
-//         let url = this.url("role/item");
-//         return this.get<Role>(url, { id });
-//     }
-
-//     /**
-//      * 添加角色
-//      */
-//     add(name: string, remark: string): Promise<{ id: string }>;
-//     add(item: Partial<Role>): Promise<{ id: string }>
-//     add(arg1: any, arg2?: string) {
-//         let url = this.url("role/add");
-
-//         let item: Partial<Role>;
-//         if (typeof arg1 == "string") {
-//             item = { name: arg1, remark: arg2 }
-//         }
-//         else {
-//             item = arg1;
-//         }
-//         return this.postByJson(url, { item })
-//     }
-
-//     /**
-//      * 删除角色
-//      * @param id 要删除的角色编号
-//      */
-//     remove(id: string) {
-//         let url = this.url("role/remove");
-//         return this.postByJson(url, { id });
-//     }
-
-//     update(item: Partial<Role>) {
-//         let url = this.url("role/update");
-//         return this.postByJson(url, { item });
-//     }
-
-//     /**
-//      * 获取角色所允许访问的资源 id
-//      * @param roleId 指定的角色编号
-//      */
-//     async resourceIds(roleId: string): Promise<string[]> {
-//         if (!roleId) throw errors.argumentNull('roleId')
-//         let url = this.url('role/resourceIds')
-//         let r = await this.getByJson<string[]>(url, { roleId })
-//         return r || []
-//     }
-
-//     /**
-//      * 
-//      * @param roleId 指定的角色编号
-//      * @param resourceIds 角色所允许访问的资源编号
-//      */
-//     setResource(roleId: string, resourceIds: string[]) {
-//         if (!roleId) throw errors.argumentNull('roleId')
-//         if (!resourceIds) throw errors.argumentNull('resourceIds')
-
-//         let url = this.url('role/setResources')
-//         return this.postByJson(url, { roleId, resourceIds })
-//     }
-
-// }
 
 class UserModule extends ServiceModule {
-
-    // role = {
-    //     list: async (userId: string) => {
-    //         let url = this.url("user/role/list");
-    //         let r = await this.getByJson<Role[]>(url, { userId });
-    //         return r;
-    //     }
-    // }
 
     /** 获取用户列表 */
     async list(args?: DataSourceSelectArguments) {
@@ -332,14 +207,6 @@ class SMSModule extends ServiceModule {
     }
 
 }
-
-// class TokenModule extends ServiceModule {
-//     async list(args) {
-//         let url = `${websiteConfig.gatewayStaionPath}token/list`;//this.url("token/list");
-//         let r = await this.getByJson<DataSourceSelectResult<TokenData>>(url, { args });
-//         return r;
-//     }
-// }
 
 class ResourceModule extends ServiceModule {
     async list() {

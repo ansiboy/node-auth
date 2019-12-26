@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, Repository } from "maishu-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig } from "mysql";
 export declare class PermissionDataContext {

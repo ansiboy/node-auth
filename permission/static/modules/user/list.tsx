@@ -1,17 +1,17 @@
 import { User } from "entities";
-import { dataSources } from "../../services/data-sources";
+import { dataSources, MyUser } from "../../services/data-sources";
 import { DataSource, DataControlField } from "maishu-wuzhui";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 import { DataListPage } from "maishu-chitu-admin/static";
 
-export default class UserListPage extends DataListPage<User> {
-    dataSource: DataSource<User> = dataSources.user;
+export default class UserListPage extends DataListPage<MyUser> {
+    dataSource: DataSource<MyUser> = dataSources.user;
     itemName: string = "用户";
-    columns: DataControlField<User>[] = [
-        boundField<User>({ dataField: "mobile", headerText: "用户手机" }),
-        boundField<User>({ dataField: "user_name", headerText: "用户名", readOnly: true }),
-        boundField<User>({ dataField: "email", headerText: "邮箱" }),
-        // boundField<User>({ dataField: "role_id", headerText: "用户身份" }),
-        dateTimeField<User>({ dataField: "create_date_time", headerText: "最后登录" }),
+    columns: DataControlField<MyUser>[] = [
+        boundField<MyUser>({ dataField: "mobile", headerText: "用户手机" }),
+        boundField<MyUser>({ dataField: "user_name", headerText: "用户名", readOnly: true }),
+        boundField<MyUser>({ dataField: "email", headerText: "邮箱" }),
+        boundField<MyUser>({ dataField: "roleNames", headerText: "用户身份" }),
+        dateTimeField<MyUser>({ dataField: "create_date_time", headerText: "最后登录" }),
     ];
 }

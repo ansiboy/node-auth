@@ -1,5 +1,5 @@
 import { constants, g, TOKEN_NAME } from "../global";
-import { controller, action, request, response, getLogger, serverContext } from "maishu-node-mvc";
+import { controller, action, request, response, getLogger, serverContext, routeData } from "maishu-node-mvc";
 import { authDataContext, AuthDataContext, currentUserId } from "../data-context";
 import { errors } from "../errors";
 import http = require("http");
@@ -7,6 +7,8 @@ import { getTokenData } from "../filters/authenticate";
 import { TokenManager } from "../token";
 import Cookies = require("maishu-cookies");
 import { ServerContext } from "../types";
+import { Role, UserRole } from "../entities";
+import { In } from "maishu-data";
 
 @controller(`/${constants.controllerPathRoot}/user`)
 export default class UserController {
@@ -18,6 +20,35 @@ export default class UserController {
         let userRoles = await dc.userRoles.find({ user_id: currentUserId });
         let roles = await dc.roles.findByIds(userRoles.map(o => o.role_id));
         return roles;
+    }
+
+    @action()
+    async roles(@authDataContext dc: AuthDataContext, @routeData { userIds }: { userIds: string[] }) {
+        if (!userIds)
+            throw errors.routeDataFieldNull("userIds");
+
+        return this.rolesByUserIds(dc, userIds);
+    }
+
+    private async rolesByUserIds(dc: AuthDataContext, userIds: string[]): Promise<Role[][]> {
+        userIds = userIds || [];
+        if (userIds.length == 0)
+            return [];
+
+        // ToDO:从数据库过滤
+        let userRoles = await dc.userRoles.find({ where: { user_id: In(userIds) } });
+        // 过滤掉可能重复的 roleids;
+        let roleIds = userRoles.map(o => o.role_id);
+        roleIds = Array.from(new Set(roleIds));
+
+        let roles = await dc.roles.findByIds(roleIds);
+        let r: Role[][] = [];
+        for (let i = 0; i < userIds.length; i++) {
+            let roleIds = userRoles.filter(o => o.user_id == userIds[i]).map(o => o.role_id);
+            let thisUserRoles = roles.filter(o => roleIds.indexOf(o.id) >= 0);
+            r.push(thisUserRoles);
+        }
+        return r;
     }
 
     @action()

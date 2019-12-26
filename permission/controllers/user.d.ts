@@ -51,7 +51,7 @@ export default class UserController {
     }): Promise<User>;
     list(dc: PermissionDataContext, { args }: {
         args: SelectArguments;
-    }): Promise<User[]>;
+    }): Promise<import("maishu-data/data-helper").SelectResult<User>>;
     /** 添加用户 */
     add(dc: PermissionDataContext, { item }: {
         item: User;

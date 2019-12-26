@@ -1,10 +1,16 @@
-import { Service } from "maishu-chitu-service";
-import { WebsiteConfig } from "maishu-chitu-admin/static";
+import { WebsiteConfig, Service } from "maishu-chitu-admin/static";
 import { TokenData, Role } from "gateway-entities";
 import { DataSourceSelectArguments } from "maishu-services-sdk";
 import { DataSourceSelectResult } from "maishu-wuzhui";
+import { ServiceModule } from "./service-module";
 
 export class GatewayService extends Service {
+
+    baseUrl = "/auth/";
+
+    role = new RoleModule(this);
+    user = new UserModule(this);
+
     private url(path: string) {
         return `/auth/${path}`
     }
@@ -21,16 +27,20 @@ export class GatewayService extends Service {
         return r;
     }
 
-    async roleList(args?: DataSourceSelectArguments) {
+
+}
+
+class RoleModule extends ServiceModule {
+    async list(args?: DataSourceSelectArguments) {
         let url = this.url("role/list");
         args = args || {};
         let r = await this.getByJson<DataSourceSelectResult<Role>>(url, { args });
         return r;
     }
 
-    addRole(name: string, remark: string): Promise<{ id: string }>;
-    addRole(item: Partial<Role>): Promise<{ id: string }>
-    addRole(arg1: any, arg2?: string) {
+    add(name: string, remark: string): Promise<{ id: string }>;
+    add(item: Partial<Role>): Promise<{ id: string }>
+    add(arg1: any, arg2?: string) {
         let url = this.url("role/add");
 
         let item: Partial<Role>;
@@ -43,18 +53,25 @@ export class GatewayService extends Service {
         return this.postByJson(url, { item })
     }
 
-    updateRole(item: Partial<Role>) {
+    update(item: Partial<Role>) {
         let url = this.url("role/update");
         return this.postByJson(url, { item });
     }
 
+    remove(id: string) {
+        let url = this.url("role/remove");
+        return this.postByJson(url, { id });
+    }
+}
+
+class UserModule extends ServiceModule {
     myRoles() {
         let url = this.url("user/myRoles");
         return this.get<Role[]>(url);
     }
-
-    removeRole(id: string) {
-        let url = this.url("role/remove");
-        return this.postByJson(url, { id });
+    /** 获取指定用户的角色 */
+    roles(userIds: string[]): Promise<Role[][]> {
+        let url = this.url("user/roles");
+        return this.getByJson<Role[][]>(url, { userIds });
     }
 }
