@@ -1,11 +1,8 @@
 import "reflect-metadata";
-import { ConnectionConfig, createConnection as createDBConnection, MysqlError } from "mysql";
-import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-data";
-import path = require("path");
-import fs = require("fs");
+import { EntityManager, Repository, createDataContext as baseCreateDataContext, DataContext } from "maishu-data";
 import { TokenData, Role, UserRole } from "./entities";
-import { createParameterDecorator, getLogger, Logger } from "maishu-node-mvc";
-import { constants, roleIds, userIds } from "./global";
+import { createParameterDecorator } from "maishu-node-mvc";
+import { roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
 import { ServerContext, ServerContextData } from "./types";
 
@@ -21,7 +18,7 @@ export interface SelectResult<T> {
     totalRowCount: number;
 }
 
-export class AuthDataContext {
+export class AuthDataContext extends DataContext {
 
     entityManager: EntityManager;
     tokenDatas: Repository<TokenData>;
@@ -29,7 +26,7 @@ export class AuthDataContext {
     userRoles: Repository<UserRole>;
 
     constructor(entityManager: EntityManager) {
-        this.entityManager = entityManager;
+        super(entityManager);
 
         this.tokenDatas = this.entityManager.getRepository(TokenData);
         this.roles = this.entityManager.getRepository(Role);
@@ -83,37 +80,40 @@ export class AuthDataContext {
 // let connections: { [dbName: string]: Connection } = {};
 
 export async function createDataContext(contextData: ServerContextData): Promise<AuthDataContext> {
-    let connConfig = contextData.db;
-    let logger = getLogger(`${constants.projectName}:${createDataContext.name}`, contextData.logLevel);
-    let connectionManager = getConnectionManager();
-    if (connectionManager.has(connConfig.database) == false) {
-        let entitiesPath = path.join(__dirname, "entities.js");
-        if (!fs.existsSync(entitiesPath)) {
-            logger.error(`Entities path is not exists, path is ${entitiesPath}.`);
-        }
-
-        let entities: string[] = [entitiesPath];
-        let dbOptions: ConnectionOptions = {
-            type: "mysql",
-            host: connConfig.host,
-            port: connConfig.port,
-            username: connConfig.user,
-            password: connConfig.password,
-            database: connConfig.database,
-            charset: connConfig.charset,
-            synchronize: true,
-            logging: false,
-            connectTimeout: 3000,
-            entities,
-            name: connConfig.database
-        }
-
-        await createConnection(dbOptions);
-    }
-
-    let connection = getConnection(connConfig.database);
-    let dc = new AuthDataContext(connection.manager);
+    let dc = await baseCreateDataContext(AuthDataContext, contextData.db);
     return dc;
+    // let connConfig = contextData.db;
+    // let logger = getLogger(`${constants.projectName}:${createDataContext.name}`, contextData.logLevel);
+    // let connectionManager = getConnectionManager();
+    // if (connectionManager.has(connConfig.database) == false) {
+    //     let entitiesPath = path.join(__dirname, "entities.js");
+    //     if (!fs.existsSync(entitiesPath)) {
+    //         logger.error(`Entities path is not exists, path is ${entitiesPath}.`);
+    //     }
+
+    //     let entities: string[] = [entitiesPath];
+    //     let dbOptions: ConnectionOptions = {
+    //         type: "mysql",
+    //         host: connConfig.host,
+    //         port: connConfig.port,
+    //         username: connConfig.user,
+    //         password: connConfig.password,
+    //         database: connConfig.database,
+    //         charset: connConfig.charset,
+    //         synchronize: true,
+    //         logging: false,
+    //         connectTimeout: 3000,
+    //         entities,
+    //         name: connConfig.database
+    //     }
+
+    //     await createConnection(dbOptions);
+    // }
+
+    // let connection = getConnection(connConfig.database);
+    // let dc = new AuthDataContext(connection.manager);
+    // return dc;
+
 }
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
@@ -124,59 +124,59 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
     }
 )
 
-export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void, logger?: Logger): Promise<boolean> {
-    let dbName = connConfig.database;
-    connConfig = Object.assign({}, connConfig);
-    connConfig.database = "mysql";
+// export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void, logger?: Logger): Promise<boolean> {
+//     let dbName = connConfig.database;
+//     connConfig = Object.assign({}, connConfig);
+//     connConfig.database = "mysql";
 
-    // let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
+//     // let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
 
-    let conn = createDBConnection(connConfig);
-    let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
-    return new Promise<boolean>(function (resolve, reject) {
-        conn.query(cmd, function (err?: MysqlError, result?: Array<any>) {
-            if (err) {
-                reject(err);
-                console.log("err")
-                return;
-            }
+//     let conn = createDBConnection(connConfig);
+//     let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
+//     return new Promise<boolean>(function (resolve, reject) {
+//         conn.query(cmd, function (err?: MysqlError, result?: Array<any>) {
+//             if (err) {
+//                 reject(err);
+//                 console.log("err")
+//                 return;
+//             }
 
-            if (result.length > 0) {
-                resolve(false);
-                return;
-            }
+//             if (result.length > 0) {
+//                 resolve(false);
+//                 return;
+//             }
 
-            let sql = `CREATE DATABASE ${dbName}`;
-            if (connConfig.charset) {
-                sql = sql + ` CHARACTER SET ${connConfig.charset}`;
-            }
-            conn.query(sql, function (err?: MysqlError) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
+//             let sql = `CREATE DATABASE ${dbName}`;
+//             if (connConfig.charset) {
+//                 sql = sql + ` CHARACTER SET ${connConfig.charset}`;
+//             }
+//             conn.query(sql, function (err?: MysqlError) {
+//                 if (err) {
+//                     reject(err);
+//                     return;
+//                 }
 
-                info(`Create databasae ${dbName}.`)
+//                 info(`Create databasae ${dbName}.`)
 
-                if (initDatabase) {
-                    info(`Initdatabase function is not null and executed to init the database.`);
-                    connConfig.database = dbName;
-                    initDatabase(connConfig);
-                }
+//                 if (initDatabase) {
+//                     info(`Initdatabase function is not null and executed to init the database.`);
+//                     connConfig.database = dbName;
+//                     initDatabase(connConfig);
+//                 }
 
-                resolve(true);
-            });
+//                 resolve(true);
+//             });
 
-        });
-    })
+//         });
+//     })
 
-    function info(msg: string) {
-        if (!logger)
-            return;
+//     function info(msg: string) {
+//         if (!logger)
+//             return;
 
-        logger.info(msg);
-    }
-}
+//         logger.info(msg);
+//     }
+// }
 
 export async function dataList<T>(repository: Repository<T>, options: {
     selectArguments?: SelectArguments, relations?: string[],
