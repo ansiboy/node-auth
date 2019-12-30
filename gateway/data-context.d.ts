@@ -13,7 +13,6 @@ export interface SelectResult<T> {
     totalRowCount: number;
 }
 export declare class AuthDataContext extends DataContext {
-    entityManager: EntityManager;
     tokenDatas: Repository<TokenData>;
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;

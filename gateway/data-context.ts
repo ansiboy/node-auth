@@ -5,6 +5,7 @@ import { createParameterDecorator } from "maishu-node-mvc";
 import { roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
 import { ServerContext, ServerContextData } from "./types";
+import path = require("path");
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -20,7 +21,6 @@ export interface SelectResult<T> {
 
 export class AuthDataContext extends DataContext {
 
-    entityManager: EntityManager;
     tokenDatas: Repository<TokenData>;
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;
@@ -28,9 +28,9 @@ export class AuthDataContext extends DataContext {
     constructor(entityManager: EntityManager) {
         super(entityManager);
 
-        this.tokenDatas = this.entityManager.getRepository(TokenData);
-        this.roles = this.entityManager.getRepository(Role);
-        this.userRoles = this.entityManager.getRepository(UserRole);
+        this.tokenDatas = this.manager.getRepository(TokenData);
+        this.roles = this.manager.getRepository(Role);
+        this.userRoles = this.manager.getRepository(UserRole);
     }
 
 
@@ -80,7 +80,9 @@ export class AuthDataContext extends DataContext {
 // let connections: { [dbName: string]: Connection } = {};
 
 export async function createDataContext(contextData: ServerContextData): Promise<AuthDataContext> {
-    let dc = await baseCreateDataContext(AuthDataContext, contextData.db);
+    let dc = await baseCreateDataContext(AuthDataContext, contextData.db, {
+        entities: [path.join(__dirname, "entities.js")]
+    });
     return dc;
     // let connConfig = contextData.db;
     // let logger = getLogger(`${constants.projectName}:${createDataContext.name}`, contextData.logLevel);
@@ -183,6 +185,7 @@ export async function dataList<T>(repository: Repository<T>, options: {
     fields?: Extract<keyof T, string>[]
 }): Promise<SelectResult<T>> {
 
+    options = options || {};
     let { selectArguments, relations, fields } = options;
     selectArguments = selectArguments || {};
 

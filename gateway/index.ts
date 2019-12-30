@@ -3,7 +3,6 @@ import { startServer, Settings as MVCSettings, getLogger, ProxyPipe } from "mais
 import { Settings, LoginResult, ServerContextData } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
-// import { loginFilter } from "./filters/login-filter";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
@@ -16,7 +15,7 @@ import { createDatabaseIfNotExists } from "maishu-data";
 
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
-
+export { createDataContext } from "./data-context";
 
 export { statusCodes } from "./status-codes";
 export { tokenDataHeaderNames, roleIds, userIds } from "./global";
@@ -45,7 +44,6 @@ export async function start(settings: Settings) {
     for (let key in settings.proxy) {
         proxy[key] = {
             targetUrl: settings.proxy[key], headers: (req) => proxyHeader(req, contextData),
-            // response: proxyResponseHandle
             pipe: proxyPipe
         }
     }
@@ -53,9 +51,6 @@ export async function start(settings: Settings) {
     settings.permissions = settings.permissions || {};
     settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
-
-    // settings.virtualPaths = settings.virtualPaths || {};
-    // settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
 
     let r = startServer({
         proxy,
@@ -110,29 +105,6 @@ async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: htt
     });
 
     return Buffer.from(JSON.stringify(loginResult));
-
-    // let logger = getLogger(constants.projectName);
-    // logger.info("Status code is login status code, process login logic.");
-    // let buffers: Buffer[] = [];
-    // proxyResponse.on("data", function (chunk: Buffer) {
-    //     buffers.push(chunk);
-    // })
-    // proxyResponse.on("end", function () {
-    //     let buffer = Buffer.concat(buffers);
-
-    //     let loginResult: LoginResult = JSON.parse(buffer.toString());
-    //     let tokenData = createTokenData(loginResult.userId);
-    //     loginResult.token = tokenData.id;
-
-    //     let expires = new Date(Date.now() + 60 * 60 * 1000 * 24 * 365);
-    //     let cookies = new Cookies(req, res);
-    //     cookies.set(TOKEN_NAME, tokenData.id, {
-    //         overwrite: true, expires,
-    //         httpOnly: false,
-    //     });
-    //     res.write(JSON.stringify(loginResult));
-    //     res.end();
-    // })
 }
 
 

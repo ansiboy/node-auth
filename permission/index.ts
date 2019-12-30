@@ -2,14 +2,14 @@ import { start as startAdmin, PermissionConfig, Settings as BaseSettings } from 
 import path = require("path");
 // import { Settings } from "./types";
 import { stationPath, smsSettings, ServerContextData } from "./global";
-import { roleIds, createDatabaseIfNotExists } from "../gateway";
+import { roleIds } from "../gateway";
 import { initDatabase } from "./data-context";
 import { ConnectionConfig } from "mysql";
 
 // export { Settings } from "./types";
 export { createDataContext } from "./data-context";
 export { roleIds } from "./global";
-
+import { createDatabaseIfNotExists } from "maishu-data";
 
 type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
 
