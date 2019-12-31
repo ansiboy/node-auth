@@ -1,6 +1,6 @@
 {
     "name": "maishu-node-auth",
-    "version": "2.20.0",
+    "version": "2.24.0",
     "main": "index.js",
     "scripts": {
         "build": "grunt build"
@@ -14,12 +14,12 @@
         "less": "^3.10.3",
         "load-grunt-tasks": "^5.1.0",
         "maishu-chitu": "^3.13.0",
-        "maishu-chitu-admin": "file:../chitu-admin",
+        "maishu-chitu-admin": "^2.96.0",
         "maishu-chitu-react": "^1.20.0",
-        "maishu-cookies": "file:../cookies",
-        "maishu-data": "file:../node-data",
+        "maishu-cookies": "^1.0.0",
+        "maishu-data": "^1.1.0",
         "maishu-dilu": "^1.4.3",
-        "maishu-node-mvc": "file:../node-mvc",
+        "maishu-node-mvc": "^1.83.0",
         "maishu-ui-toolkit": "^1.4.3",
         "maishu-wuzhui": "^1.7.0",
         "maishu-wuzhui-helper": "^1.8.2",
