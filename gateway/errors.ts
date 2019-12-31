@@ -1,5 +1,6 @@
 import { statusCodes } from "./status-codes";
 
+
 export let errors = {
     argumentNull(argumentName: string): Error {
         let msg = `Argument '${argumentName}' cannt be null`;

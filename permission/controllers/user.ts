@@ -259,8 +259,22 @@ export default class UserController {
     }
 
     @action()
+    async itemByMobile(@permissionDataContext dc: PermissionDataContext, @routeData { mobile }: { mobile: string }) {
+        if (!mobile) throw errors.routeDataFieldNull("mobile");
+
+        let user = await dc.users.findOne({ mobile });
+        return user;
+    }
+
+    @action()
     async list(@permissionDataContext dc: PermissionDataContext, @routeData { args }: { args: SelectArguments }) {
         let users = DataHelper.list(dc.users, { selectArguments: args }); //await dc.users.find();
+        return users;
+    }
+
+    @action()
+    async listByIds(@permissionDataContext dc: PermissionDataContext, @routeData { ids }: { ids: string[] }) {
+        let users = await dc.users.findByIds(ids);
         return users;
     }
 

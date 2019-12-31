@@ -30,10 +30,5 @@ export declare class AuthDataContext extends DataContext {
 }
 export declare function createDataContext(contextData: ServerContextData): Promise<AuthDataContext>;
 export declare let authDataContext: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;
-export declare function dataList<T>(repository: Repository<T>, options: {
-    selectArguments?: SelectArguments;
-    relations?: string[];
-    fields?: Extract<keyof T, string>[];
-}): Promise<SelectResult<T>>;
 export declare function initDatabase(contextData: ServerContextData): Promise<void>;
 export declare let currentUserId: (target: any, propertyKey: string | symbol, parameterIndex: number) => void;

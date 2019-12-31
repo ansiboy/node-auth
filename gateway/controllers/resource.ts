@@ -6,7 +6,6 @@ import url = require("url");
 import fetch from "node-fetch";
 import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
-import { Role } from "../entities";
 import { AuthDataContext } from "../data-context";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
