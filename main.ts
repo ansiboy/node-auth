@@ -2,6 +2,7 @@ import { Settings as GatewaySettings, roleIds } from "./gateway";
 import { Settings as PermissionSettings } from "./permission";
 import { Settings as PortalSettings } from "./portal";
 import { start } from "./index";
+import path = require("path");
 
 //===========================================
 // 目标主机，服务所在的主机
@@ -65,7 +66,10 @@ let gatewayStationSettings: GatewaySettings = {
         "/AdminMember/*": { roleIds: [roleIds.anonymous] },
         "/UserMember/*": { roleIds: [roleIds.anonymous] },
     },
-
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules"),
+        "asset": path.join(__dirname, "node_modules/maishu-chitu-admin/out/static/asset"),
+    }
 }
 
 let permissionStationSettings: PermissionSettings = {

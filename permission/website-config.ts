@@ -1,12 +1,21 @@
 /// <reference path="./declare.ts"/>
 
-import { stationPath, roleIds } from "./global";
+import { roleIds } from "./global";
 import md5 = require("js-md5");
 import { stationPath as gatewayStaionPath } from "../gateway";
-import { WebsiteConfig } from "maishu-chitu-admin";
+import { WebsiteConfig, PermissionConfig } from "maishu-chitu-admin";
 
 export let adminMobile = "18502146746";
 export let adminPassword = md5("11");
+
+export let stationPath = "/permission/";
+export let permissions: PermissionConfig = {};
+permissions[`${stationPath}*`] = { roleIds: [roleIds.admin, roleIds.anonymous] };
+
+// let permissions: PermissionConfig = {};
+// permissions[`${stationPath}*`] = {
+//     roleIds: [roleIds.admin, roleIds.anonymous],
+// };
 
 let websiteConfig: PermissionWebsiteConfig & WebsiteConfig = {
     stationPath: stationPath,

@@ -1,8 +1,6 @@
-import { start as startAdmin, PermissionConfig, Settings as BaseSettings } from "maishu-chitu-admin";
-import path = require("path");
+import { start as startAdmin, Settings as BaseSettings } from "maishu-chitu-admin";
 // import { Settings } from "./types";
-import { stationPath, smsSettings, ServerContextData } from "./global";
-import { roleIds } from "../gateway";
+import { smsSettings, ServerContextData } from "./global";
 import { initDatabase } from "./data-context";
 import { ConnectionConfig } from "mysql";
 
@@ -10,6 +8,7 @@ import { ConnectionConfig } from "mysql";
 export { createDataContext } from "./data-context";
 export { roleIds } from "./global";
 import { createDatabaseIfNotExists } from "maishu-data";
+import { permissions, stationPath } from "./website-config";
 
 type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
 
@@ -20,10 +19,7 @@ export async function start(settings: Settings) {
 
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
-    let permissions: PermissionConfig = {};
-    permissions[`${stationPath}*`] = {
-        roleIds: [roleIds.admin, roleIds.anonymous],
-    };
+
 
     let mySettings: InnerSettings = {
         rootDirectory: __dirname,

@@ -1,3 +1,5 @@
+import { PermissionConfig, StationInfo } from "./types";
+import { ValueStore } from "maishu-chitu-service";
 export declare let constants: {
     dbName: string;
     cookieToken: string;
@@ -21,5 +23,7 @@ export declare const TOKEN_NAME = "token";
 export { guid } from "maishu-chitu-service";
 export declare let g: {
     projectName: string;
-    stationInfos: any;
+    stationInfos: ValueStore<(Readonly<StationInfo> & {
+        permissions?: PermissionConfig;
+    })[]>;
 };

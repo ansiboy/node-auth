@@ -24,7 +24,7 @@ export function start(settings: Settings) {
             path: stationPath,
             permissions
         },
-        serverContextData
+        serverContextData,
     }
     startAdmin(Object.assign(settings, innerSettings));
 }

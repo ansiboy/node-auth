@@ -2,7 +2,6 @@ import { ConnectionConfig } from "mysql";
 export { roleIds } from "../gateway";
 export declare let PROJECt_NAME: string;
 export declare let controllerPathRoot: string;
-export declare let stationPath: string;
 export declare let smsSettings: {
     mobile: string;
     sendMessage: boolean;

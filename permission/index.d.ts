@@ -9,4 +9,4 @@ export declare type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, ke
     db: ConnectionConfig;
     sms?: typeof smsSettings;
 };
-export declare function start(settings: Settings): Promise<any>;
+export declare function start(settings: Settings): Promise<void>;
