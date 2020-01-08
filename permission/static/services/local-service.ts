@@ -1,5 +1,4 @@
 import { Service } from "maishu-chitu-admin/static";
-import { LoginInfo } from "maishu-services-sdk";
 import { LocalValueStore, CookieValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
 import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui";
@@ -9,6 +8,10 @@ export enum DataSourceMethods {
     update = 4,
     delete = 8,
     all = DataSourceMethods.insert & DataSourceMethods.update & DataSourceMethods.delete
+}
+
+interface LoginInfo {
+
 }
 
 export class LocalService extends Service {

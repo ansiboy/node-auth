@@ -1,7 +1,6 @@
 import { WebsiteConfig, Service } from "maishu-chitu-admin/static";
 import { TokenData, Role } from "gateway-entities";
-import { DataSourceSelectArguments } from "maishu-services-sdk";
-import { DataSourceSelectResult } from "maishu-wuzhui";
+import { DataSourceSelectResult, DataSourceSelectArguments } from "maishu-wuzhui";
 import { ServiceModule } from "./service-module";
 
 export class GatewayService extends Service {

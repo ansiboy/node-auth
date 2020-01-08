@@ -20,6 +20,9 @@
             "maishu-dilu": [
                 "../../node_modules/maishu-dilu/out/index.d.ts"
             ],
+            "maishu-toolkit": [
+                "../../node_modules/maishu-toolkit/out/index.d.ts"
+            ],
             "maishu-ui-toolkit": [
                 "../../node_modules/maishu-ui-toolkit/out/index.d.ts"
             ],

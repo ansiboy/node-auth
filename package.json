@@ -6,10 +6,6 @@
         "build": "grunt build"
     },
     "dependencies": {
-        "@types/mysql": "^2.15.8",
-        "@types/react": "^16.9.11",
-        "grunt": "^1.0.4",
-        "grunt-shell": "^3.0.1",
         "js-md5": "^0.7.3",
         "less": "^3.10.3",
         "load-grunt-tasks": "^5.1.0",
@@ -38,7 +34,12 @@
     },
     "devDependencies": {
         "@types/memory-cache": "^0.2.0",
-        "@types/socket.io": "^2.1.4"
+        "@types/mysql": "^2.15.8",
+        "@types/react": "^16.9.11",
+        "@types/react-dom": "^16.9.4",
+        "@types/socket.io": "^2.1.4",
+        "grunt": "^1.0.4",
+        "grunt-shell": "^3.0.1"
     },
     "files": [
         "**/*.js",
