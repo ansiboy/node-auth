@@ -12,6 +12,8 @@ export enum statusCodes {
     /** 字段为空 */
     fieldNull = 709,
 
+    argumentTypeIncorrect = 710,
+
     /** 用户未登录 */
     userNotLogin = 718,
 

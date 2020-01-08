@@ -12,11 +12,6 @@ export let stationPath = "/permission/";
 export let permissions: PermissionConfig = {};
 permissions[`${stationPath}*`] = { roleIds: [roleIds.admin, roleIds.anonymous] };
 
-// let permissions: PermissionConfig = {};
-// permissions[`${stationPath}*`] = {
-//     roleIds: [roleIds.admin, roleIds.anonymous],
-// };
-
 let websiteConfig: PermissionWebsiteConfig & WebsiteConfig = {
     stationPath: stationPath,
     gatewayStaionPath: gatewayStaionPath,

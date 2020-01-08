@@ -14,6 +14,13 @@ export let errors = {
         error.name = `${statusCodes.fieldNull} ${errors.argumentFieldNull.name}`;
         return error;
     },
+    argumentTypeIncorrect(argumentName: string, expectedType: string) {
+        let msg = `Argument ${argumentName} type incorrect, expected type ${expectedType}.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "argumentTypeIncorrect";
+        error.name = `${statusCodes.argumentTypeIncorrect} ${name}`;
+        return error;
+    },
     routeDataFieldNull<T>(fieldName: keyof T): Error {
         let msg = `The '${fieldName}' field of route data cannt be null.`;
         let error = new Error(msg);

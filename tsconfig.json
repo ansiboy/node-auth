@@ -7,7 +7,7 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "include": [
-        "*.ts"
+    "exclude": [
+        "**/static"
     ]
 }
