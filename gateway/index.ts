@@ -1,5 +1,5 @@
 import { g, constants, tokenDataHeaderNames, TOKEN_NAME, guid } from "./global";
-import { startServer, Settings as MVCSettings, getLogger, ProxyPipe } from "maishu-node-mvc";
+import { startServer, Settings as MVCSettings, getLogger, ProxyPipe, VirtualDirectory } from "maishu-node-mvc";
 import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
@@ -58,8 +58,8 @@ export async function start(settings: Settings) {
         proxy,
         headers: settings.headers,
         authenticate: (req, res) => authenticate(req, res, settings.permissions),
-        controllerDirectory: path.join(__dirname, "controllers"),
-        staticRootDirectory: path.join(__dirname, "static"),
+        controllerDirectory: new VirtualDirectory(path.join(__dirname, "controllers")),
+        staticDirectory: new VirtualDirectory(path.join(__dirname, "static")),
         virtualPaths: settings.virtualPaths,
         bindIP: settings.bindIP,
     })

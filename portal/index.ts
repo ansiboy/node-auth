@@ -13,7 +13,7 @@ export function start(settings: Settings) {
 
     startAdmin({
         port: settings.port,
-        rootDirectory: __dirname,
+        rootPhysicalPath: __dirname,
         virtualPaths: settings.virtualPaths,
         station: {
             gateway: settings.gateway,

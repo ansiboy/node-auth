@@ -20,7 +20,7 @@ export async function start(settings: Settings) {
     };
     return startAdmin({
         port: settings.port,
-        rootDirectory: __dirname,
+        rootPhysicalPath: __dirname,
         virtualPaths: settings.virtualPaths,
         station: {
             path: stationPath,
