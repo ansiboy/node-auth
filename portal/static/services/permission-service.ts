@@ -6,7 +6,7 @@ import { User } from "permission-entities"
 
 import { PortalWebsiteConfig } from "../../website-config";
 import "json!websiteConfig";
-let websiteConfig:PortalWebsiteConfig = require("json!websiteConfig");
+let websiteConfig: PortalWebsiteConfig = require("json!websiteConfig");
 
 export interface LoginInfo {
     token: string;
@@ -29,7 +29,7 @@ export class PermissionService extends Service {
         let url = this.url("user/login");
         let r = await this.postByJson<LoginInfo>(url, { username, password });
         PermissionService.token.value = r.token;
-
+        document.cookie = `token=${r.token}`;
         return r;
     }
 

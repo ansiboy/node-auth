@@ -1,25 +1,21 @@
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
+    let config = require("./config.json");
+    
     grunt.initConfig({
         shell: {
-            gateway: {
-                command: "tsc -p gateway"
-            },
-            permission: {
-                command: "tsc -p permission"
-            },
-            portal: {
-                command: "tsc -p portal"
-            },
-            root: {
+            src: {
                 command: "tsc -p ./"
-            },
-            start: {
-                command: "node index"
+            }
+        },
+        open: {
+            browser: {
+                path: `http://127.0.0.1:${config.port}/portal/#login`,
+                app: 'Google Chrome'
             }
         }
     });
 
-    grunt.registerTask("build", ["shell:gateway", "shell:permission", "shell:portal", "shell:root"]);
-    grunt.registerTask("start", ["start"])
+    grunt.registerTask("build", ["shell"]);
+    grunt.registerTask("start", ["open"])
 }
