@@ -1,10 +1,14 @@
 import { Service } from "maishu-chitu-admin/static";
-import { errors } from "errors";
-import { Resource, User } from "entities";
-import { TokenData } from "gateway-entities";
+import { errors } from "../errors";
+import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
-import websiteConfig = require("json!websiteConfig");
-;
+// import websiteConfigModuel = require("../../website-config");
+// let websiteConfig = websiteConfigModuel.default;
+import { PermissionWebsiteConfig } from "../../website-config";
+
+import "json!websiteConfig";
+let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
+
 export interface LoginInfo {
     token: string,
     userId: string,

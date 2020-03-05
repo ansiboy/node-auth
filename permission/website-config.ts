@@ -8,7 +8,14 @@ import { WebsiteConfig } from "maishu-chitu-admin";
 export let adminMobile = "18502146746";
 export let adminPassword = md5("11");
 
-let websiteConfig: PermissionWebsiteConfig & WebsiteConfig = {
+export type PermissionWebsiteConfig = {
+    stationPath: string,
+    gateway?: string,
+    gatewayStaionPath: string,
+    loginRedirectURL?: string,
+} & WebsiteConfig
+
+let websiteConfig: PermissionWebsiteConfig = {
     stationPath: stationPath,
     gatewayStaionPath: gatewayStaionPath,
     loginRedirectURL: "index",

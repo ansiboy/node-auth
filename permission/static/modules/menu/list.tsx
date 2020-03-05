@@ -1,7 +1,6 @@
-import { DataListPage } from "components/index";
-import { Resource } from "entities";
+import { DataListPage } from "../../components/index";
 import { DataSource, DataControlField, CustomBoundField } from "maishu-wuzhui";
-import { dataSources, MenuItem } from "services/data-sources";
+import { dataSources, MenuItem } from "../../services/data-sources";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 
 let sortFieldWidth = 80;

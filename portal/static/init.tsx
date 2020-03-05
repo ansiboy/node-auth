@@ -1,12 +1,17 @@
 import { InitArguments, RequireJS } from "maishu-chitu-admin/static";
 import { PageData, Application } from "maishu-chitu";
-import { PermissionService } from "services/permission-service";
+import { PermissionService } from "./services/permission-service";
 import { WebsiteConfig, RequireConfig } from "maishu-chitu-admin/static";
 import { errors } from "./errors";
 // import config from "config";
-import websiteConfig = require("json!websiteConfig");
-import { GatewayService } from "services/gateway-service";
+import { GatewayService } from "./services/gateway-service";
 import React = require("react");
+
+import { PortalWebsiteConfig } from "../website-config";
+import "json!websiteConfig";
+let websiteConfig:PortalWebsiteConfig = require("json!websiteConfig");
+
+
 
 export default async function (args: InitArguments) {
 

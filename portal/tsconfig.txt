@@ -1,20 +1,22 @@
 {
     "compilerOptions": {
-        "target": "esnext",
+        "target": "es6",
         "module": "commonjs",
-        "sourceMap": false,
-        "declaration": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
+        "declaration": false,
         "jsx": "react",
         "baseUrl": "./",
         "paths": {
             "permission-entities": [
-                "./permission/entities"
+                "../permission/entities"
             ],
             "gateway-entities": [
-                "./gateway/entities"
+                "../gateway/entities"
             ]
         }
-    }
+    },
+    // "exclude": [
+    //     "static"
+    // ]
 }

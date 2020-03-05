@@ -10,11 +10,14 @@
         "baseUrl": "./",
         "paths": {
             "permission-entities": [
-                "./permission/entities"
+                "../permission/entities"
             ],
             "gateway-entities": [
-                "./gateway/entities"
+                "../gateway/entities"
             ]
         }
     }
+    // "exclude": [
+    //     "**/static"
+    // ]
 }

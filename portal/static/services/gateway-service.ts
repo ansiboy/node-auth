@@ -1,6 +1,9 @@
 import { Service } from "maishu-chitu";
-import websiteConfig = require("json!websiteConfig");
 import { Role } from "gateway-entities";
+
+import { PortalWebsiteConfig } from "../../website-config";
+import "json!websiteConfig";
+let websiteConfig:PortalWebsiteConfig = require("json!websiteConfig");
 
 export class GatewayService extends Service {
     private url(path: string) {

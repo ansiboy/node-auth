@@ -2,6 +2,7 @@ import { Settings as GatewaySettings, roleIds } from "./gateway";
 import { Settings as PermissionSettings } from "./permission";
 import { Settings as PortalSettings } from "./portal";
 import { start } from "./index";
+import path = require("path");
 
 //===========================================
 // 目标主机，服务所在的主机
@@ -78,11 +79,17 @@ let permissionStationSettings: PermissionSettings = {
         host: "localhost",
         port: 3306
     },
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules")
+    }
 }
 
 let portalStationSettings: PortalSettings = {
     port: portalStationPort,
     gateway,
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules")
+    }
 }
 
 start({

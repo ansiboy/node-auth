@@ -2,8 +2,11 @@ import React = require("react");
 import { PageProps } from "maishu-chitu-react";
 import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
-import { LocalService } from "services/local-service";
-import config = require("json!websiteConfig");
+import { LocalService } from "../services/local-service";
+import { PermissionWebsiteConfig } from "../../website-config";
+
+import "json!websiteConfig";
+let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
 
 interface Props extends PageProps {
     data: {
@@ -38,7 +41,7 @@ export default class LoginPage extends React.Component<Props, State> {
         let service = this.props.createService(LocalService);
         let { username, password } = this.state;
         let r = await service.login(username, password);
-        let target = config.loginRedirectURL || "index";
+        let target = websiteConfig.loginRedirectURL || "index";
         this.props.app.redirect(target);
     }
 

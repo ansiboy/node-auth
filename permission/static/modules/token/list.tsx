@@ -1,7 +1,7 @@
-import { DataListPage } from "components/index";
+import { DataListPage } from "../../components/index";
 import { TokenData } from "gateway-entities";
 import { DataSource } from "maishu-wuzhui";
-import { dataSources } from "services/data-sources";
+import { dataSources } from "../../services/data-sources";
 import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 
 export default class TokenListPage extends DataListPage<TokenData>{

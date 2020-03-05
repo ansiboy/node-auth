@@ -2,10 +2,12 @@ import React = require("react");
 import { PageProps } from "maishu-chitu-react";
 import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
-import { PermissionService } from "services/permission-service";
+import { PermissionService } from "../services/permission-service";
 // import { LocalService } from "services/local-service";
 // import config from "../config";
-import websiteConfig = require("json!websiteConfig");
+import { PortalWebsiteConfig } from "../../website-config";
+import "json!websiteConfig";
+let websiteConfig:PortalWebsiteConfig = require("json!websiteConfig");
 
 interface Props extends PageProps {
     data: {

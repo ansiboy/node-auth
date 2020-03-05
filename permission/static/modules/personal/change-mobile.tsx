@@ -1,9 +1,9 @@
 import React = require("react");
-import { PermissionService } from "services/permission-service";
+import { PermissionService } from "../../services/permission-service";
 import { FormValidator, rules } from "maishu-dilu";
 import { PageProps } from "maishu-chitu-react";
 import { sendVerifyCode } from "./change-password";
-import { BasePage } from "components/pages/base-page";
+import { BasePage } from "../../components/pages/base-page";
 import { buttonOnClick } from "maishu-ui-toolkit";
 
 const NEW_MOBILE = "new_mobile";
