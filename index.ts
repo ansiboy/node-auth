@@ -3,6 +3,8 @@ import { Settings as PermissionSettings, start as startPermission, roleIds as pe
 import { Settings as PortalSettings, start as startPortal } from "./portal";
 
 export let roleIds = Object.assign(gatewayRoleIds, permissionRoleIds);
+export { AuthDataContext } from "./gateway";
+export { PermissionDataContext } from "./permission";
 
 type Settings = {
     gatewaySettings: GatewaySettings,

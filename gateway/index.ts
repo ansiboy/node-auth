@@ -15,7 +15,7 @@ import { createDatabaseIfNotExists } from "maishu-node-data";
 
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
-export { createDataContext } from "./data-context";
+export { createDataContext, AuthDataContext } from "./data-context";
 
 export { statusCodes } from "./status-codes";
 export { tokenDataHeaderNames, roleIds, userIds } from "./global";

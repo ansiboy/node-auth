@@ -6,10 +6,11 @@ export declare let roleIds: {
     anonymous: string;
     normalUser: string;
 };
+export { AuthDataContext } from "./gateway";
+export { PermissionDataContext } from "./permission";
 declare type Settings = {
     gatewaySettings: GatewaySettings;
     permissionSettings: PermissionSettings;
     portalSettings: PortalSettings;
 };
 export declare function start(settings: Settings): Promise<void>;
-export {};

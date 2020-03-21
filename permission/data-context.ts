@@ -10,7 +10,6 @@ import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
 
 export class PermissionDataContext extends DataContext {
-    private entityManager: EntityManager;
     categories: Repository<Category>;
     // roles: Repository<Role>;
     resources: Repository<Resource>;
@@ -22,18 +21,17 @@ export class PermissionDataContext extends DataContext {
 
     baseModuleResourceId: string;
 
-    constructor(entityManager: EntityManager) {
-        super(entityManager);
+    constructor(connConfig: ConnectionConfig) {
+        super(connConfig, path.join(__dirname, "entities.js"));
 
-        this.entityManager = entityManager;
         // this.roles = this.entityManager.getRepository<Role>(Role);
-        this.categories = this.entityManager.getRepository<Category>(Category);
-        this.resources = this.entityManager.getRepository<Resource>(Resource);
-        this.users = this.entityManager.getRepository<User>(User);
+        this.categories = this.manager.getRepository<Category>(Category);
+        this.resources = this.manager.getRepository<Resource>(Resource);
+        this.users = this.manager.getRepository<User>(User);
         // this.userRoles = this.entityManager.getRepository(UserRole);
-        this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
-        this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
-        this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
+        this.userLatestLogins = this.manager.getRepository<UserLatestLogin>(UserLatestLogin);
+        this.smsRecords = this.manager.getRepository<SMSRecord>(SMSRecord);
+        this.resourcePaths = this.manager.getRepository<ResourcePath>(ResourcePath);
     }
 
 }
@@ -61,9 +59,7 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
         await createConnection(dbOptions);
     }
 
-
-    let connection = getConnection(connConfig.database);
-    let dc = new PermissionDataContext(connection.manager);
+    let dc = new PermissionDataContext(connConfig);
     return dc
 }
 

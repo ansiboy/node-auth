@@ -1,11 +1,12 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext, DataHelper } from "maishu-node-data";
+import { Repository, DataContext, DataHelper } from "maishu-node-data";
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, serverContext } from "maishu-node-mvc";
 import { roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
 import { ServerContext, ServerContextData } from "./types";
 import path = require("path");
+import { ConnectionConfig } from "mysql";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -25,8 +26,8 @@ export class AuthDataContext extends DataContext {
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;
 
-    constructor(entityManager: EntityManager) {
-        super(entityManager);
+    constructor(connConfig: ConnectionConfig) {
+        super(connConfig, path.join(__dirname, "entities.js"));
 
         this.tokenDatas = this.manager.getRepository(TokenData);
         this.roles = this.manager.getRepository(Role);

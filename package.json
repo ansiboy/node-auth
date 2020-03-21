@@ -1,6 +1,6 @@
 {
     "name": "maishu-node-auth",
-    "version": "2.27.1",
+    "version": "2.27.4",
     "main": "index.js",
     "scripts": {
         "build": "grunt build"
@@ -13,7 +13,7 @@
         "maishu-chitu-admin": "^2.116.0",
         "maishu-chitu-service": "^1.17.0",
         "maishu-cookies": "^1.0.0",
-        "maishu-node-data": "^1.2.3",
+        "maishu-node-data": "^1.2.4",
         "maishu-node-mvc": "^1.97.0",
         "memory-cache": "^0.2.0",
         "mysql": "^2.17.1",

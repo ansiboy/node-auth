@@ -1,7 +1,8 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext } from "maishu-node-data";
+import { Repository, DataContext } from "maishu-node-data";
 import { TokenData, Role, UserRole } from "./entities";
 import { ServerContextData } from "./types";
+import { ConnectionConfig } from "mysql";
 export interface SelectArguments {
     startRowIndex?: number;
     maximumRows?: number;
@@ -16,7 +17,7 @@ export declare class AuthDataContext extends DataContext {
     tokenDatas: Repository<TokenData>;
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;
-    constructor(entityManager: EntityManager);
+    constructor(connConfig: ConnectionConfig);
     static list<T>(repository: Repository<T>, options: {
         selectArguments?: SelectArguments;
         relations?: string[];

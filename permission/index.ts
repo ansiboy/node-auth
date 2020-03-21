@@ -5,7 +5,7 @@ import { initDatabase } from "./data-context";
 import { ConnectionConfig } from "mysql";
 
 // export { Settings } from "./types";
-export { createDataContext } from "./data-context";
+export { createDataContext, PermissionDataContext } from "./data-context";
 export { roleIds } from "./global";
 import { createDatabaseIfNotExists } from "maishu-node-data";
 import { permissions, stationPath } from "./website-config";
