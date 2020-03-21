@@ -1,8 +1,6 @@
-import { ServerContext } from 'maishu-node-mvc';
 import { PermissionDataContext } from '../data-context';
-import { ServerContextData } from '../global';
 export default class SMSController {
-    sendVerifyCode(dc: PermissionDataContext, context: ServerContext<ServerContextData>, { mobile, type }: {
+    sendVerifyCode(dc: PermissionDataContext, { mobile, type }: {
         mobile: string;
         type: 'register' | 'resetPassword';
     }): Promise<{

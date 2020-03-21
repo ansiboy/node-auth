@@ -3,11 +3,18 @@
         "target": "esnext",
         "module": "commonjs",
         "sourceMap": false,
-        "declaration": true,
+        "declaration": false,
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": true
-    },
-    "exclude": [
-        "**/static"
-    ]
+        "emitDecoratorMetadata": true,
+        "jsx": "react",
+        "baseUrl": "./",
+        "paths": {
+            "gateway-entities":[
+                "./gateway/entities.ts"
+            ],
+            "permission-entities":[
+                "./permission/entities.ts"
+            ]
+        }
+    }
 }

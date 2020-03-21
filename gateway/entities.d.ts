@@ -11,7 +11,11 @@ export declare class Role {
     create_date_time: Date;
     parent_id?: string;
     userRoles?: UserRole[];
-    readonly: boolean;
+    /**
+     * 获取指定用户的角色 ID
+     * @param userId 指定的用户 ID
+     */
+    static getUserRoleIds(userId: string): Promise<string[]>;
 }
 export declare class UserRole {
     user_id: string;

@@ -1,13 +1,12 @@
-import ReactDOM = require("react-dom");
 import React = require("react");
 import { FormValidator, rules } from "maishu-dilu";
 
 import { alert, buttonOnClick } from "maishu-ui-toolkit";
-import { PermissionService } from "services/permission-service";
+import { PermissionService } from "../../services/permission-service";
 import { errorHandle } from "maishu-chitu-admin/static";
 import { PageProps } from "maishu-chitu-react";
-import { errors } from "errors";
-import { BasePage } from "components/pages/base-page";
+import { errors } from "../../errors";
+import { BasePage } from "../../components/pages/base-page";
 import { Role } from "gateway-entities";
 
 const NEW_PASSWORD = "new_password";

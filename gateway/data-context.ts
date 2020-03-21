@@ -1,12 +1,13 @@
 import "reflect-metadata";
-import { Repository, DataContext, DataHelper } from "maishu-node-data";
-import { TokenData, Role, UserRole } from "./entities";
-import { createParameterDecorator, serverContext } from "maishu-node-mvc";
-import { roleIds, userIds } from "./global";
-import { getTokenData } from "./filters/authenticate";
-import { ServerContext, ServerContextData } from "./types";
+import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
+import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions, ConnectionManager, getManager, getConnectionManager } from "typeorm";
 import path = require("path");
-import { ConnectionConfig } from "mysql";
+import fs = require("fs");
+import { TokenData, Role, UserRole } from "./entities";
+import { createParameterDecorator, getLogger } from "maishu-node-mvc";
+import { g, constants, roleIds, userIds } from "./global";
+import { getTokenData } from "./filters/authenticate";
+import { DataContext } from "maishu-node-data";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -26,8 +27,10 @@ export class AuthDataContext extends DataContext {
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;
 
-    constructor(connConfig: ConnectionConfig) {
-        super(connConfig, path.join(__dirname, "entities.js"));
+    static entitiesPath = path.join(__dirname, "entities.js");
+
+    constructor(entityManager: EntityManager) {
+        super(entityManager);
 
         this.tokenDatas = this.manager.getRepository(TokenData);
         this.roles = this.manager.getRepository(Role);
@@ -65,46 +68,157 @@ export class AuthDataContext extends DataContext {
         return { dataItems: items, totalRowCount: count } as SelectResult<T>
     }
 
-    /**
-     * 获取指定用户的角色 ID
-     * @param userId 指定的用户 ID
-     */
-    static async getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]> {
-        //TODO: 缓存 roleids
-        let dc = await createDataContext(contextData);
-        let userRoles = await dc.userRoles.find({ user_id: userId });
-        return userRoles.map(o => o.role_id);
-    }
-
 }
 
 // let connections: { [dbName: string]: Connection } = {};
 
-export async function createDataContext(contextData: ServerContextData): Promise<AuthDataContext> {
-    let dc = await DataHelper.createDataContext(AuthDataContext, contextData.db, path.join(__dirname, "entities.js"));
+export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
+    let logger = getLogger(`${constants.projectName}:${createDataContext.name}`);
+    let connectionManager = getConnectionManager();
+    if (connectionManager.has(connConfig.database) == false) {
+        let entitiesPath = path.join(__dirname, "entities.js");
+        if (!fs.existsSync(entitiesPath)) {
+            logger.error(`Entities path is not exists, path is ${entitiesPath}.`);
+        }
+
+        let entities: string[] = [entitiesPath];
+        let dbOptions: ConnectionOptions = {
+            type: "mysql",
+            host: connConfig.host,
+            port: connConfig.port,
+            username: connConfig.user,
+            password: connConfig.password,
+            database: connConfig.database,
+            charset: connConfig.charset,
+            synchronize: true,
+            logging: false,
+            connectTimeout: 3000,
+            entities,
+            name: connConfig.database
+        }
+
+        await createConnection(dbOptions);
+    }
+
+    let connection = getConnection(connConfig.database);
+    let dc = new AuthDataContext(connection.manager);
     return dc;
 }
 
 export let authDataContext = createParameterDecorator<AuthDataContext>(
-    async (req, res, context: ServerContext) => {
-        console.assert(context.data != null);
-        let dc = await createDataContext(context.data);
+    async () => {
+        console.assert(g.settings.db != null);
+        let dc = await createDataContext(g.settings.db);
         return dc
     }
 )
 
-export async function initDatabase(contextData: ServerContextData) {
-    let dc = await createDataContext(contextData);
+export function createDatabaseIfNotExists(connConfig: ConnectionConfig, initDatabase?: (conn: ConnectionConfig) => void): Promise<boolean> {
+    let dbName = connConfig.database;
+    connConfig = Object.assign({}, connConfig);
+    connConfig.database = "mysql";
+
+    let logger = getLogger(`${constants.projectName} ${createDatabaseIfNotExists.name}`, g.settings.logLevel);
+
+    let conn = createDBConnection(connConfig);
+    let cmd = `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${dbName}'`;
+    return new Promise<boolean>(function (resolve, reject) {
+        conn.query(cmd, function (err?: MysqlError, result?: Array<any>) {
+            if (err) {
+                reject(err);
+                console.log("err")
+                return;
+            }
+
+            if (result.length > 0) {
+                resolve(false);
+                return;
+            }
+
+            let sql = `CREATE DATABASE ${dbName}`;
+            if (connConfig.charset) {
+                sql = sql + ` CHARACTER SET ${connConfig.charset}`;
+            }
+            conn.query(sql, function (err?: MysqlError) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                logger.info(`Create databasae ${dbName}.`)
+
+                if (initDatabase) {
+                    logger.info(`Initdatabase function is not null and executed to init the database.`);
+                    connConfig.database = dbName;
+                    initDatabase(connConfig);
+                }
+
+                resolve(true);
+            });
+
+        });
+    })
+}
+
+export async function dataList<T>(repository: Repository<T>, options: {
+    selectArguments?: SelectArguments, relations?: string[],
+    fields?: Extract<keyof T, string>[]
+}): Promise<SelectResult<T>> {
+
+    let { selectArguments, relations, fields } = options;
+    selectArguments = selectArguments || {};
+
+    let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
+    if (!selectArguments.sortExpression) {
+        selectArguments.sortExpression = "create_date_time desc"
+    }
+
+    let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
+    console.assert(arr.length > 0)
+    order = {};
+    order[arr[0]] = arr[1].toUpperCase() as any;
+
+    let [items, count] = await repository.findAndCount({
+        where: selectArguments.filter, relations,
+        skip: selectArguments.startRowIndex,
+        take: selectArguments.maximumRows,
+        order: order,
+        select: fields,
+
+    });
+
+    return { dataItems: items, totalRowCount: count } as SelectResult<T>
+}
+
+export async function initDatabase(connConfig: ConnectionConfig) {
+    let dc = await createDataContext(connConfig);
 
     let adminRole: Role = {
         id: roleIds.admin,
         name: "管理员",
         remark: "系统预设的管理员",
         create_date_time: new Date(Date.now()),
-        readonly: true
     };
 
     await dc.roles.save(adminRole);
+
+    let anonymousRole: Role = {
+        id: roleIds.anonymous,
+        name: "匿名用户组",
+        remark: "系统预设的匿名用户组",
+        create_date_time: new Date(Date.now()),
+    }
+
+    await dc.roles.save(anonymousRole);
+
+    let normalUserRole: Role = {
+        id: roleIds.normalUser,
+        name: "普通用户",
+        remark: "",
+        create_date_time: new Date(Date.now()),
+    }
+
+    await dc.roles.save(normalUserRole);
 
     let userRole: UserRole = {
         user_id: userIds.admin,
@@ -114,8 +228,8 @@ export async function initDatabase(contextData: ServerContextData) {
     await dc.userRoles.save(userRole);
 }
 
-export let currentUserId = createParameterDecorator(async (req, res, context: ServerContext) => {
-    let tokenData = await getTokenData(req, res, context.data);
+export let currentUserId = createParameterDecorator(async (req, res) => {
+    let tokenData = await getTokenData(req, res);
     if (!tokenData)
         return null;
 

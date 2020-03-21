@@ -9,7 +9,6 @@ import { guid } from 'maishu-chitu-service';
 import { LoginResult, statusCodes } from "../../gateway";
 import { roleIds } from "../global";
 import { FindOneOptions } from 'typeorm';
-import { DataHelper } from 'maishu-node-data';
 
 @controller('/user')
 export default class UserController {
@@ -69,6 +68,11 @@ export default class UserController {
             id: guid(), mobile, password, data,
             create_date_time: new Date(Date.now())
         }
+
+        // let userRole: UserRole = {
+        //     user_id: user.id,
+        //     role_id: roleIds.normalUserRoleId,
+        // }
 
         await dc.users.insert(user);
 
@@ -151,12 +155,17 @@ export default class UserController {
         switch (type) {
             default:
             case 'mobile':
+                // sql = `select id from user where mobile = ? and password = ?`
                 where = { mobile: username, password };
                 break
             case 'username':
+                // sql = `select id from user where user_name = ? and password = ?`
+                // user = await dc.users.findOne({ user_name: username, password });
                 where = { user_name: username, password };
                 break
             case 'email':
+                // sql = `select id from user where email = ? and password = ?`
+                // user = await dc.users.findOne({ email: username, password });
                 where = { email: username, password };
                 break
         }
@@ -166,6 +175,8 @@ export default class UserController {
             throw errors.usernameOrPasswordIncorrect(username)
         }
 
+        // let token = await TokenManager.create({ user_id: user.id } as UserToken)
+        // return { token: token.id, userId: user.id, roleId: user.role_id }
         let r: LoginResult = { userId: user.id };
         return r;
     }
@@ -183,6 +194,8 @@ export default class UserController {
             await dc.users.save(user);
         }
 
+        // let token = await TokenManager.create({ user_id: user.id });
+        // return { token: token.id, userId: user.id, roleId: user.role_id };
         let r: LoginResult = { userId: user.id };
         return r;
     }
@@ -200,6 +213,8 @@ export default class UserController {
         if (smsRecord == null || smsRecord.code != verifyCode)
             throw errors.verifyCodeIncorrect(verifyCode);
 
+        // let token = await TokenManager.create({ user_id: user.id } as UserToken)
+        // return { token: token.id, userId: user.id, roleId: user.role_id }
         let r: LoginResult = { userId: user.id, };
         return r;
     }
@@ -259,22 +274,33 @@ export default class UserController {
     }
 
     @action()
-    async itemByMobile(@permissionDataContext dc: PermissionDataContext, @routeData { mobile }: { mobile: string }) {
-        if (!mobile) throw errors.routeDataFieldNull("mobile");
-
-        let user = await dc.users.findOne({ mobile });
-        return user;
-    }
-
-    @action()
     async list(@permissionDataContext dc: PermissionDataContext, @routeData { args }: { args: SelectArguments }) {
-        let users = DataHelper.list(dc.users, { selectArguments: args }); //await dc.users.find();
-        return users;
-    }
+        // args = args || {};
+        // if (args.filter) {
+        //     args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
+        // }
+        // else {
+        //     args.filter = "(User.is_system is null or User.is_system = false)";
+        // }
 
-    @action()
-    async listByIds(@permissionDataContext dc: PermissionDataContext, @routeData { ids }: { ids: string[] }) {
-        let users = await dc.users.findByIds(ids);
+        // let result = await BaseController.list<User>(dc.users, {
+        //     selectArguments: args, relations: ["role"],
+        //     fields: ["id", "mobile", "user_name", "email", "create_date_time"]
+        // })
+
+        // if (result.dataItems.length > 0) {
+        //     let userIds = result.dataItems.map(o => o.id);
+        //     let ctrl = new LatestLoginController();
+        //     let latestLogins = await ctrl.list(dc, { userIds });
+        //     result.dataItems.forEach(user => {
+        //         user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
+        //             .map(o => o.latest_login)[0];
+        //     })
+        // }
+
+        // return result
+
+        let users = await dc.users.find();
         return users;
     }
 
@@ -303,6 +329,11 @@ export default class UserController {
         item.create_date_time = new Date(Date.now());
 
         await dc.users.save(item);
+
+        // if (item.role_id) {
+        //     item.role = await dc.roles.findOne(item.role_id); //roleIds.map(o => ({ id: o }) as Role)
+        // }
+
         return { id: item.id, create_date_time: item.create_date_time };
     }
 
@@ -326,6 +357,11 @@ export default class UserController {
             entity.password = user.password;
 
         await dc.users.save(entity);
+
+        // if (user.role_id) {
+        //     entity.role = await dc.roles.findOne(user.role_id);
+        // }
+
         return { id: entity.id, } as Partial<User>
     }
 

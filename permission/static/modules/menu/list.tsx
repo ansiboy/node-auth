@@ -1,7 +1,7 @@
-import { DataListPage } from "maishu-chitu-admin/static";
-import { DataControlField, CustomBoundField } from "maishu-wuzhui";
-import { dataSources, MenuItem } from "services/data-sources";
-import { boundField } from "maishu-wuzhui-helper";
+import { DataListPage } from "../../components/index";
+import { DataSource, DataControlField, CustomBoundField } from "maishu-wuzhui";
+import { dataSources, MenuItem } from "../../services/data-sources";
+import { boundField, dateTimeField } from "maishu-wuzhui-helper";
 
 let sortFieldWidth = 80;
 let nameFieldWidth = 180;
@@ -9,10 +9,9 @@ let iconFieldWidth = 120;
 let roleFieldWidth = 180;
 
 export default class MenuListPage extends DataListPage<MenuItem> {
-    dataSource = dataSources.resource;
+    dataSource = dataSources.resource
     itemName = "菜单";
-    showCommandField = false;
-    
+
     constructor(props) {
         super(props)
 
@@ -48,6 +47,44 @@ export default class MenuListPage extends DataListPage<MenuItem> {
         boundField<MenuItem>({ dataField: "path", headerText: "路径" }),
         boundField<MenuItem>({ dataField: "icon", headerText: "图标", itemStyle: { width: `${iconFieldWidth}px` } }),
         boundField<MenuItem>({ dataField: "roleNames", headerText: "角色", itemStyle: { width: `${roleFieldWidth}px` } }),
+        // dateTimeField<MenuItem>({ dataField: "create_date_time", headerText: "创建时间" })
     ];
+
+    // translate = (items) => {
+    //     items = items.filter(o => o.type == "menu" || o.type == "control");
+    //     items.sort((a, b) => a.sort_number < b.sort_number ? -1 : 1);
+    //     items = translateToMenuItems(items)
+    //     return items;
+    // }
+
 }
 
+
+
+// export function translateToMenuItems(resources: Resource[]): MenuItem[] {
+//     let arr = new Array<MenuItem>();
+//     let stack: MenuItem[] = [...resources.filter(o => o.parent_id == null).reverse() as MenuItem[]];
+//     while (stack.length > 0) {
+//         let item = stack.pop();
+//         item.children = resources.filter(o => o.parent_id == item.id) as MenuItem[];
+//         if (item.parent_id) {
+//             item.parent = resources.filter(o => o.id == item.parent_id)[0] as MenuItem;
+//         }
+
+//         stack.push(...item.children.reverse());
+
+//         arr.push(item);
+//     }
+
+//     let ids = arr.map(o => o.id);
+//     for (let i = 0; i < ids.length; i++) {
+//         let item = arr.filter(o => o.id == ids[i])[0];
+//         console.assert(item != null);
+
+//         if (item.children.length > 1) {
+//             item.children.sort((a, b) => a.sort_number < b.sort_number ? -1 : 1);
+//         }
+//     }
+
+//     return arr;
+// }

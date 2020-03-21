@@ -1,5 +1,5 @@
 import { controller, action, routeData, getLogger } from "maishu-node-mvc";
-import { StationInfo, ServerContextData } from "../types";
+import { StationInfo } from "../types";
 import { g, constants } from "../global";
 import { errors } from "../errors";
 
@@ -13,9 +13,9 @@ export class StationController {
     }
 
     /** 注册站点 */
-    register(data: StationInfo, contextData: ServerContextData) {
+    register(data: StationInfo) {
 
-        let logger = getLogger(g.projectName, contextData.logLevel);
+        let logger = getLogger(g.projectName, g.settings.logLevel);
         logger.info("Register action of station controller execute.");
 
         console.assert(data != null);

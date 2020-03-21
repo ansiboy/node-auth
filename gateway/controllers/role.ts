@@ -1,10 +1,9 @@
 import { controller, action, routeData } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext } from "../data-context";
+import { authDataContext, AuthDataContext, dataList } from "../data-context";
 import { Role } from "../entities";
 import { errors } from "../errors";
 import { guid } from "maishu-chitu-service";
 import { constants } from "../global";
-import { SelectResult, DataHelper } from "maishu-node-data";
 
 @controller(`${constants.controllerPathRoot}/role`)
 export default class RoleController {
@@ -16,10 +15,10 @@ export default class RoleController {
         let role: Role = {
             id: guid(), name: item.name, remark: item.remark,
             create_date_time: new Date(Date.now()),
-            parent_id: item.parent_id, readonly: false,
+            parent_id: item.parent_id,
         }
 
-        await dc.roles.insert(role);
+        await dc.roles.save(role);
 
         return { id: role.id, create_date_time: role.create_date_time };
     }
@@ -52,19 +51,11 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action()
-    async list(@authDataContext dc: AuthDataContext, @routeData { args, ids }): Promise<SelectResult<Role>> {
+    async list(@authDataContext dc: AuthDataContext, @routeData { args }) {
         if (!dc) throw errors.argumentNull("dc");
 
-        let result = await DataHelper.list(dc.roles, args);
-        return result;
-    }
-
-    @action()
-    async getByIds(@authDataContext dc: AuthDataContext, @routeData { ids }: { ids: string[] }) {
-        if (!ids) throw errors.routeDataFieldNull("ids");
-
-        let roles = await dc.roles.findByIds(ids);
-        return roles;
+        let r = await dataList(dc.roles, args);
+        return r;
     }
 
     /** 获取单个角色 */
@@ -76,7 +67,5 @@ export default class RoleController {
         let r = await dc.roles.findOne(id);
         return r;
     }
-
-
 
 }

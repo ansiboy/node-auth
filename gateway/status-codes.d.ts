@@ -1,16 +1,16 @@
-export declare enum statusCodes {
-    login = 282,
-    logout = 283,
-    forbidden = 403,
-    argumentNull = 705,
+import { StatusCodes } from "maishu-chitu-service";
+export declare let statusCodes: typeof StatusCodes & {
+    login: number;
+    logout: number;
+    forbidden: number;
+    argumentNull: number;
     /** 字段为空 */
-    fieldNull = 709,
-    argumentTypeIncorrect = 710,
+    fieldNull: number;
     /** 用户未登录 */
-    userNotLogin = 718,
-    /** 没有权限 */
-    noPermission = 726,
-    userIdNull = 727,
+    userNotLogin: number;
     /** 指定 ID 的对象不存在 */
-    objectNotExistWithId = 728
-}
+    objectNotExistWithId: number;
+    /** 没有权限 */
+    noPermission: number;
+    userIdNull: number;
+};

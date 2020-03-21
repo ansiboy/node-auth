@@ -1,6 +1,5 @@
 import { statusCodes } from "./status-codes";
 
-
 export let errors = {
     argumentNull(argumentName: string): Error {
         let msg = `Argument '${argumentName}' cannt be null`;
@@ -12,13 +11,6 @@ export let errors = {
         let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
         let error = new Error(msg);
         error.name = `${statusCodes.fieldNull} ${errors.argumentFieldNull.name}`;
-        return error;
-    },
-    argumentTypeIncorrect(argumentName: string, expectedType: string) {
-        let msg = `Argument ${argumentName} type incorrect, expected type ${expectedType}.`;
-        let error = new Error(msg);
-        let name: keyof typeof errors = "argumentTypeIncorrect";
-        error.name = `${statusCodes.argumentTypeIncorrect} ${name}`;
         return error;
     },
     routeDataFieldNull<T>(fieldName: keyof T): Error {

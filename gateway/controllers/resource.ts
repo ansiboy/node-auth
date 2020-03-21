@@ -1,19 +1,19 @@
-import { controller, action, getLogger, request, response, serverContext } from "maishu-node-mvc";
+import { controller, action, getLogger, request, response } from "maishu-node-mvc";
 import { constants, g } from "../global";
-import { WebsiteConfig, ServerContext } from "../types";
+import { WebsiteConfig } from "../types";
 import http = require("http");
 import url = require("url");
 import fetch from "node-fetch";
 import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
-import { AuthDataContext } from "../data-context";
+import { Role } from "../entities";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
 @controller(`${constants.controllerPathRoot}/menuItem`)
 export class ResourceController {
     @action()
-    async list(@request req: http.IncomingMessage, @serverContext context: ServerContext) {
+    async list(@request req: http.IncomingMessage) {
 
         let stations = g.stationInfos.value;
 
@@ -21,7 +21,7 @@ export class ResourceController {
         let protocol = u.protocol || "http:";
         let websiteConfigUrls = stations.map(p => `${protocol}//${p.ip}:${p.port}/websiteConfig`)
 
-        let logger = getLogger(constants.projectName, context.data.logLevel);
+        let logger = getLogger(constants.projectName, g.settings.logLevel);
         logger.info(websiteConfigUrls);
 
         let menuItems: MyMenuItem[] = [];
@@ -48,13 +48,13 @@ export class ResourceController {
     }
 
     @action()
-    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @serverContext context: ServerContext) {
-        let tokenData = await getTokenData(req, res, context.data);
+    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse) {
+        let tokenData = await getTokenData(req, res);
         if (!tokenData)
             throw errors.userNotLogin(req.url);
 
-        let userRoleIds = await AuthDataContext.getUserRoleIds(tokenData.user_id, context.data);
-        let menuItems = await this.list(req, context);
+        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id);
+        let menuItems = await this.list(req);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 
         return result;

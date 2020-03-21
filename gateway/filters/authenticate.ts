@@ -3,30 +3,30 @@ import url = require("url");
 import querystring = require('querystring');
 import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
 import { errors } from "../errors";
-import { PermissionConfig, PermissionConfigItem, ServerContextData } from "../types";
+import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, constants, roleIds } from "../global";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "../token";
-// import UrlPattern = require("url-pattern");
+import UrlPattern = require("url-pattern");
 import { statusCodes } from "../status-codes";
-import { AuthDataContext } from "../data-context";
+import { Role } from "../entities";
 
 /**
  * 检查路径是否允许访问
  */
 export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
-    permissions: PermissionConfig, contextData: ServerContextData): Promise<ActionResult> {
+    permissions: PermissionConfig): Promise<ActionResult> {
 
-    let logger = getLogger(g.projectName, contextData.logLevel);
+    let logger = getLogger(g.projectName, g.settings.logLevel);
 
     permissions = permissions || {};
 
     let userId: string = null;
     let userRoleIds: string[] = [roleIds.anonymous];// 所有访问者都拥有 anonymousRoleId 角色
-    let tokenData = await getTokenData(req, res, contextData);
+    let tokenData = await getTokenData(req, res);
     if (tokenData) {
         userId = tokenData.user_id;
-        let ids = await AuthDataContext.getUserRoleIds(userId, contextData);
+        let ids = await Role.getUserRoleIds(userId);
         if (ids) {
             userRoleIds.push(...ids);
         }
@@ -37,11 +37,38 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
             userRoleIds.push(roleIds.normalUser);
         }
         //=========================================================
+
+        //tokenData.roleIds ? tokenData.roleIds.split(",") : [];
+        // if (tokenData.role_ids) {
+        //     userRoleIds.push(...tokenData.role_ids);
+        // }
     }
 
-    let u = url.parse(req.url);
-    if (isAllowVisit(permissions, userRoleIds, u.pathname))
+    //==================================================
+    // 管理员拥有所有权限
+    if (userRoleIds.indexOf(roleIds.admin) >= 0) {
+        logger.info(`Role is admin role.`);
         return null;
+    }
+    //==================================================
+    let u = url.parse(req.url);
+
+    //==================================================
+    // 检查通过配置设置的权限
+    let paths = Object.getOwnPropertyNames(permissions);
+    for (let i = 0; i < paths.length; i++) {
+        var pattern = new UrlPattern(paths[i]);
+        if (pattern.match(u.pathname)) {
+            let permissionItem = permissions[paths[i]] || {} as PermissionConfigItem;
+            permissionItem.roleIds = permissionItem.roleIds || [];
+            for (let userRoleId of userRoleIds) {
+                if (permissionItem.roleIds.indexOf(userRoleId) >= 0)
+                    return null;
+            }
+
+        }
+    }
+    //==================================================
 
     let error = userId == null ? errors.userNotLogin(req.url) : errors.forbidden(u.pathname);
     let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", statusCodes.noPermission);
@@ -50,43 +77,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     return result;
 }
 
-/** 
- * 判断用户是否允许访问指定的路径 
- * @param permissions 权限配置
- * @param userRoleIds 用户角色
- * @param pathname 指定的路径 
- */
-export function isAllowVisit(permissions: PermissionConfig, userRoleIds: string[], pathname: string): boolean {
-    if (!permissions) throw errors.argumentNull("permissions");
-    if (!userRoleIds) throw errors.argumentNull("userRoleIds");
-    if (!Array.isArray(userRoleIds)) throw errors.argumentTypeIncorrect("userRoleIds", "array");
-    if (!pathname) throw errors.argumentNull("pathname");
-
-    if (userRoleIds.indexOf(roleIds.admin) >= 0) {
-        return true;
-    }
-
-    //==================================================
-    // 检查通过配置设置的权限
-    let paths = Object.getOwnPropertyNames(permissions);
-    for (let i = 0; i < paths.length; i++) {
-        var pattern = new RegExp(paths[i]);
-        if (pattern.test(pathname)) {
-            let permissionItem = permissions[paths[i]] || {} as PermissionConfigItem;
-            permissionItem.roleIds = permissionItem.roleIds || [];
-            for (let userRoleId of userRoleIds) {
-                if (permissionItem.roleIds.indexOf(userRoleId) >= 0)
-                    return true;
-            }
-
-        }
-    }
-    //==================================================
-
-    return false;
-}
-
-export async function getTokenData(req: http.IncomingMessage, res: http.ServerResponse, contextData: ServerContextData) {
+export async function getTokenData(req: http.IncomingMessage, res: http.ServerResponse) {
     let routeData = getQueryObject(req);
     let cookies = new Cookies(req, res);
 
@@ -94,7 +85,7 @@ export async function getTokenData(req: http.IncomingMessage, res: http.ServerRe
     if (!tokenText)
         return null;
 
-    let tokenData = await TokenManager.parse(tokenText, contextData);
+    let tokenData = await TokenManager.parse(tokenText);
     return tokenData;
 }
 

@@ -1,13 +1,12 @@
 import { Settings as GatewaySettings } from "./gateway";
 import { Settings as PermissionSettings } from "./permission";
 import { Settings as PortalSettings } from "./portal";
+export { createDatabaseIfNotExists } from "./gateway/data-context";
 export declare let roleIds: {
     admin: string;
     anonymous: string;
     normalUser: string;
 };
-export { AuthDataContext } from "./gateway";
-export { PermissionDataContext } from "./permission";
 declare type Settings = {
     gatewaySettings: GatewaySettings;
     permissionSettings: PermissionSettings;

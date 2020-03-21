@@ -2,8 +2,8 @@ import React = require("react");
 import { hideDialog, showDialog } from "maishu-ui-toolkit";
 import ReactDOM = require("react-dom");
 import { DataSource } from "maishu-wuzhui";
-import { FormValidator, Rule } from "maishu-dilu";
-import { InputControl, ItemDialog as IItemDialog } from "./inputs/input-control";
+import { FormValidator, ValidateField, Rule } from "maishu-dilu";
+import { InputControl, InputControlProps } from "./inputs/input-control";
 
 type BeforeSave<T> = (dataItem: T) => Promise<any>
 
@@ -20,12 +20,10 @@ export interface Dialog<T> {
     show: (args: T) => void
 }
 
-
-
 export function createItemDialog<T>
     (dataSource: DataSource<T>, name: string, child: React.ReactElement, beforeSave?: BeforeSave<T>): Dialog<T> {
 
-    class ItemDialog extends React.Component<{}, { title?: string }> implements IItemDialog {
+    class ItemDialog extends React.Component<{}, { title?: string }> {
 
         private static instance: ItemDialog;
         private dialogElement: HTMLElement;
@@ -34,7 +32,7 @@ export function createItemDialog<T>
         private beforeSaves: BeforeSave<T>[];
         private fieldsConatiner: HTMLElement;
 
-        inputControls: InputControl<any>[];
+        private inputControls: InputControl<any>[];
         private dataItem: T;
 
         constructor(props: ItemDialog["props"]) {
@@ -43,56 +41,6 @@ export function createItemDialog<T>
 
             this.beforeSaves = [];
             this.inputControls = [];
-
-            child = this.cloneElement(child);
-        }
-
-        /**
-         * 克隆元素，并找出 InputControl
-         * @param element 要克隆的元素
-         */
-        private cloneElement(element: React.ReactElement) {
-            if (element == null)
-                return null;
-
-            if (typeof element == "string")
-                return element;
-
-            if (Array.isArray(element)) {
-                return element.map(o => this.cloneElement(o));
-            }
-
-            let elementType = element["type"];
-            console.assert(elementType);
-
-            let props: React.ReactElement["props"];// = element.props;
-            let it = this;
-            if (typeof elementType == "function") {
-                if (elementType.constructor == InputControl.constructor) {
-                    let ref: Function = element.props.ref;
-                    props = Object.assign({}, element.props, {
-                        ref(e) {
-                            if (!e) return;
-                            it.inputControls.push(e);
-
-                            if (ref)
-                                ref.apply(this);
-                        }
-                    });
-                }
-            }
-
-            props = props || element.props;
-
-            let newChildren = this.cloneElement(element.props.children);
-            let newElement: React.ReactElement;
-            if (Array.isArray(newChildren)) {
-                newElement = React.createElement(elementType, props, ...newChildren);
-            }
-            else {
-                newElement = React.createElement(elementType, props, newChildren);
-            }
-            return newElement;
         }
 
         private async onSaveButtonClick() {
@@ -112,7 +60,7 @@ export function createItemDialog<T>
 
             this.inputControls.forEach(c => {
                 let value = dataItem[c.props.dataField];
-                c.setState({ value: value });
+                c.value = value;
             })
 
             this.setState({ title })
@@ -121,7 +69,7 @@ export function createItemDialog<T>
         async save() {
             let dataItem = this.dataItem;
             this.inputControls.forEach(c => {
-                dataItem[c.props.dataField] = c.state.value;
+                dataItem[c.props.dataField] = c.value;
             })
 
             if (beforeSave) {
@@ -147,67 +95,13 @@ export function createItemDialog<T>
             return r;
         }
 
-        // controlCreated(ctrl: InputControl<any>) {
-        //     let exists = this.inputControls.filter(o => o.id == ctrl.id).length > 0;
-        //     if (exists)
-        //         return;
+        controlCreated(ctrl: InputControl<any>) {
+            let exists = this.inputControls.filter(o => o.id == ctrl.id).length > 0;
+            if (exists)
+                return;
 
-        //     let c = this.findInputControls();
-        //     this.inputControls.push(ctrl);
-        // }
-
-        scanInputControls(rootElement: React.ReactElement) {
-            let inputControls: InputControl<any>[] = [];
-            let stack: React.ReactNode[] = [];
-            if (Array.isArray(rootElement)) {
-                stack = rootElement;
-            }
-            else {
-                stack = [rootElement];
-            }
-
-            while (stack.length > 0) {
-                let item = stack.pop();
-                if (item["props"] == null) {
-                    continue;
-                }
-                let c: React.Component<any, any> = item as any;
-
-                let children = this.toArray(c.props.children);
-
-                // for (let i = 0; i < children.length; i++) {
-                //     let componentType = children[i]["type"];
-                //     if (typeof componentType == "function") {
-                //         if (componentType.constructor == InputControl.constructor) {
-                //             children[i]["props"]["dialog"] = this;
-                //         }
-                //     }
-                // }
-
-                if (c.props.children == null)
-                    continue;
-
-                stack.push(...children);
-            }
-
-            return inputControls;
+            this.inputControls.push(ctrl);
         }
-
-
-        private toArray(child: React.ReactNode): React.ReactNode[] {
-            if (Array.isArray(child))
-                return child;
-
-            return [child];
-        }
-
-        private isClassComponent(component: React.ReactNode) {
-            return (
-                typeof component === 'function' &&
-                !!component.prototype.isReactComponent
-            ) ? true : false
-        }
-
 
         componentDidMount() {
             let ctrls = this.inputControls;
@@ -227,16 +121,12 @@ export function createItemDialog<T>
                     </div>
                     <div className="modal-body well" style={{ paddingLeft: 20, paddingRight: 20 }}
                         ref={e => this.fieldsConatiner = e || this.fieldsConatiner}>
-                        <ItemDialogContext.Provider value={{
-                            controlCreated: (ctrl) => {
-                                debugger
-                            }
-                        }}>
+                        <ItemDialogContext.Provider value={{ controlCreated: (ctrl) => this.controlCreated(ctrl) }}>
                             {child}
                         </ItemDialogContext.Provider>
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-default" onClick={() => { hideDialog(this.dialogElement) }}>
+                        <button className="btn btn-default" onClick={e => { hideDialog(this.dialogElement) }}>
                             <i className="icon-reply" />
                             <span>取消</span>
                         </button>

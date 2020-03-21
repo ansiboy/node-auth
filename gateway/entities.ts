@@ -1,4 +1,6 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-node-data";
+import { Entity, PrimaryColumn, Column, ValueTransformer, ManyToOne, OneToMany, JoinTable, JoinColumn } from "typeorm";
+import { createDataContext } from "./data-context";
+import { g } from "./global";
 
 
 @Entity("token_data")
@@ -42,8 +44,16 @@ export class Role {
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
 
-    @Column({ type: "bit", nullable: true, default: false })
-    readonly: boolean;
+    /**
+     * 获取指定用户的角色 ID
+     * @param userId 指定的用户 ID
+     */
+    static async getUserRoleIds(userId: string): Promise<string[]> {
+        //TODO: 缓存 roleids
+        let dc = await createDataContext(g.settings.db);
+        let userRoles = await dc.userRoles.find({ user_id: userId });
+        return userRoles.map(o => o.role_id);
+    }
 }
 
 @Entity("user_role")

@@ -1,7 +1,8 @@
 import { Service } from "maishu-chitu-admin/static";
-import { LocalValueStore, CookieValueStore } from "maishu-chitu-service";
+import { LocalValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
 import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui";
+import { LoginResult } from "gateway";
 
 export enum DataSourceMethods {
     insert = 2,
@@ -10,20 +11,16 @@ export enum DataSourceMethods {
     all = DataSourceMethods.insert & DataSourceMethods.update & DataSourceMethods.delete
 }
 
-interface LoginInfo {
-
-}
-
 export class LocalService extends Service {
 
-    loginInfo = new LocalValueStore<LoginInfo>("login-info");
-    // token = new CookieValueStore<string>("token");
+    loginInfo = new LocalValueStore<any>("login-info");
 
     async login(username: string, password: string) {
         password = md5(password);
-        let r = await this.postByJson<LoginInfo>("login", { username, password });
+        let r = await this.postByJson<LoginResult>("login", { username, password });
         this.loginInfo.value = r;
-        // this.token.value = r.token;
+        document.cookie = `token=${r.token}`;
+
         return r;
     }
 

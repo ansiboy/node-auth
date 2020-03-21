@@ -1,14 +1,14 @@
 import { Settings } from "./types";
-import { ConnectionConfig } from "mysql";
 export { roleIds } from "../gateway";
 
 //==============================================
 export let PROJECt_NAME = "node-auth-permission";
 export let controllerPathRoot = "permission";
+export let stationPath = "/permission/";
 //==============================================
 
 
-export let smsSettings = {
+let settingsExt = {
     mobile: '18502146746',
     sendMessage: true,
     verifyCodeText: {
@@ -24,7 +24,4 @@ export let smsSettings = {
         sendMessage: true,
     }
 }
-
-export type ServerContextData = { sms: typeof smsSettings, db: ConnectionConfig };
-
-// export let settings = settingsExt as Settings & typeof settingsExt;
+export let settings = settingsExt as Settings & typeof settingsExt;

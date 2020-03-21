@@ -1,6 +1,4 @@
-declare type PermissionWebsiteConfig =  {
-    stationPath: string,
-    gateway?: string,
-    gatewayStaionPath: string,
-    loginRedirectURL?: string,
-}
+// declare module "json!websiteConfig" {
+//     let b: import("./website-config").PermissionWebsiteConfig;
+//     export = b;
+// }

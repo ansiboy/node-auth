@@ -1,19 +1,17 @@
 import React = require("react");
-import { PermissionService } from "services/permission-service";
+import { PermissionService } from "../../services/permission-service";
 import { FormValidator, rules } from "maishu-dilu";
 import { PageProps } from "maishu-chitu-react";
 import { sendVerifyCode } from "./change-password";
-import { BasePage } from "components/pages/base-page";
+import { BasePage } from "../../components/pages/base-page";
 import { buttonOnClick } from "maishu-ui-toolkit";
 
 const NEW_MOBILE = "new_mobile";
 const VERIFY_CODE = "verify_code";
-const MOBILE = "mobile"
 
 interface State {
     mobile?: string,
     verifyCode?: string,
-    oldMobile?: string,
 }
 
 export default class ChangeMobilePage extends BasePage<PageProps, State> {
@@ -25,7 +23,7 @@ export default class ChangeMobilePage extends BasePage<PageProps, State> {
         super(props);
 
         this.state = {};
-        this.ps = this.props.createService(PermissionService);
+        this.ps = this.props.createService(PermissionService as any) as any as PermissionService;
     }
 
     async save() {
@@ -38,11 +36,6 @@ export default class ChangeMobilePage extends BasePage<PageProps, State> {
             { name: VERIFY_CODE, rules: [rules.required("请输入验证码")] },
             { name: NEW_MOBILE, rules: [rules.required("请输入新的手机号码"), rules.mobile("请输入正确的手机号码")] }
         );
-
-        this.ps.user.me().then(user => {
-            this.setState({ oldMobile: user.mobile });
-        })
-
     }
 
     renderToolbarRight() {
@@ -59,16 +52,10 @@ export default class ChangeMobilePage extends BasePage<PageProps, State> {
     }
 
     render() {
-        let { mobile, verifyCode, oldMobile } = this.state;
+        let { mobile, verifyCode } = this.state;
         return <>
             <div className="well" ref={e => this.formElement = e || this.formElement}>
                 <div style={{ maxWidth: 400 }}>
-                    <div className="form-group clearfix input-control">
-                        <label>手机号</label>
-                        <span>
-                            <input name={MOBILE} value={oldMobile || ""} style={{ border: "none", backgroundColor: "unset", fontWeight: "bold" }} readOnly />
-                        </span>
-                    </div>
                     <div className="form-group clearfix input-control" >
                         <label>新手机</label>
                         <span>

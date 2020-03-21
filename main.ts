@@ -66,10 +66,7 @@ let gatewayStationSettings: GatewaySettings = {
         "/AdminMember/*": { roleIds: [roleIds.anonymous] },
         "/UserMember/*": { roleIds: [roleIds.anonymous] },
     },
-    virtualPaths: {
-        "node_modules": path.join(__dirname, "node_modules"),
-        "asset": path.join(__dirname, "node_modules/maishu-chitu-admin/out/static/asset"),
-    }
+
 }
 
 let permissionStationSettings: PermissionSettings = {
@@ -82,11 +79,17 @@ let permissionStationSettings: PermissionSettings = {
         host: "localhost",
         port: 3306
     },
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules")
+    }
 }
 
 let portalStationSettings: PortalSettings = {
     port: portalStationPort,
     gateway,
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules")
+    }
 }
 
 start({

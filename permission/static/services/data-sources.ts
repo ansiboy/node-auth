@@ -1,7 +1,7 @@
 import { DataSource } from "maishu-wuzhui";
 import { PermissionService } from "./permission-service";
-import { errorHandle, WebsiteConfig, PageDataSource } from "maishu-chitu-admin/static";
-import { User, Resource, } from "entities";
+import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
+import { User, Resource, } from "permission-entities";
 import { TokenData, Role } from "gateway-entities";
 import { GatewayService } from "./gateway-service";
 
@@ -9,45 +9,31 @@ let ps = new PermissionService((err) => {
     errorHandle(err)
 });
 
-let gs = new GatewayService((err) => {
+let gatewayService = new GatewayService((err) => {
     errorHandle(err);
 })
 
-let roleDataSource = new PageDataSource<Role>({
+let roleDataSource = new DataSource<Role>({
     primaryKeys: ["id"],
     select: async (args) => {
-        let r = await gs.role.list(args);
+        let r = await gatewayService.roleList(args);
         return r;
     },
     insert: async (item) => {
-        let r = await gs.role.add(item.name, item.remark);
+        let r = await gatewayService.addRole(item.name, item.remark);
         Object.assign(item, r);
         return r;
     },
     update: async (item) => {
-        let r = await gs.role.update(item);
+        let r = await gatewayService.updateRole(item);
         return r;
-    },
-    delete: async (item) => {
-        let r = await gs.role.remove(item.id);
-        return
-    },
-    itemCanDelete: (item) => !item.readonly,
-    itemCanUpdate: (item) => !item.readonly,
+    }
 })
 
-export type MyUser = User & { roleIds?: string[] }
-
-let userDataSource = new DataSource<MyUser>({
+let userDataSource = new DataSource<User>({
     primaryKeys: ["id"],
     select: async (args) => {
         let r = await ps.user.list(args);
-        let userIds = r.dataItems.map(o => o.id);
-        let roleses = await gs.user.roles(userIds);
-        for (let i = 0; i < r.dataItems.length; i++) {
-            // (r.dataItems[i] as MyUser).roleNames = roleses[i].map(o => o.name).join(" ");
-            (r.dataItems[i] as MyUser).roleIds = roleses[i].map(o => o.id);
-        }
         return r;
     },
     insert: async (item) => {
@@ -56,7 +42,6 @@ let userDataSource = new DataSource<MyUser>({
     },
     update: async (item) => {
         let r = await ps.user.update(item);
-        await gs.user.setRoles(item.id, item.roleIds);
         return r;
     }
 })
@@ -64,7 +49,7 @@ let userDataSource = new DataSource<MyUser>({
 let tokenDataSource = new DataSource<TokenData>({
     primaryKeys: ["id"],
     select: async (args) => {
-        let r = await gs.tokenList(args);
+        let r = await gatewayService.tokenList(args);
         return r;
     }
 })
@@ -79,8 +64,8 @@ let resourceDataSource = new DataSource<MenuItem>({
     select: async () => {
         let r: MenuItem[] = [];
         let [menuItems, resources, roleResult] = await Promise.all([
-            gs.menuItemList(), ps.resource.list(), gs.role.list()
-
+            gatewayService.menuItemList(), ps.resource.list(),
+            gatewayService.roleList()
         ]);
         let stack = [...menuItems] as MenuItem[];
         while (stack.length > 0) {

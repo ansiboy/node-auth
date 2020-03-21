@@ -1,6 +1,5 @@
 import { AuthDataContext } from "../data-context";
 import { Role } from "../entities";
-import { SelectResult } from "maishu-node-data";
 export default class RoleController {
     add(dc: AuthDataContext, { item }: {
         item: Role;
@@ -17,13 +16,9 @@ export default class RoleController {
         id: any;
     }): Promise<Partial<Role>>;
     /** 获取角色列表 */
-    list(dc: AuthDataContext, { args, ids }: {
+    list(dc: AuthDataContext, { args }: {
         args: any;
-        ids: any;
-    }): Promise<SelectResult<Role>>;
-    getByIds(dc: AuthDataContext, { ids }: {
-        ids: string[];
-    }): Promise<Role[]>;
+    }): Promise<import("../data-context").SelectResult<Role>>;
     /** 获取单个角色 */
     get(dc: AuthDataContext, { id }: {
         id: any;

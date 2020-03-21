@@ -1,38 +1,31 @@
-import { start as startAdmin, Settings as BaseSettings } from "maishu-chitu-admin";
-// import { Settings } from "./types";
-import { smsSettings, ServerContextData } from "./global";
+import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
+import path = require("path");
+import { Settings } from "./types";
+import { settings as globalSettings, stationPath, } from "./global";
+import { roleIds, createDatabaseIfNotExists } from "../gateway";
 import { initDatabase } from "./data-context";
-import { ConnectionConfig } from "mysql";
 
-// export { Settings } from "./types";
-export { createDataContext, PermissionDataContext } from "./data-context";
+export { Settings } from "./types";
+export { createDataContext } from "./data-context";
 export { roleIds } from "./global";
-import { createDatabaseIfNotExists } from "maishu-node-data";
-import { permissions, stationPath } from "./website-config";
-
-type InnerSettings = Pick<BaseSettings, "rootPhysicalPath" | "station" | "serverContextData">;
-
-export type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> &
-{ gateway: string, db: ConnectionConfig, sms?: typeof smsSettings };
 
 export async function start(settings: Settings) {
+    Object.assign(globalSettings, settings)
 
     await createDatabaseIfNotExists(settings.db, initDatabase);
 
-
-
-    let mySettings: InnerSettings = {
+    let permissions: PermissionConfig = {};
+    permissions[`${stationPath}*`] = {
+        roleIds: [roleIds.admin, roleIds.anonymous],
+    };
+    return startAdmin({
+        port: settings.port,
         rootPhysicalPath: __dirname,
+        virtualPaths: settings.virtualPaths,
         station: {
             path: stationPath,
             gateway: settings.gateway,
-            permissions,
-        },
-        serverContextData: <ServerContextData>{
-            sms: smsSettings,
-            db: settings.db,
+            permissions
         }
-    }
-
-    return startAdmin(Object.assign(settings, mySettings))
+    })
 }

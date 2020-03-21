@@ -1,5 +1,5 @@
 import { ConnectionConfig } from "mysql";
-import { Settings as MVCConfig, LogLevel, ServerContext as BaseServerContext } from "maishu-node-mvc";
+import { Settings as MVCConfig, LogLevel } from "maishu-node-mvc";
 export { SimpleMenuItem, WebsiteConfig } from "maishu-chitu-admin";
 export interface RequireConfig {
 }
@@ -33,8 +33,3 @@ export declare type LoginResult = {
     userId: string;
     token?: string;
 };
-export interface ServerContextData {
-    db: ConnectionConfig;
-    logLevel: LogLevel;
-}
-export declare type ServerContext = BaseServerContext<ServerContextData>;

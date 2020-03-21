@@ -1,10 +1,14 @@
 import { Service } from "maishu-chitu-admin/static";
-import { errors } from "errors";
-import { Resource, User } from "entities";
+import { errors } from "../errors";
+import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
-import websiteConfig = require("json!websiteConfig");
-import { ServiceModule } from "./service-module";
-;
+// import websiteConfigModuel = require("../../website-config");
+// let websiteConfig = websiteConfigModuel.default;
+import { PermissionWebsiteConfig } from "../../website-config";
+
+import "json!websiteConfig";
+let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
+
 export interface LoginInfo {
     token: string,
     userId: string,
@@ -12,12 +16,47 @@ export interface LoginInfo {
 
 export class PermissionService extends Service {
 
-    baseUrl: string = `${websiteConfig.stationPath}`;
+    static baseUrl: string = `${websiteConfig.stationPath}`;
     // role = new RoleModule(this);
     user = new UserModule(this);
     sms = new SMSModule(this);
     // token = new TokenModule(this);
     resource = new ResourceModule(this);
+
+    protected url(path: string) {
+        if (!PermissionService.baseUrl)
+            throw errors.serviceUrlCanntNull('permissionService')
+
+        if (PermissionService.baseUrl.endsWith("/"))
+            return `${PermissionService.baseUrl}${path}`;
+
+        return `${PermissionService.baseUrl}/${path}`
+    }
+
+
+}
+
+class ServiceModule {
+    service: PermissionService;
+    getByJson: Service["getByJson"];
+    postByJson: Service["postByJson"];
+    get: Service["get"];
+    post: Service["post"];
+
+    constructor(service: PermissionService) {
+        this.service = service;
+        this.getByJson = this.service.getByJson.bind(this.service);
+        this.postByJson = this.service.postByJson.bind(this.service);
+        this.get = this.service.get.bind(this.service);
+        this.post = this.service.post.bind(this.service);
+    }
+
+    protected url(path: string) {
+        if (!PermissionService.baseUrl)
+            throw errors.serviceUrlCanntNull('permissionService')
+
+        return `${PermissionService.baseUrl}${path}`
+    }
 }
 
 class UserModule extends ServiceModule {
@@ -104,38 +143,6 @@ class UserModule extends ServiceModule {
 
         let url = this.url('user/resetMobile')
         return this.postByJson(url, { mobile, smsId, verifyCode })
-    }
-
-    /**
-     * 登录
-     * @param username 用户名
-     * @param password 密码
-     */
-    async login(args: { openid: string }): Promise<LoginInfo>
-    async login(username: string, password: string): Promise<LoginInfo>
-    async login(arg0: string | { openid: string }, password?: string) {
-
-        let args: { username: string, password: string } | { openid: string };
-        let username: string;
-        if (typeof arg0 == "string") {
-            username = arg0;
-
-            if (!username) throw errors.argumentNull('username')
-            if (!password) throw errors.argumentNull('password');
-
-            args = { username, password };
-        }
-        else {
-            args = arg0;
-        }
-
-
-        let url = this.url('user/login')
-        let r = await this.postByJson<LoginInfo | null>(url, args)
-        if (r == null)
-            throw errors.unexpectedNullResult()
-
-        return r
     }
 
     /**

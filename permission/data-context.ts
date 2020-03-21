@@ -1,15 +1,18 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager, DataHelper, DataContext } from "maishu-node-data";
+import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "typeorm";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
-import { ConnectionConfig } from "mysql";
+import { ConnectionConfig, Connection as DBConnection } from "mysql";
 import path = require("path");
-import { createParameterDecorator, ServerContext } from "maishu-node-mvc";
-import { ServerContextData } from "./global";
+import { createParameterDecorator } from "maishu-node-mvc";
+import { settings, roleIds } from "./global";
 import { errors } from "./errors";
 import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
+import { DataContext } from "maishu-node-data";
 
 export class PermissionDataContext extends DataContext {
+    private entityManager: EntityManager;
+
     categories: Repository<Category>;
     // roles: Repository<Role>;
     resources: Repository<Resource>;
@@ -21,17 +24,20 @@ export class PermissionDataContext extends DataContext {
 
     baseModuleResourceId: string;
 
-    constructor(connConfig: ConnectionConfig) {
-        super(connConfig, path.join(__dirname, "entities.js"));
+    static entitiesPath = path.join(__dirname,"entities.js");
 
+    constructor(entityManager: EntityManager) {
+        super(entityManager);
+
+        this.entityManager = entityManager;
         // this.roles = this.entityManager.getRepository<Role>(Role);
-        this.categories = this.manager.getRepository<Category>(Category);
-        this.resources = this.manager.getRepository<Resource>(Resource);
-        this.users = this.manager.getRepository<User>(User);
+        this.categories = this.entityManager.getRepository<Category>(Category);
+        this.resources = this.entityManager.getRepository<Resource>(Resource);
+        this.users = this.entityManager.getRepository<User>(User);
         // this.userRoles = this.entityManager.getRepository(UserRole);
-        this.userLatestLogins = this.manager.getRepository<UserLatestLogin>(UserLatestLogin);
-        this.smsRecords = this.manager.getRepository<SMSRecord>(SMSRecord);
-        this.resourcePaths = this.manager.getRepository<ResourcePath>(ResourcePath);
+        this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
+        this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
+        this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
     }
 
 }
@@ -59,26 +65,28 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
         await createConnection(dbOptions);
     }
 
-    let dc = new PermissionDataContext(connConfig);
+
+    let connection = getConnection(connConfig.database);
+    let dc = new PermissionDataContext(connection.manager);
     return dc
 }
 
 export let permissionDataContext = createParameterDecorator<PermissionDataContext>(
-    async (req, res, context: ServerContext<ServerContextData>) => {
-        console.assert(context.data.db != null);
-        let dc = await createDataContext(context.data.db);
+    async () => {
+        console.assert(settings.db != null);
+        let dc = await createDataContext(settings.db);
         return dc
     },
     async () => {
     }
 )
 
-export let currentUser = createParameterDecorator(async (req, res, context: ServerContext<ServerContextData>) => {
+export let currentUser = createParameterDecorator(async (req, res) => {
     let userId = req.headers[tokenDataHeaderNames.userId] as string;
     if (!userId)
         return null;
 
-    let dc = await createDataContext(context.data.db);
+    let dc = await createDataContext(settings.db);
     let user = await dc.users.findOne(userId);
 
     if (!user)
@@ -87,7 +95,7 @@ export let currentUser = createParameterDecorator(async (req, res, context: Serv
     return user;
 })
 
-export let currentUserId = createParameterDecorator(async (req) => {
+export let currentUserId = createParameterDecorator(async (req, res) => {
     let userId = req.headers[tokenDataHeaderNames.userId];
 
     if (userId == null)

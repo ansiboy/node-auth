@@ -49,14 +49,8 @@ export default class UserController {
     item(dc: PermissionDataContext, { userId }: {
         userId: string;
     }): Promise<User>;
-    itemByMobile(dc: PermissionDataContext, { mobile }: {
-        mobile: string;
-    }): Promise<User>;
     list(dc: PermissionDataContext, { args }: {
         args: SelectArguments;
-    }): Promise<import("maishu-node-data").SelectResult<User>>;
-    listByIds(dc: PermissionDataContext, { ids }: {
-        ids: string[];
     }): Promise<User[]>;
     /** 添加用户 */
     add(dc: PermissionDataContext, { item }: {

@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "sourceMap": false,
+        "declaration": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "jsx": "react",
+        "baseUrl": "./",
+        "paths": {
+            "permission-entities": [
+                "../permission/entities"
+            ],
+            "gateway-entities": [
+                "../gateway/entities"
+            ]
+        }
+    }
+    // "exclude": [
+    //     "**/static"
+    // ]
+}

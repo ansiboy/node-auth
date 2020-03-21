@@ -3,16 +3,16 @@ import http = require("http");
 import { getLogger } from "maishu-node-mvc";
 import { g } from "./global";
 import { StationController } from "./controllers/station";
-import { StationInfo, ServerContextData } from "./types";
+import { StationInfo } from "./types";
 
 export let socketMessages = {
     registerStation: "registerStation"
 }
 
-export function startSocketServer(server: http.Server, contextData: ServerContextData) {
+export function startSocketServer(server: http.Server) {
 
-    // console.assert(g.settings != null, "Settings is null.");
-    let logger = getLogger(g.projectName, contextData.logLevel);
+    console.assert(g.settings != null, "Settings is null.");
+    let logger = getLogger(g.projectName, g.settings.logLevel);
     logger.info("Start socket server.");
 
     let io = IO(server, {});
@@ -22,7 +22,7 @@ export function startSocketServer(server: http.Server, contextData: ServerContex
             logger.info(`Register station data:`, data);
             let stationInfo: StationInfo = JSON.parse(data);
             let ctrl = new StationController();
-            ctrl.register(stationInfo, contextData);
+            ctrl.register(stationInfo);
         })
     })
     io.on("reconnect", function (attempt) {

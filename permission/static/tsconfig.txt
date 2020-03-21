@@ -1,23 +1,18 @@
 {
     "compilerOptions": {
-        "target": "es6",
-        "module": "umd",
         "jsx": "react",
         "baseUrl": "./",
-        "experimentalDecorators": true,
-        "rootDir": "./",
+        "module": "umd",
+        "target": "es6",
         "paths": {
-            "csstype": [
-                "../../node_modules/csstype/index.d.ts"
-            ],
             "maishu-chitu": [
                 "../../node_modules/maishu-chitu/out/index.d.ts"
             ],
-            "maishu-chitu-react": [
-                "../../node_modules/maishu-chitu-react/out/index.d.ts"
-            ],
             "maishu-chitu-admin/static": [
                 "../../node_modules/maishu-chitu-admin/out/static/index.d.ts"
+            ],
+            "maishu-chitu-react": [
+                "../../node_modules/maishu-chitu-react/out/index.d.ts"
             ],
             "maishu-chitu-service": [
                 "../../node_modules/maishu-chitu-service/out/index.d.ts"
@@ -28,18 +23,30 @@
             "maishu-ui-toolkit": [
                 "../../node_modules/maishu-ui-toolkit/out/index.d.ts"
             ],
+            "maishu-services-sdk": [
+                "../../node_modules/maishu-services-sdk/out/index.d.ts"
+            ],
             "maishu-wuzhui": [
                 "../../node_modules/maishu-wuzhui/out/index.d.ts"
             ],
-            "permission-entities": [
-                "../../permission/entities.d.ts"
+            "maishu-wuzhui-helper": [
+                "../../node_modules/maishu-wuzhui-helper/out/index.d.ts"
+            ],
+            "csstype": [
+                "../../node_modules/csstype/index.d.ts"
+            ],
+            "entities": [
+                "../entities.d.ts"
             ],
             "gateway-entities": [
                 "../../gateway/entities.d.ts"
+            ],
+            "url-pattern":[
+                "../../node_modules/url-pattern/index.d.ts"
             ]
         }
     },
     "exclude": [
-        "lib/ace-builds/**"
+        "node_modules/**/node_modules/**"
     ]
 }

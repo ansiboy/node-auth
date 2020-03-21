@@ -1,7 +1,6 @@
 import React = require("react");
 import { InputControl, InputControlProps } from "./input-control";
 import { rules } from "maishu-dilu";
-import { ItemDialogContext } from "components/item-dialog";
 
 interface InputFieldProps<T> extends InputControlProps<T> {
     placeholder?: string, type?: 'text' | 'password',
@@ -32,7 +31,6 @@ export class TextInput<T> extends InputControl<T, InputFieldProps<T>, InputField
     render() {
         let { dataField, placeholder, dataType } = this.props;
         let { value } = this.state;
-
         return <input name={name || dataField as string} className="form-control"
             placeholder={placeholder} type={this.props.type}
             value={value || ""}

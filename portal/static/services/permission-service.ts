@@ -1,9 +1,12 @@
 import { Service } from "maishu-chitu";
 import md5 = require("js-md5");
 import { ValueStore } from "maishu-chitu-service";
-import { errors } from "errors";
-import websiteConfig = require("json!websiteConfig");
+import { errors } from "../errors";
 import { User } from "permission-entities"
+
+import { PortalWebsiteConfig } from "../../website-config";
+import "json!websiteConfig";
+let websiteConfig: PortalWebsiteConfig = require("json!websiteConfig");
 
 export interface LoginInfo {
     token: string;
@@ -26,7 +29,6 @@ export class PermissionService extends Service {
         let url = this.url("user/login");
         let r = await this.postByJson<LoginInfo>(url, { username, password });
         PermissionService.token.value = r.token;
-
         return r;
     }
 

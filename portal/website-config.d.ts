@@ -5,4 +5,9 @@ export declare let permissions: PermissionConfig;
 export interface ServerContextData {
     indexPage: string;
 }
-export default function (data: ServerContextData): PortalWebsiteConfig & WebsiteConfig;
+export declare type PortalWebsiteConfig = {
+    stationPath: string;
+    indexPage: string;
+    protocol: string;
+} & WebsiteConfig;
+export default function (data: ServerContextData): PortalWebsiteConfig;

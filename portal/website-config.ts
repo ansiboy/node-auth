@@ -12,10 +12,16 @@ export interface ServerContextData {
     indexPage: string,
 }
 
+export type PortalWebsiteConfig = {
+    stationPath: string,
+    indexPage: string,
+    protocol: string,
+} & WebsiteConfig;
+
 export default function (data: ServerContextData) {
 
     let lib = "./lib";
-    let websiteConfig: PortalWebsiteConfig & WebsiteConfig = {
+    let websiteConfig: PortalWebsiteConfig = {
         stationPath,
         indexPage: data.indexPage || "index",
         protocol: "http:",

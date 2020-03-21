@@ -2,9 +2,9 @@ import { BasePage } from "./base-page";
 import { DataSource, DataControlField, GridView, CustomField, GridViewCell, GridViewEditableCell, BoundField } from "maishu-wuzhui";
 import React = require("react");
 import { createGridView } from "maishu-wuzhui-helper";
-import { createItemDialog, Dialog } from "components/item-dialog";
+import { createItemDialog, Dialog, ItemDialogContext } from "../item-dialog";
 import ReactDOM = require("react-dom");
-import { InputControl, InputControlProps } from "components/inputs/input-control";
+import { InputControl, InputControlProps } from "../inputs/input-control";
 import { GridViewCellControl } from "maishu-wuzhui";
 
 interface BoundInputControlProps<T> extends InputControlProps<T> {
