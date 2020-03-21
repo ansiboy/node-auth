@@ -11,7 +11,7 @@ import { initDatabase, createDataContext } from "./data-context";
 import { roleIds } from "./global"
 import { statusCodes } from "./status-codes";
 import { TokenData } from "./entities";
-import { createDatabaseIfNotExists } from "maishu-data";
+import { createDatabaseIfNotExists } from "maishu-node-data";
 
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";

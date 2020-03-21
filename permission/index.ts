@@ -7,10 +7,10 @@ import { ConnectionConfig } from "mysql";
 // export { Settings } from "./types";
 export { createDataContext } from "./data-context";
 export { roleIds } from "./global";
-import { createDatabaseIfNotExists } from "maishu-data";
+import { createDatabaseIfNotExists } from "maishu-node-data";
 import { permissions, stationPath } from "./website-config";
 
-type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
+type InnerSettings = Pick<BaseSettings, "rootPhysicalPath" | "station" | "serverContextData">;
 
 export type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> &
 { gateway: string, db: ConnectionConfig, sms?: typeof smsSettings };
@@ -22,7 +22,7 @@ export async function start(settings: Settings) {
 
 
     let mySettings: InnerSettings = {
-        rootDirectory: __dirname,
+        rootPhysicalPath: __dirname,
         station: {
             path: stationPath,
             gateway: settings.gateway,

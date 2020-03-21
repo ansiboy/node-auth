@@ -8,7 +8,7 @@ import { TokenManager } from "../token";
 import Cookies = require("maishu-cookies");
 import { ServerContext } from "../types";
 import { Role, UserRole } from "../entities";
-import { In } from "maishu-data";
+import { In } from "maishu-node-data";
 
 @controller(`/${constants.controllerPathRoot}/user`)
 export default class UserController {

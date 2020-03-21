@@ -9,7 +9,7 @@ import { guid } from 'maishu-chitu-service';
 import { LoginResult, statusCodes } from "../../gateway";
 import { roleIds } from "../global";
 import { FindOneOptions } from 'typeorm';
-import { DataHelper } from 'maishu-data';
+import { DataHelper } from 'maishu-node-data';
 
 @controller('/user')
 export default class UserController {

@@ -1,5 +1,5 @@
 import { Settings as BaseSettings } from "maishu-chitu-admin";
-declare type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
+declare type InnerSettings = Pick<BaseSettings, "rootPhysicalPath" | "station" | "serverContextData">;
 export declare type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> & {
     port: number;
     gateway: string;

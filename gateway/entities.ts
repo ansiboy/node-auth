@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-data";
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-node-data";
 
 
 @Entity("token_data")

@@ -1,5 +1,5 @@
 import { Controller } from "maishu-node-mvc";
-import { Repository } from "maishu-data";
+import { Repository } from "maishu-node-data";
 export interface SelectArguments {
     startRowIndex?: number;
     maximumRows?: number;

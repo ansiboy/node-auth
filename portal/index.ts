@@ -3,7 +3,7 @@ import path = require("path");
 import { stationPath, permissions, ServerContextData } from "./website-config";
 
 
-type InnerSettings = Pick<BaseSettings, "rootDirectory" | "station" | "serverContextData">;
+type InnerSettings = Pick<BaseSettings, "rootPhysicalPath" | "station" | "serverContextData">;
 export type Settings = Pick<BaseSettings, Exclude<keyof BaseSettings, keyof InnerSettings>> & {
     port: number,
     gateway: string,
@@ -18,7 +18,7 @@ export function start(settings: Settings) {
         indexPage: settings.indexPage
     }
     let innerSettings: InnerSettings = {
-        rootDirectory: __dirname,
+        rootPhysicalPath: __dirname,
         station: {
             gateway: settings.gateway,
             path: stationPath,

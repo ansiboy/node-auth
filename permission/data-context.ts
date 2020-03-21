@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-data";
+import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager, DataHelper, DataContext } from "maishu-node-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig } from "mysql";
 import path = require("path");
@@ -9,7 +9,7 @@ import { errors } from "./errors";
 import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
 
-export class PermissionDataContext {
+export class PermissionDataContext extends DataContext {
     private entityManager: EntityManager;
     categories: Repository<Category>;
     // roles: Repository<Role>;
@@ -23,6 +23,8 @@ export class PermissionDataContext {
     baseModuleResourceId: string;
 
     constructor(entityManager: EntityManager) {
+        super(entityManager);
+
         this.entityManager = entityManager;
         // this.roles = this.entityManager.getRepository<Role>(Role);
         this.categories = this.entityManager.getRepository<Category>(Category);

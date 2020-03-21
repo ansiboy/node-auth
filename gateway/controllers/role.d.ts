@@ -1,6 +1,6 @@
 import { AuthDataContext } from "../data-context";
 import { Role } from "../entities";
-import { SelectResult } from "maishu-data/data-helper";
+import { SelectResult } from "maishu-node-data";
 export default class RoleController {
     add(dc: AuthDataContext, { item }: {
         item: Role;

@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { EntityManager, Repository } from "maishu-data";
+import { EntityManager, Repository, DataContext } from "maishu-node-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig } from "mysql";
-export declare class PermissionDataContext {
+export declare class PermissionDataContext extends DataContext {
     private entityManager;
     categories: Repository<Category>;
     resources: Repository<Resource>;

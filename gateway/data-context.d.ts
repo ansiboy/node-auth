@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext } from "maishu-data";
+import { EntityManager, Repository, DataContext } from "maishu-node-data";
 import { TokenData, Role, UserRole } from "./entities";
 import { ServerContextData } from "./types";
 export interface SelectArguments {
@@ -23,9 +23,9 @@ export declare class AuthDataContext extends DataContext {
         fields?: Extract<keyof T, string>[];
     }): Promise<SelectResult<T>>;
     /**
- * 获取指定用户的角色 ID
- * @param userId 指定的用户 ID
- */
+     * 获取指定用户的角色 ID
+     * @param userId 指定的用户 ID
+     */
     static getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]>;
 }
 export declare function createDataContext(contextData: ServerContextData): Promise<AuthDataContext>;

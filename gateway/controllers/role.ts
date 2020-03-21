@@ -4,7 +4,7 @@ import { Role } from "../entities";
 import { errors } from "../errors";
 import { guid } from "maishu-chitu-service";
 import { constants } from "../global";
-import { SelectResult, DataHelper } from "maishu-data/data-helper";
+import { SelectResult, DataHelper } from "maishu-node-data";
 
 @controller(`${constants.controllerPathRoot}/role`)
 export default class RoleController {

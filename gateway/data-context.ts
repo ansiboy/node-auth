@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext, DataHelper } from "maishu-data";
+import { EntityManager, Repository, DataContext, DataHelper } from "maishu-node-data";
 import { TokenData, Role, UserRole } from "./entities";
 import { createParameterDecorator, serverContext } from "maishu-node-mvc";
 import { roleIds, userIds } from "./global";
@@ -65,9 +65,9 @@ export class AuthDataContext extends DataContext {
     }
 
     /**
- * 获取指定用户的角色 ID
- * @param userId 指定的用户 ID
- */
+     * 获取指定用户的角色 ID
+     * @param userId 指定的用户 ID
+     */
     static async getUserRoleIds(userId: string, contextData: ServerContextData): Promise<string[]> {
         //TODO: 缓存 roleids
         let dc = await createDataContext(contextData);
