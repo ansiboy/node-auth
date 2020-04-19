@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "maishu-node-data";
 
 import { ValueTransformer } from 'typeorm';
 class BitBooleanTransformer implements ValueTransformer {

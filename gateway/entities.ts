@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ValueTransformer, ManyToOne, OneToMany, JoinTable, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-node-data";
 import { createDataContext } from "./data-context";
 import { g } from "./global";
 

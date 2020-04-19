@@ -275,31 +275,6 @@ export default class UserController {
 
     @action()
     async list(@permissionDataContext dc: PermissionDataContext, @routeData { args }: { args: SelectArguments }) {
-        // args = args || {};
-        // if (args.filter) {
-        //     args.filter = args.filter + " and (User.is_system is null or User.is_system = false)";
-        // }
-        // else {
-        //     args.filter = "(User.is_system is null or User.is_system = false)";
-        // }
-
-        // let result = await BaseController.list<User>(dc.users, {
-        //     selectArguments: args, relations: ["role"],
-        //     fields: ["id", "mobile", "user_name", "email", "create_date_time"]
-        // })
-
-        // if (result.dataItems.length > 0) {
-        //     let userIds = result.dataItems.map(o => o.id);
-        //     let ctrl = new LatestLoginController();
-        //     let latestLogins = await ctrl.list(dc, { userIds });
-        //     result.dataItems.forEach(user => {
-        //         user["lastest_login"] = latestLogins.filter(login => login.id == user.id)
-        //             .map(o => o.latest_login)[0];
-        //     })
-        // }
-
-        // return result
-
         let users = await dc.users.find();
         return users;
     }

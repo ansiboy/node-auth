@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { ConnectionConfig, createConnection as createDBConnection, MysqlError, Connection as DBConnection } from "mysql";
-import { createConnection, EntityManager, Repository, Connection, Db, getConnection, ConnectionOptions, ConnectionManager, getManager, getConnectionManager } from "typeorm";
+import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-node-data";
 import path = require("path");
 import fs = require("fs");
 import { TokenData, Role, UserRole } from "./entities";

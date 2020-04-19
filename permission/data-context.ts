@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "typeorm";
+import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "maishu-node-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
 import { ConnectionConfig, Connection as DBConnection } from "mysql";
 import path = require("path");
@@ -39,7 +39,6 @@ export class PermissionDataContext extends DataContext {
         this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
         this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
     }
-
 }
 
 
