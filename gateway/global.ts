@@ -26,7 +26,7 @@ export let tokenDataHeaderNames = {
 
 export const TOKEN_NAME = "token";
 
-export { guid } from "maishu-chitu-service";
+export { guid } from 'maishu-toolkit';
 export let g = {
     settings: null as Settings,
     projectName: constants.projectName,

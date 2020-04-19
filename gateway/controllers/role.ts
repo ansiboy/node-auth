@@ -2,7 +2,7 @@ import { controller, action, routeData } from "maishu-node-mvc";
 import { authDataContext, AuthDataContext, dataList } from "../data-context";
 import { Role } from "../entities";
 import { errors } from "../errors";
-import { guid } from "maishu-chitu-service";
+import { guid } from 'maishu-toolkit';
 import { constants } from "../global";
 
 @controller(`${constants.controllerPathRoot}/role`)

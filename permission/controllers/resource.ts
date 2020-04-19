@@ -2,7 +2,7 @@ import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource, User, ResourcePath } from "../entities";
 import { PermissionDataContext, permissionDataContext, currentUser } from "../data-context";
-import { guid } from "maishu-chitu-service";
+import { guid } from 'maishu-toolkit';
 
 
 /** 资源控制器 */

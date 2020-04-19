@@ -1,13 +1,10 @@
 import { errors } from '../errors';
-import { controller, action, routeData, request, response, ContentResult } from 'maishu-node-mvc';
+import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
 import { PermissionDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
 import { User } from '../entities';
-import LatestLoginController from './latest-login';
-import { BaseController, SelectArguments } from './base-controller';
 import SMSController from './sms';
-import { guid } from 'maishu-chitu-service';
+import { guid } from 'maishu-toolkit';
 import { LoginResult, statusCodes } from "../../gateway";
-import { roleIds } from "../global";
 import { FindOneOptions } from 'typeorm';
 
 @controller('/user')
@@ -220,7 +217,7 @@ export default class UserController {
     }
 
     @action()
-    async login(@permissionDataContext dc: PermissionDataContext, @routeData args: any, @request req, @response res) {
+    async login(@permissionDataContext dc: PermissionDataContext, @routeData args: any) {
         args = args || {}
 
         let p: LoginResult;
@@ -274,7 +271,7 @@ export default class UserController {
     }
 
     @action()
-    async list(@permissionDataContext dc: PermissionDataContext, @routeData { args }: { args: SelectArguments }) {
+    async list(@permissionDataContext dc: PermissionDataContext) {
         let users = await dc.users.find();
         return users;
     }
@@ -370,7 +367,7 @@ export default class UserController {
 
     /** 获取用户所允许访问的资源 */
     @action()
-    async resourceList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
+    async resourceList(@routeData { userId }) {
         if (!userId) throw errors.routeDataFieldNull("userId");
 
         // let user = await dc.users.findOne(userId);

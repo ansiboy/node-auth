@@ -1,5 +1,5 @@
 import React = require("react");
-import { guid } from "maishu-chitu-service";
+import { guid } from 'maishu-toolkit';
 import { ValidateDataField, ItemDialogContext } from "../item-dialog";
 
 export interface InputControlProps<T> extends ValidateDataField {

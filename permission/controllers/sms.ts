@@ -3,7 +3,7 @@ import { errors } from '../errors';
 import { controller, action, routeData } from 'maishu-node-mvc';
 import { PermissionDataContext, permissionDataContext } from '../data-context';
 import { settings } from '../global';
-import { guid } from 'maishu-chitu-service';
+import { guid } from 'maishu-toolkit';
 
 interface SMSRecord {
     id: string,
