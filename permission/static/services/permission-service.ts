@@ -2,8 +2,6 @@ import { Service } from "maishu-chitu-admin/static";
 import { errors } from "../errors";
 import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
-// import websiteConfigModuel = require("../../website-config");
-// let websiteConfig = websiteConfigModuel.default;
 import { PermissionWebsiteConfig } from "../../website-config";
 
 import "json!websiteConfig";
@@ -17,10 +15,8 @@ export interface LoginInfo {
 export class PermissionService extends Service {
 
     static baseUrl: string = `${websiteConfig.stationPath}`;
-    // role = new RoleModule(this);
     user = new UserModule(this);
     sms = new SMSModule(this);
-    // token = new TokenModule(this);
     resource = new ResourceModule(this);
 
     protected url(path: string) {

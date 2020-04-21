@@ -1,5 +1,4 @@
 import { start as startAdmin } from "maishu-chitu-admin";
-import path = require("path");
 import { stationPath, permissions, ServerContextData } from "./website-config";
 
 export type Settings = {

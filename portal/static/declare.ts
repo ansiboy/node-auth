@@ -203,7 +203,7 @@ interface RequireShim {
 	init?: (...dependencies: any[]) => any;
 }
 
-// declare module "json!websiteConfig" {
-// 	let a: PortalWebsiteConfig & import("maishu-chitu-admin/static").WebsiteConfig;
-// 	export = a;
-// }
+declare module "json!websiteConfig" {
+	let a: import("../website-config").PortalWebsiteConfig;
+	export = a;
+}
