@@ -1,4 +1,4 @@
-import { controller, action, getLogger, request, response } from "maishu-node-mvc";
+import { controller, action, getLogger, request, response, routeData } from "maishu-node-mvc";
 import { constants, g } from "../global";
 import { WebsiteConfig } from "../types";
 import http = require("http");
@@ -7,13 +7,15 @@ import fetch from "node-fetch";
 import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
 import { Role } from "../entities";
+import { authDataContext, AuthDataContext } from "../data-context";
+import { guid } from "maishu-toolkit";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
 @controller(`${constants.controllerPathRoot}/menuItem`)
 export class ResourceController {
     @action()
-    async list(@request req: http.IncomingMessage) {
+    async list(@request req: http.IncomingMessage, @authDataContext dc: AuthDataContext) {
 
         let stations = g.stationInfos.value;
 
@@ -44,20 +46,47 @@ export class ResourceController {
             menuItems.push(...websiteConfig.menuItems || []);
         }
 
+        let menuItemRecords = await dc.menuItemRecords.find();
+        for (let i = 0; i < menuItemRecords.length; i++) {
+            let item = menuItems.filter(o => o.id == menuItemRecords[i].id)[0];
+            if (item)
+                item.roleIds = menuItemRecords[i].roleIds ? menuItemRecords[i].roleIds.split(",").filter(o => o) : [];
+        }
+
         return menuItems;
     }
 
     @action()
-    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse) {
+    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @authDataContext dc: AuthDataContext) {
         let tokenData = await getTokenData(req, res);
         if (!tokenData)
             throw errors.userNotLogin(req.url);
 
         let userRoleIds = await Role.getUserRoleIds(tokenData.user_id);
-        let menuItems = await this.list(req);
+        let menuItems = await this.list(req, dc);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 
         return result;
+    }
+
+    @action()
+    async setRolePermission(@authDataContext dc: AuthDataContext, @routeData d: { roleId: string, resourceIds: string[] }) {
+        if (!d.roleId) throw errors.routeDataFieldNull<typeof d>("roleId");
+        if (!d.resourceIds) throw errors.routeDataFieldNull<typeof d>("resourceIds");
+
+        let menuItemRecords = await dc.menuItemRecords.find();
+        for (let i = 0; i < d.resourceIds.length; i++) {
+            let menuItem = await menuItemRecords[i];
+            if (menuItem == null) {
+                await dc.menuItemRecords.insert({ id: guid(), roleIds: d.roleId, createDateTime: new Date() });
+            }
+            else if (menuItem.roleIds.indexOf(d.roleId) < 0) {
+                menuItem.roleIds = menuItem.roleIds + "," + d.roleId;
+                await dc.menuItemRecords.save(menuItem);
+            }
+        }
+
+        return { id: d.roleId };
     }
 }
 

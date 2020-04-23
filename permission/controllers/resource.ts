@@ -55,7 +55,7 @@ export default class ResourceController {
 
     @action()
     async list(@permissionDataContext dc: PermissionDataContext): Promise<Resource[]> {
-        let resources = await dc.resources.find({ order: { sort_number: "ASC" } });
+        let resources = await dc.resources.find();
         return resources;
     }
 

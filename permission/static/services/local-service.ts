@@ -1,7 +1,7 @@
 import { Service } from "maishu-chitu-admin/static";
 import { LocalValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
-import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui";
+import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui-helper";
 import { LoginResult } from "gateway";
 
 export enum DataSourceMethods {

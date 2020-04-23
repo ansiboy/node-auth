@@ -7,7 +7,7 @@ import { guid } from 'maishu-toolkit';
 import { LoginResult, statusCodes } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 
-@controller('/user')
+@controller('user')
 export default class UserController {
 
     //====================================================

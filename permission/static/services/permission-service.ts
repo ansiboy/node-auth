@@ -1,7 +1,7 @@
 import { Service } from "maishu-chitu-admin/static";
 import { errors } from "../errors";
 import { Resource, User } from "permission-entities";
-import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui";
+import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
 import { PermissionWebsiteConfig } from "../../website-config";
 
 import "json!websiteConfig";

@@ -14,9 +14,10 @@ export let errors = {
         return error;
     },
     routeDataFieldNull<T>(fieldName: keyof T): Error {
-        let msg = `The '${fieldName}' field of route data cannt be null.`;
+        let msg = `The ${fieldName} field of route data cannt be null.`;
         let error = new Error(msg);
-        error.name = `${statusCodes.fieldNull} ${errors.routeDataFieldNull.name}`;
+        let name: keyof typeof errors = "routeDataFieldNull";
+        error.name = name;
         return error;
     },
     userNotLogin(requestURL?: string): Error {

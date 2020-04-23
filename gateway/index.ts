@@ -8,14 +8,14 @@ import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
 import path = require("path");
-import { createDatabaseIfNotExists, initDatabase, createDataContext } from "./data-context";
+import { initDatabase, createDataContext } from "./data-context";
 import { roleIds } from "./global"
 import { statusCodes } from "./status-codes";
 import { TokenData } from "./entities";
-
+import { createDatabaseIfNotExists } from "maishu-node-data";
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
-export { createDatabaseIfNotExists, createDataContext } from "./data-context";
+
 
 
 export { statusCodes } from "./status-codes";
@@ -59,7 +59,7 @@ export async function start(settings: Settings) {
         headers: settings.headers,
         authenticate: (req, res) => authenticate(req, res, settings.permissions),
         controllerDirectory: new VirtualDirectory(path.join(__dirname, "controllers")),
-        staticDirectory: new VirtualDirectory(path.join(__dirname, "static")),
+        staticRootDirectory: new VirtualDirectory(path.join(__dirname, "static")),
         virtualPaths: settings.virtualPaths,
         bindIP: settings.bindIP,
     })

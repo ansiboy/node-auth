@@ -69,3 +69,15 @@ export class UserRole {
     role?: Role;
 }
 
+@Entity("menu_item_record")
+export class MenuItemRecord {
+    @PrimaryColumn({ type: "char", length: 36 })
+    id: string;
+
+    @Column({ type: "varchar", length: 300, name: "role_ids" })
+    roleIds: string;
+
+    @Column({ type: "datetime", name: "create_date_time" })
+    createDateTime: Date;
+}
+

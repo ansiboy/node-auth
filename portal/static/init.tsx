@@ -81,6 +81,7 @@ export default async function (args: InitArguments) {
 async function logout(gs: GatewayService, app: Application) {
     gs.logout();
     PermissionService.token.value = "";
+    // app.redirect("login");
     location.href = "#login";
 }
 

@@ -1,4 +1,4 @@
-import { DataSource } from "maishu-wuzhui"
+import { DataSource } from "maishu-wuzhui-helper"
 import React = require("react")
 import { InputControl } from "./input-control";
 import { rules } from "maishu-dilu";

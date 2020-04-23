@@ -2,8 +2,9 @@ import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
 import { settings as globalSettings, stationPath, } from "./global";
-import { roleIds, createDatabaseIfNotExists } from "../gateway";
+import { roleIds } from "../gateway";
 import { initDatabase } from "./data-context";
+import { createDatabaseIfNotExists } from "maishu-node-data";
 
 export { Settings } from "./types";
 export { createDataContext } from "./data-context";

@@ -33,4 +33,5 @@ export default class UserController {
         cookies.set(TOKEN_NAME, "");
         return true;
     }
+
 }

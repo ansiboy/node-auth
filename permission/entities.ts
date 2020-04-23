@@ -91,17 +91,20 @@ export class Resource implements Model {
     @PrimaryColumn({ type: "char", length: 36 })
     id: string;
 
-    @Column({ type: "char", length: 36, nullable: true })
-    parent_id?: string;
+    // @Column({ type: "char", length: 36, nullable: true })
+    // parent_id?: string;
 
-    @Column({ type: "int" })
-    sort_number: number;
+    // @Column({ type: "int" })
+    // sort_number: number;
+
+    @Column({ type: "varchar", length: 300 })
+    role_ids: string;
 
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @Column({ type: "varchar", length: 200, nullable: true })
-    remark?: string;
+    // @Column({ type: "varchar", length: 200, nullable: true })
+    // remark?: string;
 }
 
 @Entity("user")
@@ -208,3 +211,14 @@ export class ResourceCategory {
     name: string;
 }
 
+// @Entity("menu_item_record")
+// export class MenuItemRecord {
+//     @PrimaryColumn({ type: "char", length: 36 })
+//     id: string;
+
+//     @Column({ type: "varchar", length: 300 })
+//     roleIds: string;
+
+//     @Column({ type: "datetime" })
+//     create_date_time: Date;
+// }

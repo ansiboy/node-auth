@@ -1,11 +1,12 @@
 import { BasePage } from "./base-page";
-import { DataSource, DataControlField, GridView, CustomField, GridViewCell, GridViewEditableCell, BoundField } from "maishu-wuzhui";
+import {
+    DataSource, DataControlField, GridView, CustomField, GridViewCell,
+    GridViewEditableCell, BoundField, GridViewCellControl, createGridView
+} from "maishu-wuzhui-helper";
 import React = require("react");
-import { createGridView } from "maishu-wuzhui-helper";
 import { createItemDialog, Dialog, ItemDialogContext } from "../item-dialog";
 import ReactDOM = require("react-dom");
 import { InputControl, InputControlProps } from "../inputs/input-control";
-import { GridViewCellControl } from "maishu-wuzhui";
 
 interface BoundInputControlProps<T> extends InputControlProps<T> {
     boundField: BoundField<T>
@@ -36,7 +37,7 @@ class BoundInputControl<T> extends InputControl<T, BoundInputControlProps<T>>{
             if (e == null || this.control != null)
                 return;
 
-            this.control = this.props.boundField.createControl();
+            this.control = this.props.boundField.createControl({} as T);
             this.control.element.className = "form-control";
             e.appendChild(this.control.element);
         }}>

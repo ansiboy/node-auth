@@ -21,10 +21,11 @@ export class PermissionDataContext extends DataContext {
     userLatestLogins: Repository<UserLatestLogin>;
     smsRecords: Repository<SMSRecord>;
     resourcePaths: Repository<ResourcePath>;
+    // menuItemRecords: Repository<MenuItemRecord>;
 
     baseModuleResourceId: string;
 
-    static entitiesPath = path.join(__dirname,"entities.js");
+    static entitiesPath = path.join(__dirname, "entities.js");
 
     constructor(entityManager: EntityManager) {
         super(entityManager);
@@ -38,6 +39,7 @@ export class PermissionDataContext extends DataContext {
         this.userLatestLogins = this.entityManager.getRepository<UserLatestLogin>(UserLatestLogin);
         this.smsRecords = this.entityManager.getRepository<SMSRecord>(SMSRecord);
         this.resourcePaths = this.entityManager.getRepository<ResourcePath>(ResourcePath);
+        // this.menuItemRecords = this.entityManager.getRepository(MenuItemRecord);
     }
 }
 

@@ -1,7 +1,7 @@
 import { Service } from "maishu-chitu-service";
 import { WebsiteConfig } from "maishu-chitu-admin/static";
 import { TokenData, Role } from "gateway-entities";
-import { DataSourceSelectResult, DataSourceSelectArguments } from "maishu-wuzhui";
+import { DataSourceSelectResult, DataSourceSelectArguments } from "maishu-wuzhui-helper";
 
 export class GatewayService extends Service {
     private url(path: string) {

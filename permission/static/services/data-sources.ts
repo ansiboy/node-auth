@@ -1,4 +1,4 @@
-import { DataSource } from "maishu-wuzhui";
+import { DataSource } from "maishu-wuzhui-helper";
 import { PermissionService } from "./permission-service";
 import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
 import { User, Resource, } from "permission-entities";
@@ -54,9 +54,10 @@ let tokenDataSource = new DataSource<TokenData>({
     }
 })
 
-export type MenuItem = Resource & WebsiteConfig["menuItems"][0] & {
+export type MenuItem = WebsiteConfig["menuItems"][0] & {
     parent?: MenuItem,
     roleNames?: string,
+    sortNumber?: number,
 }
 
 let resourceDataSource = new DataSource<MenuItem>({
@@ -70,8 +71,8 @@ let resourceDataSource = new DataSource<MenuItem>({
         let stack = [...menuItems] as MenuItem[];
         while (stack.length > 0) {
             let item = stack.shift();
-            if (item.sort_number == null) {
-                item.sort_number = r.length + 1;
+            if (item.sortNumber == null) {
+                item.sortNumber = r.length + 1;
             }
 
             let roles = roleResult.dataItems;
@@ -85,13 +86,16 @@ let resourceDataSource = new DataSource<MenuItem>({
                 let children = item.children.reverse();
                 children.forEach((child: MenuItem) => {
                     child.parent = item;
-                    child.parent_id = item.id;
+                    child.parentId = item.id;
                     stack.unshift(child);
                 })
             }
         }
 
         return { dataItems: r as MenuItem[], totalRowCount: r.length };
+    },
+    update: async (item) => {
+
     }
 })
 
