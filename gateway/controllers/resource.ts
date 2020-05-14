@@ -8,14 +8,18 @@ import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
 import { Role } from "../entities";
 import { authDataContext, AuthDataContext } from "../data-context";
-import { guid } from "maishu-toolkit";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
 @controller(`${constants.controllerPathRoot}/menuItem`)
 export class ResourceController {
+
+    /**
+     * 获取菜单项列表
+     * @param d.roleId 角色编号，如果指定 roleId，返回指定角色的可以访问的菜单项
+     */
     @action()
-    async list(@request req: http.IncomingMessage, @authDataContext dc: AuthDataContext) {
+    async list(@request req: http.IncomingMessage, @authDataContext dc: AuthDataContext, @routeData d?: { roleId?: string, userId?: string }) {
 
         let stations = g.stationInfos.value;
 
@@ -48,14 +52,41 @@ export class ResourceController {
 
         let menuItemRecords = await dc.menuItemRecords.find();
         for (let i = 0; i < menuItemRecords.length; i++) {
-            let item = menuItems.filter(o => o.id == menuItemRecords[i].id)[0];
-            if (item)
-                item.roleIds = menuItemRecords[i].roleIds ? menuItemRecords[i].roleIds.split(",").filter(o => o) : [];
+            let item = this.findMenuItem(menuItems, menuItemRecords[i].id);
+            if (!item) {
+                continue;
+            }
+
+            let roleIds = menuItemRecords[i].roleIds.split(",").filter(o => o);
+            for (let i = 0; i < roleIds.length; i++) {
+                if (item.roleIds.indexOf(roleIds[i]) < 0)
+                    item.roleIds.push(roleIds[i]);
+
+                // item.roleIds = menuItemRecords[i].roleIds ? menuItemRecords[i].roleIds.split(",").filter(o => o) : [];
+            }
+        }
+
+        if (d != null && d.roleId != null) {
+            menuItems = menuItems.filter(o => o.roleIds.indexOf(d.roleId) >= 0 || o.userId == d.userId);
         }
 
         return menuItems;
     }
 
+    private findMenuItem(menuItems: MyMenuItem[], id: string) {
+        let stack = [...menuItems];
+        while (stack.length > 0) {
+            let item = stack.pop();
+            if (item.id == id)
+                return item;
+
+            if (item.children)
+                stack.push(...item.children);
+        }
+        return null;
+    }
+
+    /** 获取我的权限 */
     @action()
     async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @authDataContext dc: AuthDataContext) {
         let tokenData = await getTokenData(req, res);
@@ -76,18 +107,22 @@ export class ResourceController {
 
         let menuItemRecords = await dc.menuItemRecords.find();
         for (let i = 0; i < d.resourceIds.length; i++) {
-            let menuItem = await menuItemRecords[i];
-            if (menuItem == null) {
-                await dc.menuItemRecords.insert({ id: guid(), roleIds: d.roleId, createDateTime: new Date() });
+            let menuItemRecord = await menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
+            if (menuItemRecord == null) {
+                menuItemRecord = { id: d.resourceIds[i], roleIds: d.roleId, createDateTime: new Date() };
+                menuItemRecords.push(menuItemRecord);
+                await dc.menuItemRecords.insert(menuItemRecord);
             }
-            else if (menuItem.roleIds.indexOf(d.roleId) < 0) {
-                menuItem.roleIds = menuItem.roleIds + "," + d.roleId;
-                await dc.menuItemRecords.save(menuItem);
+            else if (menuItemRecord.roleIds.indexOf(d.roleId) < 0) {
+                menuItemRecord.roleIds = menuItemRecord.roleIds + "," + d.roleId;
+                await dc.menuItemRecords.save(menuItemRecord);
             }
         }
 
         return { id: d.roleId };
     }
+
+
 }
 
 function getWebsiteConfig(req: http.IncomingMessage, url: string): Promise<WebsiteConfig> {

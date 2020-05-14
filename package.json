@@ -4,7 +4,7 @@
         "less": "^3.10.3",
         "load-grunt-tasks": "^5.1.0",
         "maishu-chitu": "^3.27.0",
-        "maishu-chitu-admin": "^2.116.24",
+        "maishu-chitu-admin": "^2.116.110",
         "maishu-chitu-react": "^1.27.0",
         "maishu-chitu-service": "^1.19.3",
         "maishu-cookies": "^1.3.0",
@@ -44,5 +44,5 @@
         "build": "grunt build",
         "start": "grunt start"
     },
-    "version": "2.25.4"
+    "version": "2.25.5"
 }
