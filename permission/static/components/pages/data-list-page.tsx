@@ -37,7 +37,7 @@ class BoundInputControl<T> extends InputControl<T, BoundInputControlProps<T>>{
             if (e == null || this.control != null)
                 return;
 
-            this.control = this.props.boundField.createControl({} as T);
+            this.control = this.props.boundField.createControl();
             this.control.element.className = "form-control";
             e.appendChild(this.control.element);
         }}>

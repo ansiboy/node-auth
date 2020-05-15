@@ -4,7 +4,7 @@
         "less": "^3.10.3",
         "load-grunt-tasks": "^5.1.0",
         "maishu-chitu": "^3.27.0",
-        "maishu-chitu-admin": "^2.116.110",
+        "maishu-chitu-admin": "^2.116.118",
         "maishu-chitu-react": "^1.27.0",
         "maishu-chitu-service": "^1.19.3",
         "maishu-cookies": "^1.3.0",
@@ -13,8 +13,7 @@
         "maishu-node-mvc": "^1.98.4",
         "maishu-toolkit": "^1.1.1",
         "maishu-ui-toolkit": "^1.7.0",
-        "maishu-wuzhui": "^1.16.0",
-        "maishu-wuzhui-helper": "^1.8.26",
+        "maishu-wuzhui-helper": "^1.8.37",
         "memory-cache": "^0.2.0",
         "mysql": "^2.17.1",
         "qcloudsms_js": "^0.1.1",
@@ -44,5 +43,5 @@
         "build": "grunt build",
         "start": "grunt start"
     },
-    "version": "2.25.5"
+    "version": "2.25.9"
 }

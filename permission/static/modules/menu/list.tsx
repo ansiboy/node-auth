@@ -46,7 +46,7 @@ export default class MenuListPage extends DataListPage<MenuItem> {
         }),
         boundField<MenuItem>({ dataField: "icon", headerText: "图标", itemStyle: { width: `${iconFieldWidth}px` }, readOnly: true }),
         boundField<MenuItem>({
-            dataField: "roleIds", headerText: "角色", itemStyle: { width: `${roleFieldWidth}px` },
+            dataField: "roleNames", headerText: "角色", itemStyle: { width: `${roleFieldWidth}px` },
 
             createControl() {
                 let element = document.createElement("div");
