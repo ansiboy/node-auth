@@ -13,7 +13,7 @@
         "maishu-node-mvc": "^1.98.4",
         "maishu-toolkit": "^1.1.1",
         "maishu-ui-toolkit": "^1.7.0",
-        "maishu-wuzhui-helper": "^1.8.37",
+        "maishu-wuzhui-helper": "^1.9.1",
         "memory-cache": "^0.2.0",
         "mysql": "^2.17.1",
         "qcloudsms_js": "^0.1.1",
