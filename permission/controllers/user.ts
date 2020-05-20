@@ -6,6 +6,8 @@ import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
 import { LoginResult, statusCodes } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
+import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
+import { DataHelper } from 'maishu-node-data';
 
 @controller('user')
 export default class UserController {
@@ -65,11 +67,6 @@ export default class UserController {
             id: guid(), mobile, password, data,
             create_date_time: new Date(Date.now())
         }
-
-        // let userRole: UserRole = {
-        //     user_id: user.id,
-        //     role_id: roleIds.normalUserRoleId,
-        // }
 
         await dc.users.insert(user);
 
@@ -210,8 +207,6 @@ export default class UserController {
         if (smsRecord == null || smsRecord.code != verifyCode)
             throw errors.verifyCodeIncorrect(verifyCode);
 
-        // let token = await TokenManager.create({ user_id: user.id } as UserToken)
-        // return { token: token.id, userId: user.id, roleId: user.role_id }
         let r: LoginResult = { userId: user.id, };
         return r;
     }
@@ -271,9 +266,11 @@ export default class UserController {
     }
 
     @action()
-    async list(@permissionDataContext dc: PermissionDataContext) {
-        let users = await dc.users.find();
-        return users;
+    async list(@permissionDataContext dc: PermissionDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+        // let users = await dc.users.find();
+        // return users;
+        let r = DataHelper.list(dc.users, { selectArguments: d.args });
+        return r;
     }
 
     /** 添加用户 */
@@ -301,11 +298,6 @@ export default class UserController {
         item.create_date_time = new Date(Date.now());
 
         await dc.users.save(item);
-
-        // if (item.role_id) {
-        //     item.role = await dc.roles.findOne(item.role_id); //roleIds.map(o => ({ id: o }) as Role)
-        // }
-
         return { id: item.id, create_date_time: item.create_date_time };
     }
 
@@ -329,11 +321,6 @@ export default class UserController {
             entity.password = user.password;
 
         await dc.users.save(entity);
-
-        // if (user.role_id) {
-        //     entity.role = await dc.roles.findOne(user.role_id);
-        // }
-
         return { id: entity.id, } as Partial<User>
     }
 
@@ -345,53 +332,6 @@ export default class UserController {
             .getMany();
 
         return items;
-    }
-
-    // /** 获取当前用户角色的子角色列表 */
-    // @action()
-    // async roleList(@permissionDataContext dc: PermissionDataContext, @routeData { userId }) {
-    //     if (!dc) throw errors.argumentNull("dc");
-    //     if (!userId) throw errors.routeDataFieldNull("userId");
-
-    //     let user = await dc.users.findOne(userId);
-    //     if (!user)
-    //         throw errors.objectNotExistWithId(userId, "User");
-
-    //     let roles = await dc.roles.find({
-    //         // where: { parent_id: user.role_id },
-    //         order: { create_date_time: "DESC" }
-    //     });
-
-    //     return roles;
-    // }
-
-    /** 获取用户所允许访问的资源 */
-    @action()
-    async resourceList(@routeData { userId }) {
-        if (!userId) throw errors.routeDataFieldNull("userId");
-
-        // let user = await dc.users.findOne(userId);
-        // if (user == null)
-        //     throw errors.objectNotExistWithId(userId, "user");
-
-        // // if (!user.role_id)
-        // //     return [];
-
-        // // if (user.role_id == constants.adminRoleId) {
-        // //     return dc.resources.find({ order: { sort_number: "ASC" } });
-        // // }
-
-        // // let roleIds = 
-
-        // let roleResources = await dc.roleResources.find({});
-        // if (roleResources.length == 0) {
-        //     return [];
-        // }
-
-        // let resourceIds = roleResources.map(o => o.resource_id);
-        // let resources = await dc.resources.findByIds(resourceIds, { order: { sort_number: "ASC" } });
-
-        // return resources;
     }
 }
 

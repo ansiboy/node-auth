@@ -7,7 +7,8 @@ class BitBooleanTransformer implements ValueTransformer {
         if (value === null) {
             return null;
         }
-        const res = new Buffer(1);
+
+        const res = Buffer.from([1]);//new Buffer(1);
         res[0] = value ? 1 : 0;
         return res;
     }

@@ -40,7 +40,7 @@ export default class UserController {
 
     /** 获取指定的用户角色 */
     @action()
-    async roles(@authDataContext dc: AuthDataContext, @routeData d: { userIds: string[] }) {debugger
+    async roles(@authDataContext dc: AuthDataContext, @routeData d: { userIds: string[] }) {
         if (!d.userIds) throw errors.argumentFieldNull("userIds", "d");
         let userRoles = await dc.userRoles.find({ where: { user_id: In(d.userIds) } });
         let roleIds = userRoles.map(o => o.role_id).filter((item, index, arr) => arr.indexOf(item) == index);
