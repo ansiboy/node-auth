@@ -3,3 +3,4 @@ node_modules
 **/*.map
 !Gruntfile.js
 out
+package-lock.json
