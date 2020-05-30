@@ -42,6 +42,9 @@ export default class UserController {
     @action()
     async roles(@authDataContext dc: AuthDataContext, @routeData d: { userIds: string[] }) {
         if (!d.userIds) throw errors.argumentFieldNull("userIds", "d");
+        if (d.userIds.length == 0)
+            return {};
+            
         let userRoles = await dc.userRoles.find({ where: { user_id: In(d.userIds) } });
         let roleIds = userRoles.map(o => o.role_id).filter((item, index, arr) => arr.indexOf(item) == index);
         let roles = await dc.roles.findByIds(roleIds);

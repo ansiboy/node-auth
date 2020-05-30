@@ -66,7 +66,9 @@ let gatewayStationSettings: GatewaySettings = {
         "/AdminMember/*": { roleIds: [roleIds.anonymous] },
         "/UserMember/*": { roleIds: [roleIds.anonymous] },
     },
-
+    virtualPaths: {
+        "node_modules": path.join(__dirname, "node_modules")
+    }
 }
 
 let permissionStationSettings: PermissionSettings = {

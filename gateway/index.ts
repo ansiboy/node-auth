@@ -3,7 +3,6 @@ import { startServer, Settings as MVCSettings, getLogger, ProxyPipe, VirtualDire
 import { Settings, LoginResult } from "./types";
 import { authenticate } from "./filters/authenticate";
 import { startSocketServer } from "./socket-server";
-// import { loginFilter } from "./filters/login-filter";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
@@ -42,7 +41,6 @@ export async function start(settings: Settings) {
     for (let key in settings.proxy) {
         proxy[key] = {
             targetUrl: settings.proxy[key], headers: proxyHeader,
-            // response: proxyResponseHandle
             pipe: proxyPipe
         }
     }
@@ -50,9 +48,6 @@ export async function start(settings: Settings) {
     settings.permissions = settings.permissions || {};
     settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
-
-    // settings.virtualPaths = settings.virtualPaths || {};
-    // settings.virtualPaths["node_modules"] = path.join(__dirname, "../node_modules");
 
     let r = startServer({
         proxy,
@@ -62,6 +57,7 @@ export async function start(settings: Settings) {
         staticRootDirectory: new VirtualDirectory(path.join(__dirname, "static")),
         virtualPaths: settings.virtualPaths,
         bindIP: settings.bindIP,
+        requestFilters: settings.requestFilters
     })
 
     startSocketServer(r.server);
