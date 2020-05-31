@@ -20,15 +20,7 @@ export class PermissionService extends Service {
     }
 
 
-    /**
-     * 获取用户个人信息
-     */
-    async me() {
-        let url = Requirejs.websitePath('user/me');
-        let user = await this.getByJson<User>(url);
-        delete user.password;
-        return user
-    }
+
 }
 
 class ServiceModule {
@@ -159,6 +151,15 @@ class UserModule extends ServiceModule {
         return r;
     }
 
+    /**
+     * 获取用户个人信息
+     */
+    async me() {
+        let url = Requirejs.websitePath('user/me');
+        let user = await this.getByJson<User>(url);
+        delete user.password;
+        return user
+    }
 }
 
 class SMSModule extends ServiceModule {
