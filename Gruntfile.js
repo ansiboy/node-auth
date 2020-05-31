@@ -20,7 +20,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         shell: {
             src: {
-                command: "tsc -p ./"
+                command: "tsc -p src"
             }
         },
         open: {

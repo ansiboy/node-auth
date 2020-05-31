@@ -4,3 +4,4 @@ node_modules
 !Gruntfile.js
 out
 package-lock.json
+coverage

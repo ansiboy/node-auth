@@ -4,13 +4,14 @@
         "less": "^3.10.3",
         "load-grunt-tasks": "^5.1.0",
         "maishu-chitu": "^3.27.0",
-        "maishu-chitu-admin": "^2.117.6",
+        "maishu-chitu-admin": "^2.117.32",
         "maishu-chitu-react": "^1.27.0",
         "maishu-chitu-service": "^1.20.0",
         "maishu-cookies": "^1.3.0",
         "maishu-dilu": "^1.7.0",
         "maishu-node-data": "^1.2.8",
-        "maishu-node-mvc": "^1.98.4",
+        "maishu-node-mvc": "^1.98.15",
+        "maishu-node-static": "^1.12.0",
         "maishu-toolkit": "^1.1.1",
         "maishu-ui-toolkit": "^1.7.0",
         "maishu-wuzhui-helper": "^1.9.1",
@@ -43,5 +44,5 @@
         "build": "grunt build",
         "start": "grunt start"
     },
-    "version": "2.26.18"
+    "version": "3.0.7"
 }
