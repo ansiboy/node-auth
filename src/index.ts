@@ -11,5 +11,4 @@ type Settings = {
 export async function start(settings: Settings) {
     await startGateway(settings.gatewaySettings);
     startPermission(settings.permissionSettings);
-    // startPortal(settings.portalSettings);
 }

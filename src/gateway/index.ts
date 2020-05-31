@@ -16,8 +16,6 @@ import { AuthDataContext } from "./data-context";
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
 
-
-
 export { statusCodes } from "./status-codes";
 export { tokenDataHeaderNames, roleIds, userIds } from "./global";
 export let stationPath = `/${constants.controllerPathRoot}/`;
@@ -27,8 +25,6 @@ export async function start(settings: Settings) {
     console.assert(settings.port != null);
 
     g.settings = settings;
-
-    // await createDatabaseIfNotExists(settings.db, initDatabase);
 
     let proxyPipe: ProxyPipe = {
         async onResponse({ req, res }, data) {

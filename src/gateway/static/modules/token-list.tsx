@@ -1,6 +1,6 @@
 import { DataListPage } from "maishu-chitu-admin/static";
 import { TokenData } from "gateway-entities";
-import { dataSources } from "../../services/data-sources";
+import { dataSources } from "../services/data-sources";
 import { boundField, dateTimeField, DataSource } from "maishu-wuzhui-helper";
 
 export default class TokenListPage extends DataListPage<TokenData>{

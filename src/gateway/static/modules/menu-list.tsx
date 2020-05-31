@@ -1,9 +1,9 @@
 import { DataListPage } from "maishu-chitu-admin/static";
-import { dataSources, MenuItem } from "../../services/data-sources";
+import { dataSources, MenuItem } from "../services/data-sources";
 import { boundField, dateTimeField, customDataField, DataControlField } from "maishu-wuzhui-helper";
 import ReactDOM = require("react-dom");
 import React = require("react");
-import { services } from "../../services/index";
+import { services } from "../services/index";
 
 let sortFieldWidth = 80;
 let nameFieldWidth = 180;

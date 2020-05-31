@@ -8,6 +8,7 @@ import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
 import { Role } from "../entities";
 import { authDataContext, AuthDataContext } from "../data-context";
+import websiteConfig from "../website-config";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -30,7 +31,7 @@ export class ResourceController {
         let logger = getLogger(constants.projectName, g.settings.logLevel);
         logger.info(websiteConfigUrls);
 
-        let menuItems: MyMenuItem[] = [];
+        let menuItems: MyMenuItem[] = [...websiteConfig.menuItems || []];
         let websiteConfigs = await Promise.all(websiteConfigUrls.map(url => getWebsiteConfig(req, url)));
 
         for (let i = 0; i < websiteConfigs.length; i++) {

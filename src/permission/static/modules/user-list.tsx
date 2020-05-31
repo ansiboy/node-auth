@@ -1,5 +1,5 @@
 import { User } from "permission-entities";
-import { dataSources } from "../../services/data-sources";
+import { dataSources } from "../services/data-sources";
 import { boundField, dateTimeField, DataControlField, DataSource } from "maishu-wuzhui-helper";
 import { DataListPage } from "maishu-chitu-admin/static";
 import { rules } from "maishu-dilu";

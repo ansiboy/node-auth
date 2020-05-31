@@ -2,7 +2,6 @@ import { Service, Requirejs } from "maishu-chitu-admin/static";
 import { errors } from "../errors";
 import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
-import { PermissionWebsiteConfig } from "../../website-config";
 
 // import "json!websiteConfig";
 // let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
@@ -13,10 +12,23 @@ export interface LoginInfo {
 }
 
 export class PermissionService extends Service {
-
     user = new UserModule(this);
     sms = new SMSModule(this);
     resource = new ResourceModule(this);
+    constructor(...args) {
+        super(...args)
+    }
+
+
+    /**
+     * 获取用户个人信息
+     */
+    async me() {
+        let url = Requirejs.websitePath('user/me');
+        let user = await this.getByJson<User>(url);
+        delete user.password;
+        return user
+    }
 }
 
 class ServiceModule {
@@ -147,15 +159,6 @@ class UserModule extends ServiceModule {
         return r;
     }
 
-    /**
-     * 获取用户个人信息
-     */
-    async me() {
-        let url = this.url('user/me');
-        let user = await this.getByJson<User>(url);
-        delete user.password;
-        return user
-    }
 }
 
 class SMSModule extends ServiceModule {

@@ -43,15 +43,21 @@ export default async function (args: InitArguments) {
             if (menuItem.path != null && menuItem.path.startsWith("#")) {
                 let path = menuItem.path.substr(1);
                 let stationPath: string = menuItem["stationPath"];
-                console.assert(stationPath != null);
-                if (stationPath.startsWith("/")) {
-                    stationPath = stationPath.substr(1);
+                if (stationPath) {
+                    console.assert(stationPath != null);
+                    if (stationPath.startsWith("/")) {
+                        stationPath = stationPath.substr(1);
+                    }
+                    if (stationPath.endsWith("/")) {
+                        stationPath = stationPath.substr(0, stationPath.length - 1);
+                    }
+
+                    menuItem.path = `#${stationPath}:${path}`;
                 }
-                if (stationPath.endsWith("/")) {
-                    stationPath = stationPath.substr(0, stationPath.length - 1);
+                else {
+                    menuItem.path = `#${path}`;
                 }
 
-                menuItem.path = `#${stationPath}:${path}`;
             }
             else if (menuItem.path != null && menuItem.path.startsWith(":")) {
                 menuItem.path = `#${menuItem.path.substr(1)}`;
@@ -70,7 +76,7 @@ export default async function (args: InitArguments) {
                 <span>退出</span>
             </li>
             <li className="pull-right">
-                <span>
+                <span className="user-name">
                     {me.mobile || me.user_name}({myRoles.map(o => o.name)})
                 </span>
             </li>

@@ -1,9 +1,11 @@
 import { InitArguments } from "maishu-chitu-admin/static";
 import { PageData } from "maishu-chitu";
+import { services } from "./services/index";
 
 
 export default function init(args: InitArguments) {
     let showPage = args.app.showPage;
+
     args.app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
         args = args || {}
         let d = this.parseUrl(pageUrl)
