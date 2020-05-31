@@ -1,9 +1,7 @@
 import React = require("react");
 import { PageProps } from "maishu-chitu-react";
-import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
 import { PermissionService } from "../services/permission-service";
-import config = require("json!websiteConfig");
 
 interface Props extends PageProps {
     data: {
@@ -24,7 +22,6 @@ const LOGIN = "login";
 
 export default class LoginPage extends React.Component<Props, State> {
     private element: HTMLElement;
-    private validator: FormValidator;
 
     constructor(props) {
         super(props)
@@ -37,16 +34,11 @@ export default class LoginPage extends React.Component<Props, State> {
     async login(): Promise<any> {
         let service = this.props.createService(PermissionService);
         let { username, password } = this.state;
-        let r = await service.login(username, password);
-        let target = config.indexPage || "index";
+        let target = "index";//config.indexPage ||
         this.props.app.redirect(target);
     }
 
     componentDidMount() {
-        this.validator = new FormValidator(this.element,
-            { name: USERNAME, rules: [r.required('请输入用户名')] },
-            { name: PASSWORD, rules: [r.required('请输入密码')] }
-        )
     }
 
     render() {

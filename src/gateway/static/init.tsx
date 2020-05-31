@@ -125,7 +125,7 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
         }
         else {
             path = modulesPath + path;
-            contextName = websiteConfig.stationPath;
+            contextName = websiteConfig.requirejs.baseUrl;
         }
 
         if (contextName) {
@@ -181,7 +181,7 @@ class StationPageLoader {
         this.stationPath = stationPath;
         this.app = app;
 
-        if (this.stationPath == websiteConfig.stationPath) {
+        if (this.stationPath == websiteConfig.requirejs.baseUrl) {
             this.status = "success";
             this.requirejs = this.configRequirejs(websiteConfig);
             console.assert(this.requirejs != null);

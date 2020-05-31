@@ -204,6 +204,6 @@ interface RequireShim {
 }
 
 declare module "json!websiteConfig" {
-	let a: import("../website-config").PortalWebsiteConfig;
+	let a: import("maishu-chitu-admin/static").WebsiteConfig;
 	export = a;
 }
