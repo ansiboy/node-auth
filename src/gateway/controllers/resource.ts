@@ -9,6 +9,7 @@ import { errors } from "../errors";
 import { Role } from "../entities";
 import { authDataContext, AuthDataContext } from "../data-context";
 import websiteConfig from "../website-config";
+import { currentUserId } from "../data-context";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -89,12 +90,12 @@ export class ResourceController {
 
     /** 获取我的权限 */
     @action()
-    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @authDataContext dc: AuthDataContext) {
-        let tokenData = await getTokenData(req, res);
-        if (!tokenData)
+    async my(@request req: http.IncomingMessage, @response res: http.ServerResponse, @authDataContext dc: AuthDataContext,
+        @currentUserId currentUserId: string) {
+        if (!currentUserId)
             throw errors.userNotLogin(req.url);
 
-        let userRoleIds = await Role.getUserRoleIds(tokenData.user_id);
+        let userRoleIds = await Role.getUserRoleIds(currentUserId);
         let menuItems = await this.list(req, dc);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 

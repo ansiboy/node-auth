@@ -1,18 +1,11 @@
-import { Service, ValueStore } from "maishu-chitu";
 import { Role, TokenData } from "gateway-entities";
-
-// import { PortalWebsiteConfig } from "../../website-config";
-// import "json!websiteConfig";
-// let websiteConfig: PortalWebsiteConfig = require("json!websiteConfig");
-
+import { Service } from "maishu-chitu-service";
 import websiteConfig = require("json!websiteConfig");
 import { WebsiteConfig } from "maishu-chitu-admin/static";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
 import { Resource } from "permission-entities";
 
 export class GatewayService extends Service {
-
-    // static token: ValueStore<string> = window["token"] = window["token"] || new ValueStore<string>();
 
     private url(path: string) {
         return `/auth/${path}`;

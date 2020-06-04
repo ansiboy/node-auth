@@ -1,11 +1,10 @@
 import "reflect-metadata";
 import { ConnectionConfig } from "mysql";
-import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-node-data";
+import { EntityManager, Repository } from "maishu-node-data";
 import path = require("path");
-import fs = require("fs");
 import { TokenData, Role, UserRole, MenuItemRecord } from "./entities";
-import { createParameterDecorator, getLogger } from "maishu-node-mvc";
-import { g, constants, roleIds, userIds } from "./global";
+import { createParameterDecorator } from "maishu-node-mvc";
+import { g, roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
 import { DataContext, DataHelper } from "maishu-node-data";
 
@@ -38,38 +37,6 @@ export class AuthDataContext extends DataContext {
         this.userRoles = this.manager.getRepository(UserRole);
         this.menuItemRecords = this.manager.getRepository(MenuItemRecord);
     }
-
-
-    static async list<T>(repository: Repository<T>, options: {
-        selectArguments?: SelectArguments, relations?: string[],
-        fields?: Extract<keyof T, string>[]
-    }): Promise<SelectResult<T>> {
-
-        let { selectArguments, relations, fields } = options;
-        selectArguments = selectArguments || {};
-
-        let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
-        if (!selectArguments.sortExpression) {
-            selectArguments.sortExpression = "create_date_time desc"
-        }
-
-        let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
-        console.assert(arr.length > 0)
-        order = {};
-        order[arr[0]] = arr[1].toUpperCase() as any;
-
-        let [items, count] = await repository.findAndCount({
-            where: selectArguments.filter, relations,
-            skip: selectArguments.startRowIndex,
-            take: selectArguments.maximumRows,
-            order: order,
-            select: fields,
-
-        });
-
-        return { dataItems: items, totalRowCount: count } as SelectResult<T>
-    }
-
 }
 
 export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
@@ -83,37 +50,6 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
         return dc
     }
 )
-
-
-export async function dataList<T>(repository: Repository<T>, options: {
-    selectArguments?: SelectArguments, relations?: string[],
-    fields?: Extract<keyof T, string>[]
-}): Promise<SelectResult<T>> {
-
-    let { selectArguments, relations, fields } = options;
-    selectArguments = selectArguments || {};
-
-    let order: { [P in keyof T]?: "ASC" | "DESC" | 1 | -1 };
-    if (!selectArguments.sortExpression) {
-        selectArguments.sortExpression = "create_date_time desc"
-    }
-
-    let arr = selectArguments.sortExpression.split(/\s+/).filter(o => o);
-    console.assert(arr.length > 0)
-    order = {};
-    order[arr[0]] = arr[1].toUpperCase() as any;
-
-    let [items, count] = await repository.findAndCount({
-        where: selectArguments.filter, relations,
-        skip: selectArguments.startRowIndex,
-        take: selectArguments.maximumRows,
-        order: order,
-        select: fields,
-
-    });
-
-    return { dataItems: items, totalRowCount: count } as SelectResult<T>
-}
 
 export async function initDatabase(connConfig: ConnectionConfig) {
     let dc = await createDataContext(connConfig);
@@ -155,8 +91,10 @@ export async function initDatabase(connConfig: ConnectionConfig) {
 
 export let currentUserId = createParameterDecorator(async (req, res) => {
     let tokenData = await getTokenData(req, res);
-    if (!tokenData)
+    if (!tokenData) {
+        tokenData = await getTokenData(req, res);
         return null;
+    }
 
     return tokenData.user_id;
 })

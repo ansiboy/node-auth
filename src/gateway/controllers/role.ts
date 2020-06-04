@@ -1,9 +1,10 @@
 import { controller, action, routeData } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext, dataList } from "../data-context";
+import { authDataContext, AuthDataContext } from "../data-context";
 import { Role } from "../entities";
 import { errors } from "../errors";
 import { guid } from 'maishu-toolkit';
 import { constants } from "../global";
+import { DataHelper } from "maishu-node-data";
 
 @controller(`${constants.controllerPathRoot}/role`)
 export default class RoleController {
@@ -54,7 +55,7 @@ export default class RoleController {
     async list(@authDataContext dc: AuthDataContext, @routeData { args }) {
         if (!dc) throw errors.argumentNull("dc");
 
-        let r = await dataList(dc.roles, args);
+        let r = await DataHelper.list(dc.roles, args);
         return r;
     }
 

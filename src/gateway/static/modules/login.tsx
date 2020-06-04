@@ -39,7 +39,8 @@ export default class LoginPage extends React.Component<Props, State> {
         let { username, password } = this.state;
         let r = await service.login(username, password);
         let target = "index";//config.indexPage ||
-        this.props.app.redirect(target);
+        // this.props.app.redirect(target);
+        location.href = `?${Date.now()}#${target}`;
     }
 
     componentDidMount() {
