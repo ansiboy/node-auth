@@ -137,7 +137,7 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
         if (contextName) {
             let stationPageLoader = stationPageLoaders[contextName];
             console.assert(stationPageLoader != null);
-            stationPageLoader.loadUrl(path);
+            return stationPageLoader.loadUrl(path);
         }
 
         return new Promise<any>((reslove, reject) => {
