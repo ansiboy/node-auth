@@ -1,5 +1,5 @@
 import { Settings as GatewaySettings, start as startGateway, roleIds as gatewayRoleIds } from "./gateway";
-import { Settings as PermissionSettings, start as startPermission, roleIds as permissionRoleIds } from "./permission";
+import { Settings as PermissionSettings, start as startPermission, roleIds as permissionRoleIds } from "./user";
 
 export let roleIds = Object.assign(gatewayRoleIds, permissionRoleIds);
 

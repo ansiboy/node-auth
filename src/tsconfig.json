@@ -14,7 +14,7 @@
                 "./gateway/entities.ts"
             ],
             "permission-entities": [
-                "./permission/entities.ts"
+                "./user/entities.ts"
             ]
         }
     }

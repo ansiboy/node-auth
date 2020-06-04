@@ -1,5 +1,5 @@
 import { Settings as GatewaySettings, roleIds } from "./gateway";
-import { Settings as PermissionSettings } from "./permission";
+import { Settings as PermissionSettings } from "./user";
 import { start } from "./index";
 import path = require("path");
 
