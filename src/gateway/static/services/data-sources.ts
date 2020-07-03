@@ -75,9 +75,21 @@ let tokenDataSource = new DataSource<TokenData>({
     }
 })
 
+export interface Station {
+    path: string
+}
+
+let stationDataSource = new DataSource<Station>({
+    primaryKeys: ["path"],
+    select: async (args) => {
+        let r = await gatewayService.stationList();
+        return { dataItems: r, totalRowCount: r.length };
+    }
+})
 
 export let dataSources = {
     resource: resourceDataSource,
     role: roleDataSource,
     token: tokenDataSource,
+    station: stationDataSource,
 }

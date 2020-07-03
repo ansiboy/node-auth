@@ -5,6 +5,7 @@ import { settings as globalSettings, stationPath, } from "./global";
 import { roleIds } from "../gateway";
 import { initDatabase } from "./data-context";
 import { createDatabaseIfNotExists } from "maishu-node-data";
+import websiteConfig from "./website-config";
 
 export { Settings } from "./types";
 export { createDataContext } from "./data-context";
@@ -27,6 +28,7 @@ export async function start(settings: Settings) {
             path: stationPath,
             gateway: settings.gateway,
             permissions
-        }
+        },
+        websiteConfig: Object.assign(websiteConfig, settings.websiteConfig || {})
     })
 }

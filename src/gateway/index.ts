@@ -13,6 +13,7 @@ import { statusCodes } from "./status-codes";
 import { TokenData } from "./entities";
 import { start as startAdmin } from "maishu-chitu-admin";
 import { AuthDataContext } from "./data-context";
+import websiteConfig from "./website-config";
 export { socketMessages } from "./socket-server";
 export { LoginResult, Settings } from "./types";
 
@@ -56,6 +57,7 @@ export async function start(settings: Settings) {
         port: settings.port,
         rootPhysicalPath: __dirname,
         db: settings.db,
+        websiteConfig: Object.assign(websiteConfig, settings.websiteConfig || {})
     })
 
 
@@ -79,6 +81,7 @@ export async function start(settings: Settings) {
         }
     })
 
+    return r;
 }
 
 async function proxyResponseHandle(req: http.IncomingMessage, proxyResponse: http.IncomingMessage, buffer: Buffer): Promise<Buffer> {

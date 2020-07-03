@@ -1,5 +1,6 @@
 import { ConnectionConfig } from "mysql";
 import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
+import { WebsiteConfig } from "maishu-chitu-admin";
 export { SimpleMenuItem, WebsiteConfig } from "maishu-chitu-admin";
 export interface RequireConfig {
 
@@ -21,6 +22,7 @@ export interface StationInfo {
     port: number;
 }
 export interface Settings {
+    websiteConfig?: WebsiteConfig;
     port: number,
     db: ConnectionConfig,
     permissions?: PermissionConfig,
