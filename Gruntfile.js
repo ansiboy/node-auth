@@ -11,7 +11,7 @@ function modifyVersion() {
     let data = JSON.stringify(package, null, 4);
     fs.writeFileSync("package.json", data, "utf8");
 };
-modifyVersion();
+// modifyVersion();
 
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
