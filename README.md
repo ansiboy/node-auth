@@ -10,4 +10,4 @@
 
 ## 截图
 
-![](../docs/pic-1.png)
+![](https://ansiboy.github.io/node-auth/images/pic-1.png)

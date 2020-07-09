@@ -10,7 +10,7 @@ import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
 import { DataContext } from "maishu-node-data";
 
-export class PermissionDataContext extends DataContext {
+export class UserDataContext extends DataContext {
     private entityManager: EntityManager;
 
     categories: Repository<Category>;
@@ -44,7 +44,7 @@ export class PermissionDataContext extends DataContext {
 }
 
 
-export async function createDataContext(connConfig: ConnectionConfig): Promise<PermissionDataContext> {
+export async function createDataContext(connConfig: ConnectionConfig): Promise<UserDataContext> {
     let connectionManager = getConnectionManager();
     if (connectionManager.has(connConfig.database) == false) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
@@ -68,11 +68,11 @@ export async function createDataContext(connConfig: ConnectionConfig): Promise<P
 
 
     let connection = getConnection(connConfig.database);
-    let dc = new PermissionDataContext(connection.manager);
+    let dc = new UserDataContext(connection.manager);
     return dc
 }
 
-export let permissionDataContext = createParameterDecorator<PermissionDataContext>(
+export let permissionDataContext = createParameterDecorator<UserDataContext>(
     async () => {
         console.assert(settings.db != null);
         let dc = await createDataContext(settings.db);
@@ -111,7 +111,7 @@ export async function initDatabase(db: ConnectionConfig) {
     await initUserTable(dc);
 }
 
-async function initUserTable(dc: PermissionDataContext) {
+async function initUserTable(dc: UserDataContext) {
     let admin: User = {
         id: userIds.admin,
         mobile: adminMobile,

@@ -88,5 +88,5 @@ let permissionStationSettings: PermissionSettings = {
 
 start({
     gatewaySettings: gatewayStationSettings,
-    permissionSettings: permissionStationSettings,
+    userSettings: permissionStationSettings,
 })

@@ -1,6 +1,6 @@
 import { errors } from '../errors';
 import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
-import { PermissionDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
+import { UserDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
 import { User } from '../entities';
 import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
@@ -15,7 +15,7 @@ export default class UserController {
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister(@permissionDataContext dc: PermissionDataContext, @routeData { mobile }): Promise<boolean> {
+    async isMobileRegister(@permissionDataContext dc: UserDataContext, @routeData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -24,7 +24,7 @@ export default class UserController {
     }
 
     @action()
-    async isUserNameRegister(@permissionDataContext dc: PermissionDataContext, @routeData { user_name }): Promise<boolean> {
+    async isUserNameRegister(@permissionDataContext dc: UserDataContext, @routeData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -34,7 +34,7 @@ export default class UserController {
     }
 
     @action()
-    async isEmailRegister(@permissionDataContext dc: PermissionDataContext, @routeData { email }): Promise<boolean> {
+    async isEmailRegister(@permissionDataContext dc: UserDataContext, @routeData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -43,7 +43,7 @@ export default class UserController {
     }
 
     @action()
-    async register(@permissionDataContext dc: PermissionDataContext,
+    async register(@permissionDataContext dc: UserDataContext,
         @routeData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -80,7 +80,7 @@ export default class UserController {
     }
 
     @action()
-    async resetPassword(@permissionDataContext dc: PermissionDataContext, @routeData { mobile, password, smsId, verifyCode }) {
+    async resetPassword(@permissionDataContext dc: UserDataContext, @routeData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -105,7 +105,7 @@ export default class UserController {
     }
 
     @action()
-    async resetMobile(@permissionDataContext dc: PermissionDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
+    async resetMobile(@permissionDataContext dc: UserDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
         if (!userId)
             throw errors.userIdNull();
 
@@ -132,7 +132,7 @@ export default class UserController {
         return { id: userId };
     }
 
-    async loginByUserName(dc: PermissionDataContext, { username, password }): Promise<LoginResult> {
+    async loginByUserName(dc: UserDataContext, { username, password }): Promise<LoginResult> {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -175,7 +175,7 @@ export default class UserController {
         return r;
     }
 
-    private async loginByOpenId<T extends { openid }>(dc: PermissionDataContext, args: T): Promise<LoginResult> {
+    private async loginByOpenId<T extends { openid }>(dc: UserDataContext, args: T): Promise<LoginResult> {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
 
@@ -194,7 +194,7 @@ export default class UserController {
         return r;
     }
 
-    private async loginByVerifyCode(@permissionDataContext dc: PermissionDataContext,
+    private async loginByVerifyCode(@permissionDataContext dc: UserDataContext,
         @routeData args: { mobile: string, smsId: string, verifyCode: string }): Promise<LoginResult> {
 
         let { mobile, smsId, verifyCode } = args
@@ -212,7 +212,7 @@ export default class UserController {
     }
 
     @action()
-    async login(@permissionDataContext dc: PermissionDataContext, @routeData args: any) {
+    async login(@permissionDataContext dc: UserDataContext, @routeData args: any) {
         args = args || {}
 
         let p: LoginResult;
@@ -258,7 +258,7 @@ export default class UserController {
 
     /** 获取用户信息 */
     @action()
-    async item(@permissionDataContext dc: PermissionDataContext, @routeData { userId }: { userId: string }) {
+    async item(@permissionDataContext dc: UserDataContext, @routeData { userId }: { userId: string }) {
         if (!userId) throw errors.userIdNull();
 
         let user = await dc.users.findOne(userId);
@@ -266,7 +266,7 @@ export default class UserController {
     }
 
     @action()
-    async list(@permissionDataContext dc: PermissionDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+    async list(@permissionDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
         // let users = await dc.users.find();
         // return users;
         let r = DataHelper.list(dc.users, { selectArguments: d.args });
@@ -275,7 +275,7 @@ export default class UserController {
 
     /** 添加用户 */
     @action()
-    async add(@permissionDataContext dc: PermissionDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
+    async add(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
         if (item.mobile) {
             let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
             if (isMobileRegister)
@@ -302,14 +302,14 @@ export default class UserController {
     }
 
     @action()
-    async remove(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
+    async remove(@permissionDataContext dc: UserDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull("id", "routeData");
         await dc.users.delete(id);
         return { id };
     }
 
     @action()
-    async update(@permissionDataContext dc: PermissionDataContext, @routeData { user }: { user: User }) {
+    async update(@permissionDataContext dc: UserDataContext, @routeData { user }: { user: User }) {
         if (!user) throw errors.argumentNull('user');
         if (!user.id) throw errors.argumentFieldNull("id", "user");
 
@@ -325,7 +325,7 @@ export default class UserController {
     }
 
     @action()
-    async userLatestLogin(@permissionDataContext dc: PermissionDataContext, @routeData { userIds }: { userIds: string[] }) {
+    async userLatestLogin(@permissionDataContext dc: UserDataContext, @routeData { userIds }: { userIds: string[] }) {
         let items = await dc.userLatestLogins.createQueryBuilder()
             .where(" id in (...:userIds)")
             .setParameter("userIds", userIds)

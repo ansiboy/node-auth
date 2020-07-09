@@ -1,7 +1,7 @@
 import * as QcloudSms from 'qcloudsms_js'
 import { errors } from '../errors';
 import { controller, action, routeData } from 'maishu-node-mvc';
-import { PermissionDataContext, permissionDataContext } from '../data-context';
+import { UserDataContext, permissionDataContext } from '../data-context';
 import { settings } from '../global';
 import { guid } from 'maishu-toolkit';
 
@@ -16,7 +16,7 @@ interface SMSRecord {
 @controller('sms')
 export default class SMSController {
     @action()
-    async sendVerifyCode(@permissionDataContext dc: PermissionDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    async sendVerifyCode(@permissionDataContext dc: UserDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
@@ -48,7 +48,7 @@ export default class SMSController {
     }
 
     @action()
-    async checkVerifyCode(@permissionDataContext dc: PermissionDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
+    async checkVerifyCode(@permissionDataContext dc: UserDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
         let smsRecord = await dc.smsRecords.findOne(smsId);
         if (smsRecord == null || smsRecord.code != verifyCode)
             return false;

@@ -1,7 +1,7 @@
 import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource } from "../entities";
-import { PermissionDataContext, permissionDataContext } from "../data-context";
+import { UserDataContext, permissionDataContext } from "../data-context";
 
 
 /** 资源控制器 */
@@ -9,7 +9,7 @@ import { PermissionDataContext, permissionDataContext } from "../data-context";
 export default class ResourceController {
 
     @action()
-    async update(@permissionDataContext dc: PermissionDataContext, @routeData { item }: { item: Resource }) {
+    async update(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
@@ -22,7 +22,7 @@ export default class ResourceController {
     }
 
     @action()
-    async remove(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
+    async remove(@permissionDataContext dc: UserDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull('id', "routeData");
 
         await dc.resources.delete(id);
@@ -31,13 +31,13 @@ export default class ResourceController {
 
 
     @action()
-    async list(@permissionDataContext dc: PermissionDataContext): Promise<Resource[]> {
+    async list(@permissionDataContext dc: UserDataContext): Promise<Resource[]> {
         let resources = await dc.resources.find();
         return resources;
     }
 
     @action()
-    async item(@permissionDataContext dc: PermissionDataContext, @routeData { id }) {
+    async item(@permissionDataContext dc: UserDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull("id", "routeData");
 
         let item = await dc.resources.findOne(id);
