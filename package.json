@@ -45,5 +45,6 @@
         "build": "grunt build",
         "start": "grunt start"
     },
+
     "version": "3.0.14"
 }
