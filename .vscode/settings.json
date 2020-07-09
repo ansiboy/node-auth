@@ -5,7 +5,7 @@
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "**/*.d.ts": true,
-        "**/*.map": true
+        "**/*.map": true,
+        "coverage": true
     }
 }

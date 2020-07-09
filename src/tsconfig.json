@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "sourceMap": false,
+        "declaration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "jsx": "react",
+        "baseUrl": "./",
+        "outDir": "../out",
+        "paths": {
+            "gateway-entities": [
+                "./gateway/entities.ts"
+            ],
+            "permission-entities": [
+                "./user/entities.ts"
+            ]
+        }
+    }
+}
