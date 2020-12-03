@@ -44,7 +44,7 @@ export default class UserController {
 
     @action()
     async register(@permissionDataContext dc: UserDataContext,
-        @routeData { mobile, password, smsId, verifyCode, data }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any }) {
+        @routeData { mobile, password, smsId, verifyCode, data, userName }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any, userName: string }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -64,7 +64,7 @@ export default class UserController {
             throw errors.verifyCodeIncorrect(verifyCode);
 
         let user: User = {
-            id: guid(), mobile, password, data,
+            id: guid(), mobile, password, data, user_name: userName,
             create_date_time: new Date(Date.now())
         }
 

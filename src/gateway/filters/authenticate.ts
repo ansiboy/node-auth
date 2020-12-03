@@ -1,7 +1,7 @@
 import http = require("http");
 import url = require("url");
 import querystring = require('querystring');
-import { ActionResult, ContentResult, getLogger } from 'maishu-node-mvc';
+import { ContentResult, getLogger, ActionResult, RequestProcessor } from 'maishu-node-mvc';
 import { errors } from "../errors";
 import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, constants, roleIds } from "../global";
@@ -15,7 +15,7 @@ import { Role } from "../entities";
  * 检查路径是否允许访问
  */
 export async function authenticate(req: http.IncomingMessage, res: http.ServerResponse,
-    permissions: PermissionConfig): Promise<ActionResult> {
+    permissions: PermissionConfig): Promise<RequestProcessor> {
 
     let logger = getLogger(g.projectName, g.settings.logLevel);
 

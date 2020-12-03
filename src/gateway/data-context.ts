@@ -1,12 +1,11 @@
 import "reflect-metadata";
-import { ConnectionConfig } from "mysql";
-import { EntityManager, Repository } from "maishu-node-data";
+// import { ConnectionConfig } from "mysql";
+import { EntityManager, Repository, DataContext, DataHelper, ConnectionOptions } from "maishu-node-data";
 import path = require("path");
 import { TokenData, Role, UserRole, MenuItemRecord } from "./entities";
 import { createParameterDecorator } from "maishu-node-mvc";
 import { g, roleIds, userIds } from "./global";
 import { getTokenData } from "./filters/authenticate";
-import { DataContext, DataHelper } from "maishu-node-data";
 
 export interface SelectArguments {
     startRowIndex?: number;
@@ -39,7 +38,7 @@ export class AuthDataContext extends DataContext {
     }
 }
 
-export async function createDataContext(connConfig: ConnectionConfig): Promise<AuthDataContext> {
+export async function createDataContext(connConfig: ConnectionOptions): Promise<AuthDataContext> {
     return DataHelper.createDataContext(AuthDataContext, connConfig);
 }
 
@@ -51,7 +50,7 @@ export let authDataContext = createParameterDecorator<AuthDataContext>(
     }
 )
 
-export async function initDatabase(connConfig: ConnectionConfig) {
+export async function initDatabase(connConfig: ConnectionOptions) {
     let dc = await createDataContext(connConfig);
 
     let adminRole: Role = {
@@ -89,7 +88,8 @@ export async function initDatabase(connConfig: ConnectionConfig) {
     await dc.userRoles.save(userRole);
 }
 
-export let currentUserId = createParameterDecorator(async (req, res) => {
+export let currentUserId = createParameterDecorator(async (context) => {
+    let { req, res } = context;
     let tokenData = await getTokenData(req, res);
     if (!tokenData) {
         tokenData = await getTokenData(req, res);

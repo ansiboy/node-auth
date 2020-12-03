@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, Connection, getConnection, ConnectionOptions, getConnectionManager } from "maishu-node-data";
+import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager } from "maishu-node-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "./entities";
-import { ConnectionConfig, Connection as DBConnection } from "mysql";
+import { ConnectionConfig } from "mysql";
 import path = require("path");
 import { createParameterDecorator } from "maishu-node-mvc";
-import { settings, roleIds } from "./global";
+import { settings } from "./global";
 import { errors } from "./errors";
 import { tokenDataHeaderNames, userIds } from "../gateway";
 import { adminMobile, adminPassword } from "./website-config";
@@ -44,30 +44,51 @@ export class UserDataContext extends DataContext {
 }
 
 
-export async function createDataContext(connConfig: ConnectionConfig): Promise<UserDataContext> {
+export async function createDataContext(connConfig: ConnectionOptions): Promise<UserDataContext> {
     let connectionManager = getConnectionManager();
-    if (connectionManager.has(connConfig.database) == false) {
+    if (!connConfig.database)
+        throw errors.connectionOptionFieldNull("database");
+    if (!connConfig.type)
+        throw errors.connectionOptionFieldNull("type");
+
+    let databaseName: string = typeof connConfig.database == "string" ? connConfig.database : connConfig.database.toString();
+    if (connectionManager.has(databaseName) == false) {
         let entities: string[] = [path.join(__dirname, "entities.js")]
-        let dbOptions: ConnectionOptions = {
-            type: "mysql",
-            host: connConfig.host,
-            port: connConfig.port,
-            username: connConfig.user,
-            password: connConfig.password,
-            database: connConfig.database,
-            charset: connConfig.charset,
+        let dbOptions: ConnectionOptions = Object.assign({
+            // type: "mysql",
+            // host: connConfig.host,
+            // port: connConfig.port,
+            // username: connConfig.user,
+            // password: connConfig.password,
+            database: databaseName,
+            charset: "utf8",
             synchronize: true,
             logging: false,
             connectTimeout: 3000,
             entities,
-            name: connConfig.database
-        }
+            name: databaseName
+        }, connConfig);
+
+        // let dbOptions: ConnectionOptions = {
+        //     // host: connConfig.host,
+        //     // port: connConfig.port,
+        //     // username: connConfig.user,
+        //     // password: connConfig.password,
+        //     database: connConfig.database,
+        //     // charset: connConfig.charset,
+        //     synchronize: true,
+        //     logging: false,
+        //     // connectTimeout: 3000,
+        //     entities,
+        //     name: databaseName
+        // }
+
 
         await createConnection(dbOptions);
     }
 
 
-    let connection = getConnection(connConfig.database);
+    let connection = getConnection(databaseName);
     let dc = new UserDataContext(connection.manager);
     return dc
 }
@@ -82,8 +103,8 @@ export let permissionDataContext = createParameterDecorator<UserDataContext>(
     }
 )
 
-export let currentUser = createParameterDecorator(async (req, res) => {
-    let userId = req.headers[tokenDataHeaderNames.userId] as string;
+export let currentUser = createParameterDecorator(async (context) => {
+    let userId = context.req.headers[tokenDataHeaderNames.userId] as string;
     if (!userId)
         return null;
 
@@ -96,8 +117,9 @@ export let currentUser = createParameterDecorator(async (req, res) => {
     return user;
 })
 
-export let currentUserId = createParameterDecorator(async (req, res) => {
-    let userId = req.headers[tokenDataHeaderNames.userId];
+export let currentUserId = createParameterDecorator(async (context) => {
+
+    let userId = context.req.headers[tokenDataHeaderNames.userId];
 
     if (userId == null)
         throw errors.canntGetUserIdFromHeader();
@@ -105,7 +127,7 @@ export let currentUserId = createParameterDecorator(async (req, res) => {
     return userId;
 })
 
-export async function initDatabase(db: ConnectionConfig) {
+export async function initDatabase(db: ConnectionOptions) {
     if (!db) throw errors.argumentNull("db");
     let dc = await createDataContext(db);
     await initUserTable(dc);

@@ -1,5 +1,6 @@
 import { statusCodes as myStatusCodes } from "./status-codes";
 import { statusCodes } from "../gateway";
+import { ConnectionOptions } from "maishu-node-data";
 
 export let errors = {
     argumentNull(argumentName: string): Error {
@@ -76,4 +77,10 @@ export let errors = {
         error.name = `${myStatusCodes.usernameExists} ${errors.emailExists.name}`;
         return error;
     },
+    connectionOptionFieldNull(member: keyof ConnectionOptions): Error {
+        let msg = `Connection options '${member}' field is null or empty.`;
+        let error = new Error(msg);
+        error.name = errors.connectionOptionFieldNull.name;
+        return error;
+    }
 }

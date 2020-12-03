@@ -2,24 +2,48 @@ import { Settings as GatewaySettings, roleIds } from "./gateway";
 import { Settings as PermissionSettings } from "./user";
 import { start } from "./index";
 import path = require("path");
-
+import { ConnectionOptions } from "maishu-node-data";
+import config from "./config";
 //===========================================
 // 目标主机，服务所在的主机
 const target_host = '127.0.0.1';
 const gatewayPort = 2857;
 const gateway = `127.0.0.1:${gatewayPort}`;
 const permissionStationPort = gatewayPort + 100;
-const portalStationPort = gatewayPort + 200;
+
+// const gatewayDB: ConnectionOptions = {
+//     type: "mysql",
+//     username: "root",
+//     password: "81263",
+//     database: "node_auth_gateway",
+//     host: "localhost",
+//     port: 3306
+// };
+
+// const permissionDB: ConnectionOptions = {
+//     type: "mysql",
+//     username: "root",
+//     password: "81263",
+//     database: "node_auth_permission",
+//     host: "localhost",
+//     port: 3306
+// }
+
+// const gatewayDB: ConnectionOptions = {
+//     type: "sqlite",
+//     database: "node_auth_gateway.db",
+// };
+
+// const permissionDB: ConnectionOptions = {
+//     type: "sqlite",
+//     database: "node_auth_permission.db",
+// }
+
+
 //===========================================
 let gatewayStationSettings: GatewaySettings = {
     port: gatewayPort,
-    db: {
-        user: "root",
-        password: "81263",
-        database: "node_auth_gateway",
-        host: "localhost",
-        port: 3306
-    },
+    db: config.db.gateway,
     logLevel: "all",
     proxy: {
         '/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
@@ -35,7 +59,7 @@ let gatewayStationSettings: GatewaySettings = {
         '/UserWeiXin/(\\S+)': `http://${target_host}:9030/User/$1`,
         '/UserAccount/(\\S+)': `http://${target_host}:9035/User/$1`,
         "^/Images/Editor/(\\S+)": "http://web.alinq.cn/store2/Images/Editor/$1",
-        "/image/(\\S*)": `http://127.0.0.1:48628/$1`
+        "/image/(\\S*)": `http://127.0.0.1:48628/$1`,
     },
     headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -64,6 +88,8 @@ let gatewayStationSettings: GatewaySettings = {
 
         "/AdminMember/*": { roleIds: [roleIds.anonymous] },
         "/UserMember/*": { roleIds: [roleIds.anonymous] },
+        "/websiteConfig": { roleIds: [roleIds.anonymous] },
+        "/clientFiles": { roleIds: [roleIds.anonymous] }
     },
     virtualPaths: {
         "node_modules": path.join(__dirname, "../node_modules")
@@ -73,13 +99,7 @@ let gatewayStationSettings: GatewaySettings = {
 let permissionStationSettings: PermissionSettings = {
     port: permissionStationPort,
     gateway,
-    db: {
-        user: "root",
-        password: "81263",
-        database: "node_auth_permission",
-        host: "localhost",
-        port: 3306
-    },
+    db: config.db.permission,
     virtualPaths: {
         "node_modules": path.join(__dirname, "../node_modules")
     }

@@ -15,7 +15,7 @@ function modifyVersion() {
 
 module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
-    let config = require("./config.json");
+    // let config = require("./config.json");
     
     grunt.initConfig({
         shell: {
@@ -23,14 +23,14 @@ module.exports = function (grunt) {
                 command: "tsc -p src"
             }
         },
-        open: {
-            browser: {
-                path: `http://127.0.0.1:${config.port}/portal/#login`,
-                app: 'Google Chrome'
-            }
-        }
+        // open: {
+        //     browser: {
+        //         path: `http://127.0.0.1:${config.port}/portal/#login`,
+        //         app: 'Google Chrome'
+        //     }
+        // }
     });
 
     grunt.registerTask("build", ["shell"]);
-    grunt.registerTask("start", ["open"])
+    // grunt.registerTask("start", ["open"])
 }

@@ -13,9 +13,8 @@ let websiteConfig: WebsiteConfig = {
                 { id: "GC10D377-40F9-4EFD-8F9C-147F486104EF", name: "令牌管理", icon: "icon-magic", path: "#token-list", roleIds: [roleIds.admin] },
             ]
         },
-        { id: "49927614-2DB0-4CB5-9720-BD96DDE32469", name: "站点", icon: "icon-lock", path: "#station-list", roleIds: [roleIds.admin], sortNumber: 1000 }
+        { id: "49927614-2DB0-4CB5-9720-BD96DDE32469", name: "站点", icon: " icon-laptop", path: "#station-list", roleIds: [roleIds.admin], sortNumber: 1000 }
     ]
 }
-
 
 export default websiteConfig;

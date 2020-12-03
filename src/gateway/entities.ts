@@ -1,11 +1,12 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-node-data";
+import { JSONTransformer } from "../user/entities";
 import { createDataContext } from "./data-context";
 import { g } from "./global";
 
 
 @Entity("token_data")
 export class TokenData {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ name: "user_id", type: "varchar", length: 50 })
@@ -22,7 +23,7 @@ export class TokenData {
 @Entity("role")
 export class Role {
 
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 45 })
@@ -31,13 +32,13 @@ export class Role {
     @Column({ type: "varchar", length: 200, nullable: true })
     remark?: string;
 
-    @Column({ type: "json", nullable: true, })
+    @Column({ type: "text", nullable: true, transformer: new JSONTransformer() })
     data?: any;
 
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @Column({ type: "char", length: 36, nullable: true })
+    @Column({ type: "varchar", length: 36, nullable: true })
     parent_id?: string;
 
     @OneToMany(() => UserRole, userRole => userRole.role)
@@ -58,10 +59,10 @@ export class Role {
 
 @Entity("user_role")
 export class UserRole {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     user_id: string;
 
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     role_id: string;
 
     @ManyToOne(() => Role, role => role.userRoles)
@@ -71,7 +72,7 @@ export class UserRole {
 
 @Entity("menu_item_record")
 export class MenuItemRecord {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 300, name: "role_ids" })

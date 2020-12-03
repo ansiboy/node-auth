@@ -7,5 +7,27 @@
         "**/.DS_Store": true,
         "**/*.map": true,
         "coverage": true
-    }
+    },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:node-auth}/node_auth_permission",
+            "name": "node_auth_permission"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "askForPassword": true,
+            "driver": "MySQL",
+            "name": "localhost",
+            "database": "node_auth_gateway",
+            "username": "root"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
 }

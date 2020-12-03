@@ -21,6 +21,21 @@ class BitBooleanTransformer implements ValueTransformer {
     }
 }
 
+export class JSONTransformer implements ValueTransformer {
+    // To db from typeorm
+    to(value: object): string | null {
+        let res = JSON.stringify(value);
+        return res;
+    }
+    // From db to typeorm
+    from(value: string): Object | null {
+        let obj = JSON.parse(value);
+        return obj;
+    }
+}
+
+
+
 interface Model {
     id: string;
     create_date_time: Date;
@@ -61,7 +76,7 @@ interface Model {
 
 @Entity("category")
 export class Category implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 45 })
@@ -89,7 +104,7 @@ export class Category implements Model {
 
 @Entity("resource")
 export class Resource implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     // @Column({ type: "char", length: 36, nullable: true })
@@ -110,7 +125,7 @@ export class Resource implements Model {
 
 @Entity("user")
 export class User implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 45, nullable: true })
@@ -128,13 +143,13 @@ export class User implements Model {
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @Column({ type: "json", nullable: true })
-    data?: object;
+    @Column({ type: "text", nullable: true, transformer: new JSONTransformer() })
+    data?: any;
 
     @Column({ type: "varchar", length: 45, nullable: true })
     openid?: string;
 
-    @Column({ type: "bit", nullable: true, transformer: new BitBooleanTransformer() })
+    @Column({ nullable: true, transformer: new BitBooleanTransformer() })
     is_system?: boolean;
 
     // @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
@@ -157,7 +172,7 @@ export class User implements Model {
 
 @Entity("user-latest-login")
 export class UserLatestLogin implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "datetime" })
@@ -169,7 +184,7 @@ export class UserLatestLogin implements Model {
 
 @Entity("sms_record")
 export class SMSRecord implements Model {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 45 })
@@ -196,16 +211,16 @@ export class SMSRecord implements Model {
 
 @Entity("resource_path", { synchronize: false })
 export class ResourcePath {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     resource_id: string;
 
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     path_id: string;
 }
 
 @Entity("resource_category")
 export class ResourceCategory {
-    @PrimaryColumn({ type: "char", length: 36 })
+    @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
     @Column({ type: "varchar", length: 40 })

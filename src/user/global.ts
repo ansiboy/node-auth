@@ -9,7 +9,7 @@ export let stationPath = "/user/";
 
 
 let settingsExt = {
-    mobile: '18502146746',
+    // mobile: '18502146746',
     sendMessage: true,
     verifyCodeText: {
         default: '【百伦美】您的验证码是{0}',
