@@ -3,7 +3,7 @@ import http = require("http");
 import { getLogger } from "maishu-node-mvc";
 import { g } from "./global";
 import { StationController } from "./controllers/station";
-import { StationInfo } from "./types";
+import { Station } from "./types";
 
 export let socketMessages = {
     registerStation: "registerStation"
@@ -20,7 +20,7 @@ export function startSocketServer(server: http.Server) {
         logger.info("A client connected.");
         socket.on(socketMessages.registerStation, (data: string) => {
             logger.info(`Register station data:`, data);
-            let stationInfo: StationInfo = JSON.parse(data);
+            let stationInfo: Station = JSON.parse(data);
             let ctrl = new StationController();
             ctrl.register(stationInfo);
         })

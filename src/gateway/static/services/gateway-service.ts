@@ -4,6 +4,7 @@ import websiteConfig = require("json!websiteConfig");
 import { WebsiteConfig } from "maishu-chitu-admin/static";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
 import { Resource } from "permission-entities";
+import { Station } from "gateway-entities";
 
 export class GatewayService extends Service {
 
@@ -25,10 +26,22 @@ export class GatewayService extends Service {
 
     async stationList() {
         let url = this.url("station/list");
-        let r = await this.get<{ path: string }[]>(url);
+        let r = await this.get<Station[]>(url);
         return r;
     }
 
+    async addStation(item: Station) {
+        let url = this.url("station/add");
+        let r = await this.postByJson(url, { item });
+        Object.assign(item, r);
+        return item;
+    }
+
+    async removeStation(id: string) {
+        let url = this.url("station/remove");
+        let r = await this.postByJson(url, { id });
+        return r;
+    }
     myRoles() {
         let url = this.url("user/myRoles");
         return this.get<Role[]>(url);

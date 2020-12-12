@@ -1,7 +1,6 @@
 import { errors } from './errors';
 import * as mysql from 'mysql';
 import * as cache from 'memory-cache';
-import { createDataContext } from './data-context';
 import { TokenData } from './entities';
 import { IncomingMessage } from "http";
 import Cookies = require("maishu-cookies");
@@ -9,6 +8,8 @@ import * as url from "url";
 import { g, guid } from './global';
 import querystring = require('querystring');
 import { getLogger } from "maishu-node-mvc";
+import { DataHelper } from 'maishu-node-data';
+import { AuthDataContext } from './data-context/index';
 
 
 type MyTokenData = TokenData & { cacheDateTime?: number };
@@ -28,7 +29,7 @@ export class TokenManager {
         token.create_date_time = new Date(Date.now());
 
         console.assert(g.settings.db != null);
-        let dc = await createDataContext(g.settings.db);
+        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
         await dc.tokenDatas.save(token);
         return token;
     }
@@ -46,7 +47,7 @@ export class TokenManager {
         let tokenData: MyTokenData = cache.get(token);
 
         if (tokenData == null) {
-            let dc = await createDataContext(g.settings.db);
+            let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
             let tokenData = await dc.tokenDatas.findOne(token) as MyTokenData;
             if (tokenData != null) {
                 tokenData.cacheDateTime = Date.now();
@@ -59,7 +60,7 @@ export class TokenManager {
 
     static async remove(id: string) {
         console.assert(g.settings.db != null);
-        let dc = await createDataContext(g.settings.db);
+        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
         cache.del(id);
         await dc.tokenDatas.delete({ id });
     }

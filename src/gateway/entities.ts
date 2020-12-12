@@ -1,6 +1,6 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn } from "maishu-node-data";
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper } from "maishu-node-data";
 import { JSONTransformer } from "../user/entities";
-import { createDataContext } from "./data-context";
+import { AuthDataContext } from "./data-context/index";
 import { g } from "./global";
 
 
@@ -51,7 +51,7 @@ export class Role {
      */
     static async getUserRoleIds(userId: string): Promise<string[]> {
         //TODO: 缓存 roleids
-        let dc = await createDataContext(g.settings.db);
+        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
         let userRoles = await dc.userRoles.find({ user_id: userId });
         return userRoles.map(o => o.role_id);
     }
@@ -75,10 +75,41 @@ export class MenuItemRecord {
     @PrimaryColumn({ type: "varchar", length: 36 })
     id: string;
 
-    @Column({ type: "varchar", length: 300, name: "role_ids" })
-    roleIds: string;
+    @Column({
+        type: "varchar", length: 300, name: "role_ids",
+        transformer: {
+            from: (value: string) => {
+                if (!value) return [];
+                return value.split(",");
+            },
+            to: (value: string[]) => {
+                if (value == null || value.length == 0)
+                    return null;
+
+                return value.join(",");
+            }
+        }
+    })
+    roleIds: string[];
 
     @Column({ type: "datetime", name: "create_date_time" })
     createDateTime: Date;
 }
+
+@Entity("station-info")
+export class Station {
+
+    @PrimaryColumn({ length: 36 })
+    id: string;
+
+    @Column({ length: 100 })
+    path: string;
+
+    @Column({ length: 50 })
+    ip: string;
+
+    @Column({})
+    port: number;
+}
+
 

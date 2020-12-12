@@ -1,5 +1,6 @@
 import { controller, action, routeData } from "maishu-node-mvc";
-import { UserDataContext, permissionDataContext } from "../data-context";
+import { UserDataContext } from "../data-context";
+import { permissionDataContext } from "../decorators";
 
 /** 记录用户最后登录 */
 @controller("latest-login")

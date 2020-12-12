@@ -1,5 +1,6 @@
 import { controller, action, routeData } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext } from "../data-context";
+import { AuthDataContext } from "../data-context";
+import { authDataContext } from "../decorators";
 import { Role } from "../entities";
 import { errors } from "../errors";
 import { guid } from 'maishu-toolkit';

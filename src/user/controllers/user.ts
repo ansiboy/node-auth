@@ -1,6 +1,7 @@
 import { errors } from '../errors';
 import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
-import { UserDataContext, permissionDataContext, currentUserId, currentUser } from '../data-context';
+import { UserDataContext } from '../data-context';
+import { permissionDataContext, currentUserId, currentUser } from "../decorators";
 import { User } from '../entities';
 import SMSController from './sms';
 import { guid } from 'maishu-toolkit';

@@ -1,8 +1,9 @@
 import { controller, routeData, action } from "maishu-node-mvc";
 import { constants } from "../global";
-import { AuthDataContext, authDataContext, SelectArguments } from "../data-context";
+import { AuthDataContext } from "../data-context";
 import { errors } from "../errors";
-import { DataHelper } from "maishu-node-data";
+import { DataHelper, SelectArguments } from "maishu-node-data";
+import { authDataContext } from "../decorators";
 
 @controller(`/${constants.controllerPathRoot}/token`)
 export class TokenController {

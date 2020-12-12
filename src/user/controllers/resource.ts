@@ -1,8 +1,8 @@
 import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource } from "../entities";
-import { UserDataContext, permissionDataContext } from "../data-context";
-
+import { UserDataContext } from "../data-context";
+import { permissionDataContext } from "../decorators";
 
 /** 资源控制器 */
 @controller("resource")

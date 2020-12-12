@@ -1,7 +1,8 @@
 import * as QcloudSms from 'qcloudsms_js'
 import { errors } from '../errors';
 import { controller, action, routeData } from 'maishu-node-mvc';
-import { UserDataContext, permissionDataContext } from '../data-context';
+import { UserDataContext, } from '../data-context';
+import { permissionDataContext } from "../decorators";
 import { settings } from '../global';
 import { guid } from 'maishu-toolkit';
 

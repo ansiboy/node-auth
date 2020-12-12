@@ -3,6 +3,8 @@ import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
 import { WebsiteConfig } from "maishu-chitu-admin";
 import { ConnectionOptions } from "maishu-node-data";
 export { SimpleMenuItem, WebsiteConfig } from "maishu-chitu-admin";
+export { Station } from "./entities";
+
 export interface RequireConfig {
 
 }
@@ -17,11 +19,6 @@ export interface PermissionConfig {
     [path: string]: PermissionConfigItem;
 }
 
-export interface StationInfo {
-    path: string;
-    ip: string;
-    port: number;
-}
 export interface Settings {
     websiteConfig?: WebsiteConfig;
     port?: number,

@@ -1,4 +1,5 @@
 import { ConnectionOptions } from "maishu-node-data";
+import * as path from "path";
 
 interface Config {
     db: {
@@ -31,11 +32,11 @@ let mysqlDB: Config["db"] = {
 let sqliteDB: Config["db"] = {
     permission: {
         type: "sqlite",
-        database: "node_auth_permission.db",
+        database: path.join(__dirname, "../db/node_auth_permission.db"),
     },
     gateway: {
         type: "sqlite",
-        database: "node_auth_gateway.db",
+        database: path.join(__dirname, "../db/node_auth_gateway.db"),
     }
 }
 

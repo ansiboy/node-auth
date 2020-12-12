@@ -1,7 +1,7 @@
 import { DataSource } from "maishu-wuzhui-helper"
 import { WebsiteConfig } from "maishu-chitu-admin";
 import { GatewayService } from "./gateway-service";
-import { Role, TokenData } from "gateway-entities";
+import { Role, TokenData, Station } from "gateway-entities";
 
 export type MenuItem = WebsiteConfig["menuItems"][0] & {
     parent?: MenuItem,
@@ -47,6 +47,9 @@ let resourceDataSource = new DataSource<MenuItem>({
     },
     update: async (item) => {
 
+    },
+    insert: async () => {
+
     }
 })
 
@@ -75,15 +78,19 @@ let tokenDataSource = new DataSource<TokenData>({
     }
 })
 
-export interface Station {
-    path: string
-}
-
 let stationDataSource = new DataSource<Station>({
-    primaryKeys: ["path"],
+    primaryKeys: ["id"],
     select: async (args) => {
         let r = await gatewayService.stationList();
         return { dataItems: r, totalRowCount: r.length };
+    },
+    insert: async (item) => {
+        let r = await gatewayService.addStation(item);
+        return item;
+    },
+    delete: async (item) => {
+        let r = await gatewayService.removeStation(item.id);
+        return r;
     }
 })
 

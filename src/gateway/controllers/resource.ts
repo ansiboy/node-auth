@@ -4,17 +4,16 @@ import { WebsiteConfig } from "../types";
 import http = require("http");
 import url = require("url");
 import fetch from "node-fetch";
-import { getTokenData } from "../filters/authenticate";
 import { errors } from "../errors";
 import { Role } from "../entities";
-import { authDataContext, AuthDataContext } from "../data-context";
+import { AuthDataContext } from "../data-context";
 import websiteConfig from "../website-config";
-import { currentUserId } from "../data-context";
+import { authDataContext, currentUserId } from "../decorators";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
 @controller(`${constants.controllerPathRoot}/menuItem`)
-export class ResourceController {
+export class MenuController {
 
     /**
      * 获取菜单项列表
@@ -59,7 +58,7 @@ export class ResourceController {
                 continue;
             }
 
-            let roleIds = menuItemRecords[i].roleIds.split(",").filter(o => o);
+            let roleIds = menuItemRecords[i].roleIds;//.split(",").filter(o => o);
             for (let i = 0; i < roleIds.length; i++) {
                 if (item.roleIds.indexOf(roleIds[i]) < 0)
                     item.roleIds.push(roleIds[i]);
@@ -111,17 +110,21 @@ export class ResourceController {
         for (let i = 0; i < d.resourceIds.length; i++) {
             let menuItemRecord = await menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
             if (menuItemRecord == null) {
-                menuItemRecord = { id: d.resourceIds[i], roleIds: d.roleId, createDateTime: new Date() };
+                menuItemRecord = { id: d.resourceIds[i], roleIds: [d.roleId], createDateTime: new Date() };
                 menuItemRecords.push(menuItemRecord);
                 await dc.menuItemRecords.insert(menuItemRecord);
             }
             else if (menuItemRecord.roleIds.indexOf(d.roleId) < 0) {
-                menuItemRecord.roleIds = menuItemRecord.roleIds + "," + d.roleId;
+                menuItemRecord.roleIds.push(d.roleId) //= menuItemRecord.roleIds + "," + d.roleId;
                 await dc.menuItemRecords.save(menuItemRecord);
             }
         }
 
         return { id: d.roleId };
+    }
+
+    add(@routeData d: {}) {
+
     }
 
 

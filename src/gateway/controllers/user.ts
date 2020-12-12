@@ -1,6 +1,6 @@
 import { constants, g, TOKEN_NAME, userIds } from "../global";
 import { controller, action, request, response, getLogger, routeData } from "maishu-node-mvc";
-import { authDataContext, AuthDataContext, currentUserId } from "../data-context";
+import { AuthDataContext } from "../data-context/";
 import { errors } from "../errors";
 import http = require("http");
 import { getTokenData } from "../filters/authenticate";
@@ -8,6 +8,7 @@ import { TokenManager } from "../token";
 import Cookies = require("maishu-cookies");
 import { In } from "maishu-node-data";
 import { Role } from "gateway-entities";
+import { authDataContext, currentUserId } from "../decorators";
 
 @controller(`/${constants.controllerPathRoot}/user`)
 export default class UserController {
@@ -44,7 +45,7 @@ export default class UserController {
         if (!d.userIds) throw errors.argumentFieldNull("userIds", "d");
         if (d.userIds.length == 0)
             return {};
-            
+
         let userRoles = await dc.userRoles.find({ where: { user_id: In(d.userIds) } });
         let roleIds = userRoles.map(o => o.role_id).filter((item, index, arr) => arr.indexOf(item) == index);
         let roles = await dc.roles.findByIds(roleIds);

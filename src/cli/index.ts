@@ -2,16 +2,16 @@
 
 import * as yargs from "yargs";
 import * as inquirer from "inquirer";
-import { createDataContext } from "../user";
 import config from "../config";
 import { guid } from "maishu-toolkit";
 import { DataHelper } from "maishu-node-data";
-import { UserDataContext } from "../user/data-context";
-import { AuthDataContext, initDatabase } from "../gateway/data-context";
+import { UserDataContext } from "../user/data-context/data-context";
+import { AuthDataContext } from "../gateway/data-context/data-context";
+import { initDatabase } from "../gateway/data-context/init-database";
 import * as md5 from "js-md5";
 import { format } from "mysql";
 import { UserRole } from "../gateway/entities";
-import { roleIds } from "../gateway";
+import { roleIds } from "../gateway/global";
 
 const options = yargs
     .command("p", "设置管理员密码", () => { }, setAdminPassword)
