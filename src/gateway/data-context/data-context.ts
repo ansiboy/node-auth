@@ -1,10 +1,8 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext, DataHelper, ConnectionOptions } from "maishu-node-data";
+import { EntityManager, Repository, DataContext, DataHelper } from "maishu-node-data";
 import path = require("path");
 import { TokenData, Role, UserRole, MenuItemRecord, Station } from "../entities";
-import { createParameterDecorator } from "maishu-node-mvc";
-import { g, roleIds, userIds } from "../global";
-import { getTokenData } from "../filters/authenticate";
+import { g } from "../global";
 
 export class AuthDataContext extends DataContext {
 
@@ -14,7 +12,7 @@ export class AuthDataContext extends DataContext {
     menuItemRecords: Repository<MenuItemRecord>;
     stations: Repository<Station>;
 
-    static entitiesPath = path.join(__dirname, "entities.js");
+    static entitiesPath = path.join(__dirname, "../entities.js");
 
     constructor(entityManager: EntityManager) {
         super(entityManager);
@@ -24,5 +22,16 @@ export class AuthDataContext extends DataContext {
         this.userRoles = this.manager.getRepository(UserRole);
         this.menuItemRecords = this.manager.getRepository(MenuItemRecord);
         this.stations = this.manager.getRepository(Station);
+    }
+
+    /**
+     * 获取指定用户的角色 ID
+     * @param userId 指定的用户 ID
+     */
+    static async getUserRoleIds(userId: string): Promise<string[]> {
+        //TODO: 缓存 roleids
+        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
+        let userRoles = await dc.userRoles.find({ user_id: userId });
+        return userRoles.map(o => o.role_id);
     }
 }

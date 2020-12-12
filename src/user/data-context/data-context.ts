@@ -25,7 +25,7 @@ export class UserDataContext extends DataContext {
 
     baseModuleResourceId: string;
 
-    static entitiesPath = path.join(__dirname, "entities.js");
+    static entitiesPath = path.join(__dirname, "../entities.js");
 
     constructor(entityManager: EntityManager) {
         super(entityManager);

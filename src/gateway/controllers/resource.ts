@@ -5,10 +5,10 @@ import http = require("http");
 import url = require("url");
 import fetch from "node-fetch";
 import { errors } from "../errors";
-import { Role } from "../entities";
-import { AuthDataContext } from "../data-context";
+import { AuthDataContext } from "../data-context/data-context";
 import websiteConfig from "../website-config";
 import { authDataContext, currentUserId } from "../decorators";
+import { pathConcat } from "maishu-toolkit";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -26,7 +26,11 @@ export class MenuController {
 
         let u = url.parse(req.url);
         let protocol = u.protocol || "http:";
-        let websiteConfigUrls = stations.map(p => `${protocol}//${p.ip}:${p.port}/websiteConfig`)
+        let websiteConfigUrls = stations.map(p => {
+            let configPath = p.config || "websiteConfig";
+            let url = pathConcat(`${protocol}//${p.ip}:${p.port}/`, configPath);
+            return url;
+        });
 
         let logger = getLogger(constants.projectName, g.settings.logLevel);
         logger.info(websiteConfigUrls);
@@ -63,7 +67,6 @@ export class MenuController {
                 if (item.roleIds.indexOf(roleIds[i]) < 0)
                     item.roleIds.push(roleIds[i]);
 
-                // item.roleIds = menuItemRecords[i].roleIds ? menuItemRecords[i].roleIds.split(",").filter(o => o) : [];
             }
         }
 
@@ -94,7 +97,7 @@ export class MenuController {
         if (!currentUserId)
             throw errors.userNotLogin(req.url);
 
-        let userRoleIds = await Role.getUserRoleIds(currentUserId);
+        let userRoleIds = await AuthDataContext.getUserRoleIds(currentUserId);
         let menuItems = await this.list(req, dc);
         let result: typeof menuItems = filterMenuItems(menuItems, userRoleIds);
 
@@ -136,7 +139,10 @@ function getWebsiteConfig(req: http.IncomingMessage, url: string): Promise<Websi
             .then(r => r.json())
             .then(o => resolve(o))
             .catch(err => {
-                reject(err);
+                // reject(err);
+                debugger
+                console.info(err);
+                resolve({});
             });
     })
 }

@@ -7,6 +7,7 @@ import UrlPattern = require("url-pattern");
 import { StatusCode } from "../status-codes";
 import { Role } from "../entities";
 import { getTokenData } from "../filters/authenticate";
+import { AuthDataContext } from "../data-context";
 
 
 
@@ -28,7 +29,7 @@ export class AuthenticateRequestProcessor implements RequestProcessor {
         let tokenData = await getTokenData(args.req, args.res);
         if (tokenData) {
             userId = tokenData.user_id;
-            let ids = await Role.getUserRoleIds(userId);
+            let ids = await AuthDataContext.getUserRoleIds(userId);
             if (ids) {
                 userRoleIds.push(...ids);
             }

@@ -26,7 +26,7 @@ export default class RoleController {
     }
 
     @action()
-    async update(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Role }) {//id, name, remark
+    async update(@authDataContext dc: AuthDataContext, @routeData { item }: { item: Role }) {
 
         if (!item) throw errors.argumentFieldNull("item", "formData");
         if (!item.id) throw errors.argumentFieldNull("id", "item");

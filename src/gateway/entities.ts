@@ -1,8 +1,5 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper } from "maishu-node-data";
 import { JSONTransformer } from "../user/entities";
-import { AuthDataContext } from "./data-context/index";
-import { g } from "./global";
-
 
 @Entity("token_data")
 export class TokenData {
@@ -45,16 +42,7 @@ export class Role {
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
 
-    /**
-     * 获取指定用户的角色 ID
-     * @param userId 指定的用户 ID
-     */
-    static async getUserRoleIds(userId: string): Promise<string[]> {
-        //TODO: 缓存 roleids
-        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
-        let userRoles = await dc.userRoles.find({ user_id: userId });
-        return userRoles.map(o => o.role_id);
-    }
+
 }
 
 @Entity("user_role")
@@ -102,14 +90,21 @@ export class Station {
     @PrimaryColumn({ length: 36 })
     id: string;
 
+    /** 路径 */
     @Column({ length: 100 })
     path: string;
 
+    /** IP */
     @Column({ length: 50 })
     ip: string;
 
+    /** 端口 */
     @Column({})
     port: number;
+
+    /** 配置文件路径 */
+    @Column({ nullable: true, length: 50 })
+    config: string;
 }
 
 

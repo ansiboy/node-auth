@@ -1,9 +1,7 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext, DataHelper, ConnectionOptions } from "maishu-node-data";
-import path = require("path");
-import { TokenData, Role, UserRole, MenuItemRecord, Station } from "../entities";
-import { createParameterDecorator } from "maishu-node-mvc";
-import { g, roleIds, userIds } from "../global";
+import { DataHelper, ConnectionOptions } from "maishu-node-data";
+import { Role, UserRole } from "../entities";
+import { roleIds, userIds } from "../global";
 import { AuthDataContext } from "./data-context";
 
 export async function initDatabase(connConfig: ConnectionOptions) {

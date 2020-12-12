@@ -3,7 +3,7 @@ import { createParameterDecorator } from "maishu-node-mvc";
 import { settings } from "../global";
 import { errors } from "../errors";
 import { DataHelper } from "maishu-node-data";
-import { UserDataContext } from "user/data-context";
+import { UserDataContext } from "../data-context";
 
 export let currentUser = createParameterDecorator(async (context) => {
     let userId = context.req.headers[tokenDataHeaderNames.userId] as string;

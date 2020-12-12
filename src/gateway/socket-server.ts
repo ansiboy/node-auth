@@ -21,8 +21,7 @@ export function startSocketServer(server: http.Server) {
         socket.on(socketMessages.registerStation, (data: string) => {
             logger.info(`Register station data:`, data);
             let stationInfo: Station = JSON.parse(data);
-            let ctrl = new StationController();
-            ctrl.register(stationInfo);
+            StationController.register(stationInfo);
         })
     })
     io.on("reconnect", function (attempt) {

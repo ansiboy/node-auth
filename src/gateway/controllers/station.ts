@@ -2,7 +2,7 @@ import { controller, action, routeData, getLogger } from "maishu-node-mvc";
 import { Station as StationInfo } from "../types";
 import { g, constants } from "../global";
 import { errors } from "../errors";
-import { AuthDataContext } from "../../gateway/data-context";
+import { AuthDataContext } from "../data-context";
 import { guid } from "maishu-toolkit";
 import { demandCommand } from "yargs";
 import { authDataContext } from "../decorators";
@@ -20,7 +20,7 @@ export class StationController {
     }
 
     /** 注册站点 */
-    register(data: StationInfo) {
+    static register(data: StationInfo) {
 
         let logger = getLogger(g.projectName, g.settings.logLevel);
         logger.info("Register action of station controller execute.");

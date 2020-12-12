@@ -58,9 +58,4 @@ export default class UserController {
         }
         return r;
     }
-
-
-
-
-
 }

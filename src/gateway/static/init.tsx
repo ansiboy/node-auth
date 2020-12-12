@@ -5,6 +5,7 @@ import { RequireConfig } from "maishu-chitu-admin/static";
 import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "./services/gateway-service";
 import React = require("react");
+import { pathConcat } from "maishu-toolkit";
 
 
 type StationPageLoaders = { [path: string]: StationPageLoader };
@@ -118,19 +119,19 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
     console.assert(app["loadjs"] != null);
     app["loadjs"] = function (path: string) {
 
-        const modulesPath = "modules/";
-        console.assert(path.startsWith(modulesPath));
-        path = path.substr(modulesPath.length);
+        // const modulesPath = "modules/";
+        // console.assert(path.startsWith(modulesPath));
+        // path = path.substr(modulesPath.length);
 
         let contextName: string;
         let stationPath = getStationPath(path);
         if (stationPath) {
             let arr = path.split(":");
-            path = `${stationPath}${modulesPath}${arr[1]}`;
+            path = pathConcat(stationPath, arr[1]);//`${stationPath}${modulesPath}${arr[1]}`;
             contextName = stationPath;
         }
         else {
-            path = modulesPath + path;
+            // path = modulesPath + path;
             contextName = websiteConfig.requirejs.baseUrl;
         }
 
