@@ -107,8 +107,8 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
         }
 
         args = args || {};
-        let d = this.parseUrl(pageUrl)
-        let names = ['login', 'forget-password', 'register']
+        let d = this.parseUrl(pageUrl);
+        let names = ['modules/login', 'modules/forget-password', 'modules/register']
         if (names.indexOf(d.pageName) >= 0) {
             args.container = 'simple'
         }

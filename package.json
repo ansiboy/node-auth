@@ -3,6 +3,7 @@
         "@inquirer/password": "0.0.12-alpha.0",
         "@types/mocha": "^8.0.0",
         "@types/yargs": "^15.0.10",
+        "colors": "^1.4.0",
         "inquirer": "^7.3.3",
         "js-md5": "^0.7.3",
         "less": "^3.10.3",
@@ -31,6 +32,7 @@
         "yargs": "^16.1.1"
     },
     "devDependencies": {
+        "@types/inquirer": "^7.3.1",
         "@types/memory-cache": "^0.2.0",
         "@types/mysql": "^2.15.8",
         "@types/react": "^16.9.20",

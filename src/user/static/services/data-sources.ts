@@ -5,6 +5,8 @@ import { User, Resource, } from "permission-entities";
 import { TokenData, Role } from "gateway-entities";
 // import { GatewayService } from "./gateway-service";
 
+export type MyUser = User & { roleId?: string[] };
+
 let ps = new PermissionService((err) => {
     errorHandle(err)
 });
@@ -30,7 +32,7 @@ let ps = new PermissionService((err) => {
 //     }
 // })
 
-let userDataSource = new DataSource<User>({
+let userDataSource = new DataSource<MyUser>({
     primaryKeys: ["id"],
     select: async (args) => {
         let r = await ps.user.list(args);

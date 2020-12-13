@@ -3,7 +3,6 @@ import { PageProps } from "maishu-chitu-react";
 import { FormValidator, rules as r } from "maishu-dilu";
 import { buttonOnClick } from "maishu-ui-toolkit";
 import { PermissionService } from "../services/permission-service";
-import config = require("json!websiteConfig");
 
 interface Props extends PageProps {
     data: {
@@ -40,7 +39,7 @@ export default class LoginPage extends React.Component<Props, State> {
         let r = await service.login(username, password);
         let target = "index";//config.indexPage ||
         // this.props.app.redirect(target);
-        location.href = `?${Date.now()}#${target}`;
+        location.href = `?${Date.now()}#modules/${target}`;
     }
 
     componentDidMount() {
