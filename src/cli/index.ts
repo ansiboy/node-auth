@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 import * as yargs from "yargs";
-import config from "../config";
-import { DataHelper } from "maishu-node-data";
+import { DataHelper, ConnectionOptions } from "maishu-node-data";
 import { UserDataContext } from "../user/data-context";
 import { AuthDataContext } from "../gateway/data-context";
 import { initDatabase } from "../gateway/data-context/init-database";
@@ -11,6 +10,10 @@ import { UserRole } from "../gateway/entities";
 import { roleIds } from "../gateway/global";
 import * as inquirer from "inquirer";
 import * as colors from "colors";
+import { Config } from "../config";
+import { gateway } from "json!websiteConfig";
+import * as fs from "fs";
+import * as path from "path";
 
 const EMPTY_FUNC = () => { };
 const options = yargs
@@ -25,17 +28,57 @@ function main(args: typeof options) {
 
 }
 
+let config = getConfig();
+const configFilePath = path.join(__dirname, "../../config.json");
+
 async function setDatabasae() {
-    console.log("Database")
+    const dbTypes = {
+        sqlite: "sqlite",
+        mysql: "mysql"
+    }
+    let { dbType } = await inquirer.prompt({
+        type: "list", name: "dbType", message: "请选择数据库类型",
+        choices: [dbTypes.sqlite, dbTypes.mysql]
+    });
+
+    switch (dbType) {
+        case dbTypes.sqlite:
+            break;
+        case dbTypes.mysql:
+            let { host } = await inquirer.prompt({ type: "input", message: "请输入数据库地址", name: "host", default: "127.0.0.1" });
+            let { port } = await inquirer.prompt({ type: "input", message: "请输入端口", name: "port", default: "3306", });
+            let { username } = await inquirer.prompt({ type: "input", message: "请输入用户名", name: "username", default: "root" });
+            let { password } = await inquirer.prompt({ type: "input", message: "请输入密码", name: "password" });
+
+            config.db = {
+                gateway: { type: "mysql", host, port, username, password, database: "node_auth_gateway", debug: null },
+                permission: { type: "mysql", host, port, username, password, database: "node_auth_gateway", debug: null },
+            };
+
+            await initDatabase(config.db.gateway);
+
+            fs.writeFileSync(path.join(__dirname, "../../config.json"), JSON.stringify(config, null, "    "));
+
+            console.log(colors.green("创建数据库成功").bold);
+            break;
+    }
+}
+
+function getConfig(): Config {
+    if (fs.existsSync(configFilePath) == false)
+        return {} as Config;
+
+    let obj = JSON.parse(fs.readFileSync(configFilePath).toString());
+    return obj;
 }
 
 async function install() {
-    console.log("Install")
+    return setDatabasae().then(() => setAdmin());
 }
 
 
 
-async function setAdmin(args) {
+async function setAdmin() {
     const fields = { password: "登录密码", phone: "手机号码" };
     inquirer
         .prompt({

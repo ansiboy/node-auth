@@ -11,6 +11,5 @@ type Settings = {
 export async function start(settings: Settings) {
     let r1 = await startGateway(settings.gatewaySettings);
     let r2 = startUser(settings.userSettings);
-
     return { gateway: r1, user: r2 };
 }

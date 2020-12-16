@@ -1,5 +1,19 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper } from "maishu-node-data";
+import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper, ValueTransformer } from "maishu-node-data";
 import { JSONTransformer } from "../user/entities";
+
+class StringArrayTransformer implements ValueTransformer {
+
+    from(value: string) {
+        if (!value) return [];
+        return value.split(",");
+    }
+    to(value: string[]) {
+        if (value == null || value.length == 0)
+            return null;
+
+        return value.join(",");
+    }
+}
 
 @Entity("token_data")
 export class TokenData {
@@ -29,7 +43,7 @@ export class Role {
     @Column({ type: "varchar", length: 200, nullable: true })
     remark?: string;
 
-    @Column({ type: "text", nullable: true, transformer: new JSONTransformer() })
+    @Column({ type: "json", nullable: true, transformer: new JSONTransformer() })
     data?: any;
 
     @Column({ type: "datetime" })
@@ -41,8 +55,6 @@ export class Role {
     @OneToMany(() => UserRole, userRole => userRole.role)
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
-
-
 }
 
 @Entity("user_role")
@@ -65,18 +77,7 @@ export class MenuItemRecord {
 
     @Column({
         type: "varchar", length: 300, name: "role_ids",
-        transformer: {
-            from: (value: string) => {
-                if (!value) return [];
-                return value.split(",");
-            },
-            to: (value: string[]) => {
-                if (value == null || value.length == 0)
-                    return null;
-
-                return value.join(",");
-            }
-        }
+        transformer: new StringArrayTransformer()
     })
     roleIds: string[];
 
@@ -84,7 +85,7 @@ export class MenuItemRecord {
     createDateTime: Date;
 }
 
-@Entity("station-info")
+@Entity("station_info")
 export class Station {
 
     @PrimaryColumn({ length: 36 })
@@ -107,4 +108,17 @@ export class Station {
     config: string;
 }
 
+@Entity("file_permission")
+export class FilePermission {
+    @PrimaryColumn({ length: 36 })
+    id: string;
 
+    @Column({ length: 100 })
+    path: string;
+
+    @Column({ type: "varchar", length: 100, transformer: new StringArrayTransformer() })
+    role_ids: string[];
+
+    @Column({ type: "datetime" })
+    create_date_time: Date;
+}

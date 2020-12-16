@@ -1,0 +1,22 @@
+{
+    "db": {
+        "gateway": {
+            "type": "mysql",
+            "host": "127.0.0.1",
+            "port": "3306",
+            "username": "root",
+            "password": "81263",
+            "database": "node_auth_gateway",
+            "debug": null
+        },
+        "permission": {
+            "type": "mysql",
+            "host": "127.0.0.1",
+            "port": "3306",
+            "username": "root",
+            "password": "81263",
+            "database": "node_auth_gateway",
+            "debug": null
+        }
+    }
+}

@@ -5,7 +5,6 @@ import { RequireConfig } from "maishu-chitu-admin/static";
 import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "./services/gateway-service";
 import React = require("react");
-import { pathConcat } from "maishu-toolkit";
 
 
 type StationPageLoaders = { [path: string]: StationPageLoader };
@@ -16,7 +15,7 @@ export default async function (args: InitArguments) {
     let gatewayService = args.app.createService(GatewayService);
     let stations = await gatewayService.stationList();
 
-    let stationPaths = stations.filter(o => o.path).map(o => o.path);
+    let stationPaths = stations.filter(o => formatStationRoot(o.path)).map(o => o.path);
     let stationPageLoaders: StationPageLoaders = {};
     for (let i = 0; i < stationPaths.length; i++) {
         stationPageLoaders[stationPaths[i]] = new StationPageLoader(stationPaths[i], args.app);
@@ -53,15 +52,12 @@ export default async function (args: InitArguments) {
                         stationPath = stationPath.substr(0, stationPath.length - 1);
                     }
 
-                    menuItem.path = `#${stationPath}:${path}`;
+                    menuItem.path = `#/${stationPath}/${path}`;
                 }
                 else {
                     menuItem.path = `#${path}`;
                 }
 
-            }
-            else if (menuItem.path != null && menuItem.path.startsWith(":")) {
-                menuItem.path = `#${menuItem.path.substr(1)}`;
             }
 
             (menuItem.children || []).forEach(child => {
@@ -88,8 +84,7 @@ export default async function (args: InitArguments) {
 async function logout(gs: GatewayService, app: Application) {
     gs.logout();
     PermissionService.token.value = "";
-    // app.redirect("login");
-    location.href = "#login";
+    location.href = "#modules/login";
 }
 
 
@@ -97,15 +92,6 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
     console.assert(app != null);
     let showPage = app.showPage;
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
-
-        if (pageUrl.indexOf(":") < 0 && location.hash.length > 1) {
-            let stationPath = getStationPath(location.hash.substr(1));
-            if (stationPath) {
-                stationPath = stationPath.substr(1, stationPath.length - 2);
-                pageUrl = stationPath + ":" + pageUrl;
-            }
-        }
-
         args = args || {};
         let d = this.parseUrl(pageUrl);
         let names = ['modules/login', 'modules/forget-password', 'modules/register']
@@ -118,21 +104,10 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
 
     console.assert(app["loadjs"] != null);
     app["loadjs"] = function (path: string) {
-
-        // const modulesPath = "modules/";
-        // console.assert(path.startsWith(modulesPath));
-        // path = path.substr(modulesPath.length);
-
         let contextName: string;
-        let stationPath = getStationPath(path);
+        let stationPath = getStationRoot(path);
         if (stationPath) {
-            let arr = path.split(":");
-            path = pathConcat(stationPath, arr[1]);//`${stationPath}${modulesPath}${arr[1]}`;
             contextName = stationPath;
-        }
-        else {
-            // path = modulesPath + path;
-            contextName = websiteConfig.requirejs.baseUrl;
         }
 
         if (contextName) {
@@ -153,21 +128,25 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
     }
 }
 
-function getStationPath(path: string) {
-    if (path.indexOf(":") >= 0) {
-        let arr = path.split(":");
-        let stationPath = arr[0];
-        if (stationPath.startsWith("/") == false) {
-            stationPath = "/" + stationPath;
-        }
-        if (stationPath.endsWith("/") == false) {
-            stationPath = stationPath + "/";
-        }
-
+function getStationRoot(path: string) {
+    if (path[0] == "/") {
+        let arr = path.substr(1).split("/");
+        let stationPath = formatStationRoot(arr[0]);
         return stationPath;
     }
 
     return null;
+}
+
+function formatStationRoot(stationPath: string) {
+    if (stationPath.startsWith("/") == false) {
+        stationPath = "/" + stationPath;
+    }
+    if (stationPath.endsWith("/") == false) {
+        stationPath = stationPath + "/";
+    }
+
+    return stationPath;
 }
 
 class StationPageLoader {
@@ -200,7 +179,7 @@ class StationPageLoader {
     private configRequirejs(stationWebsiteConfig: WebsiteConfig) {
         stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
         stationWebsiteConfig.requirejs.context = stationWebsiteConfig.requirejs.context || this.stationPath;
-        stationWebsiteConfig.requirejs.baseUrl = this.stationPath;
+        // stationWebsiteConfig.requirejs.baseUrl = this.stationPath;
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
         let req = requirejs.config(stationWebsiteConfig.requirejs);
         return req;
@@ -247,13 +226,12 @@ class StationPageLoader {
             return;
         }
 
-        let path = this.stationPath;
-        fetch(`${path}websiteConfig`).then(async response => {
+        fetch(`websiteConfig?station=${this.stationPath}`).then(async response => {
             let stationWebsiteConfig = await response.json();
             this.requirejs = this.configRequirejs(stationWebsiteConfig);
 
             let contextName = stationWebsiteConfig.requirejs.context;
-            console.assert(contextName != null, `Context of site '${path}' requirejs config is null`);
+            console.assert(contextName != null, `Context of site '${this.stationPath}' requirejs config is null`);
             let clientjsInitPath = `clientjs_init`;
             console.log(`Clinet init js file path ${clientjsInitPath}.`);
 

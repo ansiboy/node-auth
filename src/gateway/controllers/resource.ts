@@ -139,8 +139,6 @@ function getWebsiteConfig(req: http.IncomingMessage, url: string): Promise<Websi
             .then(r => r.json())
             .then(o => resolve(o))
             .catch(err => {
-                // reject(err);
-                debugger
                 console.info(err);
                 resolve({});
             });

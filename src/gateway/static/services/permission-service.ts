@@ -23,7 +23,6 @@ export class PermissionService extends Service {
         password = md5(password);
         let url = this.url("user/login");
         let r = await this.postByJson<LoginInfo>(url, { username, password });
-        debugger
         PermissionService.token.value = r.token;
         return r;
     }

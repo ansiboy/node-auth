@@ -1,7 +1,7 @@
 import { ConnectionOptions } from "maishu-node-data";
 import * as path from "path";
 
-interface Config {
+export interface Config {
     db: {
         permission: ConnectionOptions,
         gateway: ConnectionOptions,

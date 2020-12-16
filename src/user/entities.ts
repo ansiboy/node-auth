@@ -143,7 +143,7 @@ export class User implements Model {
     @Column({ type: "datetime" })
     create_date_time: Date;
 
-    @Column({ type: "text", nullable: true, transformer: new JSONTransformer() })
+    @Column({ type: "json", nullable: true, transformer: new JSONTransformer() })
     data?: any;
 
     @Column({ type: "varchar", length: 45, nullable: true })
@@ -152,23 +152,7 @@ export class User implements Model {
     @Column({ nullable: true, transformer: new BitBooleanTransformer() })
     is_system?: boolean;
 
-    // @ManyToMany(() => Role, role => role.users, { cascade: true, onDelete: "CASCADE" })
-    // @JoinTable({
-    //     name: "user_role",
-    //     joinColumns: [{ name: "user_id", referencedColumnName: "id" }],
-    //     inverseJoinColumns: [{ name: "role_id", referencedColumnName: "id" }],
-    // })
-    // roles?: Role[];
 }
-
-// @Entity("user_role", { synchronize: false })
-// export class UserRole {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     user_id: string;
-
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     role_id: string
-// }
 
 @Entity("user-latest-login")
 export class UserLatestLogin implements Model {
@@ -200,15 +184,6 @@ export class SMSRecord implements Model {
     create_date_time: Date;
 }
 
-// @Entity("role_resource", { synchronize: false })
-// export class RoleResource {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     role_id: string;
-
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     resource_id: string;
-// }
-
 @Entity("resource_path", { synchronize: false })
 export class ResourcePath {
     @PrimaryColumn({ type: "varchar", length: 36 })
@@ -227,14 +202,3 @@ export class ResourceCategory {
     name: string;
 }
 
-// @Entity("menu_item_record")
-// export class MenuItemRecord {
-//     @PrimaryColumn({ type: "char", length: 36 })
-//     id: string;
-
-//     @Column({ type: "varchar", length: 300 })
-//     roleIds: string;
-
-//     @Column({ type: "datetime" })
-//     create_date_time: Date;
-// }
