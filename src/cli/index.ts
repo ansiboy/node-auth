@@ -10,10 +10,10 @@ import { UserRole } from "../gateway/entities";
 import { roleIds } from "../gateway/global";
 import * as inquirer from "inquirer";
 import * as colors from "colors";
-import { Config } from "../config";
-import { gateway } from "json!websiteConfig";
+import { Config, saveConfig } from "../config";
 import * as fs from "fs";
 import * as path from "path";
+import { errors } from "./errors";
 
 const EMPTY_FUNC = () => { };
 const options = yargs
@@ -21,15 +21,21 @@ const options = yargs
     .command(["admin", "$0"], "更新管理员信息", EMPTY_FUNC, setAdmin,)
     .command("database", "创建数据库，支持 MySQL 和 SQLite，默认为 SQLite", EMPTY_FUNC, setDatabasae)
     .command("install", "安装系统，对系统进行初始化", EMPTY_FUNC, install)
+    .command("port", "设置网关端口", EMPTY_FUNC, setGatewayPort)
     .demandCommand()
     .argv;
 
-function main(args: typeof options) {
 
-}
-
-let config = getConfig();
 const configFilePath = path.join(__dirname, "../../config.json");
+let config = getConfig();
+
+async function setGatewayPort() {
+    let { port } = await inquirer.prompt({ type: "input", name: "port", message: "请输入网关端口", default: 2857, });
+    config.gatewayPort = Number.parseInt(port);
+    saveConfig(config);
+    console.log(colors.green("设置端口成功").bold);
+    return port;
+}
 
 async function setDatabasae() {
     const dbTypes = {
@@ -43,6 +49,16 @@ async function setDatabasae() {
 
     switch (dbType) {
         case dbTypes.sqlite:
+            config.db = {
+                permission: {
+                    type: "sqlite",
+                    database: path.join(__dirname, "../../db/node_auth_permission.db"),
+                },
+                gateway: {
+                    type: "sqlite",
+                    database: path.join(__dirname, "../../db/node_auth_gateway.db"),
+                }
+            };
             break;
         case dbTypes.mysql:
             let { host } = await inquirer.prompt({ type: "input", message: "请输入数据库地址", name: "host", default: "127.0.0.1" });
@@ -52,16 +68,20 @@ async function setDatabasae() {
 
             config.db = {
                 gateway: { type: "mysql", host, port, username, password, database: "node_auth_gateway", debug: null },
-                permission: { type: "mysql", host, port, username, password, database: "node_auth_gateway", debug: null },
+                permission: { type: "mysql", host, port, username, password, database: "node_auth_permission", debug: null },
             };
 
-            await initDatabase(config.db.gateway);
-
-            fs.writeFileSync(path.join(__dirname, "../../config.json"), JSON.stringify(config, null, "    "));
-
-            console.log(colors.green("创建数据库成功").bold);
             break;
+
+        default:
+            throw errors.notSupportedDatabaseType(dbType);
     }
+
+    await initDatabase(config.db.gateway);
+
+    saveConfig(config);
+
+    console.log(colors.green("创建数据库成功").bold);
 }
 
 function getConfig(): Config {

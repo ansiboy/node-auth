@@ -6,3 +6,4 @@ out
 package-lock.json
 coverage
 db
+config.json

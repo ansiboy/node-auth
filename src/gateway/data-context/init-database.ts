@@ -28,7 +28,7 @@ export async function initDatabase(connConfig: ConnectionOptions) {
     let normalUserRole: Role = {
         id: roleIds.normalUser,
         name: "普通用户",
-        remark: "",
+        remark: "系统预设的普通用户组",
         create_date_time: new Date(Date.now()),
     }
 
