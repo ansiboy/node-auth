@@ -1,15 +1,16 @@
 import { DataSource } from "maishu-wuzhui-helper";
 import { PermissionService } from "./permission-service";
+import { GatewayService } from "./gateway-service";
 import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
 import { User, Resource, } from "permission-entities";
 import { TokenData, Role } from "gateway-entities";
 // import { GatewayService } from "./gateway-service";
 
-export type MyUser = User & { roleId?: string[] };
+export type MyUser = User & { roles?: Role[] };
 
-let ps = new PermissionService((err) => {
-    errorHandle(err)
-});
+let ps = new PermissionService((err) => { errorHandle(err) });
+
+let gs = new GatewayService((err) => errorHandle(err));
 
 // let gatewayService = new GatewayService((err) => {
 //     errorHandle(err);
@@ -36,6 +37,11 @@ let userDataSource = new DataSource<MyUser>({
     primaryKeys: ["id"],
     select: async (args) => {
         let r = await ps.user.list(args);
+        let userIds = r.dataItems.map(o => o.id);
+        let userRoles = await gs.getUserRoles(userIds);
+        r.dataItems.forEach((d: MyUser) => {
+            d.roles = userRoles[d.id];
+        })
         return r;
     },
     insert: async (item) => {
@@ -47,14 +53,6 @@ let userDataSource = new DataSource<MyUser>({
         return r;
     }
 })
-
-// let tokenDataSource = new DataSource<TokenData>({
-//     primaryKeys: ["id"],
-//     select: async (args) => {
-//         let r = await gatewayService.tokenList(args);
-//         return r;
-//     }
-// })
 
 export type MenuItem = WebsiteConfig["menuItems"][0] & {
     parent?: MenuItem,

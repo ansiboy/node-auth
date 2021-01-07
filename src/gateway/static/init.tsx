@@ -5,6 +5,7 @@ import { RequireConfig } from "maishu-chitu-admin/static";
 import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "./services/gateway-service";
 import React = require("react");
+import { pathConcat } from "maishu-toolkit";
 
 
 type StationPageLoaders = { [path: string]: StationPageLoader };
@@ -84,7 +85,7 @@ export default async function (args: InitArguments) {
 async function logout(gs: GatewayService, app: Application) {
     gs.logout();
     PermissionService.token.value = "";
-    location.href = "#modules/login";
+    location.href = "login";
 }
 
 
@@ -94,7 +95,7 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
         args = args || {};
         let d = this.parseUrl(pageUrl);
-        let names = ['modules/login', 'modules/forget-password', 'modules/register']
+        let names = ['login', 'forget-password', 'register']
         if (names.indexOf(d.pageName) >= 0) {
             args.container = 'simple'
         }
@@ -104,10 +105,20 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
 
     console.assert(app["loadjs"] != null);
     app["loadjs"] = function (path: string) {
+        if (path.startsWith("modules/")) {
+            path = path.substring("modules/".length);
+        }
+
         let contextName: string;
         let stationPath = getStationRoot(path);
         if (stationPath) {
             contextName = stationPath;
+
+            let pagePath = path.substring(stationPath.length);
+            path = pathConcat(stationPath, "modules", pagePath);
+        }
+        else {
+            path = pathConcat("modules", path);
         }
 
         if (contextName) {
@@ -129,6 +140,8 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
 }
 
 function getStationRoot(path: string) {
+
+
     if (path[0] == "/") {
         let arr = path.substr(1).split("/");
         let stationPath = formatStationRoot(arr[0]);

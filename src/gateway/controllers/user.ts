@@ -1,4 +1,4 @@
-import { constants, g, TOKEN_NAME, userIds } from "../global";
+import { constants, g, TOKEN_NAME, } from "../global";
 import { controller, action, request, response, getLogger, routeData } from "maishu-node-mvc";
 import { AuthDataContext } from "../data-context/";
 import { errors } from "../errors";
@@ -7,7 +7,7 @@ import { getTokenData } from "../filters/authenticate";
 import { TokenManager } from "../token";
 import Cookies = require("maishu-cookies");
 import { In } from "maishu-node-data";
-import { Role } from "gateway-entities";
+import { Role, UserRole } from "gateway-entities";
 import { authDataContext, currentUserId } from "../decorators";
 
 @controller(`/${constants.controllerPathRoot}/user`)
@@ -57,5 +57,18 @@ export default class UserController {
             r[d.userIds[i]] = theUserRoles;
         }
         return r;
+    }
+
+
+    @action()
+    async setRoles(@authDataContext dc: AuthDataContext, @routeData d: { userId: string, roleIds: string[] }) {
+        if (!d.userId) throw errors.argumentFieldNull("userId", "d");
+        if (!d.roleIds) throw errors.argumentFieldNull("roleIds", "d");
+
+        dc.userRoles.delete({ user_id: d.userId });
+
+        let itmes: UserRole[] = d.roleIds.map(o => ({ user_id: d.userId, role_id: o } as UserRole));
+        await dc.userRoles.insert(itmes);
+        return {};
     }
 }

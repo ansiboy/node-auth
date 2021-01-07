@@ -7,7 +7,7 @@ import { AuthDataContext } from "../gateway/data-context";
 import { initDatabase } from "../gateway/data-context/init-database";
 import * as md5 from "js-md5";
 import { UserRole } from "../gateway/entities";
-import { roleIds } from "../gateway/global";
+import { roleIds, userIds } from "../gateway/global";
 import * as inquirer from "inquirer";
 import * as colors from "colors";
 import { Config, saveConfig } from "../config";
@@ -17,11 +17,13 @@ import { errors } from "./errors";
 
 const EMPTY_FUNC = () => { };
 const options = yargs
-    .command("p", "设置管理员密码", EMPTY_FUNC, setAdminPassword)
-    .command(["admin", "$0"], "更新管理员信息", EMPTY_FUNC, setAdmin,)
-    .command("database", "创建数据库，支持 MySQL 和 SQLite，默认为 SQLite", EMPTY_FUNC, setDatabasae)
     .command("install", "安装系统，对系统进行初始化", EMPTY_FUNC, install)
+    .command("password", "设置管理员密码", EMPTY_FUNC, setAdminPassword)
+    .command("database", "创建数据库，支持 MySQL 和 SQLite，默认为 SQLite", EMPTY_FUNC, setDatabasae)
     .command("port", "设置网关端口", EMPTY_FUNC, setGatewayPort)
+    .command("start", "启动系统", EMPTY_FUNC, start)
+    .command("open", "使用浏览器打开系统页面", EMPTY_FUNC, open)
+    .command("admin", "更改管理员信息", EMPTY_FUNC, setAdmin)
     .demandCommand()
     .argv;
 
@@ -161,7 +163,7 @@ async function getAdminAccount(userDC: UserDataContext, gatewayDC: AuthDataConte
     var adminUser = await userDC.users.findOne({ user_name: "admin" });
     if (adminUser == null) {
         adminUser = {
-            id: roleIds.admin, password: "", user_name: "admin",
+            id: userIds.admin, password: "", user_name: "admin",
             create_date_time: new Date(Date.now()),
         };
         userDC.users.save(adminUser);
@@ -174,4 +176,17 @@ async function getAdminAccount(userDC: UserDataContext, gatewayDC: AuthDataConte
     }
 
     return adminUser;
+}
+
+function start() {
+    import("../main");
+}
+
+function open() {
+    console.log("open")
+    import("open").then(open => {
+        open(`http://127.0.0.1:${config.gatewayPort}`)
+    }).catch(err => {
+        console.log(err);
+    })
 }

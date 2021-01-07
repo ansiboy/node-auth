@@ -11,3 +11,45 @@
 ## 截图
 
 ![](https://ansiboy.github.io/node-auth/images/pic-1.png)
+
+## 下载
+
+```
+npm i -g maishu-node-auth
+```
+
+## 使用
+
+** 系统的安装 **
+
+运行命令行
+
+```
+node-auth install
+```
+
+** 系统安装 **
+
+运行命令行
+
+```
+node-auth install
+```
+
+** 系统运行 **
+
+```
+node-auth start
+```
+
+** 使用浏览器打开页面 **
+
+```
+node-auth open
+```
+
+** 更改管理员信息 **
+
+```
+node-auth admin
+```
