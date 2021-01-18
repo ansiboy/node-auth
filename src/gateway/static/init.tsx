@@ -109,11 +109,10 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
             path = path.substring("modules/".length);
         }
 
-        let contextName: string;
+        // let contextName: string;
         let stationPath = getStationRoot(path);
         if (stationPath) {
-            contextName = stationPath;
-
+            // contextName = stationPath;
             let pagePath = path.substring(stationPath.length);
             path = pathConcat(stationPath, "modules", pagePath);
         }
@@ -121,11 +120,11 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
             path = pathConcat("modules", path);
         }
 
-        if (contextName) {
-            let stationPageLoader = stationPageLoaders[contextName];
-            console.assert(stationPageLoader != null);
-            return stationPageLoader.loadUrl(path);
-        }
+        // if (contextName) {
+        //     let stationPageLoader = stationPageLoaders[contextName];
+        //     console.assert(stationPageLoader != null);
+        //     return stationPageLoader.loadUrl(path);
+        // }
 
         return new Promise<any>((reslove, reject) => {
             requirejs([path],
@@ -247,38 +246,8 @@ class StationPageLoader {
             console.assert(contextName != null, `Context of site '${this.stationPath}' requirejs config is null`);
             let clientjsInitPath = `clientjs_init`;
             console.log(`Clinet init js file path ${clientjsInitPath}.`);
-
-            this.requirejs([clientjsInitPath],
-                (initModule) => {
-                    if (initModule && typeof initModule.default == 'function') {
-                        let args: InitArguments = {
-                            app: this.app, mainMaster: null,
-                            requirejs: this.requirejs
-                        };
-
-                        let result = initModule.default(args) as Promise<any>;
-                        if (result != null && result.then != null) {
-                            result.then(() => {
-                                this.status = "success";
-                                this.onStartSuccess();
-                            }).catch(err => {
-                                console.error(err);
-                                this.status = "fail";
-                            })
-
-                            return;
-                        }
-                        else {
-                            this.status = "success";
-                            this.onStartSuccess();
-                        }
-                    }
-                },
-                (err) => {
-                    console.error(err);
-                    this.status = "fail";
-                }
-            )
         })
     }
 }
+
+

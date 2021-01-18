@@ -12,7 +12,7 @@ loadConfig().then(config => {
     // const target_host = '127.0.0.1';
     const gatewayPort = config.gatewayPort;
     // const gateway = `127.0.0.1:${gatewayPort}`;
-    const permissionStationPort = gatewayPort + 100;
+    const permissionStationPort = gatewayPort + 1;
     const target_host = "127.0.0.1";
     const imageStation = "127.0.0.1:2863";
     //===========================================
