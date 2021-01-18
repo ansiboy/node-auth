@@ -1,18 +1,16 @@
 import url = require("url");
-import { getLogger, RequestProcessor, RequestContext, RequestResult } from 'maishu-node-mvc';
+import { getLogger, RequestProcessor, RequestContext, RequestResult, processorPriorities } from 'maishu-node-mvc';
 import { errors } from "../errors";
 import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, roleIds } from "../global";
 import UrlPattern = require("url-pattern");
 import { StatusCode } from "../status-codes";
-import { Role } from "../entities";
 import { getTokenData } from "../filters/authenticate";
 import { AuthDataContext } from "../data-context";
 
-
-
 export class AuthenticateRequestProcessor implements RequestProcessor {
 
+    priority = processorPriorities.HeadersRequestProcessor + 20;
     #config: PermissionConfig;
 
     constructor(config?: PermissionConfig) {

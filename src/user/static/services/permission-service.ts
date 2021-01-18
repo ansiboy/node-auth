@@ -1,7 +1,8 @@
-import { Service, Requirejs } from "maishu-chitu-admin/static";
+import { Service } from "maishu-chitu-admin/static";
 import { errors } from "../errors";
 import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
+import { pathConcat } from "maishu-toolkit";
 
 // import "json!websiteConfig";
 // let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
@@ -39,7 +40,7 @@ class ServiceModule {
     }
 
     protected url(path: string) {
-        let url = Requirejs.websitePath(path);
+        let url = pathConcat("user", path); //Requirejs.websitePath(path);
         return url;
     }
 }
@@ -155,7 +156,7 @@ class UserModule extends ServiceModule {
      * 获取用户个人信息
      */
     async me() {
-        let url = Requirejs.websitePath('user/me');
+        let url = this.url("user/me"); //Requirejs.websitePath('user/me');
         let user = await this.getByJson<User>(url);
         delete user.password;
         return user

@@ -1,5 +1,5 @@
 import { g, constants, tokenDataHeaderNames, TOKEN_NAME } from "./global";
-import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor } from "maishu-node-mvc";
+import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor, VirtualDirectory, HeadersProcessor } from "maishu-node-mvc";
 import { Settings } from "./types";
 import { startSocketServer } from "./socket-server";
 import Cookies = require("maishu-cookies");
@@ -38,12 +38,12 @@ export async function start(settings: Settings) {
 
     let r = await startAdmin({
         proxy,
-        headers: settings.headers,
         virtualPaths: settings.virtualPaths,
         bindIP: settings.bindIP,
         port: settings.port,
-        rootPhysicalPath: __dirname,
+        rootDirectory: new VirtualDirectory(__dirname),
         websiteConfig: Object.assign(websiteConfig, settings.websiteConfig || {}),
+        headers: settings.headers,
     })
 
     r.contentTransforms.unshift(loginTransform);
@@ -51,11 +51,16 @@ export async function start(settings: Settings) {
 
     startSocketServer(r.source);
 
-    let staticProcessor = r.requestProcessors.filter(o => o instanceof StaticFileProcessor)[0] as StaticFileProcessor;
+    let staticProcessor = r.requestProcessors.find(StaticFileProcessor);
     staticProcessor.contentTypes[".woff2"] = "font/woff2";
 
-    let proxyProcessor = r.requestProcessors.filter(o => o instanceof ProxyProcessor)[0] as ProxyProcessor;
+    let proxyProcessor = r.requestProcessors.find(ProxyProcessor);
     console.assert(proxyProcessor != null, "ProxyProcessor is null.");
+
+    // if (settings.headers) {
+    //     let headerProcessor = r.requestProcessors.find(HeadersProcessor);
+    //     headerProcessor.headers = settings.headers;
+    // }
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {
@@ -76,7 +81,7 @@ export async function start(settings: Settings) {
     })
 
     let authenticateProcessor = new AuthenticateRequestProcessor(settings.permissions);
-    r.requestProcessors.unshift(authenticateProcessor);
+    r.requestProcessors.add(authenticateProcessor);
 
     DataHelper.createDataContext(AuthDataContext, settings.db).then(dc => {
         return dc.stations.find();

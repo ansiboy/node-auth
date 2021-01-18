@@ -4,6 +4,7 @@ import { Settings } from "./types";
 import { settings as globalSettings, stationPath, } from "./global";
 import { roleIds } from "../gateway";
 import websiteConfig from "./website-config";
+import { VirtualDirectory } from "maishu-node-mvc";
 
 export { Settings } from "./types";
 // export { createDataContext } from "./data-context";
@@ -21,7 +22,7 @@ export async function start(settings: Settings) {
     return startAdmin({
         port: settings.port,
         // rootDirectory: __dirname,
-        rootPhysicalPath: __dirname,
+        rootDirectory: new VirtualDirectory(__dirname),
         virtualPaths: settings.virtualPaths,
         station: {
             path: stationPath,

@@ -70,8 +70,8 @@ export abstract class DataListPage<T> extends BasePage {
             headerText: "操作",
             headerStyle: { textAlign: "center" },
             itemStyle: { textAlign: "center", width: `${OperationColumnWidth}px` },
-            createItemCell(dataItem: T) {
-                let cell = new GridViewCell();
+            createItemCell(dataItem: T, cellElement) {
+                let cell = new GridViewCell(cellElement);
                 ReactDOM.render(
                     <DataCommand<T> {...{ dataItem, dataSource: it.dataSource, dialog: it.dialog, }} />,
                     cell.element
