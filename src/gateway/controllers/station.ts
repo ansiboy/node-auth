@@ -4,7 +4,6 @@ import { g, constants } from "../global";
 import { errors } from "../errors";
 import { AuthDataContext } from "../data-context";
 import { guid } from "maishu-toolkit";
-import { demandCommand } from "yargs";
 import { authDataContext } from "../decorators";
 
 @controller(`/${constants.controllerPathRoot}/station`)
