@@ -59,6 +59,8 @@ loadConfig().then(config => {
             "/AdminMember/*": { roleIds: [roleIds.anonymous] },
             "/AdminShop/*": { roleIds: [roleIds.anonymous] },
             "/AdminWeiXin/*": { roleIds: [roleIds.anonymous] },
+
+            "/UserShop/*": { roleIds: [roleIds.anonymous] }
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
