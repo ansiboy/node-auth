@@ -75,6 +75,13 @@ export default class UserController {
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
+    @action()
+    async registerWidthoutVerify(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
+        let user = await this.add(dc, { item });
+        let r: LoginResult = { userId: user.id };
+        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+    }
+
     private loginActionResult(userId: string) {
         let r: LoginResult = { userId: userId };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
