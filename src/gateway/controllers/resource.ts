@@ -35,7 +35,7 @@ export class MenuController {
         let logger = getLogger(constants.projectName, g.settings.logLevel);
         logger.info(websiteConfigUrls);
 
-        let menuItems: MyMenuItem[] = [...websiteConfig.menuItems || []];
+        let menuItems: MyMenuItem[] = [...JSON.parse(JSON.stringify(websiteConfig.menuItems)) || []];
         let websiteConfigs = await Promise.all(websiteConfigUrls.map(url => getWebsiteConfig(req, url)));
 
         for (let i = 0; i < websiteConfigs.length; i++) {
