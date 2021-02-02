@@ -44,9 +44,9 @@ export default class MenuListPage extends DataListPage<MenuItem> {
             headerText: "菜单名称",
             itemStyle: { width: `${nameFieldWidth}px` },
             dataField: "name",
-            renderItem: (dataItem, element) => {
-                element.style.paddingLeft = `${this.parentDeep(dataItem) * 20 + 10}px`;
-                element.innerHTML = dataItem.name;
+            renderCell: (cell, dataItem) => {
+                cell.element.style.paddingLeft = `${this.parentDeep(dataItem) * 20 + 10}px`;
+                cell.element.innerHTML = dataItem.name;
             },
         }),
         boundField<MenuItem>({ dataField: "icon", headerText: "图标", itemStyle: { width: `${iconFieldWidth}px` }, readOnly: false }),
@@ -86,8 +86,8 @@ export default class MenuListPage extends DataListPage<MenuItem> {
                     }
                 }
             },
-            renderItem(dataItem, element) {
-                element.innerText = dataItem.roleNames
+            renderCell(cell, dataItem) {
+                cell.element.innerText = dataItem.roleNames
             }
         }),
         boundField<MenuItem>({ dataField: "path", headerText: "路径", readOnly: true }),

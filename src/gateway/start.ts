@@ -1,5 +1,5 @@
 import { g, constants, tokenDataHeaderNames, TOKEN_NAME } from "./global";
-import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor, VirtualDirectory, HeadersProcessor } from "maishu-node-mvc";
+import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor, VirtualDirectory } from "maishu-node-mvc";
 import { Settings } from "./types";
 import { startSocketServer } from "./socket-server";
 import Cookies = require("maishu-cookies");

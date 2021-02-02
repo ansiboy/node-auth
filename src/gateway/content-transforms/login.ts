@@ -1,6 +1,5 @@
-import { ContentTransformFunc, RequestResult } from "maishu-node-web-server";
+import { ContentTransformFunc, RequestResult, getLogger } from "maishu-node-mvc";
 import { StatusCode } from "../status-codes";
-import { getLogger } from "maishu-node-mvc";
 import { constants, guid, TOKEN_NAME, g } from "../global";
 import { LoginResult } from "../types";
 import { TokenData } from "../entities";
