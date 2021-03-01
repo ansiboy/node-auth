@@ -34,7 +34,7 @@ export default class SMSController {
             // let [rows] = await execute(conn, sql, [mobile])
             // if (rows.length != 0)
             //     throw errors.mobileExists(mobile)
-            let smsRecords = await dc.smsRecords.find({ where: { mobile }, select: ["id"] });
+            let smsRecords = await dc.users.find({ where: { mobile }, select: ["id"] });
             if (smsRecords.length != 0)
                 throw errors.mobileExists(mobile);
         }
