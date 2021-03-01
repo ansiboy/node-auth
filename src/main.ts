@@ -12,30 +12,32 @@ loadConfig().then(config => {
     // const target_host = '127.0.0.1';
     const gatewayPort = config.gatewayPort;
     // const gateway = `127.0.0.1:${gatewayPort}`;
-    const permissionStationPort = gatewayPort + 1;
+    const userStationPort = gatewayPort + 1;
     const target_host = "127.0.0.1";
-    const imageStation = "127.0.0.1:2863";
+    // const imageStation = "127.0.0.1:2863";
+    const imageStation = "192.168.2.94:48628";
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
         port: gatewayPort,
         db: config.db.gateway,
         logLevel: "all",
         proxy: {
-            '/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
-            '/AdminStock/(\\S+)': `http://${target_host}:9005/Admin/$1`,
-            '/AdminShop/(\\S+)': `http://${target_host}:9010/Admin/$1`,
-            '/AdminMember/(\\S+)': `http://${target_host}:9020/Admin/$1`,
-            '/AdminWeiXin/(\\S+)': `http://${target_host}:9030/Admin/$1`,
-            '/AdminAccount/(\\S+)': `http://${target_host}:9035/Admin/$1`,
-            '/UserSite/(\\S+)': `http://${target_host}:9000/User/$1`,
-            '/UserStock/(\\S+)': `http://${target_host}:9005/User/$1`,
-            '/UserShop/(\\S+)': `http://${target_host}:9010/User/$1`,
-            '/UserMember/(\\S+)': `http://${target_host}:9020/User/$1`,
-            '/UserWeiXin/(\\S+)': `http://${target_host}:9030/User/$1`,
-            '/UserAccount/(\\S+)': `http://${target_host}:9035/User/$1`,
+            '^/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
+            '^/AdminStock/(\\S+)': `http://${target_host}:9005/Admin/$1`,
+            '^/AdminShop/(\\S+)': `http://${target_host}:9010/Admin/$1`,
+            '^/AdminMember/(\\S+)': `http://${target_host}:9020/Admin/$1`,
+            '^/AdminWeiXin/(\\S+)': `http://${target_host}:9030/Admin/$1`,
+            '^/AdminAccount/(\\S+)': `http://${target_host}:9035/Admin/$1`,
+            '^/UserSite/(\\S+)': `http://${target_host}:9000/User/$1`,
+            '^/UserStock/(\\S+)': `http://${target_host}:9005/User/$1`,
+            '^/UserShop/(\\S+)': `http://${target_host}:9010/User/$1`,
+            '^/UserMember/(\\S+)': `http://${target_host}:9020/User/$1`,
+            '^/UserWeiXin/(\\S+)': `http://${target_host}:9030/User/$1`,
+            '^/UserAccount/(\\S+)': `http://${target_host}:9035/User/$1`,
             "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
             "^/image/(\\S+)": `http://${imageStation}/$1`,
-            '/pc-build/(\\S+)': `http://${target_host}:5216/$1`
+            '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
+            // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
 
         },
         headers: {
@@ -59,8 +61,11 @@ loadConfig().then(config => {
             "/AdminMember/*": { roleIds: [roleIds.anonymous] },
             "/AdminShop/*": { roleIds: [roleIds.anonymous] },
             "/AdminWeiXin/*": { roleIds: [roleIds.anonymous] },
+            "/AdminStock/*": { roleIds: [roleIds.anonymous] },
 
-            "/UserShop/*": { roleIds: [roleIds.anonymous] }
+            "/UserShop/*": { roleIds: [roleIds.anonymous] },
+            "/image/*": { roleIds: [roleIds.anonymous] },
+            // "/user/*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
@@ -68,7 +73,7 @@ loadConfig().then(config => {
     }
 
     let permissionStationSettings: PermissionSettings = {
-        port: permissionStationPort,
+        port: userStationPort,
         gateway: `127.0.0.1:${gatewayPort}`,
         db: config.db.permission,
         virtualPaths: {
