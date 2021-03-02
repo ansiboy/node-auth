@@ -2,10 +2,10 @@ import { InitArguments, RequireJS, WebsiteConfig, Application } from "maishu-chi
 import { PageData } from "maishu-chitu";
 import { PermissionService } from "./services/permission-service";
 import { RequireConfig } from "maishu-chitu-admin/static";
-import websiteConfig = require("json!websiteConfig");
 import { GatewayService } from "./services/gateway-service";
 import React = require("react");
 import { pathConcat } from "maishu-toolkit";
+import { Station } from "gateway-entities";
 
 
 type StationPageLoaders = { [path: string]: StationPageLoader };
@@ -16,10 +16,9 @@ export default async function (args: InitArguments) {
     let gatewayService = args.app.createService(GatewayService);
     let stations = await gatewayService.stationList();
 
-    let stationPaths = stations.filter(o => formatStationRoot(o.path)).map(o => o.path);
     let stationPageLoaders: StationPageLoaders = {};
-    for (let i = 0; i < stationPaths.length; i++) {
-        stationPageLoaders[stationPaths[i]] = new StationPageLoader(stationPaths[i], args.app);
+    for (let i = 0; i < stations.length; i++) {
+        stationPageLoaders[stations[i].path] = new StationPageLoader(stations[i]);
     }
 
     rewriteApplication(args.app, stationPageLoaders);
@@ -85,7 +84,7 @@ export default async function (args: InitArguments) {
 async function logout(gs: GatewayService, app: Application) {
     gs.logout();
     PermissionService.token.value = "";
-    location.href = "login";
+    location.href = "#login";
 }
 
 
@@ -109,10 +108,8 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
             path = path.substring("modules/".length);
         }
 
-        // let contextName: string;
         let stationPath = getStationRoot(path);
         if (stationPath) {
-            // contextName = stationPath;
             let pagePath = path.substring(stationPath.length);
             path = pathConcat(stationPath, "modules", pagePath);
         }
@@ -120,11 +117,11 @@ async function rewriteApplication(app: InitArguments["app"], stationPageLoaders:
             path = pathConcat("modules", path);
         }
 
-        // if (contextName) {
-        //     let stationPageLoader = stationPageLoaders[contextName];
-        //     console.assert(stationPageLoader != null);
-        //     return stationPageLoader.loadUrl(path);
-        // }
+        if (stationPath) {
+            let stationPageLoader = stationPageLoaders[stationPath];
+            console.assert(stationPageLoader != null);
+            return stationPageLoader.loadUrl(path);
+        }
 
         return new Promise<any>((reslove, reject) => {
             requirejs([path],
@@ -162,90 +159,44 @@ function formatStationRoot(stationPath: string) {
 }
 
 class StationPageLoader {
-    private stationPath: string;
-    private app: Application;
-
-    private status: "success" | "doing" | "fail" = "fail";
+    private stationInfo: Station;
     private requirejs: RequireJS;
 
-    private promises: {
-        [path: string]: {
-            resolve: Function, reject: Function,
-            promise: Promise<any>
-        }
-    } = {};
-
-    constructor(stationPath: string, app: InitArguments["app"]) {
-        this.stationPath = stationPath;
-        this.app = app;
-
-        if (this.stationPath == websiteConfig.requirejs.baseUrl) {
-            this.status = "success";
-            this.requirejs = this.configRequirejs(websiteConfig);
-            console.assert(this.requirejs != null);
-        }
-
-        // this.start();
+    constructor(stationInfo: Station) {
+        this.stationInfo = stationInfo;
     }
 
     private configRequirejs(stationWebsiteConfig: WebsiteConfig) {
         stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
-        stationWebsiteConfig.requirejs.context = stationWebsiteConfig.requirejs.context || this.stationPath;
-        // stationWebsiteConfig.requirejs.baseUrl = this.stationPath;
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
         let req = requirejs.config(stationWebsiteConfig.requirejs);
         return req;
     }
 
-    loadUrl(url: string): Promise<any> {
-        if (this.status == "success") {
-            return new Promise((resolve, reject) => {
-                this.requirejs([url], (obj) => resolve(obj), err => reject(err));
+    async loadUrl(url: string): Promise<any> {
+
+        if (!this.requirejs) {
+            let websiteConfig = await this.getWebsiteConfig(this.stationInfo);
+            this.requirejs = this.configRequirejs(websiteConfig);
+        }
+
+        return new Promise((resolve, reject) => {
+            this.requirejs([url], (obj) => resolve(obj), err => reject(err));
+        })
+
+    }
+
+    private getWebsiteConfig(stationInfo: Station) {
+        return new Promise<WebsiteConfig>((resolve, reject) => {
+            let websiteConfigPath = pathConcat(this.stationInfo.path, this.stationInfo.config || "website-config");
+            fetch(websiteConfigPath).then(async response => {
+                let stationWebsiteConfig = await response.json();
+                stationWebsiteConfig.requirejs.context = stationInfo.path;
+                stationWebsiteConfig.requirejs.baseUrl = stationInfo.path;
+                resolve(stationWebsiteConfig);
+            }).catch(err => {
+                reject(err);
             })
-        }
-        else if (this.status == "fail") {
-            this.start();
-        }
-
-        if (this.promises[url]) {
-            return this.promises[url].promise;
-        }
-
-        this.promises[url] = {} as any;
-        let p = new Promise((resolve, reject) => {
-            this.promises[url].reject = reject;
-            this.promises[url].resolve = resolve;
-        })
-
-        this.promises[url].promise = p;
-
-        return p;
-    }
-
-    private onStartSuccess() {
-        let urlsToLoad = Object.getOwnPropertyNames(this.promises);
-        urlsToLoad.forEach(url => {
-            this.requirejs([url], (obj) => {
-                this.promises[url].resolve(obj);
-            }, (err) => {
-                this.promises[url].reject(err);
-            });
-        })
-    }
-
-    private start() {
-        if (this.status == "success" || this.status == "doing") {
-            return;
-        }
-
-        fetch(`websiteConfig?station=${this.stationPath}`).then(async response => {
-            let stationWebsiteConfig = await response.json();
-            this.requirejs = this.configRequirejs(stationWebsiteConfig);
-
-            let contextName = stationWebsiteConfig.requirejs.context;
-            console.assert(contextName != null, `Context of site '${this.stationPath}' requirejs config is null`);
-            let clientjsInitPath = `clientjs_init`;
-            console.log(`Clinet init js file path ${clientjsInitPath}.`);
         })
     }
 }

@@ -34,6 +34,7 @@ export async function start(settings: Settings) {
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/websiteConfig"] = { roleIds: [roleIds.anonymous] };
+
     // settings.permissions["/clientFiles"] = { roleIds: [roleIds.anonymous] };
 
     let r = await startAdmin({
@@ -56,11 +57,6 @@ export async function start(settings: Settings) {
 
     let proxyProcessor = r.requestProcessors.find(ProxyProcessor);
     console.assert(proxyProcessor != null, "ProxyProcessor is null.");
-
-    // if (settings.headers) {
-    //     let headerProcessor = r.requestProcessors.find(HeadersProcessor);
-    //     headerProcessor.headers = settings.headers;
-    // }
 
     g.stationInfos.add(stations => {
         for (let i = 0; i < stations.length; i++) {

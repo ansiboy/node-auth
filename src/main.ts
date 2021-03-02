@@ -65,7 +65,9 @@ loadConfig().then(config => {
 
             "/UserShop/*": { roleIds: [roleIds.anonymous] },
             "/image/*": { roleIds: [roleIds.anonymous] },
-            // "/user/*": { roleIds: [roleIds.anonymous] },
+
+            "/user/*": { roleIds: [roleIds.anonymous] },
+            "/merchant/website-config": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
