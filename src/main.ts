@@ -64,6 +64,7 @@ loadConfig().then(config => {
             "/AdminStock/*": { roleIds: [roleIds.anonymous] },
 
             "/UserShop/*": { roleIds: [roleIds.anonymous] },
+            "/UserStock/*": { roleIds: [roleIds.anonymous] },
             "/image/*": { roleIds: [roleIds.anonymous] },
 
             "/user/*": { roleIds: [roleIds.anonymous] },

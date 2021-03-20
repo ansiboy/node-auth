@@ -260,7 +260,7 @@ export default class UserController {
 
         return {
             id: user.id, mobile: user.mobile, user_name: user.user_name,
-            data: user.data
+            data: user.data, email: user.email,
         } as Partial<User>;
     }
 
