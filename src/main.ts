@@ -13,7 +13,7 @@ loadConfig().then(config => {
     const gatewayPort = config.gatewayPort;
     // const gateway = `127.0.0.1:${gatewayPort}`;
     const userStationPort = gatewayPort + 1;
-    const target_host = "127.0.0.1";
+    const target_host = "192.168.2.95";
     // const imageStation = "127.0.0.1:2863";
     const imageStation = "192.168.2.94:48628";
     //===========================================
@@ -38,6 +38,8 @@ loadConfig().then(config => {
             "^/image/(\\S+)": `http://${imageStation}/$1`,
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
             // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
+            '^/pay/(\\S*)': `http://192.168.2.14:5262/$1`,
+            '^/email/(\\S*)': `http://127.0.0.1:6842/$1`,
 
         },
         headers: {
@@ -56,6 +58,8 @@ loadConfig().then(config => {
             "*.woff": { roleIds: [roleIds.anonymous] },
             "*.map": { roleIds: [roleIds.anonymous] },
 
+
+
             // TODO: 用户组设置
             "/AdminAccount/*": { roleIds: [roleIds.anonymous] },
             "/AdminMember/*": { roleIds: [roleIds.anonymous] },
@@ -69,6 +73,8 @@ loadConfig().then(config => {
 
             "/user/*": { roleIds: [roleIds.anonymous] },
             "/merchant/website-config": { roleIds: [roleIds.anonymous] },
+            "/pay/*": { roleIds: [roleIds.anonymous] },
+            "/email/*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
