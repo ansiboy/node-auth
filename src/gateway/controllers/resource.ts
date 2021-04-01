@@ -6,7 +6,7 @@ import url = require("url");
 import fetch from "node-fetch";
 import { errors } from "../errors";
 import { AuthDataContext } from "../data-context/data-context";
-import websiteConfig from "../website-config";
+import w from "../static/website-config";
 import { authDataContext, currentUserId } from "../decorators";
 import { pathConcat } from "maishu-toolkit";
 
@@ -27,7 +27,7 @@ export class MenuController {
         let u = url.parse(req.url);
         let protocol = u.protocol || "http:";
         let websiteConfigUrls = stations.map(p => {
-            let configPath = p.config || "websiteConfig";
+            let configPath = p.config || "website-config";
             let url = pathConcat(`${protocol}//${p.ip}:${p.port}/`, configPath);
             return url;
         });
@@ -35,15 +35,15 @@ export class MenuController {
         let logger = getLogger(constants.projectName, g.settings.logLevel);
         logger.info(websiteConfigUrls);
 
-        let menuItems: MyMenuItem[] = [...JSON.parse(JSON.stringify(websiteConfig.menuItems)) || []];
+        let menuItems: MyMenuItem[] = [...JSON.parse(JSON.stringify(w.menuItems)) || []];
         let websiteConfigs = await Promise.all(websiteConfigUrls.map(url => getWebsiteConfig(req, url)));
 
         for (let i = 0; i < websiteConfigs.length; i++) {
-            let websiteConfig = websiteConfigs[i];
-            if (websiteConfig.menuItems == null)
+            let w = websiteConfigs[i];
+            if (w.menuItems == null)
                 continue;
 
-            let stack = [...websiteConfig.menuItems] as MyMenuItem[];
+            let stack = [...w.menuItems] as MyMenuItem[];
             while (stack.length > 0) {
                 let item = stack.shift();
                 item.stationPath = stations[i].path;
@@ -52,7 +52,7 @@ export class MenuController {
                 })
             }
 
-            menuItems.push(...websiteConfig.menuItems || []);
+            menuItems.push(...w.menuItems || []);
         }
 
         let menuItemRecords = await dc.menuItemRecords.find();
@@ -71,7 +71,7 @@ export class MenuController {
         }
 
         if (d != null && d.roleId != null) {
-            menuItems = menuItems.filter(o => o.roleIds.indexOf(d.roleId) >= 0 || o.userId == d.userId);
+            menuItems = menuItems.filter(o => o.roleIds.indexOf(d.roleId) >= 0 || o["userId"] == d.userId);
         }
 
         return menuItems;
@@ -137,11 +137,14 @@ function getWebsiteConfig(req: http.IncomingMessage, url: string): Promise<Websi
     return new Promise<WebsiteConfig>((resolve, reject) => {
         fetch(url)
             .then(r => r.json())
-            .then(o => resolve(o))
+            .then(o => {
+                resolve(o)
+            })
             .catch(err => {
                 console.info(err);
                 resolve({});
             });
+
     })
 }
 

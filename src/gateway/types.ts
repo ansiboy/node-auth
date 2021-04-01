@@ -1,8 +1,8 @@
 import { ConnectionConfig } from "mysql";
 import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
-import { WebsiteConfig } from "maishu-chitu-admin";
+import { WebsiteConfig } from "maishu-admin-scaffold/static/website-config";
 import { ConnectionOptions } from "maishu-node-data";
-export { SimpleMenuItem, WebsiteConfig } from "maishu-chitu-admin";
+export { WebsiteConfig } from "maishu-admin-scaffold/static/website-config";
 export { Station } from "./entities";
 
 export interface RequireConfig {

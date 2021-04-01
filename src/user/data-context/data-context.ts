@@ -1,13 +1,7 @@
 import "reflect-metadata";
-import { createConnection, EntityManager, Repository, getConnection, ConnectionOptions, getConnectionManager, DataHelper } from "maishu-node-data";
+import { EntityManager, Repository } from "maishu-node-data";
 import { Category, Resource, User, UserLatestLogin, SMSRecord, ResourcePath } from "../entities";
-import { ConnectionConfig } from "mysql";
 import path = require("path");
-import { createParameterDecorator } from "maishu-node-mvc";
-import { settings } from "../global";
-import { errors } from "../errors";
-import { userIds } from "../../gateway";
-import { adminMobile, adminPassword } from "../website-config";
 import { DataContext } from "maishu-node-data";
 
 export class UserDataContext extends DataContext {

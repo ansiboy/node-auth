@@ -1,6 +1,6 @@
 import React = require("react");
 import { PageProps } from "maishu-chitu-react";
-import { FormValidator, rules as r } from "maishu-dilu";
+import { FormValidator, rules as r } from "maishu-dilu-react";
 import { buttonOnClick } from "maishu-ui-toolkit";
 import { PermissionService } from "../services/permission-service";
 
@@ -34,6 +34,9 @@ export default class LoginPage extends React.Component<Props, State> {
     }
 
     async login(): Promise<any> {
+        if (!this.validator.check())
+            return;
+            
         let service = this.props.createService(PermissionService);
         let { username, password } = this.state;
         let r = await service.login(username, password);
@@ -43,10 +46,13 @@ export default class LoginPage extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        this.validator = new FormValidator(this.element,
-            { name: USERNAME, rules: [r.required('请输入用户名')] },
-            { name: PASSWORD, rules: [r.required('请输入密码')] }
-        )
+        // this.validator = new FormValidator(this.element,
+        //     { name: USERNAME, rules: [r.required('请输入用户名')] },
+        //     { name: PASSWORD, rules: [r.required('请输入密码')] }
+        // )
+
+
+
     }
 
     render() {
@@ -63,6 +69,7 @@ export default class LoginPage extends React.Component<Props, State> {
                             onChange={e => {
                                 this.setState({ username: e.target.value })
                             }} />
+                        {this.validator.field(username, [r.required("请输入用户名")])}
                     </div>
                 </div>
                 <div className="form-group" >
@@ -73,6 +80,7 @@ export default class LoginPage extends React.Component<Props, State> {
                             onChange={e => {
                                 this.setState({ password: e.target.value })
                             }} />
+                        {this.validator.field(password, [r.required("请输入密码")])}
                     </div>
                 </div>
                 <div className="form-group" >

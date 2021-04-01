@@ -1,5 +1,4 @@
-import { ConnectionConfig } from "mysql";
-import { WebsiteConfig } from "maishu-chitu-admin";
+import { WebsiteConfig } from "maishu-admin-scaffold/static/website-config";
 import { ConnectionOptions } from "maishu-node-data";
 
 export interface Settings {

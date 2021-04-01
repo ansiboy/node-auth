@@ -1,4 +1,4 @@
-import { DataListPage } from "maishu-chitu-admin/static";
+import { DataListPage } from "maishu-data-page";
 import { TokenData } from "gateway-entities";
 import { dataSources } from "../services/data-sources";
 import { boundField, dateTimeField, DataSource } from "maishu-wuzhui-helper";

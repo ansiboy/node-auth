@@ -1,5 +1,5 @@
 import { Station } from "gateway-entities";
-import { DataListPage } from "maishu-chitu-admin/static";
+import { DataListPage } from "maishu-data-page";
 import { dataSources } from "../services/data-sources";
 
 export default class extends DataListPage<Station> {

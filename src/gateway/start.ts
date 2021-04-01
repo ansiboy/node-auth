@@ -6,14 +6,15 @@ import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
 import { roleIds } from "./global"
-import { start as startAdmin } from "maishu-chitu-admin";
-import websiteConfig from "./website-config";
+import { startServer as startAdmin } from "maishu-node-mvc";
+import w from "./static/website-config";
 import { AuthenticateRequestProcessor } from "./request-processors/authenticate";
 import { loginTransform } from "./content-transforms/login";
 import { DataHelper } from "maishu-node-data";
 import { AuthDataContext } from "./data-context";
 import { StationController } from "./controllers/station";
-
+import { getVirtualPaths } from "maishu-admin-scaffold";
+import * as path from "path";
 
 export async function start(settings: Settings) {
 
@@ -36,16 +37,19 @@ export async function start(settings: Settings) {
     settings.permissions["/websiteConfig"] = { roleIds: [roleIds.anonymous] };
 
     // settings.permissions["/clientFiles"] = { roleIds: [roleIds.anonymous] };
+    let virtualPaths = getVirtualPaths("static", path.join(__dirname, "static"));
+    Object.assign(virtualPaths, settings.virtualPaths || {});
 
-    let r = await startAdmin({
+    let r = startAdmin({
         proxy,
-        virtualPaths: settings.virtualPaths,
+        virtualPaths,
         bindIP: settings.bindIP,
         port: settings.port,
-        rootDirectory: new VirtualDirectory(__dirname),
-        websiteConfig: Object.assign(websiteConfig, settings.websiteConfig || {}),
+        // rootDirectory: new VirtualDirectory(__dirname),
+        // websiteConfig: Object.assign(w, settings.websiteConfig || {}),
         headers: settings.headers,
-    })
+        websiteDirectory: __dirname,
+    }, "mvc");
 
     r.contentTransforms.unshift(loginTransform);
 

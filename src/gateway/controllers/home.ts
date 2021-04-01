@@ -1,47 +1,61 @@
 import { action, controller, request, routeData } from "maishu-node-mvc";
-import http = require("http");
-import url = require("url");
-import { WebsiteConfig } from "maishu-chitu-admin";
 import { pathConcat } from "maishu-toolkit";
 import { g } from "../global";
-import gatewayWebsiteConfig from "../website-config";
+import gatewayWebsiteConfig from "../static/website-config";
 import fetch from "node-fetch";
 
-@controller("/")
-export default class HomeController {
-    @action()
-    async websiteConfig(@request req: http.IncomingMessage, @routeData d: { station: string }) {
-        let p = g.stationInfos.value.filter(o => o.path == d.station)[0];
-        let r: WebsiteConfig;
-        if (!p) {
-            r = gatewayWebsiteConfig;
-        }
-        else {
-            let configPath = p.config || "websiteConfig";
-            let url = pathConcat(`http://${p.ip}:${p.port}/`, configPath);
-            r = await new Promise<WebsiteConfig>((resolve, reject) => {
-                fetch(url)
-                    .then(r => r.json())
-                    .then(o => resolve(o))
-                    .catch(err => {
-                        console.info(err);
-                        resolve({});
-                    });
-            })
-        }
+// @controller("/")
+// export default class HomeController {
+//     @action()
+//     async websiteConfig(@routeData d: { station: string }) {
+//         let p = g.stationInfos.value.filter(o => o.path == d.station)[0];
+//         let r: WebsiteConfig;
+//         if (!p) {
+//             r = gatewayWebsiteConfig;
+//         }
+//         else {
+//             let configPath = p.config || "websiteConfig";
+//             let url = pathConcat(`http://${p.ip}:${p.port}/`, configPath);
+//             r = await new Promise<WebsiteConfig>((resolve, reject) => {
+//                 fetch(url)
+//                     .then(r => r.json())
+//                     .then(o => resolve(o))
+//                     .catch(err => {
+//                         console.info(err);
+//                         resolve({});
+//                     });
+//             })
+//         }
 
-        r = Object.assign({ requirejs: {}, menuItems: [] } as WebsiteConfig, r);
-        r.requirejs.paths = Object.assign(defaultPaths, r.requirejs.paths || {});
-        r.requirejs.shim = Object.assign(defaultShim, r.requirejs.shim || {});
-        if (p) {
-            r.requirejs.context = p.path;
-            // r.requirejs.baseUrl = p.path;
-        }
+//         r = Object.assign({ requirejs: {}, menuItems: [] } as WebsiteConfig, r);
+//         r.requirejs.paths = Object.assign(defaultPaths, r.requirejs.paths || {});
+//         r.requirejs.shim = Object.assign(defaultShim, r.requirejs.shim || {});
+//         if (p) {
+//             r.requirejs.context = p.path;
+//             // r.requirejs.baseUrl = p.path;
+//         }
 
-        return r;
-    }
+//         return r;
+//     }
 
-}
+//     @action("website-config.js")
+//     async websiteConfigjs(@routeData d: { station: string }) {
+//         let r = await this.websiteConfig(d);
+
+
+//         let script = `define(["require", "exports"], function (require, exports) {
+//     "use strict";
+//     let w = ${JSON.stringify(r, null, '    ')};
+//     return w;        
+// })`;
+
+//         return script;
+//     }
+
+// }
+
+
+
 
 let node_modules = '/node_modules';
 let lib = 'lib';

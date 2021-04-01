@@ -1,10 +1,13 @@
-import { DataSource } from "maishu-wuzhui-helper";
+import { DataSource } from "maishu-toolkit";
 import { PermissionService } from "./permission-service";
 import { GatewayService } from "./gateway-service";
-import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
+// import { errorHandle, WebsiteConfig } from "maishu-chitu-admin/static";
+import { WebsiteConfig } from "../website-config";
 import { User, Resource, } from "permission-entities";
 import { TokenData, Role } from "gateway-entities";
+import { errorHandle } from "../error-handle";
 // import { GatewayService } from "./gateway-service";
+
 
 export type MyUser = User & { roles?: Role[] };
 

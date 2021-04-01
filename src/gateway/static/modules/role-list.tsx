@@ -2,7 +2,7 @@ import React = require("react");
 import { boundField, dateTimeField, DataControlField } from "maishu-wuzhui-helper";
 import { dataSources } from "../services/data-sources";
 import { rules } from "maishu-dilu";
-import { DataListPage } from "maishu-chitu-admin/static";
+import { DataListPage } from "maishu-data-page";
 import { Role } from "gateway-entities";
 
 export default class RoleListPage extends DataListPage<Role> {

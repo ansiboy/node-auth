@@ -1,10 +1,12 @@
-import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
+// import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
 import { settings as globalSettings, stationPath, } from "./global";
 import { roleIds } from "../gateway";
-import websiteConfig from "./website-config";
-import { VirtualDirectory } from "maishu-node-mvc";
+import { VirtualDirectory, startServer as startAdmin } from "maishu-node-mvc";
+// import { PermissionConfig, StationInfo } from "maishu-chitu-admin";
+import { registerStation } from "./station";
+import { getVirtualPaths } from "maishu-admin-scaffold";
 
 export { Settings } from "./types";
 // export { createDataContext } from "./data-context";
@@ -15,20 +17,32 @@ export async function start(settings: Settings) {
 
     // await createDatabaseIfNotExists(settings.db, initDatabase);
 
-    let permissions: PermissionConfig = {};
+    let permissions: any = {};
     permissions[`${stationPath}*`] = {
         roleIds: [roleIds.admin, roleIds.anonymous],
     };
+
+    let station: any = {
+        path: stationPath,
+        ip: "127.0.0.1",
+        port: settings.port
+        // gateway: settings.gateway,
+        // permissions
+    }
+    registerStation(settings.gateway, station, permissions);
+    let virtualPaths = getVirtualPaths("static", path.join(__dirname, "static"));
+    virtualPaths = Object.assign(virtualPaths, settings.virtualPaths || {});
     return startAdmin({
         port: settings.port,
         // rootDirectory: __dirname,
-        rootDirectory: new VirtualDirectory(__dirname),
-        virtualPaths: settings.virtualPaths,
-        station: {
-            path: stationPath,
-            gateway: settings.gateway,
-            permissions
-        },
-        websiteConfig: Object.assign(websiteConfig, settings.websiteConfig || {})
+        // rootDirectory: new VirtualDirectory(__dirname),
+        virtualPaths: virtualPaths,
+        websiteDirectory: __dirname,
+        // station: {
+        //     path: stationPath,
+        //     gateway: settings.gateway,
+        //     permissions
+        // }
     })
 }
+

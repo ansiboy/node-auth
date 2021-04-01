@@ -1,6 +1,6 @@
 import { dataSources, MyUser, MyUser as User } from "../services/data-sources";
 import { boundField, dateTimeField, DataControlField, DataSource, customField, customDataField } from "maishu-wuzhui-helper";
-import { DataListPage, DataListPageState } from "maishu-chitu-admin/static";
+import { DataListPage, DataListPageState } from "maishu-data-page";
 import { rules } from "maishu-dilu";
 import React = require("react");
 import * as ui from "maishu-ui-toolkit";

@@ -1,11 +1,8 @@
-import { Service } from "maishu-chitu-admin/static";
+import { Service } from "maishu-chitu-service";
 import { errors } from "../errors";
 import { Resource, User } from "permission-entities";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
 import { pathConcat } from "maishu-toolkit";
-
-// import "json!websiteConfig";
-// let websiteConfig: PermissionWebsiteConfig = require("json!websiteConfig")
 
 export interface LoginInfo {
     token: string,

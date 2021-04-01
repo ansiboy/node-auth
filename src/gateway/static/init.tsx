@@ -1,84 +1,83 @@
-import { InitArguments, RequireJS, WebsiteConfig, Application } from "maishu-chitu-admin/static";
+import { WebsiteConfig } from "../types";
 import { PageData } from "maishu-chitu";
 import { PermissionService } from "./services/permission-service";
-import { RequireConfig } from "maishu-chitu-admin/static";
 import { GatewayService } from "./services/gateway-service";
 import React = require("react");
 import { pathConcat } from "maishu-toolkit";
 import { Station } from "gateway-entities";
-
+import { Application } from "maishu-admin-scaffold/static/application";
 
 type StationPageLoaders = { [path: string]: StationPageLoader };
 
-export default async function (args: InitArguments) {
+export default async function (app: Application) {
 
-    let permissionService = args.app.createService(PermissionService);
-    let gatewayService = args.app.createService(GatewayService);
-    let stations = await gatewayService.stationList();
+    // let permissionService = app.createService(PermissionService);
+    // let gatewayService = app.createService(GatewayService);
+    // let stations = await gatewayService.stationList();
 
-    let stationPageLoaders: StationPageLoaders = {};
-    for (let i = 0; i < stations.length; i++) {
-        stationPageLoaders[stations[i].path] = new StationPageLoader(stations[i]);
-    }
+    // let stationPageLoaders: StationPageLoaders = {};
+    // for (let i = 0; i < stations.length; i++) {
+    //     stationPageLoaders[stations[i].path] = new StationPageLoader(stations[i]);
+    // }
 
-    rewriteApplication(args.app, stationPageLoaders);
+    // rewriteApplication(app, stationPageLoaders);
 
-    PermissionService.token.attach(async token => {
-        if (!token) {
-            args.mainMaster.setMenu(...[]);
-            args.mainMaster.setToolbar(<></>);
-            return;
-        }
+    // PermissionService.token.attach(async token => {
+    //     if (!token) {
+    //         app.mainMaster.setState({ menuItems: [] });
+    //         app.mainMaster.setToolbar(<></>);
+    //         return;
+    //     }
 
-        let [menuItems, me, myRoles] = await Promise.all([
-            gatewayService.myMenuItems(),
-            permissionService.me(),
-            gatewayService.myRoles(),
-        ]);
+    //     let [menuItems, me, myRoles] = await Promise.all([
+    //         gatewayService.myMenuItems(),
+    //         permissionService.me(),
+    //         gatewayService.myRoles(),
+    //     ]);
 
-        let stack = [...menuItems];
-        while (stack.length > 0) {
-            let menuItem = stack.shift();
+    //     let stack = [...menuItems];
+    //     while (stack.length > 0) {
+    //         let menuItem = stack.shift();
 
-            if (menuItem.path != null && menuItem.path.startsWith("#")) {
-                let path = menuItem.path.substr(1);
-                let stationPath: string = menuItem["stationPath"];
-                if (stationPath) {
-                    console.assert(stationPath != null);
-                    if (stationPath.startsWith("/")) {
-                        stationPath = stationPath.substr(1);
-                    }
-                    if (stationPath.endsWith("/")) {
-                        stationPath = stationPath.substr(0, stationPath.length - 1);
-                    }
+    //         if (menuItem.path != null && menuItem.path.startsWith("#")) {
+    //             let path = menuItem.path.substr(1);
+    //             let stationPath: string = menuItem["stationPath"];
+    //             if (stationPath) {
+    //                 console.assert(stationPath != null);
+    //                 if (stationPath.startsWith("/")) {
+    //                     stationPath = stationPath.substr(1);
+    //                 }
+    //                 if (stationPath.endsWith("/")) {
+    //                     stationPath = stationPath.substr(0, stationPath.length - 1);
+    //                 }
 
-                    menuItem.path = `#/${stationPath}/${path}`;
-                }
-                else {
-                    menuItem.path = `#${path}`;
-                }
+    //                 menuItem.path = `#/${stationPath}/${path}`;
+    //             }
+    //             else {
+    //                 menuItem.path = `#${path}`;
+    //             }
 
-            }
+    //         }
 
-            (menuItem.children || []).forEach(child => {
-                stack.unshift(child);
-            })
-        }
+    //         (menuItem.children || []).forEach(child => {
+    //             stack.unshift(child);
+    //         })
+    //     }
 
-        args.mainMaster.setMenu(...menuItems);
+    //     app.mainMaster.setState({ menuItems });
 
-        args.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
-            <li className="pull-right" style={{ marginLeft: 10, cursor: "pointer" }} onClick={() => logout(gatewayService, args.app)}>
-                <i className="icon-off" style={{ marginRight: 4 }} />
-                <span>退出</span>
-            </li>
-            <li className="pull-right">
-                <span className="user-name">
-                    {me.mobile || me.user_name}({myRoles.map(o => o.name)})
-                </span>
-            </li>
-        </ul>);
-    })
+    //     app.mainMaster.setToolbar(<ul style={{ color: "white", margin: "4px 10px 0" }}>
+    //         <li className="pull-right" style={{ marginLeft: 10, cursor: "pointer" }} onClick={() => logout(gatewayService, app)}>
+    //             <i className="icon-off" style={{ marginRight: 4 }} />
+    //             <span>退出</span>
+    //         </li>
+    //         <li className="pull-right">
+    //             <span className="user-name">
+    //                 {me.mobile || me.user_name}({myRoles.map(o => o.name)})
+    //             </span>
+    //         </li>
+    //     </ul>);
+    // })
 }
 
 async function logout(gs: GatewayService, app: Application) {
@@ -88,7 +87,7 @@ async function logout(gs: GatewayService, app: Application) {
 }
 
 
-async function rewriteApplication(app: InitArguments["app"], stationPageLoaders: StationPageLoaders) {
+async function rewriteApplication(app: any, stationPageLoaders: StationPageLoaders) {
     console.assert(app != null);
     let showPage = app.showPage;
     app.showPage = function (pageUrl: string, args?: PageData, forceRender?: boolean) {
@@ -160,14 +159,14 @@ function formatStationRoot(stationPath: string) {
 
 class StationPageLoader {
     private stationInfo: Station;
-    private requirejs: RequireJS;
+    private requirejs: any;
 
     constructor(stationInfo: Station) {
         this.stationInfo = stationInfo;
     }
 
     private configRequirejs(stationWebsiteConfig: WebsiteConfig) {
-        stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || {} as RequireConfig;
+        stationWebsiteConfig.requirejs = stationWebsiteConfig.requirejs || ({} as (typeof stationWebsiteConfig)["requirejs"]);
         stationWebsiteConfig.requirejs.paths = stationWebsiteConfig.requirejs.paths || {};
         let req = requirejs.config(stationWebsiteConfig.requirejs);
         return req;
@@ -176,8 +175,8 @@ class StationPageLoader {
     async loadUrl(url: string): Promise<any> {
 
         if (!this.requirejs) {
-            let websiteConfig = await this.getWebsiteConfig(this.stationInfo);
-            this.requirejs = this.configRequirejs(websiteConfig);
+            let w = await this.getWebsiteConfig(this.stationInfo);
+            this.requirejs = this.configRequirejs(w);
         }
 
         return new Promise((resolve, reject) => {
@@ -189,14 +188,15 @@ class StationPageLoader {
     private getWebsiteConfig(stationInfo: Station) {
         return new Promise<WebsiteConfig>((resolve, reject) => {
             let websiteConfigPath = pathConcat(this.stationInfo.path, this.stationInfo.config || "website-config");
-            fetch(websiteConfigPath).then(async response => {
-                let stationWebsiteConfig = await response.json();
-                stationWebsiteConfig.requirejs.context = stationInfo.path;
-                stationWebsiteConfig.requirejs.baseUrl = stationInfo.path;
-                resolve(stationWebsiteConfig);
-            }).catch(err => {
-                reject(err);
-            })
+            // fetch(websiteConfigPath).then(async response => {
+            //     let stationWebsiteConfig = await response.json();
+            //     stationWebsiteConfig.requirejs.context = stationInfo.path;
+            //     stationWebsiteConfig.requirejs.baseUrl = stationInfo.path;
+            //     resolve(stationWebsiteConfig);
+            // }).catch(err => {
+            //     reject(err);
+            // })
+            requirejs([websiteConfigPath], (mod) => mod.default || mod, err => reject(err));
         })
     }
 }

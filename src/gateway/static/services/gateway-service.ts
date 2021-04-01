@@ -1,7 +1,6 @@
 import { Role, TokenData } from "gateway-entities";
 import { Service } from "maishu-chitu-service";
-import websiteConfig = require("json!websiteConfig");
-import { WebsiteConfig } from "maishu-chitu-admin/static";
+import { WebsiteConfig } from "../website-config";
 import { DataSourceSelectArguments, DataSourceSelectResult } from "maishu-wuzhui-helper";
 import { Resource } from "permission-entities";
 import { Station } from "gateway-entities";
@@ -14,7 +13,7 @@ export class GatewayService extends Service {
 
     async myMenuItems() {
         let url = this.url("menuItem/my");
-        let r = await this.get<typeof websiteConfig["menuItems"]>(url);
+        let r = await this.get<WebsiteConfig["menuItems"]>(url);
         return r;
     }
 

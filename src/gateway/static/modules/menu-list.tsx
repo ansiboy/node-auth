@@ -1,4 +1,4 @@
-import { DataListPage } from "maishu-chitu-admin/static";
+import { DataListPage } from "maishu-data-page";
 import { dataSources, MenuItem } from "../services/data-sources";
 import { boundField, dateTimeField, customDataField, DataControlField } from "maishu-wuzhui-helper";
 import ReactDOM = require("react-dom");
@@ -20,6 +20,7 @@ export default class MenuListPage extends DataListPage<MenuItem> {
 
         this.pageSize = null;
         this.headerFixed = true;
+
     }
 
     parentDeep(menuItem: MenuItem) {

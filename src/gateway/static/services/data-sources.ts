@@ -1,5 +1,5 @@
 import { DataSource } from "maishu-wuzhui-helper"
-import { WebsiteConfig } from "maishu-chitu-admin";
+import { WebsiteConfig } from "../website-config";
 import { GatewayService } from "./gateway-service";
 import { Role, TokenData, Station } from "gateway-entities";
 
@@ -37,7 +37,7 @@ let resourceDataSource = new DataSource<MenuItem>({
                 let children = item.children.reverse();
                 children.forEach((child: MenuItem) => {
                     child.parent = item;
-                    child.parentId = item.id;
+                    // child.parentId = item.id;
                     stack.unshift(child);
                 })
             }

@@ -1,4 +1,4 @@
-import { Service } from "maishu-chitu-admin/static";
+import { Service } from "maishu-chitu-service";
 import { LocalValueStore } from "maishu-chitu-service";
 import md5 = require("js-md5");
 import { DataSource, DataSourceSelectResult, DataSourceArguments } from "maishu-wuzhui-helper";
