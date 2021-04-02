@@ -29,7 +29,10 @@ export class JSONTransformer implements ValueTransformer {
     }
     // From db to typeorm
     from(value: string): Object | null {
-        let obj = JSON.parse(value);
+        let obj = value;
+        if (typeof value == "string")
+            obj = JSON.parse(value);
+            
         return obj;
     }
 }
