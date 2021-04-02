@@ -328,6 +328,9 @@ export default class UserController {
         if (user.password)
             entity.password = user.password;
 
+        if (user.data)
+            entity.data = user.data;
+
         await dc.users.save(entity);
         return { id: entity.id, } as Partial<User>
     }
