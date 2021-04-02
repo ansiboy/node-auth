@@ -18,8 +18,9 @@ let w: WebsiteConfig = {
     requirejs: {
         paths: {
             "js-md5": "node_modules/js-md5/src/md5",
+            "maishu-dilu-react": "node_modules/maishu-dilu-react/dist/index",
             "maishu-data-page": "node_modules/maishu-data-page/dist/index.min",
-            "maishu-chitu-admin/static": "node_modules/maishu-chitu-admin/dist/static"
+            "maishu-chitu-admin/static": "node_modules/maishu-chitu-admin/dist/static",
         }
     },
     menuItems: [
