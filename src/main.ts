@@ -2,10 +2,34 @@ import { Settings as GatewaySettings, roleIds } from "./gateway";
 import { Settings as PermissionSettings } from "./user";
 import { start } from "./index";
 import path = require("path");
-import { loadConfig } from "./config";
-//import config from "./config";
+import { Config, loadConfig } from "./config";
 
-loadConfig().then(config => {
+type MyConfig = Config & {
+    shopServiceStation: string,
+    imageStation: string,
+    payStation: string,
+    emailStation: string,
+    seoStation: string,
+    builderStation: string,
+};
+
+class ConfigFieldNullError extends Error {
+    constructor(field: keyof MyConfig) {
+        super(`Config '${field}' field is null or empty.`)
+    }
+
+}
+
+loadConfig().then((config: MyConfig) => {
+
+    if (!config.shopServiceStation)
+        throw new ConfigFieldNullError("shopServiceStation");
+
+    if (!config.payStation)
+        throw new ConfigFieldNullError("payStation");
+
+    if (!config.emailStation)
+        throw new ConfigFieldNullError("emailStation");
 
     //===========================================
     // 目标主机，服务所在的主机
@@ -13,9 +37,10 @@ loadConfig().then(config => {
     const gatewayPort = config.gatewayPort;
     // const gateway = `127.0.0.1:${gatewayPort}`;
     const userStationPort = gatewayPort + 1;
-    const target_host = "192.168.2.95";
+    const target_host = config.shopServiceStation;
     // const imageStation = "127.0.0.1:2863";
-    const imageStation = "192.168.2.94:48628";
+    const imageStation = config.imageStation;
+
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
         port: gatewayPort,
@@ -38,12 +63,12 @@ loadConfig().then(config => {
             "^/image/(\\S+)": `http://${imageStation}/$1`,
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
             // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
-            '^/pay/(\\S*)': `http://192.168.2.14:5262/$1`,
-            '^/email/(\\S*)': `http://127.0.0.1:6842/$1`,
-
+            '^/pay/(\\S*)': `http://${config.payStation}/$1`,
+            '^/email/(\\S*)': `http://${config.emailStation}/$1`,
+            '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
+            '^/builder/(\\S*)': `http://${config.builderStation}/$1`,
         },
         headers: {
-            'Content-Type': 'application/json;charset=utf-8',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': '*',
             'Access-Control-Allow-Headers': '*'
@@ -75,6 +100,8 @@ loadConfig().then(config => {
             "/merchant/website-config": { roleIds: [roleIds.anonymous] },
             "/pay/*": { roleIds: [roleIds.anonymous] },
             "/email/*": { roleIds: [roleIds.anonymous] },
+            "/seo/*": { roleIds: [roleIds.anonymous] },
+            "/builder/*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
