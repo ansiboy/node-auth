@@ -11,6 +11,7 @@ type MyConfig = Config & {
     emailStation: string,
     seoStation: string,
     builderStation: string,
+    storeStation: string,
 };
 
 class ConfigFieldNullError extends Error {
@@ -66,7 +67,8 @@ loadConfig().then((config: MyConfig) => {
             '^/pay/(\\S*)': `http://${config.payStation}/$1`,
             '^/email/(\\S*)': `http://${config.emailStation}/$1`,
             '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
-            '^/builder/(\\S*)': `http://${config.builderStation}/$1`,
+            '^/site/(\\S*)': `http://${config.builderStation}/$1`,
+            '^/store/(\\S*)': `http://${config.storeStation}/$1`,
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -101,7 +103,8 @@ loadConfig().then((config: MyConfig) => {
             "/pay/*": { roleIds: [roleIds.anonymous] },
             "/email/*": { roleIds: [roleIds.anonymous] },
             "/seo/*": { roleIds: [roleIds.anonymous] },
-            "/builder/*": { roleIds: [roleIds.anonymous] },
+            "/site/*": { roleIds: [roleIds.anonymous] },
+            "/store/*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
