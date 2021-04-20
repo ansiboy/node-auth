@@ -8,7 +8,7 @@ import { guid } from 'maishu-toolkit';
 import { LoginResult, statusCodes } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
-import { DataHelper } from 'maishu-node-data';
+import { DataHelper, } from 'maishu-node-data';
 
 @controller('user')
 export default class UserController {
@@ -74,6 +74,46 @@ export default class UserController {
         let r: LoginResult = { userId: user.id };
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
+
+    /** 注册用户，不校验手机，邮箱 */
+    @action()
+    async registerUser(@permissionDataContext dc: UserDataContext,
+        @routeData d: { user: User }) {
+
+        if (!d.user) throw errors.routeDataFieldNull("user");
+        if (d.user.mobile == null && d.user.email == null && d.user.user_name == null)
+            throw errors.userNameMobileEmailRequireOne();
+
+        let q = dc.users.createQueryBuilder("u");
+        if (d.user.mobile)
+            q.orWhere("u.mobile = :mobile", { mobile: d.user.mobile })
+
+        if (d.user.email)
+            q.orWhere("u.email = :email", { email: d.user.email })
+
+        if (d.user.user_name)
+            q.orWhere("u.user_name = :user_name", { user_name: d.user.user_name })
+
+        let obj = await q.select(["u.mobile", "u.email", "u.user_name"]).getOne();
+        if (obj?.mobile != null && obj?.mobile == d.user.mobile)
+            throw errors.mobileExists(d.user.mobile);
+
+        if (obj?.user_name != null && obj?.user_name == d.user.user_name)
+            throw errors.usernameExists(d.user.user_name);
+
+        if (obj?.email != null && obj?.email == d.user.email)
+            throw errors.emailExists(d.user.email);
+
+
+        d.user.id = d.user.id || guid();
+        d.user.create_date_time = new Date();
+
+        await dc.users.insert(d.user);
+
+        let r: LoginResult = { userId: d.user.id };
+        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+    }
+
 
     @action()
     async registerWidthoutVerify(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
@@ -321,18 +361,21 @@ export default class UserController {
         if (!user) throw errors.argumentNull('user');
         if (!user.id) throw errors.argumentFieldNull("id", "user");
 
-        let entity: Partial<User> = {
-            id: user.id, email: user.email,
-        };
+        // let entity: Partial<User> = {
+        //     id: user.id, email: user.email,
+        // };
 
-        if (user.password)
-            entity.password = user.password;
+        // if (user.password)
+        //     entity.password = user.password;
 
-        if (user.data)
-            entity.data = user.data;
+        // if (user.data)
+        //     entity.data = user.data;
 
-        await dc.users.save(entity);
-        return { id: entity.id, } as Partial<User>
+        user.id = user.id || guid();
+        user.create_date_time = user.create_date_time || new Date();
+
+        await dc.users.save(user);
+        return { id: user.id, } as Partial<User>
     }
 
     @action()

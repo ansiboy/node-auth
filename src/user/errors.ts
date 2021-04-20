@@ -82,5 +82,11 @@ export let errors = {
         let error = new Error(msg);
         error.name = errors.connectionOptionFieldNull.name;
         return error;
+    },
+    userNameMobileEmailRequireOne() {
+        let msg = `User name, mobile, email is required one.`;
+        let error = new Error(msg);
+        error.name = errors.userNameMobileEmailRequireOne.name;
+        return error;
     }
 }
