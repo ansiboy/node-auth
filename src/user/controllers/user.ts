@@ -324,6 +324,8 @@ export default class UserController {
     /** 添加用户 */
     @action()
     async add(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
+        if (!item) throw errors.routeDataFieldNull("item");
+
         if (item.mobile) {
             let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
             if (isMobileRegister)
@@ -342,10 +344,10 @@ export default class UserController {
                 return Promise.reject(errors.usernameExists(item.user_name))
         }
 
-        item.id = guid();
+        item.id = item.id || guid();
         item.create_date_time = new Date(Date.now());
 
-        await dc.users.save(item);
+        await dc.users.insert(item);
         return { id: item.id, create_date_time: item.create_date_time };
     }
 
@@ -357,25 +359,49 @@ export default class UserController {
     }
 
     @action()
-    async update(@permissionDataContext dc: UserDataContext, @routeData { user }: { user: User }) {
-        if (!user) throw errors.argumentNull('user');
-        if (!user.id) throw errors.argumentFieldNull("id", "user");
+    async update(@permissionDataContext dc: UserDataContext, @routeData d: { user: User }) {
+        if (!d.user) throw errors.argumentNull('user');
+        if (!d.user.id) throw errors.argumentFieldNull("id", "user");
 
-        // let entity: Partial<User> = {
-        //     id: user.id, email: user.email,
-        // };
+        let q = dc.users.createQueryBuilder("u");
+        let query = "u.id <> :id";
+        let orQuery = "";
+        if (d.user.mobile)
+            orQuery = "or u.mobile = :mobile "; //q.orWhere("u.mobile = :mobile", { mobile: d.user.mobile })
 
-        // if (user.password)
-        //     entity.password = user.password;
+        if (d.user.email)
+            orQuery = orQuery + "or u.email = :email ";//q.orWhere("u.email = :email", { email: d.user.email })
 
-        // if (user.data)
-        //     entity.data = user.data;
+        if (d.user.user_name)
+            orQuery = orQuery = "or u.user_name = :user_name ";//q.orWhere("u.user_name = :user_name", { user_name: d.user.user_name })
 
-        user.id = user.id || guid();
-        user.create_date_time = user.create_date_time || new Date();
+        if (orQuery) {
+            orQuery = orQuery.substr(2);
+            query = query + " and (" + orQuery + ")";
+        }
 
-        await dc.users.save(user);
-        return { id: user.id, } as Partial<User>
+        let obj = await q.where(query, d.user).select(["u.mobile", "u.email", "u.user_name"]).getOne();
+        if (obj?.mobile != null && obj?.mobile == d.user.mobile)
+            throw errors.mobileExists(d.user.mobile);
+
+        if (obj?.user_name != null && obj?.user_name == d.user.user_name)
+            throw errors.usernameExists(d.user.user_name);
+
+        if (obj?.email != null && obj?.email == d.user.email)
+            throw errors.emailExists(d.user.email);
+
+        // d.user.id = d.user.id || guid();
+        // d.user.create_date_time = d.user.create_date_time || new Date();
+        let keys = Object.keys(d.user);
+        for (let i = 0; i < keys.length; i++) {
+            if (d.user[keys[i]] === undefined) {
+                delete d.user[keys[i]];
+            }
+        }
+
+        delete d.user.create_date_time;
+        await dc.users.update(d.user.id, d.user);
+        return { id: d.user.id, } as Partial<User>
     }
 
     @action()
