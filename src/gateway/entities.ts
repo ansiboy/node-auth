@@ -55,6 +55,9 @@ export class Role {
     @OneToMany(() => UserRole, userRole => userRole.role)
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
+
+    @Column({ type: "char", length: 36, nullable: true })
+    applicationId?: string;
 }
 
 @Entity("user_role")
