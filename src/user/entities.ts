@@ -32,7 +32,7 @@ export class JSONTransformer implements ValueTransformer {
         let obj = value;
         if (typeof value == "string")
             obj = JSON.parse(value);
-            
+
         return obj;
     }
 }
@@ -152,9 +152,11 @@ export class User implements Model {
     @Column({ type: "varchar", length: 45, nullable: true })
     openid?: string;
 
-    @Column({ nullable: true, transformer: new BitBooleanTransformer() })
-    is_system?: boolean;
+    // @Column({ nullable: true, transformer: new BitBooleanTransformer() })
+    // is_system?: boolean;
 
+    @Column({ type: "varchar", length: 100, nullable: true })
+    remark?: string;
 }
 
 @Entity("user-latest-login")
