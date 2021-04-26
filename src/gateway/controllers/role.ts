@@ -3,7 +3,7 @@ import { AuthDataContext } from "../data-context";
 import { authDataContext } from "../decorators";
 import { Role } from "../entities";
 import { errors } from "../errors";
-import { guid } from 'maishu-toolkit';
+import { DataSourceSelectArguments, guid } from 'maishu-toolkit';
 import { constants } from "../global";
 import { DataHelper } from "maishu-node-data";
 
@@ -53,10 +53,10 @@ export default class RoleController {
 
     /** 获取角色列表 */
     @action()
-    async list(@authDataContext dc: AuthDataContext, @routeData { args }) {
+    async list(@authDataContext dc: AuthDataContext, @routeData { args }: { args: DataSourceSelectArguments }) {
         if (!dc) throw errors.argumentNull("dc");
 
-        let r = await DataHelper.list(dc.roles, args);
+        let r = await DataHelper.list(dc.roles, { selectArguments: args });
         return r;
     }
 

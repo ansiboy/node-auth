@@ -55,6 +55,9 @@ export class Role {
     @OneToMany(() => UserRole, userRole => userRole.role)
     @JoinColumn({ name: "id", referencedColumnName: "role_id" })
     userRoles?: UserRole[];
+
+    @Column({ type: "char", length: 36 })
+    application_id?: string;
 }
 
 @Entity("user_role")
@@ -82,7 +85,7 @@ export class MenuItemRecord {
     roleIds: string[];
 
     @Column({ type: "datetime", name: "create_date_time" })
-    createDateTime: Date;
+    create_date_time: Date;
 }
 
 @Entity("station_info")

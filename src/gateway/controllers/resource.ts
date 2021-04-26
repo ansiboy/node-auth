@@ -113,7 +113,7 @@ export class MenuController {
         for (let i = 0; i < d.resourceIds.length; i++) {
             let menuItemRecord = await menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
             if (menuItemRecord == null) {
-                menuItemRecord = { id: d.resourceIds[i], roleIds: [d.roleId], createDateTime: new Date() };
+                menuItemRecord = { id: d.resourceIds[i], roleIds: [d.roleId], create_date_time: new Date() };
                 menuItemRecords.push(menuItemRecord);
                 await dc.menuItemRecords.insert(menuItemRecord);
             }
