@@ -45,7 +45,7 @@ loadConfig().then((config: MyConfig) => {
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
         port: gatewayPort,
-        db: config.db.gateway,
+        // db: config.db.gateway,
         logLevel: "all",
         proxy: {
             '^/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,
@@ -108,7 +108,7 @@ loadConfig().then((config: MyConfig) => {
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
-        }
+        },
     }
 
     let permissionStationSettings: PermissionSettings = {
