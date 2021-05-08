@@ -14,15 +14,17 @@ export default class RoleController {
         if (!item) throw errors.argumentNull('item')
         if (!item.name) throw errors.argumentFieldNull("name", "item");
 
-        let role: Role = {
-            id: guid(), name: item.name, remark: item.remark,
-            create_date_time: new Date(Date.now()),
-            parent_id: item.parent_id,
-        }
+        // let role: Role = {
+        //     id: guid(), name: item.name, remark: item.remark,
+        //     create_date_time: new Date(Date.now()),
+        //     parent_id: item.parent_id,
+        // }
+        item.id = item.id || guid();
+        item.create_date_time = new Date();
 
-        await dc.roles.save(role);
+        await dc.roles.save(item);
 
-        return { id: role.id, create_date_time: role.create_date_time };
+        return { id: item.id, create_date_time: item.create_date_time };
     }
 
     @action()

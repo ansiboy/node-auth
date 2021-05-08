@@ -14,7 +14,7 @@ export default class RoleListPage extends DataListPage<Role> {
         }),
         boundField<Role>({
             dataField: 'name', headerText: '名称', emptyText: "请输入角色名称",
-            validateRules: [rules.required("请输入角色名称")],
+            validation: { rules: [rules.required("请输入角色名称")] },
         }),
         boundField<Role>({
             dataField: "remark", headerText: '备注', emptyText: "请输入备注",

@@ -65,9 +65,11 @@ export default class UserController {
         if (!d.userId) throw errors.argumentFieldNull("userId", "d");
         if (!d.roleIds) throw errors.argumentFieldNull("roleIds", "d");
 
-        dc.userRoles.delete({ user_id: d.userId });
+        await dc.userRoles.delete({ user_id: d.userId });
 
-        let itmes: UserRole[] = d.roleIds.map(o => ({ user_id: d.userId, role_id: o } as UserRole));
+        let itmes: UserRole[] = d.roleIds.map(o => ({
+            user_id: d.userId, role_id: o, create_date_time: new Date(),
+        } as UserRole));
         await dc.userRoles.insert(itmes);
         return {};
     }

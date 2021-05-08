@@ -1,12 +1,13 @@
 {
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "grunt",
-    "isShellCommand": true,
     "tasks": [
         {
-            "taskName": "default",
-            "isBuildCommand": true,
-            "problemMatcher": "$tsc"
+            "label": "default",
+            "type": "grunt",
+            "task": "default",
+            "problemMatcher": "$tsc",
+            "group": "build"
         }
     ]
 }

@@ -323,8 +323,16 @@ export default class UserController {
 
     /** 添加用户 */
     @action()
-    async add(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }): Promise<Partial<User>> {
+    async add(@permissionDataContext dc: UserDataContext, @routeData d: { item: User }): Promise<Partial<User>> {
+        let { item } = d;
         if (!item) throw errors.routeDataFieldNull("item");
+
+        if (d.item.id) {
+            let r: User = await dc.users.findOne({ select: ["id"], where: { id: d.item.id } });
+            if (r) {
+                return { id: r.id };
+            }
+        }
 
         if (item.mobile) {
             let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })

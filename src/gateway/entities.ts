@@ -52,9 +52,9 @@ export class Role {
     @Column({ type: "varchar", length: 36, nullable: true })
     parent_id?: string;
 
-    @OneToMany(() => UserRole, userRole => userRole.role)
-    @JoinColumn({ name: "id", referencedColumnName: "role_id" })
-    userRoles?: UserRole[];
+    // @OneToMany(() => UserRole, userRole => userRole.role)
+    // @JoinColumn({ name: "id", referencedColumnName: "role_id" })
+    // userRoles?: UserRole[];
 
     @Column({ type: "char", length: 36 })
     application_id?: string;
@@ -68,9 +68,12 @@ export class UserRole {
     @PrimaryColumn({ type: "varchar", length: 36 })
     role_id: string;
 
-    @ManyToOne(() => Role, role => role.userRoles)
-    @JoinColumn({ name: "role_id", referencedColumnName: "id" })
-    role?: Role;
+    // @ManyToOne(() => Role, role => role.userRoles)
+    // @JoinColumn({ name: "role_id", referencedColumnName: "id" })
+    // role?: Role;
+
+    @Column({ type: "datetime", nullable: true })
+    create_date_time?: Date;
 }
 
 @Entity("menu_item_record")
