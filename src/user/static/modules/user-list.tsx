@@ -23,7 +23,7 @@ export default class UserListPage extends DataListPage<User, Props, State> {
     columns: DataControlField<User>[] = [
         boundField<User>({
             dataField: "mobile", headerText: "用户手机", headerStyle: { width: "240px" },
-            validateRules: [rules.required("请输入手机号码")], emptyText: "必填，用户手机号码"
+            validation: { rules: [rules.required("请输入手机号码")] }, emptyText: "必填，用户手机号码"
         }),
         boundField<User>({
             dataField: "user_name", headerText: "用户名", headerStyle: { width: "240px" }, readOnly: true,

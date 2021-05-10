@@ -25,7 +25,7 @@
         "maishu-toolkit": "^1.6.6",
         "maishu-ui-toolkit": "^1.11.2",
         "maishu-wuzhui": "^1.21.12",
-        "maishu-wuzhui-helper": "^1.9.5",
+        "maishu-wuzhui-helper": "^1.9.8",
         "memory-cache": "^0.2.0",
         "mysql": "^2.17.1",
         "open": "^7.3.1",
