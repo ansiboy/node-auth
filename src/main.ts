@@ -46,7 +46,7 @@ loadConfig().then((config: MyConfig) => {
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
         port: gatewayPort,
-        // db: config.db.gateway,
+        db: config.db.gateway,
         logLevel: "all",
         proxy: {
             '^/AdminSite/(\\S+)': `http://${target_host}:9000/Admin/$1`,

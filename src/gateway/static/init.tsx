@@ -11,16 +11,14 @@ type StationPageLoaders = { [path: string]: StationPageLoader };
 
 export default async function (app: Application) {
 
-    // let permissionService = app.createService(PermissionService);
-    // let gatewayService = app.createService(GatewayService);
-    // let stations = await gatewayService.stationList();
+    app.pageContainers = {
+        "forget-password": "simple",
+        "login": "simple",
+        "register": "simple",
+    }
+    
+    //rewriteApplication(app, {});
 
-    // let stationPageLoaders: StationPageLoaders = {};
-    // for (let i = 0; i < stations.length; i++) {
-    //     stationPageLoaders[stations[i].path] = new StationPageLoader(stations[i]);
-    // }
-
-    // rewriteApplication(app, stationPageLoaders);
 
     // PermissionService.token.attach(async token => {
     //     if (!token) {
@@ -116,11 +114,11 @@ async function rewriteApplication(app: any, stationPageLoaders: StationPageLoade
             path = pathConcat("modules", path);
         }
 
-        if (stationPath) {
-            let stationPageLoader = stationPageLoaders[stationPath];
-            console.assert(stationPageLoader != null);
-            return stationPageLoader.loadUrl(path);
-        }
+        // if (stationPath) {
+        //     let stationPageLoader = stationPageLoaders[stationPath];
+        //     console.assert(stationPageLoader != null);
+        //     return stationPageLoader.loadUrl(path);
+        // }
 
         return new Promise<any>((reslove, reject) => {
             requirejs([path],

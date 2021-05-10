@@ -57,7 +57,7 @@ export class Role {
     userRoles?: UserRole[];
 
     @Column({ type: "char", length: 36, nullable: true })
-    applicationId?: string;
+    application_id?: string;
 }
 
 @Entity("user_role")
