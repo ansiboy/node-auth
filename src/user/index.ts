@@ -1,10 +1,8 @@
-// import { start as startAdmin, PermissionConfig } from "maishu-chitu-admin";
 import path = require("path");
 import { Settings } from "./types";
 import { settings as globalSettings, stationPath, } from "./global";
 import { roleIds } from "../gateway";
 import { VirtualDirectory, startServer as startAdmin } from "maishu-node-mvc";
-// import { PermissionConfig, StationInfo } from "maishu-chitu-admin";
 import { registerStation } from "./station";
 import { getVirtualPaths } from "maishu-admin-scaffold";
 
