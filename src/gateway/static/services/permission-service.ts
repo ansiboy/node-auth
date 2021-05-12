@@ -13,7 +13,7 @@ export class PermissionService extends Service {
     static token: ValueStore<string> = window["token"] = window["token"] || new ValueStore<string>();
 
     private url(path: string) {
-        return `/user/${path}`;
+        return `user/${path}`;
     }
 
     async login(username: string, password: string) {

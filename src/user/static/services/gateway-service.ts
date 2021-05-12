@@ -8,7 +8,7 @@ import { Station } from "gateway-entities";
 export class GatewayService extends Service {
 
     private url(path: string) {
-        return `/auth/${path}`;
+        return `auth/${path}`;
     }
 
     async myMenuItems() {
