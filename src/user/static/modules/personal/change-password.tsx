@@ -69,7 +69,7 @@ export default class ChagePasswordPage extends BasePage<PageProps, State>{
                     if (!e) return;
                     buttonOnClick(e, () => this.save())
                 }}>
-                <i className="icon-save" />
+                <i className="fa fa-save" />
                 <span>保存</span>
             </button>
         ]
