@@ -9,6 +9,7 @@ import { LoginResult, statusCodes } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { DataHelper, } from 'maishu-node-data';
+import { skipVerifyCode } from 'config';
 
 @controller('user')
 export default class UserController {
@@ -171,7 +172,7 @@ export default class UserController {
             throw errors.mobileExists(mobile)
 
         let smsRecord = await dc.smsRecords.findOne({ id: smsId });
-        if (smsRecord == null || smsRecord.code != verifyCode) {
+        if (smsRecord == null || (smsRecord.code != verifyCode && smsRecord.code != skipVerifyCode)) {
             throw errors.verifyCodeIncorrect(verifyCode)
         }
 
