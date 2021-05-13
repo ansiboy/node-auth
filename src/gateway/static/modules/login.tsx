@@ -23,7 +23,7 @@ const LOGIN = "login";
 
 export default class LoginPage extends React.Component<Props, State> {
     private element: HTMLElement;
-    private validator: FormValidator;
+    private validator: FormValidator = new FormValidator();
 
     constructor(props) {
         super(props)

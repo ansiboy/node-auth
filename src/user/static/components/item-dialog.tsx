@@ -127,11 +127,11 @@ export function createItemDialog<T>
                     </div>
                     <div className="modal-footer">
                         <button className="btn btn-default" onClick={e => { hideDialog(this.dialogElement) }}>
-                            <i className="icon-reply" />
+                            <i className="fa fa-reply" />
                             <span>取消</span>
                         </button>
                         <button className="btn btn-primary" onClick={() => this.onSaveButtonClick()}>
-                            <i className="icon-save" />
+                            <i className="fa fa-save" />
                             <span>确定</span>
                         </button>
                     </div>

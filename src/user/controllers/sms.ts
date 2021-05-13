@@ -5,6 +5,7 @@ import { UserDataContext, } from '../data-context';
 import { permissionDataContext } from "../decorators";
 import { settings } from '../global';
 import { guid } from 'maishu-toolkit';
+import { skipVerifyCode } from '../../config';
 
 interface SMSRecord {
     id: string,
@@ -50,6 +51,12 @@ export default class SMSController {
 
     @action()
     async checkVerifyCode(@permissionDataContext dc: UserDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
+        if (verifyCode == skipVerifyCode)
+            return true;
+
+        if (smsId == null)
+            throw errors.argumentNull('smsId');
+
         let smsRecord = await dc.smsRecords.findOne(smsId);
         if (smsRecord == null || smsRecord.code != verifyCode)
             return false;

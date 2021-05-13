@@ -15,6 +15,7 @@ import { AuthDataContext } from "./data-context";
 import { StationController } from "./controllers/station";
 import { getVirtualPaths } from "maishu-admin-scaffold";
 import * as path from "path";
+import { ProxyItem } from "maishu-node-web-server";
 
 export async function start(settings: Settings) {
 
@@ -25,8 +26,14 @@ export async function start(settings: Settings) {
     let proxy: MVCSettings["proxy"] = {};
     settings.proxy = settings.proxy || {};
     for (let key in settings.proxy) {
-        proxy[key] = {
-            targetUrl: settings.proxy[key], headers: (args) => proxyHeader(args.req),
+        if (typeof settings.proxy[key] == "string") {
+            proxy[key] = {
+                targetUrl: settings.proxy[key] as string, headers: (args) => proxyHeader(args.req),
+            }
+        }
+        else {
+            proxy[key] = settings.port[key];
+            (proxy[key] as ProxyItem).headers = (args) => proxyHeader(args.req);
         }
     }
 

@@ -13,6 +13,7 @@ type MyConfig = Config & {
     builderStation: string,
     storeStation: string,
     merchantStation: string,
+    messageStation: string,
 };
 
 class ConfigFieldNullError extends Error {
@@ -71,6 +72,7 @@ loadConfig().then((config: MyConfig) => {
             '^/site/(\\S*)': `http://${config.builderStation}/$1`,
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
+            '^/message/(\\S*)': `http://${config.messageStation}/$1`,
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -108,10 +110,11 @@ loadConfig().then((config: MyConfig) => {
             "/site/*": { roleIds: [roleIds.anonymous] },
             "/store/*": { roleIds: [roleIds.anonymous] },
             "/merchant/*": { roleIds: [roleIds.anonymous] },
+            "/message/*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
-        }
+        },
     }
 
     let permissionStationSettings: PermissionSettings = {

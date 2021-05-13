@@ -52,8 +52,8 @@ export default class UserController {
         if (!password)
             throw errors.argumentNull('password')
 
-        if (smsId == null)
-            throw errors.argumentNull('smsId');
+        // if (smsId == null)
+        //     throw errors.argumentNull('smsId');
 
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
@@ -357,6 +357,20 @@ export default class UserController {
 
         await dc.users.insert(item);
         return { id: item.id, create_date_time: item.create_date_time };
+    }
+
+    @action()
+    async addIfNotExists(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
+        if (!item) throw errors.routeDataFieldNull("item");
+
+        if (item.id) {
+            let entity = await dc.users.findOne(item.id);
+            if (entity != null) {
+                return entity;
+            }
+        }
+
+        return this.add(dc, { item });
     }
 
     @action()
