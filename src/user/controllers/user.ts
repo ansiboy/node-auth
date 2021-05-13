@@ -9,7 +9,6 @@ import { LoginResult, statusCodes } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { DataHelper, } from 'maishu-node-data';
-import { skipVerifyCode } from 'config';
 
 @controller('user')
 export default class UserController {
@@ -53,8 +52,8 @@ export default class UserController {
         if (!password)
             throw errors.argumentNull('password')
 
-        if (smsId == null)
-            throw errors.argumentNull('smsId');
+        // if (smsId == null)
+        //     throw errors.argumentNull('smsId');
 
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
@@ -172,7 +171,7 @@ export default class UserController {
             throw errors.mobileExists(mobile)
 
         let smsRecord = await dc.smsRecords.findOne({ id: smsId });
-        if (smsRecord == null || (smsRecord.code != verifyCode && smsRecord.code != skipVerifyCode)) {
+        if (smsRecord == null || smsRecord.code != verifyCode) {
             throw errors.verifyCodeIncorrect(verifyCode)
         }
 
@@ -350,6 +349,20 @@ export default class UserController {
 
         await dc.users.insert(item);
         return { id: item.id, create_date_time: item.create_date_time };
+    }
+
+    @action()
+    async addIfNotExists(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
+        if (!item) throw errors.routeDataFieldNull("item");
+
+        if (item.id) {
+            let entity = await dc.users.findOne(item.id);
+            if (entity != null) {
+                return entity;
+            }
+        }
+
+        return this.add(dc, { item });
     }
 
     @action()
