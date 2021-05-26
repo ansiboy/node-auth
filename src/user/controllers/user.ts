@@ -52,9 +52,6 @@ export default class UserController {
         if (!password)
             throw errors.argumentNull('password')
 
-        // if (smsId == null)
-        //     throw errors.argumentNull('smsId');
-
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
@@ -63,6 +60,14 @@ export default class UserController {
         let ctrl = new SMSController();
         if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
             throw errors.verifyCodeIncorrect(verifyCode);
+
+        let isMobileRegister = this.isMobileRegister(dc, { mobile });
+        if (isMobileRegister)
+            throw errors.mobileExists(mobile);
+
+        let usernameExists = this.isUserNameRegister(dc, { user_name: userName });
+        if (usernameExists)
+            throw errors.usernameExists(userName);
 
         let user: User = {
             id: guid(), mobile, password, data, user_name: userName,
@@ -75,7 +80,7 @@ export default class UserController {
         return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
     }
 
-    /** 注册用户，不校验手机，邮箱 */
+    /** 注册用户 */
     @action()
     async registerUser(@permissionDataContext dc: UserDataContext,
         @routeData d: { user: User }) {
