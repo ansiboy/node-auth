@@ -18,3 +18,10 @@ export let currentUser = createParameterDecorator(async (context) => {
 
     return user;
 })
+
+export let currentUserId = createParameterDecorator(async (context) => {
+
+    let userId = context.req.headers[tokenDataHeaderNames.userId] as string;
+    return userId;
+
+});

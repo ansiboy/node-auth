@@ -52,9 +52,6 @@ export default class UserController {
         if (!password)
             throw errors.argumentNull('password')
 
-        // if (smsId == null)
-        //     throw errors.argumentNull('smsId');
-
         if (verifyCode == null)
             throw errors.argumentNull('verifyCode');
 
@@ -88,7 +85,7 @@ export default class UserController {
         return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
 
-    /** 注册用户，不校验手机，邮箱 */
+    /** 注册用户 */
     @action()
     async registerUser(@permissionDataContext dc: UserDataContext,
         @routeData d: { user: User }) {
@@ -151,8 +148,11 @@ export default class UserController {
         if (smsId == null)
             throw errors.argumentNull('smsId');
 
-        if (verifyCode == null)
-            throw errors.argumentNull('verifyCode');
+        // if (verifyCode == null)
+        //     throw errors.argumentNull('verifyCode');
+        let ctrl = new SMSController();
+        if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
+            throw errors.verifyCodeIncorrect(verifyCode);
 
         let user = await dc.users.findOne({ mobile });
         if (user == null) {
@@ -315,6 +315,16 @@ export default class UserController {
             id: user.id, mobile: user.mobile, user_name: user.user_name,
             data: user.data, email: user.email,
         } as Partial<User>;
+    }
+
+    @action()
+    async updateMe(@currentUserId userId: string, @permissionDataContext dc: UserDataContext, @routeData d: { user: Partial<User> }) {
+        if (!d.user) throw errors.routeDataFieldNull("user");
+
+        await dc.users.update(userId, d.user);
+
+        let r: Pick<User, "id"> = { id: userId };
+        return r;
     }
 
     /** 获取用户信息 */
