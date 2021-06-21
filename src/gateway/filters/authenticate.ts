@@ -7,8 +7,7 @@ import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, constants, roleIds } from "../global";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "../token";
-import UrlPattern = require("url-pattern");
-import { statusCodes } from "../status-codes";
+import { StatusCode } from "../status-codes";
 import { Role } from "../entities";
 import { AuthDataContext } from "../data-context";
 
@@ -58,8 +57,8 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     // 检查通过配置设置的权限
     let paths = Object.getOwnPropertyNames(permissions);
     for (let i = 0; i < paths.length; i++) {
-        var pattern = new UrlPattern(paths[i]);
-        if (pattern.match(u.pathname)) {
+        var pattern = new RegExp(paths[i]);
+        if (pattern.test(u.pathname)) {
             let permissionItem = permissions[paths[i]] || {} as PermissionConfigItem;
             permissionItem.roleIds = permissionItem.roleIds || [];
             for (let userRoleId of userRoleIds) {
@@ -72,7 +71,7 @@ export async function authenticate(req: http.IncomingMessage, res: http.ServerRe
     //==================================================
 
     let error = userId == null ? errors.userNotLogin(req.url) : errors.forbidden(u.pathname);
-    let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", statusCodes.noPermission);
+    let result = new ContentResult(JSON.stringify(error), "application/json; charset=utf-8", StatusCode.NoPermission);
     logger.info(`Current user role is:`, userRoleIds);
     logger.warn(error);
     return result;

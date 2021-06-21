@@ -3,7 +3,6 @@ import { getLogger, RequestProcessor, RequestContext, RequestResult, processorPr
 import { errors } from "../errors";
 import { PermissionConfig, PermissionConfigItem } from "../types";
 import { g, roleIds } from "../global";
-import UrlPattern = require("url-pattern");
 import { StatusCode } from "../status-codes";
 import { getTokenData } from "../filters/authenticate";
 import { AuthDataContext } from "../data-context";
@@ -58,8 +57,8 @@ export class AuthenticateRequestProcessor implements RequestProcessor {
         // 检查通过配置设置的权限
         let paths = Object.getOwnPropertyNames(permissions);
         for (let i = 0; i < paths.length; i++) {
-            var pattern = new UrlPattern(paths[i]);
-            if (pattern.match(u.pathname)) {
+            var pattern = new RegExp(paths[i]);
+            if (pattern.test(u.pathname)) {
                 let permissionItem = permissions[paths[i]] || {} as PermissionConfigItem;
                 permissionItem.roleIds = permissionItem.roleIds || [];
                 for (let userRoleId of userRoleIds) {
