@@ -458,6 +458,28 @@ export default class UserController {
 
         return items;
     }
+
+    @action()
+    async changePassword(@permissionDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
+        @currentUserId currentUserId: string) {
+
+        if (!d.oldPassword) throw errors.routeDataFieldNull("oldPassword");
+        if (!d.newPassword) throw errors.routeDataFieldNull("newPassword");
+
+        let me = await dc.users.findOne({
+            where: { id: currentUserId },
+            select: ["password"]
+        });
+        if (me == null) throw errors.objectNotExistWithId(currentUserId, "user");
+        if (me.password != d.oldPassword)
+            throw errors.passwordIncorrect();
+
+        await dc.users.update(currentUserId, { password: d.newPassword });
+
+        return { id: currentUserId };
+    }
+
+
 }
 
 

@@ -62,6 +62,12 @@ export let errors = {
     usernameOrPasswordIncorrect(username: string) {
         let msg = `用户名或密码不正确.`;
         let error = new Error(msg);
+        error.name = `${myStatusCodes.usernameOrPasswordIncorect} ${errors.usernameOrPasswordIncorrect.name}`;
+        return error;
+    },
+    passwordIncorrect() {
+        let msg = `密码不正确.`;
+        let error = new Error(msg);
         error.name = `${myStatusCodes.passwordIncorect} ${errors.usernameOrPasswordIncorrect.name}`;
         return error;
     },
