@@ -5,7 +5,7 @@ import { permissionDataContext, currentUserId, currentUser } from "../decorators
 import { User } from '../entities';
 import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
-import { LoginResult, statusCodes } from "../../gateway";
+import { LoginResult, StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { DataHelper, } from 'maishu-node-data';
@@ -61,13 +61,18 @@ export default class UserController {
         if (!ctrl.checkVerifyCode(dc, { smsId, verifyCode }))
             throw errors.verifyCodeIncorrect(verifyCode);
 
-        let isMobileRegister = this.isMobileRegister(dc, { mobile });
-        if (isMobileRegister)
-            throw errors.mobileExists(mobile);
+        let q = dc.users.createQueryBuilder("u");
+        if (mobile) {
+            let isMobileRegister = await this.isMobileRegister(dc, { mobile })
+            if (isMobileRegister)
+                throw errors.mobileExists(mobile)
+        }
 
-        let usernameExists = this.isUserNameRegister(dc, { user_name: userName });
-        if (usernameExists)
-            throw errors.usernameExists(userName);
+        if (userName) {
+            let isUserNameRegister = await this.isUserNameRegister(dc, { user_name: userName });
+            if (isUserNameRegister)
+                throw errors.usernameExists(userName);
+        }
 
         let user: User = {
             id: guid(), mobile, password, data, user_name: userName,
@@ -77,7 +82,7 @@ export default class UserController {
         await dc.users.insert(user);
 
         let r: LoginResult = { userId: user.id };
-        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+        return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
 
     /** 注册用户 */
@@ -116,7 +121,7 @@ export default class UserController {
         await dc.users.insert(d.user);
 
         let r: LoginResult = { userId: d.user.id };
-        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+        return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
 
 
@@ -124,12 +129,12 @@ export default class UserController {
     async registerWidthoutVerify(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
         let user = await this.add(dc, { item });
         let r: LoginResult = { userId: user.id };
-        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+        return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
 
     private loginActionResult(userId: string) {
         let r: LoginResult = { userId: userId };
-        return new ContentResult(JSON.stringify(r), "application/json", statusCodes.login);
+        return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
 
     @action()
@@ -292,12 +297,12 @@ export default class UserController {
         await dc.userLatestLogins.save(r);
 
 
-        return new ContentResult(JSON.stringify(p), "application/json", statusCodes.login);
+        return new ContentResult(JSON.stringify(p), "application/json", StatusCode.Login);
     }
 
     @action()
     async logout() {
-        return new ContentResult(JSON.stringify({}), "application/json", statusCodes.logout);
+        return new ContentResult(JSON.stringify({}), "application/json", StatusCode.Logout);
     }
 
     /** 获取登录用户的信息 */
