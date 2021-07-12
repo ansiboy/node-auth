@@ -1,30 +1,30 @@
 import { statusCodes as myStatusCodes } from "./status-codes";
-import { statusCodes } from "../gateway";
+import { StatusCode } from "../gateway";
 import { ConnectionOptions } from "maishu-node-data";
 
 export let errors = {
     argumentNull(argumentName: string): Error {
         let msg = `Argument '${argumentName}' cannt be null`;
         let error = new Error(msg);
-        error.name = `${statusCodes.argumentNull} ${errors.argumentNull.name}`;
+        error.name = `${StatusCode.ArgumentNull} ${errors.argumentNull.name}`;
         return error;
     },
     routeDataFieldNull<T>(fieldName: keyof T): Error {
         let msg = `The '${fieldName}' field of route data cannt be null.`;
         let error = new Error(msg);
-        error.name = `${statusCodes.fieldNull} ${errors.routeDataFieldNull.name}`;
+        error.name = `${StatusCode.FieldNull} ${errors.routeDataFieldNull.name}`;
         return error;
     },
     argumentFieldNull(fieldName: string, objectName: string): Error {
         let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
         let error = new Error(msg);
-        error.name = `${statusCodes.fieldNull} ${errors.argumentFieldNull.name}`;
+        error.name = `${StatusCode.FieldNull} ${errors.argumentFieldNull.name}`;
         return error;
     },
     objectNotExistWithId(id: string, name: string) {
         let msg = `Object ${name} with id ${id} is not exists.`
         let err = new Error(msg)
-        err.name = `${statusCodes.objectNotExistWithId} ${errors.objectNotExistWithId.name}`;
+        err.name = `${StatusCode.ObjectNotExistWithId} ${errors.objectNotExistWithId.name}`;
         return err
     },
     mobileNotExists(mobile: string): Error {
@@ -68,7 +68,7 @@ export let errors = {
     passwordIncorrect() {
         let msg = `密码不正确.`;
         let error = new Error(msg);
-        error.name = `${myStatusCodes.passwordIncorect} ${errors.usernameOrPasswordIncorrect.name}`;
+        error.name = `${myStatusCodes.passwordIncorect} ${errors.passwordIncorrect.name}`;
         return error;
     },
     emailExists(email: string): Error {
