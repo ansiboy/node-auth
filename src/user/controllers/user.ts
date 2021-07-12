@@ -5,7 +5,7 @@ import { permissionDataContext, currentUserId, currentUser } from "../decorators
 import { User } from '../entities';
 import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
-import { LoginResult, StatusCode } from "../../gateway";
+import { LoginResult, statusCodes as StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { DataHelper, } from 'maishu-node-data';
@@ -338,9 +338,7 @@ export default class UserController {
 
     @action()
     async list(@permissionDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
-        // let users = await dc.users.find();
-        // return users;
-        let r = DataHelper.list(dc.users, { selectArguments: d.args });
+        let r = DataHelper.list(dc.users, { selectArguments: d.args, fields: ["id", "user_name", "email", "mobile", "create_date_time"] });
         return r;
     }
 
