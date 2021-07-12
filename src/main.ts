@@ -65,6 +65,7 @@ loadConfig().then((config: MyConfig) => {
             "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
             "^/image/(\\S+)": `http://${imageStation}/$1`,
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
+            
             // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
             '^/pay/(\\S*)': `http://${config.payStation}/$1`,
             '^/email/(\\S*)': `http://${config.emailStation}/$1`,
@@ -97,9 +98,11 @@ loadConfig().then((config: MyConfig) => {
             "^/AdminShop/\\S*": { roleIds: [roleIds.anonymous] },
             "^/AdminWeiXin/\\S*": { roleIds: [roleIds.anonymous] },
             "^/AdminStock/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/AdminSite/\\S*": { roleIds: [roleIds.anonymous] },
 
             "^/UserShop/\\S*": { roleIds: [roleIds.anonymous] },
             "^/UserStock/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/UserSite/\\S*": { roleIds: [roleIds.anonymous] },
             "^/image/\\S*": { roleIds: [roleIds.anonymous] },
 
             "^/auth/\\S*": { roleIds: [roleIds.anonymous] },

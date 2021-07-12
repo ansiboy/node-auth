@@ -68,7 +68,7 @@ export let errors = {
     passwordIncorrect() {
         let msg = `密码不正确.`;
         let error = new Error(msg);
-        error.name = `${myStatusCodes.passwordIncorect} ${errors.usernameOrPasswordIncorrect.name}`;
+        error.name = `${myStatusCodes.passwordIncorect} ${errors.passwordIncorrect.name}`;
         return error;
     },
     emailExists(email: string): Error {
