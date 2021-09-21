@@ -9,6 +9,7 @@ import { AuthDataContext } from "../data-context/data-context";
 import w from "../static/website-config";
 import { authDataContext, currentUserId } from "../decorators";
 import { pathConcat } from "maishu-toolkit";
+import { MenuItemRecord } from "gateway-entities";
 
 type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
 
@@ -71,7 +72,7 @@ export class MenuController {
         }
 
         if (d != null && d.roleId != null) {
-            menuItems = menuItems.filter(o => o.roleIds.indexOf(d.roleId) >= 0 || o["userId"] == d.userId);
+            menuItems = menuItems.filter(o => o.roleIds != null && o.roleIds.indexOf(d.roleId) >= 0 || o["userId"] == d.userId);
         }
 
         return menuItems;
@@ -111,7 +112,7 @@ export class MenuController {
 
         let menuItemRecords = await dc.menuItemRecords.find();
         for (let i = 0; i < d.resourceIds.length; i++) {
-            let menuItemRecord = await menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
+            let menuItemRecord = menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
             if (menuItemRecord == null) {
                 menuItemRecord = { id: d.resourceIds[i], roleIds: [d.roleId], create_date_time: new Date() };
                 menuItemRecords.push(menuItemRecord);
@@ -126,8 +127,19 @@ export class MenuController {
         return { id: d.roleId };
     }
 
-    add(@routeData d: {}) {
+    @action()
+    async getRolePermission(@authDataContext dc: AuthDataContext, @routeData d: { roleId: string }): Promise<string[]> {
+        if (!d.roleId) throw errors.routeDataFieldNull<typeof d>("roleId");
+        let menuItemRecords = await dc.menuItemRecords.find();
+        let r = menuItemRecords.filter(o => o.roleIds.indexOf(d.roleId) >= 0).map(o => o.id);
+        return r;
+    }
 
+    @action()
+    async getMenuItemRecords(@authDataContext dc: AuthDataContext): Promise<MenuItemRecord[]> {
+
+        let r = await dc.menuItemRecords.find();
+        return r;
     }
 
 

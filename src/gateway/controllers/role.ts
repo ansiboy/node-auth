@@ -22,7 +22,7 @@ export default class RoleController {
         item.id = item.id || guid();
         item.create_date_time = new Date();
 
-        await dc.roles.save(item);
+        await dc.roles.insert(item);
 
         return { id: item.id, create_date_time: item.create_date_time };
     }

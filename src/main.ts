@@ -14,6 +14,8 @@ type MyConfig = Config & {
     storeStation: string,
     merchantStation: string,
     messageStation: string,
+    rewriteStation: string,
+    freightStation: string,
 };
 
 class ConfigFieldNullError extends Error {
@@ -65,7 +67,7 @@ loadConfig().then((config: MyConfig) => {
             "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
             "^/image/(\\S+)": `http://${imageStation}/$1`,
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
-            
+
             // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
             '^/pay/(\\S*)': `http://${config.payStation}/$1`,
             '^/email/(\\S*)': `http://${config.emailStation}/$1`,
@@ -74,6 +76,8 @@ loadConfig().then((config: MyConfig) => {
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
+            '^/rewrite/(\\S*)': `http://${config.rewriteStation}/$1`,
+            '^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`
         },
         headers: {
             'Access-Control-Allow-Origin': '*',

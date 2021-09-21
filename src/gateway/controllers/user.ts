@@ -73,4 +73,12 @@ export default class UserController {
         await dc.userRoles.insert(itmes);
         return {};
     }
+
+    @action()
+    async ids(@authDataContext dc: AuthDataContext, @routeData d: { roleId: string }) {
+        if (!d.roleId) throw errors.routeDataFieldNull("roleId");
+        let userRoles = await dc.userRoles.find({ role_id: d.roleId });
+        let userIds = userRoles.map(o => o.user_id);
+        return userIds;
+    }
 }

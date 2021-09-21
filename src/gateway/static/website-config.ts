@@ -42,7 +42,8 @@ let w: WebsiteConfig = {
                 { id: "179E6DDB-D6D9-4878-8CBE-25DAFCF676DC", name: "修改密码", icon: "fa fa-key", path: "#/user/personal/change-password" }
             ]
         },
-    ]
+    ],
+    mode: "production",
 }
 
 export default w;
