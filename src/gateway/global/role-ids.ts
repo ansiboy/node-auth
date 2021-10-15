@@ -8,4 +8,6 @@ export let roleIds = {
     normalUser: "516A72A0-21AE-4551-8A38-96EDAB0FAA5F",
     /** 工作站 */
     station: "C60AD2CC-485C-4169-88C0-48AC87FC4800",
+    /** 卓旺管理员 */
+    ZWAdmin: "c74b413c-5c74-4f0e-92ae-e4a6a4e62f26",
 }

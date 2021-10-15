@@ -38,9 +38,9 @@ export async function start(settings: Settings) {
     }
 
     settings.permissions = settings.permissions || {};
-    settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
+    // settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
+    // settings.permissions["/"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
-    settings.permissions["/"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/websiteConfig"] = { roleIds: [roleIds.anonymous] };
 
     // settings.permissions["/clientFiles"] = { roleIds: [roleIds.anonymous] };

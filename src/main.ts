@@ -82,7 +82,7 @@ loadConfig().then((config: MyConfig) => {
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': '*',
-            'Access-Control-Allow-Headers': '*'
+            'Access-Control-Allow-Headers': 'application-id, track-id, content-type, token, user-id, *'
         },
         permissions: {
             "\\S+.js$": { roleIds: [roleIds.anonymous] },
@@ -97,19 +97,19 @@ loadConfig().then((config: MyConfig) => {
 
 
             // TODO: 用户组设置
-            "^/AdminAccount/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/AdminMember/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/AdminShop/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/AdminWeiXin/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/AdminStock/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/AdminSite/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/AdminAccount/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminMember/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminShop/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminWeiXin/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminStock/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminSite/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 
             "^/UserShop/\\S*": { roleIds: [roleIds.anonymous] },
             "^/UserStock/\\S*": { roleIds: [roleIds.anonymous] },
             "^/UserSite/\\S*": { roleIds: [roleIds.anonymous] },
             "^/image/\\S*": { roleIds: [roleIds.anonymous] },
 
-            "^/auth/\\S*": { roleIds: [roleIds.anonymous] },
+            // "^/auth/\\S*": { roleIds: [roleIds.admin] },
             "^/user/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/website-config": { roleIds: [roleIds.anonymous] },
             "^/pay/\\S*": { roleIds: [roleIds.anonymous] },
@@ -119,6 +119,10 @@ loadConfig().then((config: MyConfig) => {
             "^/store/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
+            // "^/\\S*": { roleIds: [roleIds.admin] },
+
+            "/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
+            "/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
