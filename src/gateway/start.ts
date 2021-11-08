@@ -7,7 +7,6 @@ import { TokenManager } from "./token";
 import http = require("http");
 import { roleIds } from "./global"
 import { startServer as startAdmin } from "maishu-node-mvc";
-import w from "./static/website-config";
 import { AuthenticateRequestProcessor } from "./request-processors/authenticate";
 import { loginTransform } from "./content-transforms/login";
 import { DataHelper } from "maishu-node-data";
@@ -16,6 +15,7 @@ import { StationController } from "./controllers/station";
 import { getVirtualPaths } from "maishu-admin-scaffold";
 import * as path from "path";
 import { ProxyItem } from "maishu-node-web-server";
+import { errors } from "./errors";
 
 export async function start(settings: Settings) {
 
@@ -109,7 +109,7 @@ async function proxyHeader(req: http.IncomingMessage) {
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[TOKEN_NAME] as string || cookies.get(TOKEN_NAME);
 
-    if (!tokenText) {
+    if (!tokenText || tokenText == "undefined") {
         logger.warn(`Token text is empty.`);
         return header;
     }
@@ -118,7 +118,8 @@ async function proxyHeader(req: http.IncomingMessage) {
     let token = await TokenManager.parse(tokenText);
     if (!token) {
         logger.warn(`Token data '${tokenText}' is not exits.`);
-        return header;
+        // return header;
+        throw errors.tokenNotExist(tokenText);
     }
 
     header[tokenDataHeaderNames.userId] = token.user_id;

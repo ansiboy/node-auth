@@ -6,7 +6,9 @@ import { DataListPage } from "maishu-data-page";
 import { Role } from "gateway-entities";
 
 export default class RoleListPage extends DataListPage<Role> {
-    dataSource = dataSources.role;
+    get dataSource() {
+        return dataSources.role;
+    }
     itemName: string = "角色";
     columns: DataControlField<Role>[] = [
         boundField<Role>({

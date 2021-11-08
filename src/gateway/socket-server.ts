@@ -1,5 +1,5 @@
 import IO = require("socket.io");
-import http = require("http");
+import net = require("net");
 import { getLogger } from "maishu-node-mvc";
 import { g } from "./global";
 import { StationController } from "./controllers/station";
@@ -9,7 +9,7 @@ export let socketMessages = {
     registerStation: "registerStation"
 }
 
-export function startSocketServer(server: http.Server) {
+export function startSocketServer(server: net.Server) {
 
     console.assert(g.settings != null, "Settings is null.");
     let logger = getLogger(g.projectName, g.settings.logLevel);

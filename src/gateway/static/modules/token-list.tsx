@@ -4,7 +4,9 @@ import { dataSources } from "../services/data-sources";
 import { boundField, dateTimeField, DataSource } from "maishu-wuzhui-helper";
 
 export default class TokenListPage extends DataListPage<TokenData>{
-    dataSource: DataSource<TokenData> = dataSources.token;
+    get dataSource() {
+        return dataSources.token;
+    }
     itemName: string = "令牌";
     columns = [
         boundField<TokenData>({ dataField: "id", headerText: "编号", itemStyle: { width: "300px" }, readOnly: true }),

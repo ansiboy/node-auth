@@ -12,7 +12,9 @@ let iconFieldWidth = 120;
 let roleFieldWidth = 180;
 
 export default class MenuListPage extends DataListPage<MenuItem> {
-    dataSource = dataSources.resource
+    get dataSource() {
+        return dataSources.resource;
+    }
     itemName = "菜单";
 
     constructor(props) {

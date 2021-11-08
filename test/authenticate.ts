@@ -8,7 +8,7 @@ describe("authenticate", function () {
                 username: "root",
                 password: "81263",
                 database: "node_auth_gateway",
-                host: "localhost",
+                host: "shop-db",
                 port: 3306
             }
         })

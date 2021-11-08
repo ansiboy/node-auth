@@ -18,7 +18,9 @@ interface State extends DataListPageState {
 }
 
 export default class UserListPage extends DataListPage<User, Props, State> {
-    dataSource = dataSources.user;
+    get dataSource() {
+        return dataSources.user;
+    }
     itemName: string = "用户";
     columns: DataControlField<User>[] = [
         boundField<User>({

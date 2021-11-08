@@ -39,5 +39,7 @@ export enum StatusCode {
     NoPermission = 726,
     UserIdNull = 727,
     /** 指定 ID 的对象不存在 */
-    ObjectNotExistWithId = 728
+    ObjectNotExistWithId = 728,
+    TokenInvalid = 729,
+    ServerSideError = 730,
 }

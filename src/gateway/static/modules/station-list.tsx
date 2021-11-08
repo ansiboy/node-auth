@@ -4,7 +4,9 @@ import { dataSources } from "../services/data-sources";
 
 export default class extends DataListPage<Station> {
     itemName = "站点";
-    dataSource = dataSources.station;
+    get dataSource() {
+        return dataSources.station;
+    }
     columns = [
         this.boundField({ dataField: "id", headerText: "编号", readOnly: true, headerStyle: { width: "340px" } }),
         this.boundField({ dataField: "path", headerText: "路径", }),
