@@ -86,6 +86,9 @@ export async function getTokenData(req: http.IncomingMessage, res: http.ServerRe
         return null;
 
     let tokenData = await TokenManager.parse(tokenText);
+    if (tokenData == null)
+        throw errors.tokenNotExist(tokenText);
+
     return tokenData;
 }
 

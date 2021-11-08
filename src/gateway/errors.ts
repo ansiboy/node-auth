@@ -42,4 +42,10 @@ export let errors = {
         err.name = `${StatusCode.ObjectNotExistWithId} ${errors.objectNotExistWithId.name}`;
         return err
     },
+    tokenNotExist(token: string) {
+        let msg = `Token '${token}' is not exists.`;
+        let err = new Error(msg);
+        err.name = `${StatusCode.TokenInvalid} ${errors.tokenNotExist.name}`;
+        return err;
+    }
 }
