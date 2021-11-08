@@ -121,8 +121,9 @@ loadConfig().then((config: MyConfig) => {
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
             // "^/\\S*": { roleIds: [roleIds.admin] },
 
-            "/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
-            "/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
+            "^/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/freight/\\S*": { roleIds: [roleIds.anonymous] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
