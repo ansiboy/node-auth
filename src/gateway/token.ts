@@ -48,7 +48,7 @@ export class TokenManager {
 
         if (tokenData == null) {
             let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
-            let tokenData = await dc.tokenDatas.findOne(token) as MyTokenData;
+            tokenData = await dc.tokenDatas.findOne(token) as MyTokenData;
             if (tokenData != null) {
                 tokenData.cacheDateTime = Date.now();
                 cache.put(token, tokenData);
