@@ -1,16 +1,17 @@
-import { constants, g, TOKEN_NAME, } from "../global";
+import { constants, g, TOKEN_NAME, } from "../../global";
 import { controller, action, request, response, getLogger, routeData } from "maishu-node-mvc";
-import { AuthDataContext } from "../data-context/";
-import { errors } from "../errors";
+import { AuthDataContext } from "../../data-context/";
+import { errors } from "../../errors";
 import http = require("http");
-import { getTokenData } from "../filters/authenticate";
-import { TokenManager } from "../token";
+import { getTokenData } from "../../filters/authenticate";
+import { TokenManager } from "../../token";
 import Cookies = require("maishu-cookies");
-import { In } from "maishu-node-data";
-import { Role, UserRole } from "gateway-entities";
-import { authDataContext, currentUserId } from "../decorators";
+import { Role } from "gateway-entities";
+import { authDataContext, currentUserId } from "../../decorators";
+import { UserControoler as AdminUserController } from "../admin/user";
+import { Connection } from "maishu-node-data";
 
-@controller(`/${constants.controllerPathRoot}/user`)
+@controller(`${constants.userApiBasePath}/user`)
 export default class UserController {
 
     /** 获取登录用户的角色 */
@@ -19,7 +20,8 @@ export default class UserController {
         if (!currentUserId)
             throw errors.userNotLogin();
 
-        let r = await this.roles(dc, { userIds: [currentUserId] });
+        var ctrl = new AdminUserController();
+        let r = await ctrl.roles(dc, { userIds: [currentUserId] });
         return r[currentUserId];
     }
 
@@ -39,46 +41,6 @@ export default class UserController {
         return true;
     }
 
-    /** 获取指定的用户角色 */
-    @action()
-    async roles(@authDataContext dc: AuthDataContext, @routeData d: { userIds: string[] }) {
-        if (!d.userIds) throw errors.argumentFieldNull("userIds", "d");
-        if (d.userIds.length == 0)
-            return {};
 
-        let userRoles = await dc.userRoles.find({ where: { user_id: In(d.userIds) } });
-        let roleIds = userRoles.map(o => o.role_id).filter((item, index, arr) => arr.indexOf(item) == index);
-        let roles = await dc.roles.findByIds(roleIds);
-        let r: { [userId: string]: Role[] } = {};
-        for (let i = 0; i < d.userIds.length; i++) {
-            let theUserRoles = userRoles.filter(o => o.user_id == d.userIds[i])
-                .map(o => o.role_id).map(roleId => roles.filter(o => o.id == roleId)[0])
-                .filter(o => o != null);
-            r[d.userIds[i]] = theUserRoles;
-        }
-        return r;
-    }
-
-
-    @action()
-    async setRoles(@authDataContext dc: AuthDataContext, @routeData d: { userId: string, roleIds: string[] }) {
-        if (!d.userId) throw errors.argumentFieldNull("userId", "d");
-        if (!d.roleIds) throw errors.argumentFieldNull("roleIds", "d");
-
-        await dc.userRoles.delete({ user_id: d.userId });
-
-        let itmes: UserRole[] = d.roleIds.map(o => ({
-            user_id: d.userId, role_id: o, create_date_time: new Date(),
-        } as UserRole));
-        await dc.userRoles.insert(itmes);
-        return {};
-    }
-
-    @action()
-    async ids(@authDataContext dc: AuthDataContext, @routeData d: { roleId: string }) {
-        if (!d.roleId) throw errors.routeDataFieldNull("roleId");
-        let userRoles = await dc.userRoles.find({ role_id: d.roleId });
-        let userIds = userRoles.map(o => o.user_id);
-        return userIds;
-    }
 }
+

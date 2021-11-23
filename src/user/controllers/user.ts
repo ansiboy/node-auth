@@ -1,7 +1,7 @@
 import { errors } from '../errors';
 import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
 import { UserDataContext } from '../data-context';
-import { permissionDataContext, currentUserId, currentUser } from "../decorators";
+import { userDataContext, currentUserId, currentUser } from "../decorators";
 import { User } from '../entities';
 import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
@@ -9,14 +9,16 @@ import { LoginResult, StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { DataHelper, } from 'maishu-node-data';
+import { userApiBasePath } from '../global';
+import AdminMemberController from './admin/user';
 
-@controller('user')
+@controller(`${userApiBasePath}/user`)
 export default class UserController {
 
     //====================================================
     /** 手机是否已注册 */
     @action()
-    async isMobileRegister(@permissionDataContext dc: UserDataContext, @routeData { mobile }): Promise<boolean> {
+    async isMobileRegister(@userDataContext dc: UserDataContext, @routeData { mobile }): Promise<boolean> {
         if (!mobile) throw errors.argumentNull('mobile')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -25,7 +27,7 @@ export default class UserController {
     }
 
     @action()
-    async isUserNameRegister(@permissionDataContext dc: UserDataContext, @routeData { user_name }): Promise<boolean> {
+    async isUserNameRegister(@userDataContext dc: UserDataContext, @routeData { user_name }): Promise<boolean> {
         if (!user_name) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -35,7 +37,7 @@ export default class UserController {
     }
 
     @action()
-    async isEmailRegister(@permissionDataContext dc: UserDataContext, @routeData { email }): Promise<boolean> {
+    async isEmailRegister(@userDataContext dc: UserDataContext, @routeData { email }): Promise<boolean> {
         if (!email) throw errors.argumentNull('user_name')
         if (!dc) throw errors.argumentNull('dc')
 
@@ -44,7 +46,7 @@ export default class UserController {
     }
 
     @action()
-    async register(@permissionDataContext dc: UserDataContext,
+    async register(@userDataContext dc: UserDataContext,
         @routeData { mobile, password, smsId, verifyCode, data, userName }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any, userName: string }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
@@ -87,7 +89,7 @@ export default class UserController {
 
     /** 注册用户 */
     @action()
-    async registerUser(@permissionDataContext dc: UserDataContext,
+    async registerUser(@userDataContext dc: UserDataContext,
         @routeData d: { user: User }) {
 
         if (!d.user) throw errors.routeDataFieldNull("user");
@@ -126,8 +128,9 @@ export default class UserController {
 
 
     @action()
-    async registerWidthoutVerify(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
-        let user = await this.add(dc, { item });
+    async registerWidthoutVerify(@userDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
+        let ctrl = new AdminMemberController();
+        let user = await ctrl.add(dc, { item });
         let r: LoginResult = { userId: user.id };
         return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
     }
@@ -138,7 +141,7 @@ export default class UserController {
     }
 
     @action()
-    async resetPassword(@permissionDataContext dc: UserDataContext, @routeData { mobile, password, smsId, verifyCode }) {
+    async resetPassword(@userDataContext dc: UserDataContext, @routeData { mobile, password, smsId, verifyCode }) {
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -166,7 +169,7 @@ export default class UserController {
     }
 
     @action()
-    async resetMobile(@permissionDataContext dc: UserDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
+    async resetMobile(@userDataContext dc: UserDataContext, @currentUserId userId: string, @routeData { mobile, smsId, verifyCode }) {
         if (!userId)
             throw errors.userIdNull();
 
@@ -255,7 +258,7 @@ export default class UserController {
         return r;
     }
 
-    private async loginByVerifyCode(@permissionDataContext dc: UserDataContext,
+    private async loginByVerifyCode(@userDataContext dc: UserDataContext,
         @routeData args: { mobile: string, smsId: string, verifyCode: string }): Promise<LoginResult> {
 
         let { mobile, smsId, verifyCode } = args
@@ -273,7 +276,7 @@ export default class UserController {
     }
 
     @action()
-    async login(@permissionDataContext dc: UserDataContext, @routeData args: any) {
+    async login(@userDataContext dc: UserDataContext, @routeData args: any) {
         args = args || {}
 
         let p: LoginResult;
@@ -318,7 +321,7 @@ export default class UserController {
     }
 
     @action()
-    async updateMe(@currentUserId userId: string, @permissionDataContext dc: UserDataContext, @routeData d: { user: Partial<User> }) {
+    async updateMe(@currentUserId userId: string, @userDataContext dc: UserDataContext, @routeData d: { user: Partial<User> }) {
         if (!d.user) throw errors.routeDataFieldNull("user");
 
         await dc.users.update(userId, d.user);
@@ -329,7 +332,7 @@ export default class UserController {
 
     /** 获取用户信息 */
     @action()
-    async item(@permissionDataContext dc: UserDataContext, @routeData { userId }: { userId: string }) {
+    async item(@userDataContext dc: UserDataContext, @routeData { userId }: { userId: string }) {
         if (!userId) throw errors.userIdNull();
 
         let user = await dc.users.findOne(userId);
@@ -337,7 +340,7 @@ export default class UserController {
     }
 
     @action()
-    async list(@permissionDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+    async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
         let r = await DataHelper.list(dc.users, { selectArguments: d.args });
         r.dataItems.forEach(c => {
             delete c.password
@@ -345,140 +348,7 @@ export default class UserController {
         return r;
     }
 
-    /** 添加用户 */
-    @action()
-    async add(@permissionDataContext dc: UserDataContext, @routeData d: { item: User }): Promise<Partial<User>> {
-        let { item } = d;
-        if (!item) throw errors.routeDataFieldNull("item");
 
-        if (d.item.id) {
-            let r: User = await dc.users.findOne({ select: ["id"], where: { id: d.item.id } });
-            if (r) {
-                return { id: r.id };
-            }
-        }
-
-        if (item.mobile) {
-            let isMobileRegister = await this.isMobileRegister(dc, { mobile: item.mobile })
-            if (isMobileRegister)
-                return Promise.reject(errors.mobileExists(item.mobile))
-        }
-
-        if (item.email) {
-            let isEmailRegister = await this.isEmailRegister(dc, { email: item.email })
-            if (isEmailRegister)
-                return Promise.reject(errors.emailExists(item.email))
-        }
-
-        if (item.user_name) {
-            let isUserNameRegister = await this.isUserNameRegister(dc, { user_name: item.user_name })
-            if (isUserNameRegister)
-                return Promise.reject(errors.usernameExists(item.user_name))
-        }
-
-        item.id = item.id || guid();
-        item.create_date_time = new Date(Date.now());
-
-        await dc.users.insert(item);
-        return { id: item.id, create_date_time: item.create_date_time };
-    }
-
-    @action()
-    async addIfNotExists(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
-        if (!item) throw errors.routeDataFieldNull("item");
-
-        if (item.id) {
-            let entity = await dc.users.findOne(item.id);
-            if (entity != null) {
-                return entity;
-            }
-        }
-
-        return this.add(dc, { item });
-    }
-
-    @action()
-    async remove(@permissionDataContext dc: UserDataContext, @routeData { id }) {
-        if (!id) throw errors.argumentFieldNull("id", "routeData");
-        await dc.users.delete(id);
-        return { id };
-    }
-
-    @action()
-    async update(@permissionDataContext dc: UserDataContext, @routeData d: { user: User }) {
-        if (!d.user) throw errors.argumentNull('user');
-        if (!d.user.id) throw errors.argumentFieldNull("id", "user");
-
-        let q = dc.users.createQueryBuilder("u");
-        let query = "u.id <> :id";
-        let orQuery = "";
-        if (d.user.mobile)
-            orQuery = "or u.mobile = :mobile "; //q.orWhere("u.mobile = :mobile", { mobile: d.user.mobile })
-
-        if (d.user.email)
-            orQuery = orQuery + "or u.email = :email ";//q.orWhere("u.email = :email", { email: d.user.email })
-
-        if (d.user.user_name)
-            orQuery = orQuery = "or u.user_name = :user_name ";//q.orWhere("u.user_name = :user_name", { user_name: d.user.user_name })
-
-        if (orQuery) {
-            orQuery = orQuery.substr(2);
-            query = query + " and (" + orQuery + ")";
-        }
-
-        let obj = await q.where(query, d.user).select(["u.mobile", "u.email", "u.user_name"]).getOne();
-        if (obj?.mobile != null && obj?.mobile == d.user.mobile)
-            throw errors.mobileExists(d.user.mobile);
-
-        if (obj?.user_name != null && obj?.user_name == d.user.user_name)
-            throw errors.usernameExists(d.user.user_name);
-
-        if (obj?.email != null && obj?.email == d.user.email)
-            throw errors.emailExists(d.user.email);
-
-        // d.user.id = d.user.id || guid();
-        // d.user.create_date_time = d.user.create_date_time || new Date();
-        let keys = Object.keys(d.user);
-        for (let i = 0; i < keys.length; i++) {
-            if (d.user[keys[i]] === undefined) {
-                delete d.user[keys[i]];
-            }
-        }
-
-        delete d.user.create_date_time;
-        await dc.users.update(d.user.id, d.user);
-        return { id: d.user.id, } as Partial<User>
-    }
-
-    @action()
-    async userLatestLogin(@permissionDataContext dc: UserDataContext, @routeData { userIds }: { userIds: string[] }) {
-        let items = await dc.userLatestLogins.createQueryBuilder()
-            .where(" id in (...:userIds)")
-            .setParameter("userIds", userIds)
-            .getMany();
-
-        return items;
-    }
-
-    @action()
-    async changePassword(@permissionDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
-        @currentUserId currentUserId: string) {
-
-        if (!d.oldPassword) throw errors.routeDataFieldNull("oldPassword");
-        if (!d.newPassword) throw errors.routeDataFieldNull("newPassword");
-
-        let me = await dc.users.findOne({
-            where: { id: currentUserId },
-            select: ["password"]
-        });
-        if (me == null) throw errors.objectNotExistWithId(currentUserId, "user");
-        if (me.password != d.oldPassword)
-            throw errors.passwordIncorrect();
-
-        await dc.users.update(currentUserId, { password: d.newPassword });
-
-        return { id: currentUserId };
-    }
 
 
 }

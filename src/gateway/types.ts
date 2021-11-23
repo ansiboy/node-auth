@@ -1,6 +1,4 @@
-import { ConnectionConfig } from "mysql";
 import { Settings as MVCConfig, LogLevel, } from "maishu-node-mvc";
-import { WebsiteConfig } from "maishu-admin-scaffold/static/website-config";
 import { ConnectionOptions } from "maishu-node-data";
 import { Settings as BaseSettings } from "maishu-node-web-server";
 export { WebsiteConfig } from "maishu-admin-scaffold/static/website-config";

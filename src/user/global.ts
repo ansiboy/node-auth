@@ -3,7 +3,8 @@ export { roleIds } from "../gateway";
 
 //==============================================
 export let PROJECt_NAME = "node-auth-permission";
-export let controllerPathRoot = "permission";
+export let userApiBasePath = "/user-api";
+export let adminApiBasePath = "/admin-api";
 export let stationPath = "/user/";
 //==============================================
 
@@ -22,6 +23,9 @@ let settingsExt = {
     test: {
         mobile: '18502146746',
         sendMessage: true,
-    }
+    },
+    port: 6352,
 }
+
+
 export let settings = settingsExt as Settings & typeof settingsExt;

@@ -52,7 +52,7 @@ async function setDatabasae() {
     switch (dbType) {
         case dbTypes.sqlite:
             config.db = {
-                permission: {
+                user: {
                     type: "sqlite",
                     database: path.join(__dirname, "../../db/node_auth_permission.db"),
                 },
@@ -70,7 +70,7 @@ async function setDatabasae() {
 
             config.db = {
                 gateway: { type: "mysql", host, port, username, password, database: "node_auth_gateway", debug: null },
-                permission: { type: "mysql", host, port, username, password, database: "node_auth_permission", debug: null },
+                user: { type: "mysql", host, port, username, password, database: "node_auth_permission", debug: null },
             };
 
             break;
@@ -124,7 +124,7 @@ async function setAdminPhone() {
         name: "mobile"
     }).then(async answers => {
 
-        let userDC = await DataHelper.createDataContext(UserDataContext, config.db.permission);
+        let userDC = await DataHelper.createDataContext(UserDataContext, config.db.user);
         let gatewayDC = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
         let adminUser = await getAdminAccount(userDC, gatewayDC);
         adminUser.mobile = answers.mobile;
@@ -143,7 +143,7 @@ async function setAdminPassword() {
         return;
     }
 
-    var userDC = await DataHelper.createDataContext(UserDataContext, config.db.permission);
+    var userDC = await DataHelper.createDataContext(UserDataContext, config.db.user);
     var gatewayDC = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
 
     let roles = await gatewayDC.roles.find();

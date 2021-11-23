@@ -20,6 +20,13 @@ export let errors = {
         error.name = name;
         return error;
     },
+    routeDataFieldTypeIncorrect(argumentName: string, expectedType: string, actualType: string) {
+        let msg = `Arugment '${argumentName}' is expected ${expectedType}, actual is '${actualType}'.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "routeDataFieldTypeIncorrect";
+        error.name = name;
+        return error;
+    },
     userNotLogin(requestURL?: string): Error {
         let msg = `User id is required.`;
         if (requestURL) {
@@ -46,6 +53,13 @@ export let errors = {
         let msg = `Token '${token}' is not exists.`;
         let err = new Error(msg);
         err.name = `${StatusCode.TokenInvalid} ${errors.tokenNotExist.name}`;
+        return err;
+    },
+    parameterArrayIsEmpty(parameterName: string) {
+        let msg = `Array ${parameterName} is empty.`;
+        let err = new Error(msg);
+        let name: keyof typeof errors = "parameterArrayIsEmpty";
+        err.name = name;
         return err;
     }
 }

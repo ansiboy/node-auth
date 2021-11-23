@@ -1,12 +1,12 @@
 import { controller, action, routeData, getLogger } from "maishu-node-mvc";
-import { Station as StationInfo } from "../types";
-import { g, constants } from "../global";
-import { errors } from "../errors";
-import { AuthDataContext } from "../data-context";
+import { Station as StationInfo } from "../../types";
+import { g, constants } from "../../global";
+import { errors } from "../../errors";
+import { AuthDataContext } from "../../data-context";
 import { guid } from "maishu-toolkit";
-import { authDataContext } from "../decorators";
+import { authDataContext } from "../../decorators";
 
-@controller(`/${constants.controllerPathRoot}/station`)
+@controller(`${constants.adminApiBasePath}/station`)
 export class StationController {
 
     @action()

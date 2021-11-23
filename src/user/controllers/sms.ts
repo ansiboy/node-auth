@@ -2,8 +2,8 @@ import * as QcloudSms from 'qcloudsms_js'
 import { errors } from '../errors';
 import { controller, action, routeData } from 'maishu-node-mvc';
 import { UserDataContext, } from '../data-context';
-import { permissionDataContext } from "../decorators";
-import { settings } from '../global';
+import { userDataContext } from "../decorators";
+import { settings, userApiBasePath } from '../global';
 import { guid } from 'maishu-toolkit';
 import { skipVerifyCode } from '../../config';
 
@@ -15,10 +15,10 @@ interface SMSRecord {
     create_date_time: Date
 }
 
-@controller('sms')
+@controller(`${userApiBasePath}/sms`)
 export default class SMSController {
     @action()
-    async sendVerifyCode(@permissionDataContext dc: UserDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
+    async sendVerifyCode(@userDataContext dc: UserDataContext, @routeData { mobile, type }: { mobile: string, type: 'register' | 'resetPassword' }) {
 
         if (!mobile) throw errors.argumentNull('mobile')
         if (!type) throw errors.argumentNull('type')
@@ -50,7 +50,7 @@ export default class SMSController {
     }
 
     @action()
-    async checkVerifyCode(@permissionDataContext dc: UserDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
+    async checkVerifyCode(@userDataContext dc: UserDataContext, { smsId, verifyCode }: { smsId: string, verifyCode: string }) {
         if (verifyCode == skipVerifyCode)
             return true;
 

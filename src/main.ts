@@ -3,6 +3,7 @@ import { Settings as PermissionSettings } from "./user";
 import { start } from "./index";
 import path = require("path");
 import { Config, loadConfig } from "./config";
+import { settings as globalSettings, } from "./user/global";
 
 type MyConfig = Config & {
     shopServiceStation: string,
@@ -36,12 +37,14 @@ loadConfig().then((config: MyConfig) => {
     if (!config.emailStation)
         throw new ConfigFieldNullError("emailStation");
 
+    globalSettings.db = config.db.user;
+
     //===========================================
     // 目标主机，服务所在的主机
     // const target_host = '127.0.0.1';
     const gatewayPort = config.gatewayPort;
     // const gateway = `127.0.0.1:${gatewayPort}`;
-    const userStationPort = gatewayPort + 1;
+    const userStationPort = globalSettings.port;//gatewayPort + 1;
     const target_host = config.shopServiceStation;
     // const imageStation = "127.0.0.1:2863";
     const imageStation = config.imageStation;
@@ -58,6 +61,7 @@ loadConfig().then((config: MyConfig) => {
             '^/AdminMember/(\\S+)': `http://${target_host}:9020/Admin/$1`,
             '^/AdminWeiXin/(\\S+)': `http://${target_host}:9030/Admin/$1`,
             '^/AdminAccount/(\\S+)': `http://${target_host}:9035/Admin/$1`,
+            '^/AdminStatistics/(\\S+)': `http://${target_host}:9050/Admin/$1`,
             '^/UserSite/(\\S+)': `http://${target_host}:9000/User/$1`,
             '^/UserStock/(\\S+)': `http://${target_host}:9005/User/$1`,
             '^/UserShop/(\\S+)': `http://${target_host}:9010/User/$1`,
@@ -68,16 +72,26 @@ loadConfig().then((config: MyConfig) => {
             "^/image/(\\S+)": `http://${imageStation}/$1`,
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
 
-            // "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
+            "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
             '^/pay/(\\S*)': `http://${config.payStation}/$1`,
-            '^/email/(\\S*)': `http://${config.emailStation}/$1`,
+
+            '^/admin-api/email/(\\S*)': `http://${config.emailStation}/admin-api/$1`,
+            '^/anon-api/email/(\\S*)': `http://${config.emailStation}/anon-api/$1`,
+
+
             '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
             '^/site/(\\S*)': `http://${config.builderStation}/$1`,
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
             '^/rewrite/(\\S*)': `http://${config.rewriteStation}/$1`,
-            '^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`
+            '^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`,
+
+            '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
+            "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
+
+            "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
+            "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -103,6 +117,7 @@ loadConfig().then((config: MyConfig) => {
             "^/AdminWeiXin/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
             "^/AdminStock/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
             "^/AdminSite/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminStatistics/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 
             "^/UserShop/\\S*": { roleIds: [roleIds.anonymous] },
             "^/UserStock/\\S*": { roleIds: [roleIds.anonymous] },
@@ -119,21 +134,28 @@ loadConfig().then((config: MyConfig) => {
             "^/store/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
-            // "^/\\S*": { roleIds: [roleIds.admin] },
+
+            "^/rewrite/api\\S*": { roleIds: [roleIds.admin, , roleIds.ZWAdmin] },
 
             "^/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
             "^/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
             "^/freight/\\S*": { roleIds: [roleIds.anonymous] },
+
+            "^/user-api/user/user/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/user-api/\\S*": { roleIds: [roleIds.normalUser] },
+            "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+
+            "^/$": { roleIds: [roleIds.anonymous] }
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
         },
     }
 
-    let permissionStationSettings: PermissionSettings = {
+    let userStationSettings: PermissionSettings = {
         port: userStationPort,
         gateway: `127.0.0.1:${gatewayPort}`,
-        db: config.db.permission,
+        db: config.db.user,
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
         }
@@ -142,7 +164,7 @@ loadConfig().then((config: MyConfig) => {
 
     start({
         gatewaySettings: gatewayStationSettings,
-        userSettings: permissionStationSettings,
+        userSettings: userStationSettings,
     })
 
 })

@@ -5,9 +5,9 @@ export let constants = {
     dbName: "shop_auth",
     cookieToken: "token",
     projectName: "node-auth",
-    controllerPathRoot: "auth"
+    userApiBasePath: "/auth/user-api",
+    adminApiBasePath: "/auth/admin-api",
 }
-
 
 export let userIds = {
     /** 管理员 ID */

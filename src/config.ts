@@ -10,7 +10,7 @@ const configFilePath = path.join(__dirname, "../config.json");
 export interface Config {
     gatewayPort: number,
     db: {
-        permission: ConnectionOptions,
+        user: ConnectionOptions,
         gateway: ConnectionOptions,
     }
 }
@@ -40,7 +40,7 @@ export function createDefaultConfig(): Config {
     return {
         gatewayPort: 2857,
         db: {
-            permission: {
+            user: {
                 type: "sqlite",
                 database: path.join(__dirname, "../db/node_auth_permission.db"),
             },

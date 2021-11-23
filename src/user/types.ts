@@ -8,3 +8,7 @@ export interface Settings {
     gateway: string,
     virtualPaths?: { [path: string]: string },
 }
+
+export interface ServerContextData {
+    db: ConnectionOptions
+}

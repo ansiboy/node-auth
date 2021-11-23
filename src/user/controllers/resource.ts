@@ -2,14 +2,15 @@ import { errors } from "../errors";
 import { controller, routeData, action } from "maishu-node-mvc";
 import { Resource } from "../entities";
 import { UserDataContext } from "../data-context";
-import { permissionDataContext } from "../decorators";
+import { userDataContext } from "../decorators";
+import { userApiBasePath } from "../global";
 
 /** 资源控制器 */
-@controller("resource")
+@controller(`${userApiBasePath}/resource`)
 export default class ResourceController {
 
     @action()
-    async update(@permissionDataContext dc: UserDataContext, @routeData { item }: { item: Resource }) {
+    async update(@userDataContext dc: UserDataContext, @routeData { item }: { item: Resource }) {
         if (!item) throw errors.argumentNull('item')
         if (!item.id) throw errors.argumentFieldNull('id', 'item')
 
@@ -22,7 +23,7 @@ export default class ResourceController {
     }
 
     @action()
-    async remove(@permissionDataContext dc: UserDataContext, @routeData { id }) {
+    async remove(@userDataContext dc: UserDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull('id', "routeData");
 
         await dc.resources.delete(id);
@@ -31,13 +32,13 @@ export default class ResourceController {
 
 
     @action()
-    async list(@permissionDataContext dc: UserDataContext): Promise<Resource[]> {
+    async list(@userDataContext dc: UserDataContext): Promise<Resource[]> {
         let resources = await dc.resources.find();
         return resources;
     }
 
     @action()
-    async item(@permissionDataContext dc: UserDataContext, @routeData { id }) {
+    async item(@userDataContext dc: UserDataContext, @routeData { id }) {
         if (!id) throw errors.argumentFieldNull("id", "routeData");
 
         let item = await dc.resources.findOne(id);

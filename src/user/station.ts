@@ -1,7 +1,7 @@
 import IO = require("socket.io-client");
 import { errors } from "./errors";
 
-interface StationInfo {
+export interface StationInfo {
     path: string,
     ip: string,
     port: number,

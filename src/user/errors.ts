@@ -15,6 +15,13 @@ export let errors = {
         error.name = `${StatusCode.FieldNull} ${errors.routeDataFieldNull.name}`;
         return error;
     },
+    routeDataFieldTypeIncorrect(argumentName: string, expectedType: string, actualType: string) {
+        let msg = `Arugment '${argumentName}' is expected ${expectedType}, actual is '${actualType}'.`;
+        let error = new Error(msg);
+        let name: keyof typeof errors = "routeDataFieldTypeIncorrect";
+        error.name = name;
+        return error;
+    },
     argumentFieldNull(fieldName: string, objectName: string): Error {
         let msg = `The '${fieldName}' field of '${objectName}' object cannt be null.`;
         let error = new Error(msg);
@@ -94,5 +101,12 @@ export let errors = {
         let error = new Error(msg);
         error.name = errors.userNameMobileEmailRequireOne.name;
         return error;
+    },
+    parameterArrayIsEmpty(parameterName: string) {
+        let msg = `Array ${parameterName} is empty.`;
+        let err = new Error(msg);
+        let name: keyof typeof errors = "parameterArrayIsEmpty";
+        err.name = name;
+        return err;
     }
 }
