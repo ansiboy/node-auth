@@ -80,12 +80,19 @@ loadConfig().then((config: MyConfig) => {
 
 
             '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
-            '^/site/(\\S*)': `http://${config.builderStation}/$1`,
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
             '^/rewrite/(\\S*)': `http://${config.rewriteStation}/$1`,
-            '^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`,
+
+            '^/admin-api/site/(\\S*)': `http://${config.builderStation}/admin-api/$1`,
+
+            //'^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`,
+            '^/admin-api/freight/(\\S*)': `http://${config.freightStation}/admin-api/$1`,
+            '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
+
+            '^/admin-api/rewrite/(\\S*)': `http://${config.rewriteStation}/admin-api/$1`,
+            '^/user-api/rewrite/(\\S*)': `http://${config.rewriteStation}/user-api/$1`,
 
             '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
             "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
@@ -139,11 +146,14 @@ loadConfig().then((config: MyConfig) => {
 
             "^/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
             "^/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
-            "^/freight/\\S*": { roleIds: [roleIds.anonymous] },
+
+            "^/admin-api/freight/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/anon-api/freight/\\S*": { roleIds: [roleIds.anonymous] },
 
             "^/user-api/user/user/\\S*": { roleIds: [roleIds.anonymous] },
             "^/user-api/\\S*": { roleIds: [roleIds.normalUser] },
-            "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin, roleIds.anonymous] },
+            "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] },
 
             "^/$": { roleIds: [roleIds.anonymous] }
         },
