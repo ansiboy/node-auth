@@ -1,14 +1,30 @@
 import { errors } from '../../errors';
-import { controller, action, routeData } from 'maishu-node-mvc';
+import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
 import { UserDataContext } from '../../data-context';
-import { userDataContext, currentUserId } from "../../decorators";
+import { userDataContext, currentUserId, currentUser } from "../../decorators";
 import { User } from '../../entities';
-import { guid } from 'maishu-toolkit';
+import { DataSourceSelectArguments, guid } from 'maishu-toolkit';
 import { adminApiBasePath } from '../../global';
 import MemberController from "../user";
+import { DataHelper } from 'maishu-node-data';
+import UserController from '../user';
+
+type BaseUserController = Pick<UserController, "me" | "login">;
+
+var userController = new UserController();
 
 @controller(`${adminApiBasePath}/user`)
-export default class AdminMemberController {
+export default class AdminMemberController implements BaseUserController {
+
+    @action()
+    login(@userDataContext dc: UserDataContext, @routeData args: any): Promise<ContentResult> {
+        return userController.login(dc, args);
+    }
+
+    @action()
+    me(@currentUser user: User): Promise<Partial<User>> {
+        return userController.me(user);
+    }
 
     /** 添加用户 */
     @action()
@@ -127,12 +143,12 @@ export default class AdminMemberController {
         return items;
     }
 
-    @action()
-    async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
-        @currentUserId currentUserId: string) {
-        let ctrl = new MemberController();
-        return ctrl.changePassword(dc, d, currentUserId);
-    }
+    // @action()
+    // async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
+    //     @currentUserId currentUserId: string) {
+    //     let ctrl = new MemberController();
+    //     return ctrl.changePassword(dc, d, currentUserId);
+    // }
 
     @action()
     async users(@routeData d: { ids: string[] }, @userDataContext dc: UserDataContext) {
@@ -145,4 +161,21 @@ export default class AdminMemberController {
 
     }
 
+    @action()
+    async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+        let r = await DataHelper.list(dc.users, { selectArguments: d.args });
+        r.dataItems.forEach(c => {
+            delete c.password
+        });
+        return r;
+    }
+
+    /** 获取用户信息 */
+    @action()
+    async item(@userDataContext dc: UserDataContext, @routeData { userId }: { userId: string }) {
+        if (!userId) throw errors.userIdNull();
+
+        let user = await dc.users.findOne(userId);
+        return user
+    }
 }

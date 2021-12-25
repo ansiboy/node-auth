@@ -8,9 +8,7 @@ import { guid } from 'maishu-toolkit';
 import { LoginResult, StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
-import { DataHelper, } from 'maishu-node-data';
 import { userApiBasePath } from '../global';
-import AdminMemberController from './admin/user';
 
 @controller(`${userApiBasePath}/user`)
 export default class UserController {
@@ -127,13 +125,13 @@ export default class UserController {
     }
 
 
-    @action()
-    async registerWidthoutVerify(@userDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
-        let ctrl = new AdminMemberController();
-        let user = await ctrl.add(dc, { item });
-        let r: LoginResult = { userId: user.id };
-        return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
-    }
+    // @action()
+    // async registerWidthoutVerify(@userDataContext dc: UserDataContext, @routeData { item }: { item: User }) {
+    //     let ctrl = new AdminMemberController();
+    //     let user = await ctrl.add(dc, { item });
+    //     let r: LoginResult = { userId: user.id };
+    //     return new ContentResult(JSON.stringify(r), "application/json", StatusCode.Login);
+    // }
 
     private loginActionResult(userId: string) {
         let r: LoginResult = { userId: userId };
@@ -330,23 +328,19 @@ export default class UserController {
         return r;
     }
 
-    /** 获取用户信息 */
-    @action()
-    async item(@userDataContext dc: UserDataContext, @routeData { userId }: { userId: string }) {
-        if (!userId) throw errors.userIdNull();
+    // /** @deprecated Use AdminMemberController.item instead */
+    // @action()
+    // async item(@userDataContext dc: UserDataContext, @routeData d: { userId: string }) {
+    //     var ctrl = new AdminMemberController();
+    //     return ctrl.item(dc, d);
+    // }
 
-        let user = await dc.users.findOne(userId);
-        return user
-    }
-
-    @action()
-    async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
-        let r = await DataHelper.list(dc.users, { selectArguments: d.args });
-        r.dataItems.forEach(c => {
-            delete c.password
-        });
-        return r;
-    }
+    // /** @deprecated Use AdminMemberController.list instead */
+    // @action()
+    // async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+    //     var ctrl = new AdminMemberController();
+    //     return ctrl.list(dc, d);
+    // }
 
     @action()
     async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
