@@ -98,17 +98,34 @@ export class AdminMenuController {
         if (!d.resourceIds) throw errors.routeDataFieldNull<typeof d>("resourceIds");
 
         let menuItemRecords = await dc.menuItemRecords.find();
+        // 查找 roleId 允许访问的菜单
+        let roleMenuItems = menuItemRecords.filter(o => o.roleIds.indexOf(d.roleId) >= 0);
+        for (let i = 0; i < roleMenuItems.length; i++) {
+            // 如果 菜单 ID 不在 resourceIds 中，去掉 roleId
+            if (d.resourceIds.indexOf(roleMenuItems[i].id) < 0) {
+                roleMenuItems[i].roleIds = roleMenuItems[i].roleIds.filter(roleId => roleId != d.roleId);
+                await dc.menuItemRecords.update(roleMenuItems[i].id, { roleIds: roleMenuItems[i].roleIds });
+            }
+        }
+
         for (let i = 0; i < d.resourceIds.length; i++) {
             let menuItemRecord = menuItemRecords.filter(o => o.id == d.resourceIds[i])[0];
             if (menuItemRecord == null) {
+                if (d.resourceIds[i].length > 36) {
+                    throw errors.idTooLong(d.resourceIds[i]);
+                }
                 menuItemRecord = { id: d.resourceIds[i], roleIds: [d.roleId], create_date_time: new Date() };
                 menuItemRecords.push(menuItemRecord);
                 await dc.menuItemRecords.insert(menuItemRecord);
             }
             else if (menuItemRecord.roleIds.indexOf(d.roleId) < 0) {
                 menuItemRecord.roleIds.push(d.roleId) //= menuItemRecord.roleIds + "," + d.roleId;
-                await dc.menuItemRecords.save(menuItemRecord);
+                await dc.menuItemRecords.update(menuItemRecord.id, { roleIds: menuItemRecord.roleIds });
             }
+        }
+
+        for (let i = 0; i < menuItemRecords.length; i++) {
+
         }
 
         return { id: d.roleId };

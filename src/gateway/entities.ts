@@ -82,7 +82,7 @@ export class MenuItemRecord {
     id: string;
 
     @Column({
-        type: "varchar", length: 300, name: "role_ids",
+        type: "text", name: "role_ids",
         transformer: new StringArrayTransformer()
     })
     roleIds: string[];

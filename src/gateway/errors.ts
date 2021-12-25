@@ -61,5 +61,12 @@ export let errors = {
         let name: keyof typeof errors = "parameterArrayIsEmpty";
         err.name = name;
         return err;
+    },
+    idTooLong(id: string) {
+        let msg = `Id '${id}' length is too long, max length is 36, actual is ${id.length}`;
+        let err = new Error(msg);
+        let name: keyof typeof errors = "idTooLong";
+        err.name = name;
+        return err;
     }
 }
