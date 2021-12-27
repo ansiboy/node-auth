@@ -155,7 +155,7 @@ loadConfig().then((config: MyConfig) => {
             "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin, roleIds.anonymous] },
             "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] },
 
-            "^/$": { roleIds: [roleIds.anonymous] }
+            // "^/$": { roleIds: [roleIds.anonymous] }
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
