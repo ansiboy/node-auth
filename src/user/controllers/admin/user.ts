@@ -143,12 +143,12 @@ export default class AdminMemberController implements BaseUserController {
         return items;
     }
 
-    // @action()
-    // async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
-    //     @currentUserId currentUserId: string) {
-    //     let ctrl = new MemberController();
-    //     return ctrl.changePassword(dc, d, currentUserId);
-    // }
+    @action()
+    async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },
+        @currentUserId currentUserId: string) {
+        let ctrl = new MemberController();
+        return ctrl.changePassword(dc, d, currentUserId);
+    }
 
     @action()
     async users(@routeData d: { ids: string[] }, @userDataContext dc: UserDataContext) {
@@ -176,6 +176,19 @@ export default class AdminMemberController implements BaseUserController {
         if (!userId) throw errors.userIdNull();
 
         let user = await dc.users.findOne(userId);
+        return user
+    }
+
+    @action()
+    async enableUser(@userDataContext dc: UserDataContext, @routeData d: { userId: string, enable?: boolean }) {
+        if (!d.userId) throw errors.userIdNull();
+
+        let user = await dc.users.findOne(d.userId);
+        if (!user) throw errors.objectNotExistWithId(d.userId, 'User');
+
+        let enable: boolean = d.enable == null ? true : d.enable;
+
+        await dc.users.update(d.userId, { invalid: !enable })
         return user
     }
 }

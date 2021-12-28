@@ -108,5 +108,12 @@ export let errors = {
         let name: keyof typeof errors = "parameterArrayIsEmpty";
         err.name = name;
         return err;
+    },
+    userInvalid(username: string) {
+        let msg = `user ${username} is invalid`;
+        let err = new Error(msg);
+        let name: keyof typeof errors = "userInvalid";
+        err.name = name;
+        return err;
     }
 }

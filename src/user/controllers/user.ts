@@ -194,7 +194,7 @@ export default class UserController {
         return { id: userId };
     }
 
-    async loginByUserName(dc: UserDataContext, { username, password }): Promise<LoginResult> {
+    async loginByUserName(dc: UserDataContext, { username, password }): Promise<User> {
 
         if (!username) throw errors.argumentNull("username")
         if (!password) throw errors.argumentNull('password')
@@ -233,11 +233,11 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id } as UserToken)
         // return { token: token.id, userId: user.id, roleId: user.role_id }
-        let r: LoginResult = { userId: user.id };
-        return r;
+        // let r: LoginResult = { userId: user.id };
+        return user;
     }
 
-    private async loginByOpenId<T extends { openid }>(dc: UserDataContext, args: T): Promise<LoginResult> {
+    private async loginByOpenId<T extends { openid }>(dc: UserDataContext, args: T): Promise<User> {
         let { openid } = args
         if (!openid) throw errors.argumentNull('openid')
 
@@ -252,12 +252,12 @@ export default class UserController {
 
         // let token = await TokenManager.create({ user_id: user.id });
         // return { token: token.id, userId: user.id, roleId: user.role_id };
-        let r: LoginResult = { userId: user.id };
-        return r;
+        // let r: LoginResult = { userId: user.id };
+        return user;
     }
 
     private async loginByVerifyCode(@userDataContext dc: UserDataContext,
-        @routeData args: { mobile: string, smsId: string, verifyCode: string }): Promise<LoginResult> {
+        @routeData args: { mobile: string, smsId: string, verifyCode: string }): Promise<User> {
 
         let { mobile, smsId, verifyCode } = args
 
@@ -269,25 +269,30 @@ export default class UserController {
         if (smsRecord == null || smsRecord.code != verifyCode)
             throw errors.verifyCodeIncorrect(verifyCode);
 
-        let r: LoginResult = { userId: user.id, };
-        return r;
+        // let r: LoginResult = { userId: user.id, };
+        // return r;
+        return user;
     }
 
     @action()
     async login(@userDataContext dc: UserDataContext, @routeData args: any) {
         args = args || {}
 
-        let p: LoginResult;
+        let user: User;
         if (args.openid) {
-            p = await this.loginByOpenId(dc, args)
+            user = await this.loginByOpenId(dc, args)
         }
         else if (args.smsId) {
-            p = await this.loginByVerifyCode(dc, args)
+            user = await this.loginByVerifyCode(dc, args)
         }
         else {
-            p = await this.loginByUserName(dc, args)
+            user = await this.loginByUserName(dc, args)
         }
 
+        if (user.invalid)
+            throw errors.userInvalid(user.user_name || user.email || user.mobile || user.id);
+
+        let p: LoginResult = { userId: user.id };
         let r = await dc.userLatestLogins.findOne(p.userId);
         if (r == null) {
             r = { id: p.userId, latest_login: new Date(Date.now()), create_date_time: new Date(Date.now()) };
