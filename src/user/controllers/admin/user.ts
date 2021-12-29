@@ -187,8 +187,9 @@ export default class AdminMemberController implements BaseUserController {
         if (!user) throw errors.objectNotExistWithId(d.userId, 'User');
 
         let enable: boolean = d.enable == null ? true : d.enable;
+        user.invalid = !enable;
 
-        await dc.users.update(d.userId, { invalid: !enable })
+        await dc.users.update(d.userId, { invalid: user.invalid });
         return user
     }
 }
