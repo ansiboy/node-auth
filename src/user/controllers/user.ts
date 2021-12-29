@@ -7,7 +7,6 @@ import SMSController from './sms';
 import { guid } from 'maishu-toolkit';
 import { LoginResult, StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
-import { DataSourceSelectArguments } from 'maishu-wuzhui-helper';
 import { userApiBasePath } from '../global';
 
 @controller(`${userApiBasePath}/user`)
@@ -200,7 +199,7 @@ export default class UserController {
         if (!password) throw errors.argumentNull('password')
 
         //TODO: 检查 username 类型
-        let usernameRegex = /^[a-zA-Z\-]+$/;
+        let usernameRegex = /^[a-zA-Z\-\d*]+$/;
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         let type: 'mobile' | 'username' | 'email' =
             usernameRegex.test(username) ? 'username' :
