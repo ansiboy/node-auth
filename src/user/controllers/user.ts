@@ -1,13 +1,15 @@
 import { errors } from '../errors';
-import { controller, action, routeData, ContentResult } from 'maishu-node-mvc';
+import { controller, action, routeData, ContentResult, request } from 'maishu-node-mvc';
 import { UserDataContext } from '../data-context';
 import { userDataContext, currentUserId, currentUser } from "../decorators";
 import { User } from '../entities';
 import SMSController from './sms';
-import { guid } from 'maishu-toolkit';
+import { DataSourceSelectArguments, guid } from 'maishu-toolkit';
 import { LoginResult, StatusCode } from "../../gateway";
 import { FindOneOptions } from 'typeorm';
 import { userApiBasePath } from '../global';
+import { DataHelper } from 'maishu-node-data';
+import * as http from "http";
 
 @controller(`${userApiBasePath}/user`)
 export default class UserController {
@@ -44,7 +46,9 @@ export default class UserController {
 
     @action()
     async register(@userDataContext dc: UserDataContext,
-        @routeData { mobile, password, smsId, verifyCode, data, userName }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any, userName: string }) {
+        @routeData { mobile, password, smsId, verifyCode, data, userName }: { mobile: string, password: string, smsId: string, verifyCode: string, data: any, userName: string },
+        @request request: http.IncomingMessage) {
+
         if (mobile == null)
             throw errors.argumentNull('mobile');
 
@@ -73,9 +77,10 @@ export default class UserController {
                 throw errors.usernameExists(userName);
         }
 
+        var ip = request.headers['x-forwarded-for'] as string;
         let user: User = {
             id: guid(), mobile, password, data, user_name: userName,
-            create_date_time: new Date(Date.now())
+            create_date_time: new Date(Date.now()), ip
         }
 
         await dc.users.insert(user);
@@ -199,7 +204,7 @@ export default class UserController {
         if (!password) throw errors.argumentNull('password')
 
         //TODO: 检查 username 类型
-        let usernameRegex = /^[a-zA-Z\-\d*]+$/;
+        let usernameRegex = /^[a-zA-Z\-]+\d*$/;
         let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         let type: 'mobile' | 'username' | 'email' =
             usernameRegex.test(username) ? 'username' :
@@ -339,12 +344,14 @@ export default class UserController {
     //     return ctrl.item(dc, d);
     // }
 
-    // /** @deprecated Use AdminMemberController.list instead */
-    // @action()
-    // async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
-    //     var ctrl = new AdminMemberController();
-    //     return ctrl.list(dc, d);
-    // }
+    @action()
+    async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
+        let r = await DataHelper.list(dc.users, { selectArguments: d.args });
+        r.dataItems.forEach(c => {
+            delete c.password
+        });
+        return r;
+    }
 
     @action()
     async changePassword(@userDataContext dc: UserDataContext, @routeData d: { oldPassword: string, newPassword: string },

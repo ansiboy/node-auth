@@ -161,6 +161,9 @@ export class User implements Model {
     /** 账号不可用 */
     @Column({ type: "bit", nullable: true, transformer: new BitBooleanTransformer() })
     invalid?: boolean;
+
+    @Column({ type: "varchar", length: 45, nullable: true })
+    ip?: string;
 }
 
 @Entity("user-latest-login")
