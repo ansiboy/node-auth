@@ -163,11 +163,8 @@ export default class AdminMemberController implements BaseUserController {
 
     @action()
     async list(@userDataContext dc: UserDataContext, @routeData d: { args: DataSourceSelectArguments }) {
-        let r = await DataHelper.list(dc.users, { selectArguments: d.args });
-        r.dataItems.forEach(c => {
-            delete c.password
-        });
-        return r;
+        let ctrl = new MemberController();
+        return ctrl.list(dc, d);
     }
 
     /** 获取用户信息 */
@@ -191,5 +188,11 @@ export default class AdminMemberController implements BaseUserController {
 
         await dc.users.update(d.userId, { invalid: user.invalid });
         return user
+    }
+
+    @action()
+    async updateMe(@currentUserId userId: string, @userDataContext dc: UserDataContext, @routeData d: { user: Partial<User> }) {
+        let ctrl = new MemberController();
+        return ctrl.updateMe(userId, dc, d);
     }
 }

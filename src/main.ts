@@ -15,7 +15,7 @@ type MyConfig = Config & {
     storeStation: string,
     merchantStation: string,
     messageStation: string,
-    rewriteStation: string,
+    portalStation: string,
     freightStation: string,
 };
 
@@ -48,6 +48,7 @@ loadConfig().then((config: MyConfig) => {
     const target_host = config.shopServiceStation;
     // const imageStation = "127.0.0.1:2863";
     const imageStation = config.imageStation;
+    const portalStation = config.portalStation;
 
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
@@ -83,7 +84,7 @@ loadConfig().then((config: MyConfig) => {
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
-            '^/rewrite/(\\S*)': `http://${config.rewriteStation}/$1`,
+            '^/rewrite/(\\S*)': `http://${config.portalStation}/$1`,
 
             '^/admin-api/site/(\\S*)': `http://${config.builderStation}/admin-api/$1`,
 
@@ -91,8 +92,8 @@ loadConfig().then((config: MyConfig) => {
             '^/admin-api/freight/(\\S*)': `http://${config.freightStation}/admin-api/$1`,
             '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
 
-            '^/admin-api/rewrite/(\\S*)': `http://${config.rewriteStation}/admin-api/$1`,
-            '^/user-api/rewrite/(\\S*)': `http://${config.rewriteStation}/user-api/$1`,
+            '^/admin-api/rewrite/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
+            '^/user-api/rewrite/(\\S*)': `http://${config.portalStation}/user-api/$1`,
 
             '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
             "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
