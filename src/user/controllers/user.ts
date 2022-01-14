@@ -92,7 +92,7 @@ export default class UserController {
     /** 注册用户 */
     @action()
     async registerUser(@userDataContext dc: UserDataContext,
-        @routeData d: { user: User }) {
+        @routeData d: { user: User }, @request request: http.IncomingMessage) {
 
         if (!d.user) throw errors.routeDataFieldNull("user");
         if (d.user.mobile == null && d.user.email == null && d.user.user_name == null)
@@ -118,10 +118,11 @@ export default class UserController {
         if (obj?.email != null && obj?.email == d.user.email)
             throw errors.emailExists(d.user.email);
 
-
+        var ip = request.headers['x-forwarded-for'] as string;
         d.user.id = d.user.id || guid();
         d.user.create_date_time = new Date();
-
+        d.user.ip = ip;
+        
         await dc.users.insert(d.user);
 
         let r: LoginResult = { userId: d.user.id };
