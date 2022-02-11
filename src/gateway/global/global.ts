@@ -5,8 +5,8 @@ export let constants = {
     dbName: "shop_auth",
     cookieToken: "token",
     projectName: "node-auth",
-    userApiBasePath: "/auth/user-api",
-    adminApiBasePath: "/auth/admin-api",
+    userApiBasePath: "/user-api/auth",
+    adminApiBasePath: "/admin-api/auth",
 }
 
 export let userIds = {
@@ -14,8 +14,9 @@ export let userIds = {
     admin: "5ADB4240-B058-4D1C-9B8A-5A29A89715A8",
 }
 
-export let tokenDataHeaderNames = {
-    userId: "user-id"
+export let HeaderNames = {
+    userId: "user-id",
+    applicationId: "application-id",
 }
 
 export const TOKEN_NAME = "token";

@@ -1,7 +1,6 @@
-import { g, constants, tokenDataHeaderNames, TOKEN_NAME } from "./global";
-import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor, VirtualDirectory } from "maishu-node-mvc";
+import { g, constants, HeaderNames, TOKEN_NAME } from "./global";
+import { Settings as MVCSettings, getLogger, ProxyProcessor, StaticFileProcessor } from "maishu-node-mvc";
 import { Settings } from "./types";
-// import { startSocketServer } from "./socket-server";
 import Cookies = require("maishu-cookies");
 import { TokenManager } from "./token";
 import http = require("http");
@@ -9,13 +8,12 @@ import { roleIds } from "./global"
 import { startServer as startAdmin } from "maishu-node-mvc";
 import { AuthenticateRequestProcessor } from "./request-processors/authenticate";
 import { loginTransform } from "./content-transforms/login";
-import { DataHelper } from "maishu-node-data";
-import { AuthDataContext } from "./data-context";
-// import { StationController } from "./controllers/station";
 import { getVirtualPaths } from "maishu-admin-scaffold";
 import * as path from "path";
 import { ProxyItem } from "maishu-node-web-server";
 import { errors } from "./errors";
+import { getApplicationIdFromRequest } from "./common";
+
 
 export async function start(settings: Settings) {
 
@@ -38,12 +36,8 @@ export async function start(settings: Settings) {
     }
 
     settings.permissions = settings.permissions || {};
-    // settings.permissions[`/${constants.controllerPathRoot}/*`] = { roleIds: [roleIds.anonymous] };
-    // settings.permissions["/"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/favicon.ico"] = { roleIds: [roleIds.anonymous] };
     settings.permissions["/websiteConfig"] = { roleIds: [roleIds.anonymous] };
-
-    // settings.permissions["/clientFiles"] = { roleIds: [roleIds.anonymous] };
     let virtualPaths = getVirtualPaths("static", path.join(__dirname, "static"));
     Object.assign(virtualPaths, settings.virtualPaths || {});
 
@@ -52,16 +46,11 @@ export async function start(settings: Settings) {
         virtualPaths,
         bindIP: settings.bindIP,
         port: settings.port,
-        // rootDirectory: new VirtualDirectory(__dirname),
-        // websiteConfig: Object.assign(w, settings.websiteConfig || {}),
         headers: settings.headers,
         websiteDirectory: __dirname,
     }, "mvc");
 
     r.contentTransforms.unshift(loginTransform);
-
-
-    // startSocketServer(r.source);
 
     let staticProcessor = r.requestProcessors.find(StaticFileProcessor);
     staticProcessor.contentTypes[".woff2"] = "font/woff2";
@@ -90,14 +79,6 @@ export async function start(settings: Settings) {
     let authenticateProcessor = new AuthenticateRequestProcessor(settings.permissions);
     r.requestProcessors.add(authenticateProcessor);
 
-    DataHelper.createDataContext(AuthDataContext, settings.db).then(dc => {
-        // return dc.stations.find();
-    }).then(stations => {
-        // stations.forEach(s => {
-        //     StationController.register(s);
-        // })
-    })
-
     return r;
 }
 
@@ -118,11 +99,15 @@ async function proxyHeader(req: http.IncomingMessage) {
     let token = await TokenManager.parse(tokenText);
     if (!token) {
         logger.warn(`Token data '${tokenText}' is not exits.`);
-        // return header;
         throw errors.tokenNotExist(tokenText);
     }
 
-    header[tokenDataHeaderNames.userId] = token.user_id;
+    header[HeaderNames.userId] = token.user_id;
+    if (!header[HeaderNames.applicationId]) {
+        var appId = await getApplicationIdFromRequest(req);
+        if (appId)
+            header[HeaderNames.applicationId] = appId;
+    }
 
     return header
 }

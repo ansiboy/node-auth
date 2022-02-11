@@ -69,8 +69,7 @@ loadConfig().then((config: MyConfig) => {
             '^/UserMember/(\\S+)': `http://${target_host}:9020/User/$1`,
             '^/UserWeiXin/(\\S+)': `http://${target_host}:9030/User/$1`,
             '^/UserAccount/(\\S+)': `http://${target_host}:9035/User/$1`,
-            "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
-            "^/image/(\\S+)": `http://${imageStation}/$1`,
+
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
 
             "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
@@ -98,8 +97,14 @@ loadConfig().then((config: MyConfig) => {
             '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
             "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
 
-            "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
-            "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,
+            // "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
+            // "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,
+
+            "^/admin-api/image/(\\S*)": `http://${imageStation}/admin-api/$1`,
+            "^/user-api/image/(\\S*)": `http://${gatewayPort}/user-api/$1`,
+
+            "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
+            "^/image/(\\S*)": `http://${imageStation}/$1`,
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -155,7 +160,7 @@ loadConfig().then((config: MyConfig) => {
             "^/user-api/\\S*": { roleIds: [roleIds.normalUser] },
             "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin, roleIds.anonymous] },
             "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] },
-
+            // "^/admin-api/auth/getApplicationId?/\\S+": { roleIds: [roleIds.anonymous] },
             // "^/$": { roleIds: [roleIds.anonymous] }
         },
         virtualPaths: {
