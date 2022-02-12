@@ -137,9 +137,6 @@ export class ApplicationIdBinding {
     @Column({ type: "char", length: 36 })
     app_id: string;
 
-    @Column({ type: "varchar", length: 100 })
-    url_prefix: string;
-
     @Column({ type: "datetime" })
     create_date_time: Date;
 

@@ -164,6 +164,9 @@ export class User implements Model {
 
     @Column({ type: "varchar", length: 45, nullable: true })
     ip?: string;
+
+    @Column({ type: "varchar", length: 36, nullable: true })
+    application_id?: string;
 }
 
 @Entity("user-latest-login")

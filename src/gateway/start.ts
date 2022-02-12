@@ -12,7 +12,8 @@ import { getVirtualPaths } from "maishu-admin-scaffold";
 import * as path from "path";
 import { ProxyItem } from "maishu-node-web-server";
 import { errors } from "./errors";
-import { getApplicationIdFromRequest } from "./common";
+import { getApplicationIdById } from "./common";
+// import { getApplicationIdFromRequest } from "./common";
 
 
 export async function start(settings: Settings) {
@@ -103,12 +104,12 @@ async function proxyHeader(req: http.IncomingMessage) {
     }
 
     header[HeaderNames.userId] = token.user_id;
-    if (!header[HeaderNames.applicationId]) {
-        var appId = await getApplicationIdFromRequest(req);
-        if (appId)
-            header[HeaderNames.applicationId] = appId;
-    }
-
+    // if (!header[HeaderNames.applicationId]) {
+    //     let appId = getApplicationIdById(req.headers.host);
+    //     if (appId) {
+    //         header[HeaderNames.applicationId] = appId;
+    //     }
+    // }
     return header
 }
 

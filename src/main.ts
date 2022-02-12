@@ -96,6 +96,7 @@ loadConfig().then((config: MyConfig) => {
 
             '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
             "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
+            '^/anon-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/anon-api/$1`,
 
             // "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
             // "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,

@@ -5,6 +5,7 @@ export { roleIds } from "../gateway";
 export let PROJECt_NAME = "node-auth-permission";
 export let userApiBasePath = "/user-api";
 export let adminApiBasePath = "/admin-api";
+export let anonApiBasePath = "/anon-api";
 export let stationPath = "/user/";
 //==============================================
 

@@ -7,6 +7,7 @@ export let constants = {
     projectName: "node-auth",
     userApiBasePath: "/user-api/auth",
     adminApiBasePath: "/admin-api/auth",
+    anonApiBasePath: "/anon-api/auth",
 }
 
 export let userIds = {

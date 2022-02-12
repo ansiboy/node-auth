@@ -6,8 +6,8 @@ import { User } from '../../entities';
 import { DataSourceSelectArguments, guid } from 'maishu-toolkit';
 import { adminApiBasePath } from '../../global';
 import MemberController from "../user";
-import { DataHelper } from 'maishu-node-data';
 import UserController from '../user';
+import { currentAppId } from '../../decorators/current-user-id';
 
 type BaseUserController = Pick<UserController, "me" | "login">;
 
@@ -134,12 +134,23 @@ export default class AdminMemberController implements BaseUserController {
     }
 
     @action()
-    async userLatestLogin(@userDataContext dc: UserDataContext, @routeData { userIds }: { userIds: string[] }) {
-        let items = await dc.userLatestLogins.createQueryBuilder()
-            .where(" id in (...:userIds)")
-            .setParameter("userIds", userIds)
-            .getMany();
+    async userLatestLogin(@userDataContext dc: UserDataContext, @routeData { userIds }: { userIds: string[] }, @currentAppId appId: string): Promise<User[]> {
 
+        const ID: keyof User = "id";
+        const APPLICATION_ID: keyof User = "application_id";
+        var query = `${ID} in (...:userIds)`;
+        if (appId) {
+            query = `(${query}) and (${APPLICATION_ID} = :appId)`;
+        }
+        else {
+            query = `(${query}) and (${APPLICATION_ID} is null)`;
+        }
+        var q = dc.users.createQueryBuilder().where(query).setParameter("userIds", userIds);
+        if (appId) {
+            q.setParameter("appId", appId);
+        }
+
+        let items = await q.getMany();
         return items;
     }
 
@@ -151,14 +162,28 @@ export default class AdminMemberController implements BaseUserController {
     }
 
     @action()
-    async users(@routeData d: { ids: string[] }, @userDataContext dc: UserDataContext) {
+    async users(@routeData d: { ids: string[] }, @userDataContext dc: UserDataContext, @currentAppId appId: string): Promise<User[]> {
         if (!d.ids) throw errors.routeDataFieldNull("ids");
         if (!Array.isArray(d.ids)) throw errors.routeDataFieldTypeIncorrect("ids", "array", typeof d.ids);
         if (d.ids.length == 0) throw errors.parameterArrayIsEmpty("ids");
 
-        let users = await dc.users.findByIds(d.ids);
-        return users;
+        const ID: keyof User = "id";
+        const APPLICATION_ID: keyof User = "application_id";
 
+        var query = `${ID} in (...:userIds)`;
+        if (appId) {
+            query = `(${query}) and (${APPLICATION_ID} = :appId)`;
+        }
+        else {
+            query = `(${query}) and (${APPLICATION_ID} is null)`;
+        }
+
+        var q = dc.users.createQueryBuilder().where(query).setParameter("userIds", d.ids);
+        if (appId)
+            q.setParameter(":appId", appId);
+
+        let users = await q.getMany();
+        return users;
     }
 
     @action()
