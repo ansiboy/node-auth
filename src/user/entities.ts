@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryColumn } from "maishu-node-data";
 
 import { ValueTransformer } from 'typeorm';
-class BitBooleanTransformer implements ValueTransformer {
+export class BitBooleanTransformer implements ValueTransformer {
     // To db from typeorm
     to(value: boolean | null): Buffer | null {
         if (value === null) {

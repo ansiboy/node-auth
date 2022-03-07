@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper, ValueTransformer } from "maishu-node-data";
-import { JSONTransformer } from "../user/entities";
+import { BitBooleanTransformer, JSONTransformer } from "../user/entities";
 
 class StringArrayTransformer implements ValueTransformer {
 
@@ -139,5 +139,8 @@ export class ApplicationIdBinding {
 
     @Column({ type: "datetime" })
     create_date_time: Date;
+
+    @Column({ type: "bit", transformer: new BitBooleanTransformer() })
+    valid: boolean;
 
 }
