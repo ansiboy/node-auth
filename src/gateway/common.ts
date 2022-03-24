@@ -16,7 +16,9 @@ async function getAppIdBindings(): Promise<ApplicationIdBinding[]> {
         var dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
         appIdBindings = await dc.appIdBindings.find();
         let idsToUpdate = appIdBindings.filter(o => o.valid != true).map(o => o.id);
-        dc.appIdBindings.update(idsToUpdate, { valid: true });
+        if (idsToUpdate.length > 0) {
+            dc.appIdBindings.update(idsToUpdate, { valid: true });
+        }
         nodeCache.set(APP_ID_BINDINGS, appIdBindings, ONE_HOUR * 2);
     }
 

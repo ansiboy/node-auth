@@ -12,6 +12,7 @@ type MyConfig = Config & {
     emailStation: string,
     seoStation: string,
     builderStation: string,
+    builderStation2: string,
     storeStation: string,
     merchantStation: string,
     messageStation: string,
@@ -72,40 +73,51 @@ loadConfig().then((config: MyConfig) => {
 
             '^/pc-build/(\\S+)': `http://${target_host}:5216/$1`,
 
-            "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
             '^/pay/(\\S*)': `http://${config.payStation}/$1`,
 
+            // 邮件
+            '^/email/(\\S*)': `http://${config.emailStation}/$1`,
             '^/admin-api/email/(\\S*)': `http://${config.emailStation}/admin-api/$1`,
             '^/anon-api/email/(\\S*)': `http://${config.emailStation}/anon-api/$1`,
 
+            // 运费
+            '^/admin-api/freight/(\\S*)': `http://${config.freightStation}/admin-api/$1`,
+            '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
 
+            // 前端门户
+            '^/admin-api/rewrite/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
+            '^/user-api/rewrite/(\\S*)': `http://${config.portalStation}/user-api/$1`,
+
+            // 用户
+            "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
+            '^/user-api/user/(\\S*)': `http://127.0.0.1:${userStationPort}/user-api/$1`,
+            "^/admin-api/user/(\\S*)": `http://127.0.0.1:${userStationPort}/admin-api/$1`,
+            '^/anon-api/user/(\\S*)': `http://127.0.0.1:${userStationPort}/anon-api/$1`,
+
+            // "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
+            // "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,
+
+            // 图片
+            "^/admin-api/image/(\\S*)": `http://${imageStation}/admin-api/$1`,
+            "^/user-api/image/(\\S*)": `http://${gatewayPort}/user-api/$1`,
+            "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
+            "^/image/(\\S*)": `http://${imageStation}/$1`,
+
+            // 建站
+            '^/site/(\\S*)': `http://${config.builderStation}/$1`,
+            '^/admin-api/site/(\\S*)': `http://${config.builderStation}/admin-api/$1`,
+            '^/site2/(\\S*)': `http://${config.builderStation2}/$1`,
+            '^/admin-api/site2/(\\S*)': `http://${config.builderStation2}/admin-api/$1`,
+            '^/user-api/site2/(\\S*)': `http://${config.builderStation2}/user-api/$1`,
+
+
+            // 其他
             '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
             '^/store/(\\S*)': `http://${config.storeStation}/$1`,
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
             '^/rewrite/(\\S*)': `http://${config.portalStation}/$1`,
 
-            '^/admin-api/site/(\\S*)': `http://${config.builderStation}/admin-api/$1`,
-
-            //'^/freight/(\\S*)': `http://${config.freightStation}/freight/$1`,
-            '^/admin-api/freight/(\\S*)': `http://${config.freightStation}/admin-api/$1`,
-            '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
-
-            '^/admin-api/rewrite/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
-            '^/user-api/rewrite/(\\S*)': `http://${config.portalStation}/user-api/$1`,
-
-            '^/user-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/user-api/$1`,
-            "^/admin-api/user/(\\S*)": `http://127.0.0.1:${globalSettings.port}/admin-api/$1`,
-            '^/anon-api/user/(\\S*)': `http://127.0.0.1:${globalSettings.port}/anon-api/$1`,
-
-            // "^/user-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/user-api/$1`,
-            // "^/admin-api/auth/(\\S*)": `http://127.0.0.1:${gatewayPort}/auth/admin-api/$1`,
-
-            "^/admin-api/image/(\\S*)": `http://${imageStation}/admin-api/$1`,
-            "^/user-api/image/(\\S*)": `http://${gatewayPort}/user-api/$1`,
-
-            "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
-            "^/image/(\\S*)": `http://${imageStation}/$1`,
         },
         headers: {
             'Access-Control-Allow-Origin': '*',
@@ -121,8 +133,6 @@ loadConfig().then((config: MyConfig) => {
             "\\S+.png$": { roleIds: [roleIds.anonymous] },
             "\\S+.woff$": { roleIds: [roleIds.anonymous] },
             "\\S+.map$": { roleIds: [roleIds.anonymous] },
-
-
 
             // TODO: 用户组设置
             "^/AdminAccount/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
@@ -160,9 +170,7 @@ loadConfig().then((config: MyConfig) => {
             "^/user-api/user/user/\\S*": { roleIds: [roleIds.anonymous] },
             "^/user-api/\\S*": { roleIds: [roleIds.normalUser] },
             "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin, roleIds.anonymous] },
-            "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] },
-            // "^/admin-api/auth/getApplicationId?/\\S+": { roleIds: [roleIds.anonymous] },
-            // "^/$": { roleIds: [roleIds.anonymous] }
+            "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] }
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),

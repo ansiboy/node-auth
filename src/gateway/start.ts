@@ -104,12 +104,13 @@ async function proxyHeader(req: http.IncomingMessage) {
     }
 
     header[HeaderNames.userId] = token.user_id;
-    // if (!header[HeaderNames.applicationId]) {
-    //     let appId = getApplicationIdById(req.headers.host);
-    //     if (appId) {
-    //         header[HeaderNames.applicationId] = appId;
-    //     }
-    // }
+    if (!header[HeaderNames.applicationId]) {
+        let host = req.headers["original-host"] as string || req.headers.host;
+        let appId = await getApplicationIdById(host);
+        if (appId) {
+            header[HeaderNames.applicationId] = appId;
+        }
+    }
     return header
 }
 

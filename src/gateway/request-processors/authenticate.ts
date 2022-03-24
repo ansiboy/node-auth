@@ -71,8 +71,14 @@ export class AuthenticateRequestProcessor implements RequestProcessor {
         //==================================================
 
         let error = userId == null ? errors.userNotLogin(args.req.url) : errors.forbidden(u.pathname);
+        let names = Object.getOwnPropertyNames(error);
+        let content = `Request url is ${args.req.url}.\r\n`;
+        for (let i = 0; i < names.length; i++) {
+            content = content + error[names[i]] + "\r\n";
+        }
+
         let result: RequestResult = {
-            content: JSON.stringify(error),
+            content,
             headers: { "Content-Type": "application/json; charset=utf-8" },
             statusCode: StatusCode.NoPermission
         };
