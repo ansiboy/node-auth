@@ -91,20 +91,18 @@ async function proxyHeader(req: http.IncomingMessage) {
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[TOKEN_NAME] as string || cookies.get(TOKEN_NAME);
 
-    if (!tokenText || tokenText == "undefined") {
-        logger.warn(`Token text is empty.`);
-        return header;
+    if (tokenText && tokenText != "undefined") {
+        logger.info(`Token text is ${tokenText}`);
+        let token = await TokenManager.parse(tokenText);
+        if (!token) {
+            logger.warn(`Token data '${tokenText}' is not exits.`);
+            throw errors.tokenNotExist(tokenText);
+        }
+
+        header[HeaderNames.userId] = token.user_id;
     }
 
-    logger.info(`Token text is ${tokenText}`);
-    let token = await TokenManager.parse(tokenText);
-    if (!token) {
-        logger.warn(`Token data '${tokenText}' is not exits.`);
-        throw errors.tokenNotExist(tokenText);
-    }
-
-    header[HeaderNames.userId] = token.user_id;
-    if (!header[HeaderNames.applicationId]) {
+    if (!req.headers[HeaderNames.applicationId]) {
         let host = req.headers["original-host"] as string || req.headers.host;
         let appId = await getApplicationIdById(host);
         if (appId) {
