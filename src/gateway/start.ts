@@ -88,6 +88,9 @@ async function proxyHeader(req: http.IncomingMessage) {
     let cookies = new Cookies(req, null);
     let header = {}
 
+    header["raw-url"] = req.headers["raw-url"] || req.url || ""
+    
+
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[TOKEN_NAME] as string || cookies.get(TOKEN_NAME);
 

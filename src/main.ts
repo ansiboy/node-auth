@@ -18,6 +18,7 @@ type MyConfig = Config & {
     messageStation: string,
     portalStation: string,
     freightStation: string,
+    editorStation: string,
 };
 
 class ConfigFieldNullError extends Error {
@@ -29,7 +30,7 @@ class ConfigFieldNullError extends Error {
 
 loadConfig().then((config: MyConfig) => {
 
-    if (!config.shopServiceStation)
+    if (!config.shopServiceStation) 
         throw new ConfigFieldNullError("shopServiceStation");
 
     if (!config.payStation)
@@ -85,6 +86,10 @@ loadConfig().then((config: MyConfig) => {
             '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
 
             // 前端门户
+            "^/portal/(\\S+)": `http://${config.portalStation}/$1`,
+            '^/admin-api/portal/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
+            '^/user-api/portal/(\\S*)': `http://${config.portalStation}/user-api/$1`,
+            "^/rewrite/(\\S+)": `http://${config.portalStation}/$1`,
             '^/admin-api/rewrite/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
             '^/user-api/rewrite/(\\S*)': `http://${config.portalStation}/user-api/$1`,
 
@@ -110,6 +115,10 @@ loadConfig().then((config: MyConfig) => {
             '^/admin-api/site2/(\\S*)': `http://${config.builderStation2}/admin-api/$1`,
             '^/user-api/site2/(\\S*)': `http://${config.builderStation2}/user-api/$1`,
 
+            // 内容管理
+            '^/editor/(\\S*)': `http://${config.editorStation}/$1`,
+            '^/admin-api/editor/(\\S*)': `http://${config.editorStation}/admin-api/$1`,
+            '^/user-api/editor/(\\S*)': `http://${config.editorStation}/user-api/$1`,
 
             // 其他
             '^/seo/(\\S*)': `http://${config.seoStation}/$1`,
@@ -128,11 +137,13 @@ loadConfig().then((config: MyConfig) => {
             "\\S+.js$": { roleIds: [roleIds.anonymous] },
             "\\S+.html$": { roleIds: [roleIds.anonymous] },
             "\\S+.css$": { roleIds: [roleIds.anonymous] },
-            "\\S+.less$": { roleIds: [roleIds.anonymous] },
+            "\\S+.gif$": { roleIds: [roleIds.anonymous] },
             "\\S+.jpg$": { roleIds: [roleIds.anonymous] },
+            "\\S+.less$": { roleIds: [roleIds.anonymous] },
+            "\\S+.map$": { roleIds: [roleIds.anonymous] },
             "\\S+.png$": { roleIds: [roleIds.anonymous] },
             "\\S+.woff$": { roleIds: [roleIds.anonymous] },
-            "\\S+.map$": { roleIds: [roleIds.anonymous] },
+            "\\S+.woff2$": { roleIds: [roleIds.anonymous] },
 
             // TODO: 用户组设置
             "^/AdminAccount/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
@@ -159,7 +170,7 @@ loadConfig().then((config: MyConfig) => {
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
 
-            "^/rewrite/api\\S*": { roleIds: [roleIds.admin, , roleIds.ZWAdmin] },
+            "^/rewrite/api\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 
             "^/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous, roleIds.ZWAdmin] },
             "^/auth/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
@@ -169,12 +180,18 @@ loadConfig().then((config: MyConfig) => {
 
             "^/user-api/user/user/\\S*": { roleIds: [roleIds.anonymous] },
             "^/user-api/\\S*": { roleIds: [roleIds.normalUser] },
-            "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin, roleIds.anonymous] },
-            "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] }
+            "^/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/anon-api/\\S*": { roleIds: [roleIds.anonymous] },
+
+            "^/[a-zA-Z\\-]+/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/[a-zA-Z\\-]+/user-api/\\S*": { roleIds: [roleIds.normalUser] },
+
+            "^/api/editor/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),
         },
+
     }
 
     let userStationSettings: PermissionSettings = {
