@@ -34,7 +34,7 @@
         "qcloudsms_js": "^0.1.1",
         "react-dom": "^16.13.0",
         "requirejs": "^2.3.6",
-        "socket.io": "^2.3.0",
+        "socket.io": "^4.5.1",
         "sqlite3": "^5.0.0",
         "url-pattern": "^1.0.3",
         "yargs": "^16.1.1"
@@ -51,6 +51,7 @@
         "@types/react": "^16.14.5",
         "@types/react-dom": "^16.9.12",
         "@types/socket.io": "^2.1.4",
+        "@types/socket.io-client": "^3.0.0",
         "grunt": "^1.0.4",
         "grunt-open": "^0.2.4",
         "grunt-shell": "^3.0.1",

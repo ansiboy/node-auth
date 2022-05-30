@@ -62,7 +62,7 @@ export abstract class DataListPage<T> extends BasePage {
     dialog: Dialog<T>;
     operationColumn: CustomField<T>;
 
-    constructor(props) {
+    constructor(props: T) {
         super(props);
 
         let it = this;
@@ -133,7 +133,7 @@ export abstract class DataListPage<T> extends BasePage {
                                     if (!col.itemStyle)
                                         return;
 
-                                    e.style.width = col.itemStyle["width"];
+                                    e.style.width = col.itemStyle["width"] as string;
 
                                 }}>{col.headerText}</th>
                             )}

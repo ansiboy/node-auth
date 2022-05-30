@@ -13,8 +13,8 @@ export class PermissionService extends Service {
     user = new UserModule(this);
     sms = new SMSModule(this);
     resource = new ResourceModule(this);
-    constructor(...args) {
-        super(...args)
+    constructor(handleError?: (error: Error, sender: Service) => void) {
+        super(handleError)
     }
 
 

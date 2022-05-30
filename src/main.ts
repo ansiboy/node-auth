@@ -17,6 +17,7 @@ type MyConfig = Config & {
     merchantStation: string,
     messageStation: string,
     portalStation: string,
+    portal2Station: string,
     freightStation: string,
     editorStation: string,
 };
@@ -30,7 +31,7 @@ class ConfigFieldNullError extends Error {
 
 loadConfig().then((config: MyConfig) => {
 
-    if (!config.shopServiceStation) 
+    if (!config.shopServiceStation)
         throw new ConfigFieldNullError("shopServiceStation");
 
     if (!config.payStation)
@@ -51,6 +52,7 @@ loadConfig().then((config: MyConfig) => {
     // const imageStation = "127.0.0.1:2863";
     const imageStation = config.imageStation;
     const portalStation = config.portalStation;
+    const portal2Station = config.portal2Station;
 
     //===========================================
     let gatewayStationSettings: GatewaySettings = {
@@ -65,6 +67,7 @@ loadConfig().then((config: MyConfig) => {
             '^/AdminWeiXin/(\\S+)': `http://${target_host}:9030/Admin/$1`,
             '^/AdminAccount/(\\S+)': `http://${target_host}:9035/Admin/$1`,
             '^/AdminStatistics/(\\S+)': `http://${target_host}:9050/Admin/$1`,
+            '^/AdminERP/(\\S+)': `http://${target_host}:9060/Admin/$1`,
             '^/UserSite/(\\S+)': `http://${target_host}:9000/User/$1`,
             '^/UserStock/(\\S+)': `http://${target_host}:9005/User/$1`,
             '^/UserShop/(\\S+)': `http://${target_host}:9010/User/$1`,
@@ -86,12 +89,14 @@ loadConfig().then((config: MyConfig) => {
             '^/anon-api/freight/(\\S*)': `http://${config.freightStation}/anon-api/$1`,
 
             // 前端门户
-            "^/portal/(\\S+)": `http://${config.portalStation}/$1`,
-            '^/admin-api/portal/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
-            '^/user-api/portal/(\\S*)': `http://${config.portalStation}/user-api/$1`,
-            "^/rewrite/(\\S+)": `http://${config.portalStation}/$1`,
-            '^/admin-api/rewrite/(\\S*)': `http://${config.portalStation}/admin-api/$1`,
-            '^/user-api/rewrite/(\\S*)': `http://${config.portalStation}/user-api/$1`,
+            "^/portal/(\\S+)": `http://${portalStation}/$1`,
+            '^/admin-api/portal/(\\S*)': `http://${portalStation}/admin-api/$1`,
+            '^/user-api/portal/(\\S*)': `http://${portalStation}/user-api/$1`,
+            "^/rewrite/(\\S+)": `http://${portalStation}/$1`,
+            '^/admin-api/rewrite/(\\S*)': `http://${portalStation}/admin-api/$1`,
+            '^/user-api/rewrite/(\\S*)': `http://${portalStation}/user-api/$1`,
+
+            '^/admin-api/portal2/(\\S*)': `http://${portal2Station}/admin-api/$1`,
 
             // 用户
             "^/user/(\\S+)": `http://${target_host}:${userStationPort}/$1`,
@@ -153,6 +158,7 @@ loadConfig().then((config: MyConfig) => {
             "^/AdminStock/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
             "^/AdminSite/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
             "^/AdminStatistics/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/AdminERP/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 
             "^/UserShop/\\S*": { roleIds: [roleIds.anonymous] },
             "^/UserStock/\\S*": { roleIds: [roleIds.anonymous] },
@@ -169,6 +175,7 @@ loadConfig().then((config: MyConfig) => {
             "^/store/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
+            "/admin-api/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous] },
 
             "^/rewrite/api\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 

@@ -1,7 +1,7 @@
 import { ApplicationIdBinding } from "./entities";
 import NodeCache = require("node-cache");
 import { AuthDataContext } from "./data-context";
-import { DataHelper } from "maishu-node-data";
+import { ConnectionOptions, DataHelper } from "maishu-node-data";
 import { g } from "./global";
 
 var nodeCache = new NodeCache()
@@ -13,7 +13,7 @@ const APP_ID_BINDINGS = "AppIdBindings";
 async function getAppIdBindings(): Promise<ApplicationIdBinding[]> {
     var appIdBindings = nodeCache.get(APP_ID_BINDINGS) as ApplicationIdBinding[];
     if (appIdBindings == null) {
-        var dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
+        var dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db as ConnectionOptions);
         appIdBindings = await dc.appIdBindings.find();
         let idsToUpdate = appIdBindings.filter(o => o.valid != true).map(o => o.id);
         if (idsToUpdate.length > 0) {
@@ -25,10 +25,10 @@ async function getAppIdBindings(): Promise<ApplicationIdBinding[]> {
     return appIdBindings;
 }
 
-export async function getApplicationIdById(id: string): Promise<string> {
+export async function getApplicationIdById(id: string): Promise<string | null> {
     var appIdBindings = await getAppIdBindings();
     let item = appIdBindings.filter(o => o.id == id)[0];
-    return item?.app_id;
+    return item?.app_id || null;
 }
 
 

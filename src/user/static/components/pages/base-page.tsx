@@ -1,7 +1,7 @@
 import React = require("react");
 
 export abstract class BasePage<P = {}, S = {}> extends React.Component<P, S> {
-    constructor(props) {
+    constructor(props: P) {
         super(props);
 
         let render = this.render;

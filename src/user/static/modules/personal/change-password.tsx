@@ -29,7 +29,7 @@ export default class ChagePasswordPage extends BasePage<PageProps, State>{
     private validator: FormValidator;
     private smsId: string;
 
-    constructor(props) {
+    constructor(props: PageProps) {
         super(props);
 
         this.state = {}
@@ -47,7 +47,7 @@ export default class ChagePasswordPage extends BasePage<PageProps, State>{
 
         let { mobile, verifyCode, newPassword } = this.state;
 
-        return this.ps.user.resetPassword(mobile, newPassword, this.smsId, verifyCode);
+        return this.ps.user.resetPassword(mobile as string, newPassword as string, this.smsId, verifyCode as string);
     }
 
     componentDidMount() {
@@ -106,7 +106,7 @@ export default class ChagePasswordPage extends BasePage<PageProps, State>{
                                                 if (!this.validator.checkElement(MOBILE))
                                                     return;
 
-                                                sendVerifyCode(e, mobile);
+                                                sendVerifyCode(e, mobile as string);
                                             }
                                         }}>
                                         发送验证码
@@ -142,7 +142,7 @@ export async function sendVerifyCode(button: HTMLButtonElement, mobile: string) 
 
     ps.sms.sendResetVerifyCode(mobile)
         .then(r => {
-            this.smsId = r.smsId;
+            // this.smsId = r.smsId;
         })
         .catch(err => {
             clearInterval(timeId);

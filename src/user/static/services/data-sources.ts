@@ -5,6 +5,7 @@ import { WebsiteConfig } from "../website-config";
 import { User, Resource, } from "permission-entities";
 import { TokenData, Role } from "gateway-entities";
 import { errorHandle } from "../error-handle";
+import { MenuItem as BaseMenuItem } from "maishu-admin-scaffold/static/website-config";
 
 
 export type MyUser = User & { roles?: Role[] };
@@ -55,7 +56,7 @@ let userDataSource = new DataSource<MyUser>({
     }
 })
 
-export type MenuItem = WebsiteConfig["menuItems"][0] & {
+export type MenuItem = BaseMenuItem & {
     parent?: MenuItem,
     roleNames?: string,
     sortNumber?: number,

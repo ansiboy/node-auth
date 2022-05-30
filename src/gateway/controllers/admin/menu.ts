@@ -10,8 +10,9 @@ import w from "../../static/website-config";
 import { authDataContext, currentUserId } from "../../decorators";
 import { pathConcat } from "maishu-toolkit";
 import { MenuItemRecord } from "gateway-entities";
+import { MenuItem } from "maishu-admin-scaffold/static/website-config";
 
-type MyMenuItem = WebsiteConfig["menuItems"][0] & { stationPath?: string };
+type MyMenuItem = MenuItem & { stationPath?: string };
 
 @controller(`${constants.adminApiBasePath}/menuItem`)
 export class AdminMenuController {
@@ -23,9 +24,9 @@ export class AdminMenuController {
     @action()
     async list(@request req: http.IncomingMessage, @authDataContext dc: AuthDataContext, @routeData d?: { roleId?: string, userId?: string }) {
 
-        let stations = g.stationInfos.value;
+        let stations = g.stationInfos.value || [];
 
-        let u = url.parse(req.url);
+        let u = url.parse(req.url || "");
         let protocol = u.protocol || "http:";
         let websiteConfigUrls = stations.map(p => {
             let configPath = p.config || "website-config";
@@ -46,7 +47,7 @@ export class AdminMenuController {
 
             let stack = [...w.menuItems] as MyMenuItem[];
             while (stack.length > 0) {
-                let item = stack.shift();
+                let item = stack.shift() as MyMenuItem;
                 item.stationPath = stations[i].path;
                 (item.children || []).forEach(child => {
                     stack.unshift(child);
@@ -65,14 +66,14 @@ export class AdminMenuController {
 
             let roleIds = menuItemRecords[i].roleIds;//.split(",").filter(o => o);
             for (let i = 0; i < roleIds.length; i++) {
-                if (item.roleIds.indexOf(roleIds[i]) < 0)
-                    item.roleIds.push(roleIds[i]);
+                if ((item.roleIds as string[]).indexOf(roleIds[i]) < 0)
+                    (item.roleIds as string[]).push(roleIds[i]);
 
             }
         }
 
         if (d != null && d.roleId != null) {
-            menuItems = menuItems.filter(o => o.roleIds != null && o.roleIds.indexOf(d.roleId) >= 0 || o["userId"] == d.userId);
+            menuItems = menuItems.filter(o => o.roleIds != null && o.roleIds.indexOf(d.roleId as string) >= 0 || (o as any)["userId"] == d.userId);
         }
 
         return menuItems;
@@ -82,11 +83,11 @@ export class AdminMenuController {
         let stack = [...menuItems];
         while (stack.length > 0) {
             let item = stack.pop();
-            if (item.id == id)
+            if ((item as MyMenuItem).id == id)
                 return item;
 
-            if (item.children)
-                stack.push(...item.children);
+            if ((item as MyMenuItem).children)
+                stack.push(...((item as MyMenuItem).children as MenuItem[]));
         }
         return null;
     }

@@ -8,3 +8,4 @@ coverage
 db
 config.json
 *.log
+*.zip
