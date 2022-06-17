@@ -9,3 +9,4 @@ db
 config.json
 *.log
 *.zip
+temp*

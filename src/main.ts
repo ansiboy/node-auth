@@ -13,6 +13,7 @@ type MyConfig = Config & {
     seoStation: string,
     builderStation: string,
     builderStation2: string,
+    builderStation3: string,
     storeStation: string,
     merchantStation: string,
     messageStation: string,
@@ -120,6 +121,10 @@ loadConfig().then((config: MyConfig) => {
             '^/admin-api/site2/(\\S*)': `http://${config.builderStation2}/admin-api/$1`,
             '^/user-api/site2/(\\S*)': `http://${config.builderStation2}/user-api/$1`,
 
+            '^/site3(/\\S*)': `http://${config.builderStation3}$1`,
+            '^/admin-api/site3/(\\S*)': `http://${config.builderStation3}/admin-api/$1`,
+            '^/user-api/site3/(\\S*)': `http://${config.builderStation3}/user-api/$1`,
+
             // 内容管理
             '^/editor/(\\S*)': `http://${config.editorStation}/$1`,
             '^/admin-api/editor/(\\S*)': `http://${config.editorStation}/admin-api/$1`,
@@ -175,7 +180,8 @@ loadConfig().then((config: MyConfig) => {
             "^/store/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
-            "/admin-api/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous] },
+            "^/site3\\S*": { roleIds: [roleIds.anonymous] },
+            "^/admin-api/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous] },
 
             "^/rewrite/api\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
 

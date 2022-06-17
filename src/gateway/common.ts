@@ -27,7 +27,12 @@ async function getAppIdBindings(): Promise<ApplicationIdBinding[]> {
 
 export async function getApplicationIdById(id: string): Promise<string | null> {
     var appIdBindings = await getAppIdBindings();
-    let item = appIdBindings.filter(o => o.id == id)[0];
+    let domain: string = "";
+    if (id.indexOf(":") > 0) {
+        domain = id.split(":")[0];
+    }
+
+    let item = appIdBindings.filter(o => o.id == id || o.id == domain)[0];
     return item?.app_id || null;
 }
 

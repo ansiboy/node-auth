@@ -89,7 +89,7 @@ async function proxyHeader(req: http.IncomingMessage) {
     let header = {}
 
     header["raw-url"] = req.headers["raw-url"] || req.url || ""
-    
+
 
     let logger = getLogger(`${constants.projectName} ${proxyHeader.name}`);
     let tokenText = req.headers[TOKEN_NAME] as string || cookies.get(TOKEN_NAME);
@@ -105,7 +105,11 @@ async function proxyHeader(req: http.IncomingMessage) {
         header[HeaderNames.userId] = token.user_id;
     }
 
-    if (!req.headers[HeaderNames.applicationId]) {
+    let appId = req.headers[HeaderNames.applicationId];
+    if (appId == "null" || appId == "undefined")
+        appId = null;
+
+    if (!appId) {
         let host = req.headers["original-host"] as string || req.headers.host;
         let appId = await getApplicationIdById(host);
         if (appId) {
