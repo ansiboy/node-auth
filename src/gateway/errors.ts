@@ -13,7 +13,7 @@ export let errors = {
         error.name = `${StatusCode.FieldNull} ${errors.argumentFieldNull.name}`;
         return error;
     },
-    routeDataFieldNull<T>(fieldName: keyof T): Error {
+    routeDataFieldNull<T>(fieldName: string): Error {
         let msg = `The ${fieldName} field of route data cannt be null.`;
         let error = new Error(msg);
         let name: keyof typeof errors = "routeDataFieldNull";

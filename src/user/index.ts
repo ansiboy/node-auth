@@ -1,9 +1,7 @@
 import path = require("path");
 import { ServerContextData, Settings } from "./types";
-import { settings as globalSettings, stationPath, } from "./global";
-import { roleIds } from "../gateway";
+import { settings as globalSettings } from "./global";
 import { startServer as startAdmin } from "maishu-node-mvc";
-import { registerStation, StationInfo } from "./station";
 import { getVirtualPaths } from "maishu-admin-scaffold";
 
 export { Settings } from "./types";

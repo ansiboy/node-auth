@@ -4,5 +4,6 @@
         "module": "commonjs",
         "strict": true,
         "strictPropertyInitialization": false,
+        "jsx": "react"
     }
 }

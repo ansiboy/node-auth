@@ -143,4 +143,21 @@ export class ApplicationIdBinding {
     @Column({ type: "bit", transformer: new BitBooleanTransformer() })
     valid: boolean;
 
+    @Column({ type: "varchar", length: 45 })
+    domain: string;
+}
+
+@Entity("application")
+export class Application {
+    @PrimaryColumn({ type: "char", length: 36 })
+    id: string;
+
+    @Column({ type: "varchar", length: 45 })
+    name: string;
+
+    @Column({ type: "json" })
+    domains: string[];
+
+    @Column({ type: "datetime", name: "create_date_time" })
+    createDateTime: Date;
 }

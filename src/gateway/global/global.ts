@@ -8,6 +8,7 @@ export let constants = {
     userApiBasePath: "/user-api/auth",
     adminApiBasePath: "/admin-api/auth",
     anonApiBasePath: "/anon-api/auth",
+    platformApiBasePath: "/platform/auth",
 }
 
 export let userIds = {

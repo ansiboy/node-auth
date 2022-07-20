@@ -8,6 +8,7 @@ import { settings as globalSettings, } from "./user/global";
 type MyConfig = Config & {
     shopServiceStation: string,
     imageStation: string,
+    fileStation: string,
     payStation: string,
     emailStation: string,
     seoStation: string,
@@ -110,13 +111,20 @@ loadConfig().then((config: MyConfig) => {
 
             // 图片
             "^/admin-api/image/(\\S*)": `http://${imageStation}/admin-api/$1`,
-            "^/user-api/image/(\\S*)": `http://${gatewayPort}/user-api/$1`,
+            "^/user-api/image/(\\S*)": `http://${imageStation}/user-api/$1`,
             "^/Images/(\\S+)": `http://${imageStation}/Images/$1`,
             "^/image/(\\S*)": `http://${imageStation}/$1`,
+
+            // 文件
+            "^/file/(\\S+)": `http://${config.fileStation}/$1`,
+            "^/admin-api/file/(\\S*)": `http://${config.fileStation}/admin-api/$1`,
+            "^/user-api/file/(\\S*)": `http://${config.fileStation}/user-api/$1`,
+            "^/anon-api/file/(\\S*)": `http://${config.fileStation}/anon-api/$1`,
 
             // 建站
             '^/site/(\\S*)': `http://${config.builderStation}/$1`,
             '^/admin-api/site/(\\S*)': `http://${config.builderStation}/admin-api/$1`,
+
             '^/site2/(\\S*)': `http://${config.builderStation2}/$1`,
             '^/admin-api/site2/(\\S*)': `http://${config.builderStation2}/admin-api/$1`,
             '^/user-api/site2/(\\S*)': `http://${config.builderStation2}/user-api/$1`,
@@ -136,6 +144,8 @@ loadConfig().then((config: MyConfig) => {
             '^/merchant/(\\S*)': `http://${config.merchantStation}/$1`,
             '^/message/(\\S*)': `http://${config.messageStation}/$1`,
             '^/rewrite/(\\S*)': `http://${config.portalStation}/$1`,
+
+
 
         },
         headers: {
@@ -176,11 +186,15 @@ loadConfig().then((config: MyConfig) => {
             "^/pay/\\S*": { roleIds: [roleIds.anonymous] },
             "^/email/\\S*": { roleIds: [roleIds.anonymous] },
             "^/seo/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/site3\\S*": { roleIds: [roleIds.anonymous] },
             "^/site/\\S*": { roleIds: [roleIds.anonymous] },
+
+            "^/user-api/site3/page-data/\\S*": { roleIds: [roleIds.anonymous] },
+            "^/user-api/site3/theme/getVariable": { roleIds: [roleIds.anonymous] },
+
             "^/store/\\S*": { roleIds: [roleIds.anonymous] },
             "^/merchant/\\S*": { roleIds: [roleIds.anonymous] },
             "^/message/\\S*": { roleIds: [roleIds.anonymous] },
-            "^/site3\\S*": { roleIds: [roleIds.anonymous] },
             "^/admin-api/auth/menuItem/getRolePermission": { roleIds: [roleIds.anonymous] },
 
             "^/rewrite/api\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },

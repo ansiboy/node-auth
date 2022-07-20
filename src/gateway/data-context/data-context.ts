@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { EntityManager, Repository, DataContext, DataHelper } from "maishu-node-data";
 import path = require("path");
-import { TokenData, Role, UserRole, MenuItemRecord, Station, ApplicationIdBinding } from "../entities";
+import { TokenData, Role, UserRole, MenuItemRecord, Station, ApplicationIdBinding, Application } from "../entities";
 import { g } from "../global";
 
 export class AuthDataContext extends DataContext {
@@ -12,6 +12,7 @@ export class AuthDataContext extends DataContext {
     menuItemRecords: Repository<MenuItemRecord>;
     stations: Repository<Station>;
     appIdBindings: Repository<ApplicationIdBinding>;
+    apps: Repository<Application>;
 
     static entitiesPath = path.join(__dirname, "../entities.js");
 
@@ -24,6 +25,7 @@ export class AuthDataContext extends DataContext {
         this.menuItemRecords = this.manager.getRepository(MenuItemRecord);
         this.stations = this.manager.getRepository(Station);
         this.appIdBindings = this.manager.getRepository(ApplicationIdBinding);
+        this.apps = this.manager.getRepository(Application);
     }
 
     /**
