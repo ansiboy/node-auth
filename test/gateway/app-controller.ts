@@ -13,22 +13,22 @@ describe("application controller", function () {
     it("delete", async function () {
         let config = await loadConfig();
         let controller = new ApplicationController()
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);//DataHelper.createDataContext(AuthDataContext, config.db.gateway);
 
         let itemId = guid();
         let item: Partial<Application> = {
-            id: itemId, name: "test", domains: ["test.com"], createDateTime: new Date()
+            id: itemId, name: "test", createDateTime: new Date()
         }
 
         await dc.apps.insert(item);
 
-        let item1 = await dc.apps.findOne(itemId);
+        let item1 = await dc.apps.item(itemId);
         assert.notEqual(item1, null);
 
         let r = await controller.delete(dc, { id: itemId });
         assert.notEqual(r, null);
 
-        let item2 = await dc.apps.findOne(itemId);
+        let item2 = await dc.apps.item(itemId);
         assert.equal(item2, null);
     })
 
@@ -36,7 +36,7 @@ describe("application controller", function () {
 
         let config = await loadConfig();
         let controller = new ApplicationController()
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);
 
 
         let items = await controller.list(dc, { args: { startRowIndex: 0, maximumRows: 10 } })
@@ -47,39 +47,39 @@ describe("application controller", function () {
 
         let config = await loadConfig();
         let controller = new ApplicationController()
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);//await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
 
         let itemId = guid();
         let item: Partial<Application> = {
-            id: itemId, name: "test", domains: ["test.com"], createDateTime: new Date()
+            id: itemId, name: `${Date.now()}`, createDateTime: new Date()
         }
 
         // await controller.delete(dc, { id: gemwonAppId });
         let r = await controller.insert(dc, { item });
         assert.notEqual(r, null);
 
-
-
+        dc.apps.delete(itemId);
     })
 
     it("update", async function () {
 
         let config = await loadConfig();
         let controller = new ApplicationController()
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);// await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
 
+        let itemId = guid();
         let item: Partial<Application> = {
-            id: guid(), name: "test", domains: [], createDateTime: new Date()
+            id: itemId, name: "test", createDateTime: new Date()
         }
 
         await dc.apps.insert(item);
-        await controller.update(dc, { item: { id: item.id, domains: ["gemwon.com"], name: "test1" } });
+        await controller.update(dc, { item: { id: item.id, name: "test1" } });
 
-        let item1 = await dc.apps.findOne(item.id);
+        let item1 = await dc.apps.item(itemId);
         assert.notEqual(item1, null);
         assert.equal(item1?.name, "test1");
-        assert.notEqual(item1?.domains, null);
-        assert.equal(item1?.domains[0], "gemwon.com");
+        // assert.notEqual(item1?.domains, null);
+        // assert.equal(item1?.domains[0], "gemwon.com");
 
         await dc.apps.delete(item.id as string);
 
@@ -89,10 +89,10 @@ describe("application controller", function () {
 
         let config = await loadConfig();
         let controller = new ApplicationController()
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);
         let itemId = guid();
         let item: Partial<Application> = {
-            id: itemId, name: "test", domains: [], createDateTime: new Date()
+            id: itemId, name: "test", createDateTime: new Date()
         }
 
         await dc.apps.insert(item);

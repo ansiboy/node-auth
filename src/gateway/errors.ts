@@ -68,5 +68,12 @@ export let errors = {
         let name: keyof typeof errors = "idTooLong";
         err.name = name;
         return err;
+    },
+    applicationExists(name: string) {
+        let msg = `Application named '${name}' is exists.`;
+        let err = new Error(msg);
+        let errName: keyof typeof errors = "applicationExists";
+        err.name = errName;
+        return err;
     }
 }

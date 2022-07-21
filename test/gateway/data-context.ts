@@ -6,7 +6,7 @@ import { DataHelper } from "maishu-node-data";
 describe("gateway data context", function () {
     describe("", async function () {
         let config = await loadConfig();
-        let dc = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let dc = await AuthDataContext.create(config.db.gateway);
         it("menuItemRecords", async function () {
             let items = await dc.menuItemRecords.find();
             assert.ok(items instanceof Array);

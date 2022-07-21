@@ -12,7 +12,7 @@ import { getVirtualPaths } from "maishu-admin-scaffold";
 import * as path from "path";
 import { ProxyItem } from "maishu-node-web-server";
 import { errors } from "./errors";
-import { getApplicationIdById } from "./common";
+import { getApplicationIdByHost } from "./common";
 // import { getApplicationIdFromRequest } from "./common";
 
 
@@ -111,7 +111,7 @@ async function proxyHeader(req: http.IncomingMessage) {
 
     if (!appId) {
         let host = req.headers["original-host"] as string || req.headers.host;
-        let appId = await getApplicationIdById(host);
+        let appId = await getApplicationIdByHost(host);
         if (appId) {
             header[HeaderNames.applicationId] = appId;
         }

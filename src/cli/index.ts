@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import * as yargs from "yargs";
-import { DataHelper, ConnectionOptions } from "maishu-node-data";
+import { DataHelper } from "maishu-node-data";
 import { UserDataContext } from "../user/data-context";
 import { AuthDataContext } from "../gateway/data-context";
 import { initDatabase } from "../gateway/data-context/init-database";
@@ -125,7 +125,7 @@ async function setAdminPhone() {
     }).then(async answers => {
 
         let userDC = await DataHelper.createDataContext(UserDataContext, config.db.user);
-        let gatewayDC = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+        let gatewayDC = await AuthDataContext.create(config.db.gateway);//DataHelper.createDataContext(AuthDataContext, config.db.gateway);
         let adminUser = await getAdminAccount(userDC, gatewayDC);
         adminUser.mobile = answers.mobile;
         userDC.users.save(adminUser);
@@ -144,7 +144,7 @@ async function setAdminPassword() {
     }
 
     var userDC = await DataHelper.createDataContext(UserDataContext, config.db.user);
-    var gatewayDC = await DataHelper.createDataContext(AuthDataContext, config.db.gateway);
+    var gatewayDC = await AuthDataContext.create(config.db.gateway);//DataHelper.createDataContext(AuthDataContext, config.db.gateway);
 
     let roles = await gatewayDC.roles.find();
     if (roles.length == 0) {

@@ -5,7 +5,7 @@ import { roleIds, userIds } from "../global";
 import { AuthDataContext } from "./data-context";
 
 export async function initDatabase(connConfig: ConnectionOptions) {
-    let dc = await DataHelper.createDataContext(AuthDataContext, connConfig);
+    let dc = await AuthDataContext.create(connConfig);
 
     let adminRole: Role = {
         id: roleIds.admin,

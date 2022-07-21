@@ -1,31 +1,58 @@
 import "reflect-metadata";
-import { EntityManager, Repository, DataContext, DataHelper } from "maishu-node-data";
+import { Repository, ConnectionOptions, Connection, getConnectionManager, createConnection, getConnection } from "maishu-node-data";
 import path = require("path");
 import { TokenData, Role, UserRole, MenuItemRecord, Station, ApplicationIdBinding, Application } from "../entities";
 import { g } from "../global";
+import { CacheData } from "./cache-data";
+import { errors } from "maishu-toolkit";
 
-export class AuthDataContext extends DataContext {
+export class AuthDataContext {
 
     tokenDatas: Repository<TokenData>;
     roles: Repository<Role>;
     userRoles: Repository<UserRole>;
     menuItemRecords: Repository<MenuItemRecord>;
     stations: Repository<Station>;
-    appIdBindings: Repository<ApplicationIdBinding>;
-    apps: Repository<Application>;
+    appIdBindings: CacheData<ApplicationIdBinding>;
+    apps: CacheData<Application>;
 
     static entitiesPath = path.join(__dirname, "../entities.js");
 
-    constructor(entityManager: EntityManager) {
-        super(entityManager);
+    private conn: Connection;
 
-        this.tokenDatas = this.manager.getRepository(TokenData);
-        this.roles = this.manager.getRepository(Role);
-        this.userRoles = this.manager.getRepository(UserRole);
-        this.menuItemRecords = this.manager.getRepository(MenuItemRecord);
-        this.stations = this.manager.getRepository(Station);
-        this.appIdBindings = this.manager.getRepository(ApplicationIdBinding);
-        this.apps = this.manager.getRepository(Application);
+    private constructor(conn: Connection) {
+        if (!conn) throw errors.argumentNull("conn");
+
+        this.conn = conn;
+        this.tokenDatas = conn.getRepository(TokenData);
+        this.roles = conn.getRepository(Role);
+        this.userRoles = conn.getRepository(UserRole);
+        this.menuItemRecords = conn.getRepository(MenuItemRecord);
+        this.stations = conn.getRepository(Station);
+    }
+
+    private async init() {
+
+        let [apps, appIdBindings] = await Promise.all([
+            CacheData.create(this.conn.getRepository(Application)),
+            CacheData.create(this.conn.getRepository(ApplicationIdBinding)),
+        ]);
+
+        this.apps = apps;
+        this.appIdBindings = appIdBindings;
+    }
+
+    static async create(db: ConnectionOptions): Promise<AuthDataContext> {
+
+        if (!db) throw errors.argumentNull("db");
+
+        Object.assign(db, { entities: [AuthDataContext.entitiesPath], name: "AuthDataContext" } as ConnectionOptions);
+        let conn = await getMyConnection(db);
+
+        let dc = new AuthDataContext(conn);
+        await dc.init();
+
+        return dc;
     }
 
     /**
@@ -34,8 +61,33 @@ export class AuthDataContext extends DataContext {
      */
     static async getUserRoleIds(userId: string): Promise<string[]> {
         //TODO: 缓存 roleids
-        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
+
+        let dc = await AuthDataContext.create(g.settings.db);//await AuthDataContext.create(g.settings.db);
         let userRoles = await dc.userRoles.find({ user_id: userId });
         return userRoles.map(o => o.role_id);
     }
+}
+
+function getMyConnection(db: ConnectionOptions) {
+    return new Promise<Connection>(async (resolve, reject) => {
+        let connectionManager = getConnectionManager();
+        let name = db.name as string;
+
+        if (!db.name) {
+            reject(errors.argumentFieldNull("name", "db"));
+            return;
+        }
+
+        console.assert(name != null);
+        let connection: Connection;
+        if (!connectionManager.has(name)) {
+            let dbOptions = db;
+            connection = await createConnection(dbOptions);
+        }
+        else {
+            connection = getConnection(name);
+
+        }
+        return resolve(connection);
+    });
 }

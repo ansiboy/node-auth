@@ -4,7 +4,6 @@ import { constants, guid, TOKEN_NAME, g } from "../global";
 import { LoginResult } from "../types";
 import { TokenData } from "../entities";
 import { AuthDataContext } from "../data-context";
-import { DataHelper } from "maishu-node-data";
 import Cookies = require("maishu-cookies");
 import * as stream from "stream";
 
@@ -19,7 +18,6 @@ export let loginTransform: ContentTransformFunc = async (result, context) => {
 
     console.assert(result != null);
 
-    // let text = typeof result == "string" ? result : result.toString();
     let text = await getContentText(result);
     let content: LoginResult = JSON.parse(text);
     let tokenData = createTokenData(content.userId);
@@ -66,7 +64,7 @@ function createTokenData(userId: string): TokenData {
     }
 
     let logger = getLogger(`${constants.projectName}:${createTokenData.name}`, g.settings.logLevel);
-    DataHelper.createDataContext(AuthDataContext, g.settings.db).then(dc => {
+    AuthDataContext.create(g.settings.db).then(dc => {
         return dc.tokenDatas.insert(tokenData);
     }).catch(err => {
         logger.error(err);

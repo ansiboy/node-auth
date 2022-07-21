@@ -1,4 +1,4 @@
-import { controller, action, getLogger, request, response, routeData } from "maishu-node-mvc";
+import { controller, action, getLogger, request, routeData } from "maishu-node-mvc";
 import { constants, g } from "../../global";
 import { WebsiteConfig } from "../../types";
 import http = require("http");
@@ -7,7 +7,7 @@ import fetch from "node-fetch";
 import { errors } from "../../errors";
 import { AuthDataContext } from "../../data-context/data-context";
 import w from "../../static/website-config";
-import { authDataContext, currentUserId } from "../../decorators";
+import { authDataContext } from "../../decorators";
 import { pathConcat } from "maishu-toolkit";
 import { MenuItemRecord } from "gateway-entities";
 import { MenuItem } from "maishu-admin-scaffold/static/website-config";

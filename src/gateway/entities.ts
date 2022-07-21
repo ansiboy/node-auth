@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn, DataHelper, ValueTransformer } from "maishu-node-data";
+import { Entity, PrimaryColumn, Column, ValueTransformer } from "maishu-node-data";
 import { BitBooleanTransformer, JSONTransformer } from "../user/entities";
 
 class StringArrayTransformer implements ValueTransformer {
@@ -154,9 +154,6 @@ export class Application {
 
     @Column({ type: "varchar", length: 45 })
     name: string;
-
-    @Column({ type: "json" })
-    domains: string[];
 
     @Column({ type: "datetime", name: "create_date_time" })
     createDateTime: Date;

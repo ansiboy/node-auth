@@ -1,7 +1,7 @@
 import { ContentTransform, RequestContext, RequestResult } from "maishu-node-web-server";
 import { JSDOM } from "jsdom";
 import stream = require("stream");
-import { getApplicationIdById, } from "../common";
+import { getApplicationIdByHost, } from "../common";
 import { HeaderNames } from "../global";
 
 export class HtmlContentTransform implements ContentTransform {
@@ -16,7 +16,7 @@ export class HtmlContentTransform implements ContentTransform {
         let jsdom = new JSDOM(html);
         let document = jsdom.window.document;
         let scriptElement = document.createElement("script");
-        let app_id = await getApplicationIdById(context.req.url);
+        let app_id = await getApplicationIdByHost(context.req.url);
         if (app_id) {
             scriptElement.innerHTML = `window["${HeaderNames.applicationId}"]="${app_id}";`;
         }

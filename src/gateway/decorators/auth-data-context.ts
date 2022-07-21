@@ -6,7 +6,7 @@ import { g } from "../global";
 export let authDataContext = createParameterDecorator<AuthDataContext>(
     async () => {
         console.assert(g.settings.db != null);
-        let dc = await DataHelper.createDataContext(AuthDataContext, g.settings.db);
+        let dc = AuthDataContext.create(g.settings.db);//await AuthDataContext.create(g.settings.db);
         return dc
     }
 )
