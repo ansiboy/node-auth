@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { Repository, ConnectionOptions, Connection, getConnectionManager, createConnection, getConnection } from "maishu-node-data";
 import path = require("path");
-import { TokenData, Role, UserRole, MenuItemRecord, Station, ApplicationIdBinding, Application } from "../entities";
+import { TokenData, Role, UserRole, MenuItemRecord, Station, DomainBinding, Application } from "../entities";
 import { g } from "../global";
 import { CacheData } from "./cache-data";
 import { errors } from "maishu-toolkit";
@@ -13,7 +13,7 @@ export class AuthDataContext {
     userRoles: Repository<UserRole>;
     menuItemRecords: Repository<MenuItemRecord>;
     stations: Repository<Station>;
-    appIdBindings: CacheData<ApplicationIdBinding>;
+    domainBindings: CacheData<DomainBinding>;
     apps: CacheData<Application>;
 
     static entitiesPath = path.join(__dirname, "../entities.js");
@@ -35,11 +35,11 @@ export class AuthDataContext {
 
         let [apps, appIdBindings] = await Promise.all([
             CacheData.create(this.conn.getRepository(Application)),
-            CacheData.create(this.conn.getRepository(ApplicationIdBinding)),
+            CacheData.create(this.conn.getRepository(DomainBinding)),
         ]);
 
         this.apps = apps;
-        this.appIdBindings = appIdBindings;
+        this.domainBindings = appIdBindings;
     }
 
     static async create(db: ConnectionOptions): Promise<AuthDataContext> {

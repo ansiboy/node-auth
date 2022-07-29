@@ -130,20 +130,20 @@ export class FilePermission {
 }
 
 @Entity("app_id_binding")
-export class ApplicationIdBinding {
-    @PrimaryColumn({ type: "char", length: 36 })
+export class DomainBinding {
+    @PrimaryColumn({ name: "id", type: "char", length: 36 })
     id: string;
 
-    @Column({ type: "char", length: 36 })
-    app_id: string;
+    @Column({ name: "app_id", type: "char", length: 36 })
+    appId: string;
 
-    @Column({ type: "datetime" })
-    create_date_time: Date;
+    @Column({ name: "create_date_time", type: "datetime" })
+    createDateTime: Date;
 
-    @Column({ type: "bit", transformer: new BitBooleanTransformer() })
+    @Column({ name: "valid", type: "bit", transformer: new BitBooleanTransformer() })
     valid: boolean;
 
-    @Column({ type: "varchar", length: 45 })
+    @Column({ name: "domain", type: "varchar", length: 45 })
     domain: string;
 }
 
@@ -157,4 +157,7 @@ export class Application {
 
     @Column({ type: "datetime", name: "create_date_time" })
     createDateTime: Date;
+
+    @Column({ type: "varchar", length: 45 })
+    remark: string;
 }

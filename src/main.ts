@@ -214,6 +214,7 @@ loadConfig().then((config: MyConfig) => {
             "^/[a-zA-Z\\-]+/user-api/\\S*": { roleIds: [roleIds.normalUser] },
 
             "^/api/editor/admin-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
+            "^/platform-api/\\S*": { roleIds: [roleIds.admin, roleIds.ZWAdmin] },
         },
         virtualPaths: {
             "node_modules": path.join(__dirname, "../node_modules"),

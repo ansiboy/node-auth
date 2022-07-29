@@ -75,5 +75,12 @@ export let errors = {
         let errName: keyof typeof errors = "applicationExists";
         err.name = errName;
         return err;
+    },
+    domainBindingExists(domain: string) {
+        let msg = `Domain '${domain}' binding is exists.`;
+        let err = new Error(msg);
+        let errName: keyof typeof errors = "domainBindingExists";
+        err.name = errName;
+        return err;
     }
 }

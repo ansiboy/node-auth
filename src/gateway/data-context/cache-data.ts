@@ -44,7 +44,7 @@ export class CacheData<T extends CacheItem>{
         if (!originalItem)
             throw errors.objectNotExistWithId(item.id, "item");
 
-        this.nodeCache.del(originalItem.id);
+        // this.nodeCache.del(originalItem.id);
         await this.repository.save(item as any);
 
         this.nodeCache.set(item.id, item);
